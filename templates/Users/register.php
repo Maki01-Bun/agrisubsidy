@@ -1,0 +1,69 @@
+<div class="register-box">
+    <div class="card">  
+        <div class="card-body register-card-body">
+            <p class="register-box-msg">
+                Registration - Step <?= $step ?> of 2
+            </p>
+            <?= $this->Flash->render() ?>
+            <?php if ($step == 1): ?>
+                <?= $this->Form->create(null, ['templates' => ['inputContainer' => '{{content}}']]) ?>
+                <div class="col-md-12 mb-3">
+                    <?= $this->Form->control('first_name', ['class' => 'form-control',
+                    'placeholder' => 'First Name','label' => false,'required']) ?>
+                </div>
+
+                <div class="col-md-12 mb-3"><?= $this->Form->control('middle_name', ['class' => 'form-control',
+                    'placeholder' => 'Middle Name','label' => false]) ?>
+                </div>
+                <div class="col-md-12 mb-3">
+                    <?= $this->Form->control('last_name', ['class' => 'form-control',
+                    'placeholder' => 'Last Name','label' => false,'required'
+                    ]) ?>
+                </div>
+                <div class="col-md-12 mb-3"><?= $this->Form->control('gender', ['class' => 'form-control',
+                    'label' => false,'options'=>$this->Option->gender()]) ?>
+                </div>
+                <div class="col-md-12 mb-3"><?= $this->Form->control('contact_no', ['class' => 'form-control',
+                    'placeholder' => 'Contact Number','label' => false]) ?>
+                </div>
+                <div class="col-md-12 mb-3">
+                    <?= $this->Form->control('address', ['class' => 'form-control',
+                    'placeholder' => 'Address','label' => false]) ?>
+                </div>
+                <div class="col-md-12 mb-3">
+                    <?= $this->Form->control('birthdate', ['type' => 'date','class' => 'form-control',
+                    'label' => false]) ?>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Next</button>
+                <?= $this->Form->end() ?>
+            <?php else: ?>
+                <?= $this->Form->create($user, ['templates' => ['inputContainer' => '{{content}}']]) ?>
+                <div class="input-group mb-3">
+                    <?= $this->Form->control('username', ['class' => 'form-control',
+                    'placeholder' => 'Username','label' => false,'required']) ?>
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-user"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group mb-3">
+                    <?= $this->Form->control('password', ['class' => 'form-control',
+                        'placeholder' => 'Password','label' => false,'required']) ?>
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-lock"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group mb-3">
+                    <?= $this->Form->control('role', ['class' => 'form-control',
+                        'label' => false,'options'=>$this->Option->roles()]) ?>
+                </div>
+                <button type="submit" class="btn btn-success btn-block">Register</button>
+                <?= $this->Form->end() ?>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>

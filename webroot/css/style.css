@@ -1,0 +1,12 @@
+textarea{
+    resize: none;
+}
+
+#address{
+    height: 108px;
+}
+
+#uploadPhoto{
+    width: 245px;
+    height: 245px;
+}
