@@ -37,20 +37,21 @@ class FarmersController extends AppController
      *
      * @return \Cake\Http\Response|null|void Redirects on successful add, renders view otherwise.
      */
-    public function add()
+   public function add()
     {
-        $farmers = $this->Farmers->newEmptyEntity();
+        $farmer = $this->Farmers->newEmptyEntity();
         if ($this->request->is('post')) {
-            $farmers = $this->Farmers->patchEntity($farmers, $this->request->getData());
-            if ($this->Farmers->save($farmers)) {
-                $result = ['status' => 'success', 'message' => 'The Farmer has been saved.'];
+            $farmer = $this->Farmers->patchEntity($farmer, $this->request->getData());
+            if ($this->Farmers->save($farmer)) {
+                $result = ['status' => 'success', 'message' => 'The farmer has been saved.'];
             }else {
-                $result = ['status'=>'error','message'=>'The Farmer could not be saved. Please, try again.'];
+                $result = ['status'=>'error','message'=>'The farmer could not be saved. Please, try again.'];
             }
             return $this->response->withType('application/json')
                 ->withStringBody(json_encode($result));
         }
     }
+
 
     /**
      * Edit method

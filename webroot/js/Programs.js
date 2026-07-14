@@ -1,5 +1,5 @@
 $(function(){
-    getPrograms();
+	getPrograms();
 
     $('#add').on('click',function (e) {
         e.preventDefault();
@@ -17,14 +17,14 @@ $(function(){
         })
             .done(function(data){
                 if(data!=''){
-                    $('#program_name').val(data.program_name);
+                	$('#program_name').val(data.program_name);
                     $('#subsidy_type').val(data.subsidy_type);
-                    $('#description').val(data.description);
+                	$('#description').val(data.description);
                     $('#start_date').val(data.start_date);
-                    $('#end_date').val(data.end_date);
+                	$('#end_date').val(data.end_date);
                     $('#start_time').val(data.start_time);
                     $('#end_time').val(data.end_time);
-                    $('#id').val(data.id);
+                	$('#id').val(data.id);
                     $('#programs-modal').modal('show');
                 }
             })
@@ -33,36 +33,36 @@ $(function(){
             });
     });
 
-    $('#programs-form').submit(function(e){
-        e.preventDefault();
-        let fd =new FormData(this);
-        let id = $('#id').val();
-        let url = '';
-        if(id==''){
-            url = BASE_URL + '/api/Programs/add';
-        }else{
-            url = BASE_URL + '/api/Programs/edit/' + id;
-        }
+	$('#programs-form').submit(function(e){
+		e.preventDefault();
+		let fd =new FormData(this);
+		let id = $('#id').val();
+		let url = '';
+		if(id==''){
+			url = BASE_URL + '/api/Programs/add';
+		}else{
+			url = BASE_URL + '/api/Programs/edit/' + id;
+		}
 
-        $.ajax({
-            processData:false,
-            contentType:false,
-            data:fd,
-            url:url,
-            type:'POST',
-            dataType:'json'
-        }).done(function(data){
-            if(data.status=='success'){
-                getPrograms();
-                msgBox(data.status,data.message);
-                $('#programs-modal').modal('hide');
-            }else{
-                msgBox(data.status,data.message);
-            }
-        }).fail(function(jqXHR,textStatus,errorThrown){
-            msgBox('error',errorThrown);
-        });
-    });
+		$.ajax({
+			processData:false,
+			contentType:false,
+			data:fd,
+			url:url,
+			type:'POST',
+			dataType:'json'
+		}).done(function(data){
+			if(data.status=='success'){
+				getPrograms();
+				msgBox(data.status,data.message);
+				$('#programs-modal').modal('hide');
+			}else{
+				msgBox(data.status,data.message);
+			}
+		}).fail(function(jqXHR,textStatus,errorThrown){
+			msgBox('error',errorThrown);
+		});
+	});
 
     $('#programs-table').on('click', '.delete', function (e) {
         e.preventDefault();
@@ -106,7 +106,7 @@ $(function(){
 
 function getPrograms()
 {
-    $('#programs-table').DataTable({
+	$('#programs-table').DataTable({
         "responsive": true,
         "destroy":true,
         "order": [[ 0, "asc" ]],
@@ -114,7 +114,7 @@ function getPrograms()
             "url": BASE_URL + '/api/Programs/getPrograms'
         },
         "columns": [
-            {data:"program_name"},
+			{data:"program_name"},
             {data:"subsidy_type"},
             {data:"description"},
             {data:"start_date"},
@@ -131,5 +131,5 @@ function getPrograms()
                 }
             }
         ]
-    });
+	});
 }

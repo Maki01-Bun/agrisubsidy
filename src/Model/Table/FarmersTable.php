@@ -43,7 +43,7 @@ class FarmersTable extends Table
         parent::initialize($config);
 
         $this->setTable('farmers');
-        $this->setDisplayField('first_name');
+        $this->setDisplayField('farmer_no');
         $this->setPrimaryKey('id');
 
         $this->addBehavior('Timestamp');
@@ -65,6 +65,12 @@ class FarmersTable extends Table
      */
     public function validationDefault(Validator $validator): Validator
     {
+        $validator
+            ->scalar('farmer_no')
+            ->maxLength('farmer_no', 20)
+            ->requirePresence('farmer_no', 'create')
+            ->notEmptyString('farmer_no');
+
         $validator
             ->scalar('first_name')
             ->maxLength('first_name', 255)

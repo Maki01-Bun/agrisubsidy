@@ -22,17 +22,10 @@
                         </p>','/Dashboard',['class'=>'nav-link '.$active,'escape'=>false]) ?>
                 </li>
                 <li class="nav-item">
-                    <?php $active = $title=='Audit Logs'?'active':'' ?>
-                    <?= $this->Html->link('<i class="nav-icon fas fa-boxes"></i>
-                        <p>
-                            Audit Logs
-                        </p>','/Audit_Logs',['class'=>'nav-link '.$active,'escape'=>false]) ?>
-                </li>
-                <li class="nav-item">
                     <?php $active = $title=='Farmers'?'active':'' ?>
                     <?= $this->Html->link('<i class="nav-icon fas fa-boxes"></i>
                         <p>
-                            Farmers
+                            Beneficiaries
                         </p>','/Farmers',['class'=>'nav-link '.$active,'escape'=>false]) ?>
                 </li>
                 <li class="nav-item">
@@ -60,7 +53,7 @@
                        ($count > 0
                            ? '<span class="badge badge-danger right">' . $count . '</span>'
                            : '') .
-                       '<p>Notifications</p>',
+                       '<p>Registrations Request</p>',
                        '/Notifications',
                        [
                            'class' => 'nav-link ' . $active,

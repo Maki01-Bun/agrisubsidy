@@ -17,6 +17,7 @@ $(function(){
         })
             .done(function(data){
                 if(data!=''){
+                    $('#farmer_no').val(data.farmer_no);
                     $('#first_name').val(data.first_name);
                     $('#last_name').val(data.last_name);
                     $('#middle_name').val(data.middle_name);
@@ -95,7 +96,7 @@ $(function(){
 
     $('#farmers-modal').on('shown.bs.modal', function() {
         setTimeout(function() {
-            $('#first_name').focus();
+            $('#farmer_no').focus();
         }, 500);
     });
 
@@ -115,6 +116,7 @@ function getFarmers()
             "url": BASE_URL + '/api/Farmers/getFarmers'
         },
         "columns": [
+            {data:"farmer_no"},
             {data:"first_name"},
             {data:"last_name"},
             {data:"middle_name"},

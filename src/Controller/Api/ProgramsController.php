@@ -79,19 +79,20 @@ class ProgramsController extends AppController
      */
     public function edit($id = null)
     {
-        $program = $this->Programs->get($id, [
-            'contain' => [],
-        ]);
+        $program = $this->Programs->get($id);
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $program = $this->Programs->patchEntity($program, $this->request->getData());
+            $program = $this->Programs->patchEntity(
+                $program,$this->request->getData() );
             if ($this->Programs->save($program)) {
-                $this->Flash->success(__('The program has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
+                return $this->response->withType('application/json')->withStringBody(json_encode([
+                'status' => 'success','message' => 'Program updated successfully']));
             }
-            $this->Flash->error(__('The program could not be saved. Please, try again.'));
+            return $this->response->withType('application/json')
+            ->withStringBody(json_encode(['status' => 'error','errors' => $program->getErrors()]));
         }
-        $this->set(compact('program'));
+        return $this->response
+            ->withType('application/json')
+            ->withStringBody(json_encode($program));
     }
 
     /**
@@ -106,11 +107,11 @@ class ProgramsController extends AppController
         $this->request->allowMethod(['post', 'delete']);
         $program = $this->Programs->get($id);
         if ($this->Programs->delete($program)) {
-            $this->Flash->success(__('The program has been deleted.'));
-        } else {
-            $this->Flash->error(__('The program could not be deleted. Please, try again.'));
+            $result = ['status' => 'success', 'message' => 'The Program has been deleted.'];
+        }else {
+            $result = ['status'=>'error','message'=>'The Program could not be deleted. Please, try again.'];
         }
-
-        return $this->redirect(['action' => 'index']);
+        return $this->response->withType('application/json')
+            ->withStringBody(json_encode($result));
     }
 }

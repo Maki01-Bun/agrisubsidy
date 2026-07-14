@@ -35,6 +35,7 @@ class Farmer extends Entity
      * @var array<string, bool>
      */
     protected $_accessible = [
+        'farmer_no' => true,
         'first_name' => true,
         'last_name' => true,
         'middle_name' => true,

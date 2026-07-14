@@ -8,6 +8,10 @@
             <?php if ($step == 1): ?>
                 <?= $this->Form->create(null, ['templates' => ['inputContainer' => '{{content}}']]) ?>
                 <div class="col-md-12 mb-3">
+                    <?= $this->Form->control('farmer_no', ['class' => 'form-control',
+                    'placeholder' => 'Farmer Number','label' => false,'required']) ?>
+                </div>
+                <div class="col-md-12 mb-3">
                     <?= $this->Form->control('first_name', ['class' => 'form-control',
                     'placeholder' => 'First Name','label' => false,'required']) ?>
                 </div>

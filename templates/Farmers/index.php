@@ -1,7 +1,7 @@
 <div class="col-12">
     <div class="card card-primary">
         <div class="card-header">
-            <h3 class="card-title">Farmers</h3>
+            <h3 class="card-title">Beneficiaries</h3>
              <div class="card-tools">
                 <?= $this->Html->link('<i class="fas fa-plus"></i>','',
                     ['id'=>'add','data-toggle'=>'tooltip','data-placement'=>'bottom','title'=>'Add Farmer','escape'=>false]) ?>
@@ -11,6 +11,7 @@
             <table id="farmers-table" class="table table-bordered table-hover">
                 <thead>
                     <tr>
+                        <th>Farmer Number</th>
                         <th>Firstname</th>
                         <th>Lastname</th>
                         <th>Middlename</th>
@@ -37,6 +38,8 @@
             <?= $this->Form->create($farmer,['id'=>'farmers-form']) ?>
             <div class="modal-body">
                 <div class="form-group">
+                    <label for="farmer_no">Farmer Number</label>
+                    <?= $this->Form->control('farmer_no',['class'=>'form-control','label'=>false]) ?>
                     <label for="first-name">First Name</label>
                     <?= $this->Form->control('first_name',['class'=>'form-control','label'=>false]) ?>
                     <label for="last-name">Last Name</label>

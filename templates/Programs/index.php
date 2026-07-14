@@ -34,12 +34,12 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <?= $this->Form->create($programs,['id'=>'programs-form']) ?>
+            <?= $this->Form->create($program,['id'=>'programs-form']) ?>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="program-name">Program Name</label>
+                    <label for="program_name">Program Name</label>
                     <?= $this->Form->control('program_name',['class'=>'form-control','label'=>false]) ?>
-                    <label for="subsidy-type">Subsidy Type</label>
+                    <label for="subsidy_type">Subsidy Type</label>
                     <?= $this->Form->control('subsidy_type',['class'=>'form-control','label'=>false]) ?>
                     <label for="description">Description</label>
                     <?= $this->Form->control('description',['class'=>'form-control','label'=>false]) ?>

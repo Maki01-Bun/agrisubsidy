@@ -18,9 +18,9 @@ class ProgramsController extends AppController
      */
     public function index()
     {
-        $programs = $this->paginate($this->Programs);
+         $program = $this->Programs->newEmptyEntity();
 
-        $this->set(compact('programs'));
+        $this->set(compact('program'));
     }
 
     /**
