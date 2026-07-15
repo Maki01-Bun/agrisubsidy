@@ -31,12 +31,12 @@
                     'placeholder' => 'Contact Number','label' => false]) ?>
                 </div>
                 <div class="col-md-12 mb-3">
-                    <?= $this->Form->control('address', ['class' => 'form-control',
-                    'placeholder' => 'Address','label' => false]) ?>
+                    <?= $this->Form->control('address', ['class' => 'form-control','placeholder' => 'Address','label' => false]) ?>
                 </div>
                 <div class="col-md-12 mb-3">
-                    <?= $this->Form->control('birthdate', ['type' => 'date','class' => 'form-control',
-                    'label' => false]) ?>
+                    <label class="form-label">Birthdate</label>
+                    <?= $this->Form->control('birthdate', ['class' => 'form-control',
+                    'type' => 'date','label' => false]) ?>
                 </div>
                 <button type="submit" class="btn btn-primary btn-block">Next</button>
                 <?= $this->Form->end() ?>
