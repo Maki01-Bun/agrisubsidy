@@ -20,6 +20,7 @@ class FarmersFixture extends TestFixture
         $this->records = [
             [
                 'id' => 1,
+                'farmer_no' => 'F001',
                 'first_name' => 'Lorem ipsum dolor sit amet',
                 'last_name' => 'Lorem ipsum dolor sit amet',
                 'middle_name' => 'Lorem ipsum dolor sit amet',

@@ -9,6 +9,7 @@ use Cake\ORM\Entity;
  * Farmer Entity
  *
  * @property int $id
+ * @property int $farmer_no
  * @property string $first_name
  * @property string $last_name
  * @property string $middle_name
