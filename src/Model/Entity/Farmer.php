@@ -16,7 +16,7 @@ use Cake\ORM\Entity;
  * @property \Cake\I18n\FrozenDate $birthdate
  * @property string $gender
  * @property string $address
- * @property int $contact_no
+ * @property string $contact_no
  * @property int $user_id
  * @property \Cake\I18n\FrozenTime $created
  * @property \Cake\I18n\FrozenTime $modified

@@ -105,8 +105,9 @@ class FarmersTable extends Table
             ->requirePresence('address', 'create')
             ->notEmptyString('address');
 
-        $validator
-            ->integer('contact_no')
+       $validator
+            ->scalar('contact_no')
+            ->maxLength('contact_no', 11)
             ->requirePresence('contact_no', 'create')
             ->notEmptyString('contact_no');
 

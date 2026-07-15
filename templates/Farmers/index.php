@@ -40,11 +40,11 @@
                 <div class="form-group">
                     <label for="farmer_no">Farmer Number</label>
                     <?= $this->Form->control('farmer_no',['class'=>'form-control','label'=>false]) ?>
-                    <label for="first-name">First Name</label>
+                    <label for="first_name">First Name</label>
                     <?= $this->Form->control('first_name',['class'=>'form-control','label'=>false]) ?>
-                    <label for="last-name">Last Name</label>
+                    <label for="last_name">Last Name</label>
                     <?= $this->Form->control('last_name',['class'=>'form-control','label'=>false]) ?>
-                    <label for="middle-name">Middle Name</label>
+                    <label for="middle_name">Middle Name</label>
                     <?= $this->Form->control('middle_name',['class'=>'form-control','label'=>false]) ?>
                     <label for="birthdate">Birthdate</label>
                     <?= $this->Form->control('birthdate',['class'=>'form-control','label'=>false]) ?>
@@ -53,8 +53,9 @@
                     'options'=>$this->Option->gender(),'label'=>false]) ?>
                     <label for="address">Address</label>
                     <?= $this->Form->control('address',['class'=>'form-control','label'=>false]) ?>
-                    <label for="contact-no">Contact Number</label>
-                    <?= $this->Form->control('contact_no',['class'=>'form-control','label'=>false]) ?>
+                    <label for="contact_no">Contact Number</label>
+                    <?= $this->Form->control('contact_no', ['class' => 'form-control','type' => 'text','maxlength' => 11,
+                    'placeholder' => '09XXXXXXXXX','label' => false]) ?>
                 </div>
             </div>
             <div class="modal-footer">
