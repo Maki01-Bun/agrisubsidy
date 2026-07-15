@@ -1,6 +1,14 @@
+
 <div class="login-box">
     <div class="card">
         <div class="card-body login-card-body">
+            <div class="text-center mb-4">
+                <?= $this->Html->image('logos.png', [
+                    'alt' => 'AgriSubsidy Logo',
+                     'style' => 'width:80px;'
+                ]) ?>
+        </div>
+
             <p class="login-box-msg">Sign in</p>
             <center><?php echo $this->Flash->render(); ?></center>
             <?= $this->Form->create(null,['templates'=>['inputContainer' => '{{content}}']]) ?>
@@ -42,3 +50,4 @@
         </div>
     </div>
 </div>
+
