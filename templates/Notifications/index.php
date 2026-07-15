@@ -101,9 +101,7 @@
                                         ) ?>
 
                                     </div>
-
                                 </td>
-
                             </tr>
 
                         <?php endforeach; ?>
