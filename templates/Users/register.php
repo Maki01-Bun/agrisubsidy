@@ -28,7 +28,7 @@
                     'label' => false,'options'=>$this->Option->gender()]) ?>
                 </div>
                 <div class="col-md-12 mb-3"><?= $this->Form->control('contact_no', ['class' => 'form-control',
-                    'placeholder' => 'Contact Number','label' => false]) ?>
+                    'placeholder' => 'Contact Number','maxlength' => 11,'label' => false]) ?>
                 </div>
                 <div class="col-md-12 mb-3">
                     <?= $this->Form->control('address', ['class' => 'form-control','placeholder' => 'Address','label' => false]) ?>
@@ -62,22 +62,29 @@
                     </div>
                 </div>
                 <div class="input-group mb-3">
-                    <?= $this->Form->control('password', ['class' => 'form-control',
-                        'placeholder' => 'Password','label' => false,'required']) ?>
+                    <?= $this->Form->control('password', [
+                        'type' => 'password',
+                        'class' => 'form-control',
+                        'id' => 'password',
+                        'placeholder' => 'Password',
+                        'label' => false,
+                        'required' => true
+                    ]) ?>
+
                     <div class="input-group-append">
-                        <div class="input-group-text">
-                            <span class="fas fa-lock"></span>
-                        </div>
+                        <button type="button" class="btn btn-outline-secondary" onclick="password.type=password.type=='password'?'text':'password'">
+                            <i class="fas fa-eye"></i>
+                        </button>
                     </div>
                 </div>
                 <div class="input-group mb-3">
-                    <?= $this->Form->control('confirm_password', ['type' => 'password','class' => 'form-control','placeholder' => 'Confirm Password',
+                    <?= $this->Form->control('confirm_password', ['type' => 'password','class' => 'form-control','placeholder' => 'Confirm Password','minlength' => 8,
                         'label' => false,'required' => true,'id' => 'confirm_password'
                     ]) ?>
                     <div class="input-group-append">
-                        <div class="input-group-text">
-                            <span class="fas fa-lock"></span>
-                        </div>
+                        <button type="button" class="btn btn-outline-secondary" onclick="confirm_password.type=confirm_password.type=='password'?'text':'password'">
+                            <i class="fas fa-eye"></i>
+                        </button>
                     </div>
                 </div>
                 <div class="input-group mb-3">

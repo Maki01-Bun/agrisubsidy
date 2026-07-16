@@ -1,7 +1,7 @@
 <div class="col-12">
     <div class="card card-primary">
         <div class="card-header">
-            <h3 class="card-title">Beneficiaries</h3>
+            <h3 class="card-title text-dark">Beneficiaries</h3>
              <div class="card-tools">
                 <?= $this->Html->link('<i class="fas fa-plus"></i>','',
                     ['id'=>'add','data-toggle'=>'tooltip','data-placement'=>'bottom','title'=>'Add Farmer','escape'=>false]) ?>
@@ -19,6 +19,8 @@
                         <th>Gender</th>
                         <th>Address</th>
                         <th>Contact Number</th>
+                        <th>Created</th>
+                        <th>Modified</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -46,16 +48,18 @@
                     <?= $this->Form->control('last_name',['class'=>'form-control','label'=>false]) ?>
                     <label for="middle_name">Middle Name</label>
                     <?= $this->Form->control('middle_name',['class'=>'form-control','label'=>false]) ?>
-                    <label for="birthdate">Birthdate</label>
-                    <?= $this->Form->control('birthdate',['class'=>'form-control','label'=>false]) ?>
+                    <label class="form-label">Birthdate</label>
+                    <?= $this->Form->control('birthdate', ['class' => 'form-control','type' => 'date','label' => false,'max' => date('Y-m-d', strtotime('-18 years'))]) ?>
                     <label for="gender">Gender</label>
                     <?= $this->Form->control('gender',['class'=>'form-control',
                     'options'=>$this->Option->gender(),'label'=>false]) ?>
                     <label for="address">Address</label>
                     <?= $this->Form->control('address',['class'=>'form-control','label'=>false]) ?>
                     <label for="contact_no">Contact Number</label>
-                    <?= $this->Form->control('contact_no', ['class' => 'form-control','type' => 'text','maxlength' => 11,
+                    <?= $this->Form->control('contact_no', ['class' => 'form-control','type' => 'text','maxlength' => 11,'minlength' => 11,
                     'placeholder' => '09XXXXXXXXX','label' => false]) ?>
+                    <td><?= h($farmer->created) ?></td>
+                    <td><?= h($farmer->modified) ?></td>    
                 </div>
             </div>
             <div class="modal-footer">

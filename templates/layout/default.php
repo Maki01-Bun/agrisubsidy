@@ -25,7 +25,7 @@ $cakeDescription = 'AgriSubsidy';
         <?= $cakeDescription ?>:
         <?= $this->fetch('title') ?>
     </title>
-    <?= $this->Html->meta('favicon.ico','img/deped_logo.ico',array('type' => 'icon')); ?>
+    <?= $this->Html->meta('favicon.ico','img/logos.png',array('type' => 'icon')); ?>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
 

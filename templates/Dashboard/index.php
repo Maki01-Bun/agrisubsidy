@@ -1,96 +1,87 @@
-<div class="content-wrapper">
-
-        <div class="container-fluid">
-
-            <!-- Welcome Card -->
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <div class="card shadow-sm">
-                            <div class="card-body py-4">
-                                <h2 class="font-weight-bold text-success">
-                                    <i class="fas fa-seedling"></i>
-                                    AgriSubsidy Management System
-                                </h2>
-                                <p class="mb-0">
-                                    Monitoring and Effectiveness Evaluation System for
-                                    Department of Agriculture Subsidy Programs
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            <!-- Top Statistics -->
-            <div class="row mb-4">
-
-                <div class="col-lg-4 col-md-4 col-sm-12">
-                    <div class="small-box bg-info">
-                        <div class="inner">
-                            <h3>20</h3>
-                            <p>Fertilizer Distributed</p>
-                        </div>
-                        <div class="icon">
-                            <i class="fas fa-truck-loading"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4 col-md-4 col-sm-12">
-                    <div class="small-box bg-success">
-                        <div class="inner">
-                            <h3>3</h3>
-                            <p>Re-Scheduled</p>
-                        </div>
-                        <div class="icon">
-                            <i class="fas fa-calendar-alt"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4 col-md-4 col-sm-12">
-                    <div class="small-box bg-warning">
-                        <div class="inner">
-                            <h3>1</h3>
-                            <p>Cancelled</p>
-                        </div>
-                        <div class="icon">
-                            <i class="fas fa-times-circle"></i>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Bottom Statistics -->
-            <div class="row">
-
-                <div class="col-lg-6 col-md-6 col-sm-12">
-                    <div class="small-box bg-primary">
-                        <div class="inner">
-                            <h3>3,500</h3>
-                            <p>Registered Farmers</p>
-                        </div>
-                        <div class="icon">
-                            <i class="fas fa-users"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-6 col-md-6 col-sm-12">
-                    <div class="small-box bg-danger">
-                        <div class="inner">
-                            <h3>4,285</h3>
-                            <p>Total Beneficiaries</p>
-                        </div>
-                        <div class="icon">
-                            <i class="fas fa-hand-holding-heart"></i>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
+<div class="col-md-3 col-sm-6 d-flex">
+    <div class="card stat-card card-hover w-100 h-100">
+        <div class="card-body d-flex align-items-center bg-success">
+            <i class="fas fa-check fa-2x me-3 opacity-75"></i>
+            <div>
+                <h6 class="fw-light mb-1">Fertilizer Distributed</h6>
+                <h3 class="mb-0 fw-bold">
+                    20
+                </h3>
+             </div>
         </div>
+    </div>
+</div>
+<div class="col-md-3 col-sm-6 d-flex">
+    <div class="card stat-card card-hover w-100 h-100">
+        <div class="card-body d-flex align-items-center bg-warning">
+            <i class="fas fa-calendar-alt fa-2x me-3 opacity-75"></i>
+            <div>
+                <h6 class="fw-light mb-1">Re-Scheduled</h6>
+                <h3 class="mb-0 fw-bold">
+                    3
+                </h3>
+             </div>
+        </div>
+    </div>
+</div>
+<div class="col-md-3 col-sm-6 d-flex">
+    <div class="card stat-card card-hover w-100 h-100">
+        <div class="card-body d-flex align-items-center bg-danger">
+            <i class="fas fa-times fa-2x me-3 opacity-75"></i>
+            <div>
+                <h6 class="fw-light mb-1">Cancelled</h6>
+                <h3 class="mb-0 fw-bold">
+                    1
+                </h3>
+             </div>
+        </div>
+    </div>
+</div>
+<div class="col-md-3 col-sm-6 d-flex">
+    <div class="card stat-card card-hover w-100 h-100">
+        <div class="card-body d-flex align-items-center bg-info">
+            <i class="fas fa-users fa-2x me-3 opacity-75"></i>
+            <div>
+                <h6 class="fw-light mb-1">Registered Farmers</h6>
+                <h3 class="mb-0 fw-bold">
+                    300
+                </h3>
+             </div>
+        </div>
+    </div>
+</div>
+<div class="row mt-4 g-4">
 
+    <!-- Left Side Chart -->
+    <div class="col-lg-9">
+        <!-- Total Beneficiaries -->
+        <div class="col-12">
+            <div class="card stat-card card-hover">
+                <div class="card-body d-flex align-items-center bg-primary text-white">
+                    <i class="fas fa-hand-holding-heart fa-2x me-3 opacity-75"></i>
+                    <div>
+                        <h6 class="fw-light mb-1">
+                            Total Beneficiaries
+                        </h6>
+                        <h3 class="mb-0 fw-bold">
+                            1000
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
 
+    <!-- Right Side Cards -->
+    <div class="col-lg-9">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white border-0 fw-semibold">
+                <i class="fas fa-chart-pie text-primary me-2"></i>
+                Effectiveness Evaluation
+            </div>
+            <div class="card-body" style="height:350px;">
+                <canvas id="effectivenessChart"></canvas>
+            </div>
+        </div>
+    </div> 
 </div>

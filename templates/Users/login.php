@@ -25,9 +25,9 @@
                 <?= $this->Form->control('password',['class'=>'form-control',
                     'placeholder'=>'Password','label'=>false,'required'])?>
                 <div class="input-group-append">
-                    <div class="input-group-text">
-                        <span class="fas fa-lock"></span>
-                    </div>
+                    <button type="button" class="btn btn-outline-secondary" onclick="password.type=password.type=='password'?'text':'password'">
+                        <i class="fas fa-eye"></i>
+                    </button>
                 </div>
             </div>
           <div class="row">

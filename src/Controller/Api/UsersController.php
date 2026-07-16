@@ -40,18 +40,27 @@ class UsersController extends AppController
     public function add()
     {
         $user = $this->Users->newEmptyEntity();
+    
         if ($this->request->is('post')) {
-            $user = $this->Users->patchEntity($user, $this->request->getData());
-            if ($this->Users->save($user)) {
-                $result = ['status' => 'success', 'message' => 'The User has been saved.'];
-            }else {
-                $result = ['status'=>'error','message'=>'The User could not be saved. Please, try again.'];
+            $data = $this->request->getData();
+            $password = $data['password'] ?? '';
+            // Validate password
+            if (!preg_match('/^(?=.*[A-Za-z])(?=.*[\W_]).{8,}$/', $password)) {
+                $result = [
+                    'status' => 'error',
+                    'message' => 'Password must be at least 8 characters and contain at least one letter and one special character.'
+                ];
+                return $this->response->withType('application/json')->withStringBody(json_encode($result));
             }
-            return $this->response->withType('application/json')
-                ->withStringBody(json_encode($result));
+            $user = $this->Users->patchEntity($user, $data);
+                if ($this->Users->save($user)) {
+                $result = ['status' => 'success','message' => 'The User has been saved.'];
+            } else {
+                $result = ['status' => 'error','message' => 'The User could not be saved.','errors' => $user->getErrors()];
+            }
+            return $this->response->withType('application/json')->withStringBody(json_encode($result));
         }
     }
-
     /**
      * Edit method
      *
