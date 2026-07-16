@@ -46,8 +46,8 @@
                     <?= $this->Form->control('last_name',['class'=>'form-control','label'=>false]) ?>
                     <label for="middle_name">Middle Name</label>
                     <?= $this->Form->control('middle_name',['class'=>'form-control','label'=>false]) ?>
-                    <label for="birthdate">Birthdate</label>
-                    <?= $this->Form->control('birthdate',['class'=>'form-control','label'=>false]) ?>
+                    <label class="form-label">Birthdate</label>
+                    <?= $this->Form->control('birthdate', ['class' => 'form-control','type' => 'date','label' => false,'max' => date('Y-m-d', strtotime('-18 years'))]) ?>
                     <label for="gender">Gender</label>
                     <?= $this->Form->control('gender',['class'=>'form-control',
                     'options'=>$this->Option->gender(),'label'=>false]) ?>

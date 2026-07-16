@@ -12,6 +12,16 @@
                 <a href="#" class="d-block">Welcome <?= $auth['username'] ?></a>
             </div>
         </div>
+        <div class="user-panel nav nav-pills nav-sidebar flex-column"data-widget="treeview"role="menu"data-accordion="false">
+           <div class="nav-item">
+               <?php $active = $title == 'Profile' ? 'active' : ''; ?>
+               <?= $this->Html->link('<i class="nav-icon fas fa-user-alt"></i>
+                   <p>
+                        Profile
+                   </p>',
+                   '/Profile',['class' => 'nav-link py-1 ' . $active,'escape' => false]) ?>
+           </div>
+        </div>  
         <nav class="mt-2 mb-0">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                 <li class="nav-item">
@@ -44,5 +54,21 @@
                 </li>
             </ul>
         </nav>
+        <div class="mt-auto px-3 pb-3">
+            <div class="sidebar-logout">
+             <div class="card bg-danger mb-0">
+                 <div class="card-body p-2 text-center">
+                     <?= $this->Html->link(
+                         '<i class="fas fa-sign-out-alt mr-2"></i> Logout',
+                         '/Users/logout',
+                         [
+                             'class' => 'text-white font-weight-bold',
+                             'escape' => false
+                         ]
+                     ) ?>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </aside>
