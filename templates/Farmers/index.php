@@ -1,7 +1,7 @@
 <div class="col-12">
     <div class="card card-primary">
         <div class="card-header">
-            <h3 class="card-title">Beneficiaries</h3>
+            <h3 class="card-title text-dark">Beneficiaries</h3>
              <div class="card-tools">
                 <?= $this->Html->link('<i class="fas fa-plus"></i>','',
                     ['id'=>'add','data-toggle'=>'tooltip','data-placement'=>'bottom','title'=>'Add Farmer','escape'=>false]) ?>

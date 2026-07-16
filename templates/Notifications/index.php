@@ -2,7 +2,7 @@
     <div class="card card-primary">
 
         <div class="card-header">
-            <h3 class="card-title">Notification</h3>
+            <h3 class="card-title text-dark">Registrations Requests</h3>
 
             <div class="card-tools">
 
