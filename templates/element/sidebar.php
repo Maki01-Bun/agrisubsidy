@@ -50,18 +50,21 @@
 
                    <?= $this->Html->link(
                        '<i class="nav-icon fas fa-bell"></i>' .
-                       ($count > 0
-                           ? '<span class="badge badge-danger right">' . $count . '</span>'
-                           : '') .
-                       '<p>Registrations Request</p>',
-                       '/Notifications',
-                       [
-                           'class' => 'nav-link ' . $active,
-                           'escape' => false
-                       ]
+                       ($count > 0? '<span class="badge badge-danger right">' . $count . '</span>': '') .
+                        '<p>Registrations Request
+                        </p>','/Notifications',['class' => 'nav-link ' . $active,'escape' => false]
                    ) ?>
                 </li>
             </ul>
         </nav>
+        <!-- logout -->
+        <div class="mt-4 px-3">
+            <div class="card bg-danger">
+                <div class="card-body p-2 text-center">
+                    <?= $this->Html->link('<i class="fas fa-sign-out-alt mr-2"></i> Logout','/Users/logout',['class' => 'text-dark font-weight-bold','escape' => false]) ?>
+                </div>
+            </div>
+        </div>
     </div>
+    
 </aside>
