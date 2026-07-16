@@ -19,6 +19,8 @@
                         <th>Gender</th>
                         <th>Address</th>
                         <th>Contact Number</th>
+                        <th>Created</th>
+                        <th>Modified</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -54,8 +56,10 @@
                     <label for="address">Address</label>
                     <?= $this->Form->control('address',['class'=>'form-control','label'=>false]) ?>
                     <label for="contact_no">Contact Number</label>
-                    <?= $this->Form->control('contact_no', ['class' => 'form-control','type' => 'text','maxlength' => 11,
+                    <?= $this->Form->control('contact_no', ['class' => 'form-control','type' => 'text','maxlength' => 11,'minlength' => 11,
                     'placeholder' => '09XXXXXXXXX','label' => false]) ?>
+                    <td><?= h($farmer->created) ?></td>
+                    <td><?= h($farmer->modified) ?></td>    
                 </div>
             </div>
             <div class="modal-footer">

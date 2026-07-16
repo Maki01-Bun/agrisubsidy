@@ -25,6 +25,8 @@ $(function(){
                     $('#gender').val(data.gender);
                     $('#address').val(data.address);
                     $('#contact_no').val(data.contact_no);
+                    $('#created').val(data.created);
+                    $('#modified').val(data.modified);
                     $('#user_id').val(data.user_id);
                     $('#id').val(data.id);
                     $('#farmers-modal').modal('show');
@@ -124,6 +126,8 @@ function getFarmers()
             {data:"gender"},
             {data:"address"},
             {data:"contact_no"},
+            {data:"created"},
+            {data:"modified"},
             { data: null,render: function(data){
                     var option = '<div style="text-align:center;"><a href="" class="edit" data-toggle="tooltip" + ' +
                         'data-placement="bottom" title="Edit Farmers" data-id="'+ data.id +'"><i' +
