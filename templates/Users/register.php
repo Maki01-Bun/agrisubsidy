@@ -35,10 +35,20 @@
                 </div>
                 <div class="col-md-12 mb-3">
                     <label class="form-label">Birthdate</label>
-                    <?= $this->Form->control('birthdate', ['class' => 'form-control',
-                    'type' => 'date','label' => false]) ?>
+                    <?= $this->Form->control('birthdate', ['class' => 'form-control','type' => 'date','label' => false,
+                    'max' => date('Y-m-d', strtotime('-18 years'))]) ?>
                 </div>
-                <button type="submit" class="btn btn-primary btn-block">Next</button>
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <?= $this->Html->link('Cancel',['controller' => 'Users', 'action' => 'login'],
+                        ['class' => 'btn btn-secondary btn-block']) ?>
+                    </div> 
+                    <div class="col-6">
+                        <button type="submit" class="btn btn-primary btn-block">
+                            Next
+                        </button>
+                    </div>
+                </div>
                 <?= $this->Form->end() ?>
             <?php else: ?>
                 <?= $this->Form->create($user, ['templates' => ['inputContainer' => '{{content}}']]) ?>
@@ -60,10 +70,18 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="input-group mb-3">
-                    <?= $this->Form->control('role', ['class' => 'form-control',
-                        'label' => false,'options'=>$this->Option->roles()]) ?>
+                    <?= $this->Form->control('confirm_password', ['type' => 'password','class' => 'form-control','placeholder' => 'Confirm Password',
+                        'label' => false,'required' => true,'id' => 'confirm_password'
+                    ]) ?>
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-lock"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group mb-3">
+                    <?= $this->Form->hidden('role', ['value' => 'farmer']) ?>
                 </div>
                 <button type="submit" class="btn btn-success btn-block">Register</button>
                 <?= $this->Form->end() ?>
