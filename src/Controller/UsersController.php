@@ -35,71 +35,46 @@ class UsersController extends AppController
     STEP 1 - FARMER INFORMATION
     */
     if ($step == 1 && $this->request->is('post')) {
-
         $session->write(
             'Registration.Farmer',
             $this->request->getData()
         );
-
-        return $this->redirect([
-            'action' => 'register',
-            2
-        ]);
+        return $this->redirect(['action' => 'register',2 ]);
     }
-
     /*
     STEP 2 - ACCOUNT INFORMATION
     */
     if ($step == 2 && $this->request->is('post')) {
-
         $farmerData = $session->read('Registration.Farmer');
-
         if (!$farmerData) {
-
             $this->Flash->error(
                 __('Registration session expired.')
             );
-
             return $this->redirect([
                 'action' => 'register',
                 1
             ]);
         }
-
         $userData = $this->request->getData();
 
         /*
         CHECK DUPLICATES
         */
         $existingUser = $usersTable
-            ->find()
-            ->where([
-                'username' => $userData['username']
-            ])
-            ->first();
+            ->find()->where(['username' => $userData['username']])->first();
 
         if ($existingUser) {
-
-            $this->Flash->error(
-                __('Username already exists.')
+            $this->Flash->error(__('Username already exists.')
             );
-
-            return $this->redirect([
-                'action' => 'register',
-                2
+            return $this->redirect(['action' => 'register',2
             ]);
         }
 
         /*
          STORE REQUEST IN NOTIFICATION
         */
-        $registrationData = [
-            'farmer' => $farmerData,
-            'user'   => $userData
-        ];
-
+        $registrationData = ['farmer' => $farmerData,'user'   => $userData];
         $notification = $notificationsTable->newEmptyEntity();
-
         $notification = $notificationsTable->patchEntity(
             $notification,
             [
