@@ -239,8 +239,8 @@ textarea{
 .main-sidebar {
      background: linear-gradient(
         180deg,
-        #ff6666 0%,
-        #ff0000 50%
+        #ff0000 0%,
+        #cc0000 50%
     ) !important;
  
     border-right: 4px solid #a8d5b4;
@@ -249,7 +249,7 @@ textarea{
 
 /* Brand/Header */
 .brand-link {
-    background: #ff6666 !important;
+    background: #ff0000 !important;
     border-bottom: 2px solid #a8d5ba;
     padding: 18px;
 }
@@ -284,6 +284,7 @@ textarea{
 /* Navigation */
 .nav-sidebar .nav-item {
     margin-bottom: 12px;
+    color: #ffffff;
 }
 
 .nav-sidebar .nav-link {
@@ -292,6 +293,7 @@ textarea{
     padding: 12px 16px;
     transition: all .3s ease;
     font-weight: 500;
+    
 }
 
 /* Hover */
@@ -337,7 +339,7 @@ textarea{
 ====================================== */
 
 .main-header {
-    background: linear-gradient(90deg, #ff6666, #ff3333) !important;
+    background: linear-gradient(90deg, #ff0000, #ff3333) !important;
     border-bottom: 4px solid #A8D5BA;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
     height: 65px;
@@ -385,12 +387,12 @@ textarea{
 
 /* Navbar Background */
 .navbar-white {
-    background: linear-gradient(90deg, #ff6666, #ff3333) !important;
+    background: linear-gradient(90deg, #ff0000, #ff3333) !important;
 }
 
 /* Override Bootstrap Primary */
 .bg-primary {
-    background: linear-gradient(90deg, #ff6666, #ff3333) !important;
+    background: linear-gradient(90deg, #ff0000, #ff3333) !important;
 }
 
 /* Smooth Transition */
@@ -656,14 +658,14 @@ side-bar logout part
 }
 
 .btn-primary{
-    background:#ff6666;
+    background:#0ccf06;
     border:none;
     border-radius:10px;
     padding:8px 20px;
 }
 
 .btn-primary:hover{
-    background:#ff6666;
+    background:#0ccf06;
 }
 
 .btn-default{
