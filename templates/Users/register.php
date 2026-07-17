@@ -28,7 +28,7 @@
                     'label' => false,'options'=>$this->Option->gender()]) ?>
                 </div>
                 <div class="col-md-12 mb-3"><?= $this->Form->control('contact_no', ['class' => 'form-control',
-                    'placeholder' => 'Contact Number','maxlength' => 11,'label' => false]) ?>
+                    'placeholder' => 'Contact Number','maxlength' => 11,'minlength'=>11,'label' => false]) ?>
                 </div>
                 <div class="col-md-12 mb-3">
                     <?= $this->Form->control('address', ['class' => 'form-control','placeholder' => 'Address','label' => false]) ?>
@@ -78,7 +78,7 @@
                     </div>
                 </div>
                 <div class="input-group mb-3">
-                    <?= $this->Form->control('confirm_password', ['type' => 'password','class' => 'form-control','placeholder' => 'Confirm Password','minlength' => 8,
+                    <?= $this->Form->control('confirm_password', ['type' => 'password','class' => 'form-control','placeholder' => 'Confirm Password',
                         'label' => false,'required' => true,'id' => 'confirm_password'
                     ]) ?>
                     <div class="input-group-append">
