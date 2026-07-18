@@ -24,6 +24,7 @@ use Cake\ORM\Entity;
  * @property \App\Model\Entity\User $user
  * @property \App\Model\Entity\Feedback[] $feedbacks
  * @property \App\Model\Entity\Distribution[] $distributions
+ * @property \App\Model\Entity\Evaluation[] $evaluations
  */
 class Farmer extends Entity
 {
@@ -51,5 +52,6 @@ class Farmer extends Entity
         'user' => true,
         'feedback' => true,
         'distribution' => true,
+        'evaluation' => true,
     ];
 }

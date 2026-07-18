@@ -59,6 +59,9 @@ class FarmersTable extends Table
         $this->hasMany('Distributions', [
             'foreignKey' => 'farmer_id',
         ]);
+        $this->hasMany('Evaluations', [
+            'foreignKey' => 'farmer_id',
+        ]);
     }
 
     /**
