@@ -22,7 +22,8 @@ use Cake\ORM\Entity;
  * @property \Cake\I18n\FrozenTime $modified
  *
  * @property \App\Model\Entity\User $user
- * @property \App\Model\Entity\Beneficiary[] $beneficiaries
+ * @property \App\Model\Entity\Feedback[] $feedbacks
+ * @property \App\Model\Entity\Distribution[] $distributions
  */
 class Farmer extends Entity
 {
@@ -48,6 +49,7 @@ class Farmer extends Entity
         'created' => true,
         'modified' => true,
         'user' => true,
-        'beneficiaries' => true,
+        'feedback' => true,
+        'distribution' => true,
     ];
 }

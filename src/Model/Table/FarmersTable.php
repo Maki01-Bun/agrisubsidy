@@ -12,7 +12,8 @@ use Cake\Validation\Validator;
  * Farmers Model
  *
  * @property \App\Model\Table\UsersTable&\Cake\ORM\Association\BelongsTo $Users
- * @property \App\Model\Table\BeneficiariesTable&\Cake\ORM\Association\HasMany $Beneficiaries
+ * @property \App\Model\Table\FeedbacksTable&\Cake\ORM\Association\HasMany $Feedbacks
+ * @property \App\Model\Table\DistributionsTable&\Cake\ORM\Association\HasMany $Distributions
  *
  * @method \App\Model\Entity\Farmer newEmptyEntity()
  * @method \App\Model\Entity\Farmer newEntity(array $data, array $options = [])
@@ -52,7 +53,10 @@ class FarmersTable extends Table
             'foreignKey' => 'user_id',
             'joinType' => 'INNER',
         ]);
-        $this->hasMany('Beneficiaries', [
+        $this->hasMany('Feedbacks', [
+            'foreignKey' => 'farmer_id',
+        ]);
+        $this->hasMany('Distributions', [
             'foreignKey' => 'farmer_id',
         ]);
     }
