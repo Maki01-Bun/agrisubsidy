@@ -72,13 +72,9 @@
             <div class="sidebar-logout">
              <div class="card bg-danger mb-0">
                     <div class="card-body p-2 text-center">
-                        <?= $this->Html->link(
-                            '<i class="fas fa-sign-out-alt mr-2"></i> Logout',
-                            '/Users/logout',
-                            [
-                                'class' => 'text-white font-weight-bold',
-                                'escape' => false
-                            ]
+                        <?= $this->Html->link('<i class="fas fa-sign-out-alt mr-2"></i> 
+                        Logout',
+                            '/Users/logout',['class' => 'text-white font-weight-bold','escape' => false]
                         ) ?>
                     </div>
                 </div>
