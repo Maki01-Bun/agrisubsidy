@@ -42,7 +42,7 @@
                     <label for="farmer_name">Farmer Name</label>
                     <input type="text" id="farmer_name" class="form-control" readonly>
                     <label for="subsidy_type">Subsidy Type</label>
-                    <input type="text" id="subsidy_type" class="form-control" readonly>
+                    <?= $this->Form->control('subsidy_type',['class'=>'form-control','label'=>false]) ?>
                     <label for="farm_size">Farm Size</label>
                     <?= $this->Form->control('farm_size',['class'=>'form-control','label'=>false]) ?>
                     <label for="crop_yield_before">Crop Yield Before</label>

@@ -117,6 +117,7 @@
                     <?php endif; ?>
 
                     </tbody>
+                    
 
                 </table>
 
