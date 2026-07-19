@@ -33,14 +33,14 @@
                 </li>
                 <li class="nav-item">
                     <?php $active = $title=='Farmers'?'active':'' ?>
-                    <?= $this->Html->link('<i class="nav-icon fas fa-boxes"></i>
+                    <?= $this->Html->link('<i class="nav-icon fas fa-users"></i>
                         <p>
                             Beneficiaries
                         </p>','/Farmers',['class'=>'nav-link '.$active,'escape'=>false]) ?>
                 </li>
                 <li class="nav-item">
                     <?php $active = $title=='Programs'?'active':'' ?>
-                    <?= $this->Html->link('<i class="nav-icon fas fa-box"></i>
+                    <?= $this->Html->link('<i class="nav-icon fas fa-calendar-alt"></i>
                         <p>
                             Programs
                         </p>','/Programs',['class'=>'nav-link '.$active,'escape'=>false]) ?>
@@ -51,6 +51,13 @@
                         <p>
                             Users
                         </p>','/Users',['class'=>'nav-link '.$active,'escape'=>false]) ?>
+                </li>
+                <li class="nav-item">
+                    <?php $active = $title=='Evaluations'?'active':'' ?>
+                    <?= $this->Html->link('<i class="nav-icon fas fa-chart-line"></i>
+                        <p>
+                            Evaluations
+                        </p>','/Evaluations',['class'=>'nav-link '.$active,'escape'=>false]) ?>
                 </li>
                <li class="nav-item">
                    <?php

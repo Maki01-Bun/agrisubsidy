@@ -127,6 +127,17 @@ return function (RouteBuilder $routes): void {
                 'pass' => ['id']
             ]);
         });
+        $builder->scope('/Evaluations', function (RouteBuilder $builder) {
+            $builder->connect('/', ['controller' => 'Evaluations', 'action' => 'index']);
+            $builder->connect('/getEvaluations', ['controller' => 'Evaluations', 'action' => 'getEvaluations']);
+            $builder->connect('/add', ['controller' => 'Evaluations', 'action' => 'add']);
+            $builder->connect('/edit/{id}', ['controller' => 'Evaluations', 'action' => 'edit'], [
+                'pass' => ['id']
+            ]);
+            $builder->connect('/delete/{id}', ['controller' => 'Evaluations', 'action' => 'delete'], [
+                'pass' => ['id']
+            ]);
+        });
 
         $builder->scope('/Audit_Logs', function (RouteBuilder $builder) {
             $builder->connect('/', ['controller' => 'Audit_Logs', 'action' => 'index']);
