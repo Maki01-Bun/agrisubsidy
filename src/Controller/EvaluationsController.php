@@ -44,81 +44,19 @@ class EvaluationsController extends AppController
      * @return \Cake\Http\Response|null|void Redirects on successful add, renders view otherwise.
      */
     public function add()
-{
-    $evaluation = $this->Evaluations->newEmptyEntity();
+    {
+        $evaluation = $this->Evaluations->newEmptyEntity();
+        if ($this->request->is('post')) {
+            $evaluation = $this->Evaluations->patchEntity($evaluation, $this->request->getData());
+            if ($this->Evaluations->save($evaluation)) {
+                $this->Flash->success(__('The evaluation has been saved.'));
 
-    if ($this->request->is('post')) {
-
-        $evaluation = $this->Evaluations->patchEntity(
-            $evaluation,
-            $this->request->getData()
-        );
-
-        try {
-
-            $http = new Client();
-
-            $payload = [
-                'subsidy_type'      => $evaluation->subsidy_type,
-                'farm_size'         => (float)$evaluation->farm_size,
-                'crop_yield_before' => (float)$evaluation->crop_yield_before,
-                'crop_yield_after'  => (float)$evaluation->crop_yield_after,
-                'income_before'     => (float)$evaluation->income_before,
-                'income_after'      => (float)$evaluation->income_after,
-                'feedback_score'    => (float)$evaluation->feedback_score,
-                'pest'              => $evaluation->pest,
-                'calamity'          => $evaluation->calamity
-            ];
-
-            $response = $http->post(
-                'http://127.0.0.1:8000/predict',
-                json_encode($payload),
-                [
-                    'headers' => [
-                        'Content-Type' => 'application/json'
-                    ]
-                ]
-            );
-
-            if ($response->getStatusCode() == 200) {
-
-                $result = $response->getJson();
-
-                $evaluation->effectiveness_label =
-                    $result['effectiveness'];
-
-            } else {
-
-                $evaluation->effectiveness_label =
-                    'Prediction Failed';
+                return $this->redirect(['action' => 'index']);
             }
-
-        } catch (\Exception $e) {
-
-            debug($e->getMessage());
-
-            $evaluation->effectiveness_label =
-                'Prediction Failed';
+            $this->Flash->error(__('The evaluation could not be saved. Please, try again.'));
         }
-
-        if ($this->Evaluations->save($evaluation)) {
-
-            $this->Flash->success(
-                'Evaluation saved successfully.'
-            );
-
-            return $this->redirect([
-                'action' => 'index'
-            ]);
-        }
-
-        $this->Flash->error(
-            'The evaluation could not be saved.'
-        );
+        $this->set(compact('evaluation'));
     }
-
-    $this->set(compact('evaluation'));
-}
 
     /**
      * Edit method
@@ -162,5 +100,74 @@ class EvaluationsController extends AppController
         }
 
         return $this->redirect(['action' => 'index']);
+    }
+
+    public function survey()
+    {
+        if ($this->request->is('post')) {
+
+            $session = $this->request->getSession();
+
+            $evaluationData = $session->read('EvaluationData');
+
+            // Compute feedback score
+            $feedbackScore = (
+                $this->request->getData('q1') +
+                $this->request->getData('q2') +
+                $this->request->getData('q3') +
+                $this->request->getData('q4') +
+                $this->request->getData('q5') +
+                $this->request->getData('q6')
+            ) / 6;
+
+            // Call FastAPI
+            $http = new \Cake\Http\Client();
+
+            $payload = [
+                'subsidy_type'      => $evaluationData['subsidy_type'],
+                'farm_size'         => (float)$evaluationData['farm_size'],
+                'crop_yield_before' => (float)$evaluationData['crop_yield_before'],
+                'crop_yield_after'  => (float)$evaluationData['crop_yield_after'],
+                'income_before'     => (float)$evaluationData['income_before'],
+                'income_after'      => (float)$evaluationData['income_after'],
+                'feedback_score'    => $feedbackScore,
+                'pest'              => $evaluationData['pest'],
+                'calamity'          => $evaluationData['calamity']
+            ];
+
+            $response = $http->post(
+                'http://127.0.0.1:8000/predict',
+                json_encode($payload),
+                [
+                    'headers' => [
+                        'Content-Type' => 'application/json'
+                    ]
+                ]
+            );
+
+            $result = $response->getJson();
+
+            $evaluation = $this->Evaluations->newEmptyEntity();
+
+            $evaluation = $this->Evaluations->patchEntity(
+                $evaluation,
+                $evaluationData
+            );
+
+            $evaluation->feedback_score = $feedbackScore;
+            $evaluation->effectiveness_label = $result['effectiveness'];
+
+            $this->Evaluations->save($evaluation);
+
+            $session->delete('EvaluationData');
+
+            $this->Flash->success(
+                'Evaluation completed successfully.'
+            );
+
+            return $this->redirect([
+                'action' => 'index'
+            ]);
+        }
     }
 }

@@ -2,16 +2,13 @@
     <div class="card card-primary">
         <div class="card-header">
             <h3 class="card-title text-dark">Evaluations</h3>
-            
-            <div class="card-tools">
-                <?= $this->Html->link('<i class="fas fa-plus"></i>','',
-                    ['id'=>'add','data-toggle'=>'tooltip','data-placement'=>'bottom','title'=>'Add Evaluation','escape'=>false]) ?>
-            </div>
         </div>
         <div class="card-body">
             <table id="evaluations-table" class="table table-bordered table-hover">
                 <thead>
                     <tr>
+                        <th>Farmer Name</th>
+                        <th>Subsidy Type</th>
                         <th>Farm Size</th> 
                         <th>Yield Before</th> 
                         <th>Yield After</th> 
@@ -19,6 +16,7 @@
                         <th>Income After</th> 
                         <th>Pest</th> 
                         <th>Calamity</th> 
+                        <!-- <th>Feedback Rating</th> -->
                         <th>Effectiveness Label</th> 
                         <th>Action</th>
                     </tr>
@@ -27,7 +25,10 @@
         </div>
     </div>
 </div>
-<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="evaluations-modal">
+
+<!-- Don't Delete -->
+
+<!-- <div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="evaluations-modal">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-primary">
@@ -69,4 +70,4 @@
             <?= $this->Form->end() ?>
         </div>
     </div>
-</div>
+</div> -->

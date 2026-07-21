@@ -43,8 +43,11 @@ class EvaluationsTable extends Table
         $this->setDisplayField('farm_size');
         $this->setPrimaryKey('id');
 
-        $this->hasMany('Beneficiaries', [
-            'foreignKey' => 'program_id',
+        $this->belongsTo('Farmers', [
+            'foreignKey' => 'farmer_id',
+        ]);
+        $this->belongsTo('Feedbacks', [
+            'foreignKey' => 'feedback_id',
         ]);
     }
 
@@ -56,6 +59,12 @@ class EvaluationsTable extends Table
      */
     public function validationDefault(Validator $validator): Validator
     {
+        $validator
+            ->scalar('subsidy_type')
+            ->maxLength('subsidy_type', 255)
+            ->requirePresence('subsidy_type', 'create')
+            ->notEmptyString('subsidy_type');
+
         $validator
             ->decimal('farm_size')
             ->requirePresence('farm_size', 'create')

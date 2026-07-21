@@ -17,6 +17,8 @@ $(function(){
         })
             .done(function(data){
                 if(data!=''){
+                    $('#farmer_name').val(data.farmer_name);
+                    $('#subsidy_type').val(data.subsidy_type);
                 	$('#farm_size').val(data.farm_size);
                 	$('#crop_yield_before').val(data.crop_yield_before);
                 	$('#crop_yield_after').val(data.crop_yield_after);
@@ -24,6 +26,7 @@ $(function(){
                 	$('#income_after').val(data.income_after);
                 	$('#pest').val(data.pest);
                 	$('#calamity').val(data.calamity);
+                    // $('#feedback_rating').val(data.feedback_rating);
                 	$('#effectiveness_label').val(data.effectiveness_label);
                 	$('#id').val(data.id);
                     $('#evaluations-modal').modal('show');
@@ -115,6 +118,8 @@ function getEvaluations()
             "url": BASE_URL + '/api/Evaluations/getEvaluations'
         },
         "columns": [
+            {data:"farmer_name"},
+            {data:"subsidy_type"},
 			{data:"farm_size"},
             {data:"crop_yield_before"},
             {data:"crop_yield_after"},
@@ -122,16 +127,17 @@ function getEvaluations()
             {data:"income_after"},
             {data:"pest"},
             {data:"calamity"},
+            // {data:"feedback_rating"},
             {data:"effectiveness_label"},
-            { data: null,render: function(data){
-                    var option = '<div style="text-align:center;"><a href="" class="edit" data-toggle="tooltip" + ' +
-                        'data-placement="bottom" title="Edit Personnel" data-id="'+ data.id +'"><i' +
-                        ' class="fa fas fa-pen"></i></a> | <a href="" class="delete text-danger" data-toggle="tooltip" + ' +
-                        'data-placement="bottom" title="Delete Personnel" data-id="'+ data.id +'"><i' +
-                        ' class="fa fa fa-trash"></i></a></div>';
+            {data: null,render: function(data) {
+                    var option =
+                        '<div style="text-align:center;">' + '<a href="" class="view text-info" ' + 'data-toggle="tooltip" ' +
+                        'data-placement="bottom" ' + 'title="View Evaluation" ' + 'data-id="' + data.id + '">' + 
+                        '<i class="fa fa-eye"></i>' + '</a>' + '</div>';
                     return option;
                 }
             }
+
         ]
 	});
 }

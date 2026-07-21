@@ -36,18 +36,61 @@ class EvaluationsController extends AppController
     public function view($id = null)
     {
         $evaluation = $this->Evaluations->get($id, [
-            'contain' => ['Beneficiaries'],
+            'contain' => [
+                'Farmers',
+                'Feedbacks'
+            ],
         ]);
-
-        $this->set(compact('evaluation'));
+    
+        return $this->response
+            ->withType('application/json')
+            ->withStringBody(json_encode($evaluation));
     }
     
     public function getEvaluations()
-    {
-        $evaluations = $this->Evaluations->find();
-        return $this->response->withType('application/json')
-            ->withStringBody(json_encode(['data'=>$evaluations]));
+{
+    $evaluations = $this->Evaluations->find()->contain(['Farmers'])->all();
+
+    $data = [];
+
+    foreach ($evaluations as $evaluation) {
+
+        $fullName = '';
+        $feedbackRating = '';
+
+        if (!empty($evaluation->farmer)) {
+            $fullName =
+                $evaluation->farmer->first_name . ' ' .
+                $evaluation->farmer->middle_name . ' ' .
+                $evaluation->farmer->last_name;
+        }
+        // if (!empty($evaluation->feedback)) {
+        //     $feedbackRating = $evaluation->feedback->rating;
+        // }
+
+
+        $data[] = [
+            'id' => $evaluation->id,
+            'farmer_name' => trim($fullName),
+            'subsidy_type' => $evaluation->subsidy_type,
+            'farm_size' => $evaluation->farm_size,
+            'crop_yield_before' => $evaluation->crop_yield_before,
+            'crop_yield_after' => $evaluation->crop_yield_after,
+            'income_before' => $evaluation->income_before,
+            'income_after' => $evaluation->income_after,
+            'pest' => $evaluation->pest,
+            'calamity' => $evaluation->calamity,
+            // 'feedback_rating' => $feedbackRating,
+            'effectiveness_label' => $evaluation->effectiveness_label
+        ];
     }
+
+    return $this->response
+        ->withType('application/json')
+        ->withStringBody(json_encode([
+            'data' => $data
+        ]));
+}
 
     /**
      * Add method

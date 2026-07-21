@@ -10,6 +10,7 @@ use Cake\ORM\Entity;
  * Evaluation Entity
  *
  * @property int $id
+ * @property string $subsidy_type
  * @property float $farm_size
  * @property float $crop_yield_before
  * @property float $crop_yield_after
@@ -33,6 +34,7 @@ class Evaluation extends Entity
      * @var array<string, bool>
      */
     protected $_accessible = [
+        'subsidy_type' => true,
         'farm_size' => true,
         'crop_yield_before' => true,
         'crop_yield_after' => true,
