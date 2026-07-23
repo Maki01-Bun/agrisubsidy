@@ -59,7 +59,7 @@
                     <label for="calamity">Calamity</label>
                     <?= $this->Form->control('calamity',['class'=>'form-control','label'=>false]) ?>
                     <label for="effectiveness_label">Effectiveness Label</label>
-                    <?= $this->Form->control('effectiveness_label', ['class' => 'form-control','label' => false,'disabled' => true]) ?>
+                    <?= $this->Form->text('effectiveness_label', ['class' => 'form-control','readonly' => true,'value' => $evaluation->effectiveness_label ?? '']) ?>
                 </div>
             </div>
             <div class="modal-footer">
