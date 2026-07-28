@@ -59,19 +59,6 @@
                             Evaluations
                         </p>','/Evaluations',['class'=>'nav-link '.$active,'escape'=>false]) ?>
                 </li>
-               <li class="nav-item">
-                   <?php
-                       $active = ($title == 'Notifications') ? 'active' : '';
-                       $count = isset($count) ? $count : 0;
-                   ?>
-
-                   <?= $this->Html->link(
-                       '<i class="nav-icon fas fa-bell"></i>' .
-                       ($count > 0? '<span class="badge badge-danger right">' . $count . '</span>': '') .
-                        '<p>Registrations Request
-                        </p>','/Notifications',['class' => 'nav-link ' . $active,'escape' => false]
-                   ) ?>
-                </li>
             </ul>
         </nav>
         <!-- logout -->

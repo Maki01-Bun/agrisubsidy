@@ -26,7 +26,7 @@ $(function(){
                 	$('#income_after').val(data.income_after);
                 	$('#pest').val(data.pest);
                 	$('#calamity').val(data.calamity);
-                    // $('#feedback_rating').val(data.feedback_rating);
+                    $('#feedback_rating').val(data.feedback_rating);
                 	$('#effectiveness_label').val(data.effectiveness_label);
                 	$('#id').val(data.id);
                     $('#evaluations-modal').modal('show');
@@ -127,7 +127,7 @@ function getEvaluations()
             {data:"income_after"},
             {data:"pest"},
             {data:"calamity"},
-            // {data:"feedback_rating"},
+            {data:"feedback_rating"},
             {data:"effectiveness_label"},
             {data: null,render: function(data) {
                     var option =

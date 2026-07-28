@@ -37,19 +37,6 @@
         </div>
     </div>
 </div>
-<!-- <div class="col-md-3 col-sm-6 d-flex">
-    <div class="card stat-card card-hover w-100 h-100">
-        <div class="card-body d-flex align-items-center bg-info">
-            <i class="fas fa-users fa-2x me-3 opacity-75"></i>
-            <div>
-                <h6 class="fw-light mb-1">Registered Farmers</h6>
-                <h3 class="mb-0 fw-bold">
-                    300
-                </h3>
-             </div>
-        </div>
-    </div>
-</div> -->
 <div class="row mt-4 g-4">
 
     <!-- Effectiveness Chart -->
@@ -143,11 +130,11 @@
 </div>
 
 <!-- Registration Requests -->
-<div class="row mt-4 bottom-4 g-4">
+<div class="row mt-4 bottom-4">
     <div class="col-lg-12">
         <div class="card shadow-sm border-0">
-            <div class="card-header bg-white fw-semibold">
-                <i class="fas fa-user-clock text-primary me-2"></i>
+            <div class="card-header registration-header fw-semibold">
+                <i class="fas fa-user-clock me-2"></i>
                 Registration Requests
             </div>
             <div class="card-body">

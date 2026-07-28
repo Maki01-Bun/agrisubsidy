@@ -53,7 +53,7 @@
 
             <?= $this->Html->link(
                 'Back',
-                ['action' => 'index'],
+                ['controller' => 'Dashboard','action' => 'index'],
                 ['class' => 'btn btn-secondary']
             ) ?>
 
