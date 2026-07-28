@@ -102,8 +102,8 @@
                 </tbody>
             </table>
             <div class="form-group mt-4">
-                <label>Additional Comments</label>
-                <?= $this->Form->textarea('comments', [
+                <label>Comment</label>
+                <?= $this->Form->textarea('comment', [
                     'class' => 'form-control',
                     'rows' => 4,
                     'placeholder' => 'Share your comments or suggestions...'
