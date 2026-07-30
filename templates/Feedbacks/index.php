@@ -120,36 +120,38 @@
 <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-
             <div class="modal-header bg-success text-white">
                 <h5 class="modal-title">
                     <i class="fas fa-check-circle me-2"></i>
                     Submission Successful
                 </h5>
             </div>
-
             <div class="modal-body text-center">
-
                 <i class="fas fa-check-circle text-success"
                    style="font-size:70px;"></i>
-
                 <h4 class="mt-3">
                     Thank you!
                 </h4>
-
                 <p class="mb-0">
                     Your feedback has been submitted successfully.
                 </p>
-
             </div>
-
             <div class="modal-footer">
                 <button class="btn btn-success"
                         id="successOk">
                     OK
                 </button>
             </div>
-
         </div>
     </div>
 </div>
+<?php if ($this->request->getQuery('submitted')): ?>
+<script>
+$(document).ready(function () {
+    $('#successModal').modal('show');
+    $('#successOk').click(function () {
+        window.location.href = "<?= $this->Url->build(['controller' => 'Programs', 'action' => 'announcements']) ?>";
+    });
+});
+</script>
+<?php endif; ?>

@@ -39,9 +39,7 @@ class FeedbacksController extends AppController
             
             $user = $this->request->getSession()->read('Auth.User');
 
-            $farmer = $this->Farmers->find()
-                ->where(['user_id' => $user['id']])
-                ->first();
+            $farmer = $this->Farmers->find()->where(['user_id' => $user['id']])->first();
 
             if (!$farmer) {
                 die('Farmer record not found.');
@@ -100,14 +98,6 @@ class FeedbacksController extends AppController
                 debug($evaluation->getErrors());
                 die('Evaluation could not be saved.');
             }
-            $evaluation->feedback_score = $feedbackScore;
-            $evaluation->effectiveness_label = $result['effectiveness'] ?? 'Pending';
-            if (!$this->Evaluations->save($evaluation)) {
-                debug($evaluation->getErrors());
-                die('Evaluation could not be saved.');
-            }
-
-
             // Save Feedback
             $feedback = $this->Feedbacks->newEmptyEntity();
             $feedbackData = [

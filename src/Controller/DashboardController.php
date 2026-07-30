@@ -16,47 +16,41 @@ class DashboardController extends AppController
      * @return \Cake\Http\Response|null|void Renders view
      */
     public function index()
-{
-    $this->loadModel('Evaluations');
-    // $this->loadModel('Feedbacks');
-    $this->loadModel('Farmers');
-    $this->loadModel('Notifications');
-
-
-    //Effectiveness Chart Data
-    $effectivenessData = $this->Evaluations->find()
-        ->select([
-            'effectiveness_label',
-            'total' => $this->Evaluations->find()->func()->count('*')
-        ])
-        ->group(['effectiveness_label'])
-        ->toArray();
-
-    $labels = [];
-    $totals = [];
-
-    foreach ($effectivenessData as $row) {
-        $labels[] = $row->effectiveness_label;
-        $totals[] = $row->total;
+    {
+        $this->loadModel('Feedbacks');
+        $this->loadModel('Farmers');
+        $this->loadModel('Evaluations');
+        $this->loadModel('Notifications');
+    
+        $effectivenessData = $this->Evaluations->find()->select(['effectiveness_label',
+            'total' => $this->Evaluations->find()->func()->count('*')])->group(['effectiveness_label'])->toArray();
+    
+        $labels = [];
+        $totals = [];
+        foreach ($effectivenessData as $row) {
+            $labels[] = $row->effectiveness_label;
+            $totals[] = $row->total;
+        }
+    
+        $avgRatingData = $this->Feedbacks->find()->select([
+            'avg_rating' => $this->Feedbacks->find()->func()->avg('rating')])->first();
+    
+        $avgRating = $avgRatingData->avg_rating ?? 0;
+    
+        $positive = $this->Feedbacks->find()->where(['rating >=' => 4 ]) ->count();
+    
+    
+        $neutral = $this->Feedbacks->find()->where(['rating' => 3])->count();
+        $negative = $this->Feedbacks->find()->where(['rating <=' => 2])->count();
+        $totalFarmers = $this->Farmers->find()->count();
+        $totalBeneficiaries = $this->Evaluations->find()->distinct(['farmer_id'])->count('farmer_id');
+        $notifications = $this->Notifications->find()->where(['status' => 'Pending'])->all();
+    
+        $this->set([
+            'labels' => $labels,'totals' => $totals,'avgRating' => $avgRating,
+            'positive' => $positive,'neutral' => $neutral,'negative' => $negative,
+            'totalFarmers' => $totalFarmers,'totalBeneficiaries' => $totalBeneficiaries, 'notifications' => $notifications]);
     }
-
-    //Dashboard Counts
-
-
-    $totalFarmers = $this->Farmers->find()->count();
-
-    $totalBeneficiaries = $this->Evaluations->find()
-        ->distinct(['farmer_id'])
-        ->count('farmer_id');
-
-    //Registration Requests
-
-    $notifications = $this->Notifications->find()
-        ->where(['status' => 'Pending'])
-        ->all();
-
-    $this->set(compact('labels', 'totals', 'notifications'));
-}
     /**
      * View method
      *

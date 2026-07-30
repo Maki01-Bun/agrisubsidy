@@ -131,13 +131,59 @@ function getEvaluations()
             {data:"effectiveness_label"},
             {data: null,render: function(data) {
                     var option =
-                        '<div style="text-align:center;">' + '<a href="" class="view text-info" ' + 'data-toggle="tooltip" ' +
-                        'data-placement="bottom" ' + 'title="View Evaluation" ' + 'data-id="' + data.id + '">' + 
-                        '<i class="fa fa-eye"></i>' + '</a>' + '</div>';
+                        '<div style="text-align:center;">' +
+        '<a href="javascript:void(0)" ' +
+        'class="text-info" ' +
+        'onclick="viewFeedback(' + data.id + ')" ' +
+        'data-toggle="tooltip" ' +
+        'data-placement="bottom" ' +
+        'title="View Feedback">' +
+        '<i class="fa fa-eye"></i>' +
+        '</a>' +
+    '</div>';
                     return option;
                 }
             }
 
         ]
 	});
+}
+function viewFeedback(evaluation_id)
+{
+    $.ajax({
+
+        url: BASE_URL + '/api/Evaluations/viewFeedback/' + evaluation_id,
+
+        type: "GET",
+
+        dataType: "json",
+
+        success:function(response){
+
+            console.log(response);
+
+            $('#farmer_name').html(response.farmer_name);
+
+            $('#feedback_rating')
+                .html(response.rating + " / 5");
+
+            $('#feedback_comments')
+                .html(response.comments);
+
+            $('#feedback_date')
+                .html(response.feedback_date);
+
+
+            $('#feedbackModal').modal('show');
+
+        },
+
+        error:function(xhr){
+
+            console.log(xhr.responseText);
+            alert("Unable to load farmer feedback.");
+
+        }
+
+    });
 }

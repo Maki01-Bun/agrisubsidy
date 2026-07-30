@@ -108,17 +108,46 @@ class UsersController extends AppController
         $this->set(compact('user','step'));
     }
     public function login()
-    {
-        $this->viewBuilder()->setLayout('login');
-        if ($this->request->is('post')) {
-            $user = $this->Auth->identify();
-            if ($user) {
-                $this->Auth->setUser($user);
-                return $this->redirect($this->Auth->redirectUrl());
+{
+    $this->viewBuilder()->setLayout('login');
+
+    if ($this->request->is('post')) {
+
+        $user = $this->Auth->identify();
+
+        if ($user) {
+
+            $this->Auth->setUser($user);
+
+            if ($user['role'] == 'admin') {
+
+                return $this->redirect([
+                    'controller' => 'Dashboard',
+                    'action' => 'index'
+                ]);
+
+            } elseif ($user['role'] == 'staff') {
+
+                return $this->redirect([
+                    'controller' => 'Dashboard',
+                    'action' => 'index'
+                    // Change this if staff has a different dashboard
+                ]);
+
+            } else {
+
+                // farmer
+                return $this->redirect([
+                    'controller' => 'Feedbacks',
+                    'action' => 'index'
+                ]);
+
             }
-            $this->Flash->error(__('Invalid username or password, try again'));
         }
+
+        $this->Flash->error(__('Invalid username or password, try again'));
     }
+}
 
     public function logout()
     {

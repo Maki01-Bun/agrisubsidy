@@ -102,126 +102,56 @@ class EvaluationsController extends AppController
         return $this->redirect(['action' => 'index']);
     }
 
-//     public function survey()
-// {
-//     if ($this->request->is('post')) {
+ public function viewFeedback($id)
+{
+    $this->request->allowMethod(['get']);
 
-//         $this->loadModel('Evaluations');
-//         $this->loadModel('Feedbacks');
 
-//         $session = $this->request->getSession();
+    $evaluation = $this->Evaluations->find()
+        ->contain([
+            'Farmers',
+            'Feedbacks'
+        ])
+        ->where([
+            'Evaluations.id' => $id
+        ])
+        ->first();
 
-//         $evaluationData = $session->read('EvaluationData');
 
-//         if (!$evaluationData) {
-//             $this->Flash->error('Evaluation session has expired.');
-//             return $this->redirect(['action' => 'index']);
-//         }
+    if (!$evaluation) {
 
-//         // Compute feedback score
-//         $feedbackScore = (
-//             (int)$this->request->getData('q1') +
-//             (int)$this->request->getData('q2') +
-//             (int)$this->request->getData('q3') +
-//             (int)$this->request->getData('q4') +
-//             (int)$this->request->getData('q5') +
-//             (int)$this->request->getData('q6')
-//         ) / 6;
+        return $this->response
+            ->withType('application/json')
+            ->withStringBody(json_encode([
+                'error' => 'Evaluation not found'
+            ]));
 
-//         // ==========================
-//         // Call FastAPI
-//         // ==========================
+    }
 
-//         $http = new \Cake\Http\Client();
 
-//         $payload = [
-//             'subsidy_type'      => $evaluationData['subsidy_type'],
-//             'farm_size'         => (float)$evaluationData['farm_size'],
-//             'crop_yield_before' => (float)$evaluationData['crop_yield_before'],
-//             'crop_yield_after'  => (float)$evaluationData['crop_yield_after'],
-//             'income_before'     => (float)$evaluationData['income_before'],
-//             'income_after'      => (float)$evaluationData['income_after'],
-//             'feedback_score'    => $feedbackScore,
-//             'pest'              => $evaluationData['pest'],
-//             'calamity'          => $evaluationData['calamity']
-//         ];
+    $data = [
 
-//         $response = $http->post(
-//             'http://127.0.0.1:8000/predict',
-//             json_encode($payload),
-//             [
-//                 'headers' => [
-//                     'Content-Type' => 'application/json'
-//                 ]
-//             ]
-//         );
+        'farmer_name' => 
+            $evaluation->farmer->first_name . ' ' .
+            $evaluation->farmer->last_name,
 
-//         $result = $response->getJson();
 
-//         // ==========================
-//         // Save Evaluation
-//         // ==========================
+        'rating' =>
+            $evaluation->feedback->rating ?? 0,
 
-//         $evaluation = $this->Evaluations->newEmptyEntity();
 
-//         $evaluation = $this->Evaluations->patchEntity(
-//             $evaluation,
-//             $evaluationData
-//         );
+        'comments' =>
+            $evaluation->feedback->comments ?? 'No feedback found',
 
-//         $evaluation->feedback_score = $feedbackScore;
-//         $evaluation->effectiveness_label = $result['effectiveness'] ?? 'Pending';
 
-//         if (!$this->Evaluations->save($evaluation)) {
-//             debug($evaluation->getErrors());
-//             die('Evaluation could not be saved.');
-//         }
+        'feedback_date' =>
+            $evaluation->feedback->feedback_date ?? ''
 
-//         // ==========================
-//         // Save Feedback
-//         // ==========================
+    ];
 
-//         $feedback = $this->Feedbacks->newEmptyEntity();
 
-//         $feedback = $this->Feedbacks->patchEntity($feedback, [
-
-//             'evaluation_id' => $evaluation->id,
-
-//             'q1' => $this->request->getData('q1'),
-//             'q2' => $this->request->getData('q2'),
-//             'q3' => $this->request->getData('q3'),
-//             'q4' => $this->request->getData('q4'),
-//             'q5' => $this->request->getData('q5'),
-//             'q6' => $this->request->getData('q6'),
-
-//             'rating' => $feedbackScore,
-
-//             'comments' => $this->request->getData('comments'),
-
-//             'feedback_date' => date('Y-m-d')
-//         ]);
-
-//         if (!$this->Feedbacks->save($feedback)) {
-//             debug($feedback->getErrors());
-//             die('Feedback could not be saved.');
-//         }
-
-//         // ==========================
-//         // Link Feedback to Evaluation
-//         // ==========================
-
-//         $evaluation->feedback_id = $feedback->id;
-//         $this->Evaluations->save($evaluation);
-
-//         // Clear session
-
-//         $session->delete('EvaluationData');
-
-//         $this->Flash->success('Evaluation completed successfully.');
-
-//         return $this->redirect([
-//             'action' => 'index'
-//         ]);
-//     }
-// }
+    return $this->response
+        ->withType('application/json')
+        ->withStringBody(json_encode($data));
+}  
 }

@@ -17,9 +17,7 @@ class NotificationsController extends AppController
      */
     public function index()
 {
-    $notifications = $this->Notifications
-            ->find()
-            ->order(['id' => 'DESC']);
+    $notifications = $this->Notifications->find()->order(['id' => 'DESC']);
 
     $this->set(compact('notifications'));
 }
@@ -104,43 +102,43 @@ class NotificationsController extends AppController
         return $this->redirect(['action' => 'index']);
     }
     public function deleteAll()
-{
-    $this->request->allowMethod(['post']);
-
-    $result = $this->Notifications
-        ->query()
-        ->delete()
-        ->execute();
-
-    $this->Flash->success(
-        __('All notifications deleted.')
-    );
-
-    return $this->redirect(['action' => 'index']);
-}
-
-
-   public function count()
     {
-        $this->request->allowMethod(['get']);
+        $this->request->allowMethod(['post']);
 
-        $user = $this->Auth->user();
+        $result = $this->Notifications
+            ->query()
+            ->delete()
+            ->execute();
 
-        $count = $this->Notifications
-            ->find()
-            ->where([
-                'is_read' => 0,
-                'user_id' => $user['id']
-            ])
-            ->count();
+        $this->Flash->success(
+            __('All notifications deleted.')
+        );
 
-        $this->set([
-            'count' => $count,
-            '_serialize' => ['count']
-        ]);
+        return $this->redirect(['action' => 'index']);
     }
 
-    public function approveRegistration($id)
+
+       public function count()
+        {
+            $this->request->allowMethod(['get']);
+
+            $user = $this->Auth->user();
+
+            $count = $this->Notifications
+                ->find()
+                ->where([
+                    'is_read' => 0,
+                    'user_id' => $user['id']
+                ])
+                ->count();
+
+            $this->set([
+                'count' => $count,
+                '_serialize' => ['count']
+            ]);
+        }
+
+        public function approveRegistration($id)
     {
         $notificationsTable = $this->getTableLocator()->get('Notifications');
         $usersTable = $this->getTableLocator()->get('Users');
@@ -156,36 +154,74 @@ class NotificationsController extends AppController
 
         try {
 
+            // Check if username already exists
+            $existingUser = $usersTable->find()
+                ->where(['username' => $data['user']['username']])
+                ->first();
+
+            if ($existingUser) {
+                throw new \Exception('Username already exists.');
+            }
+
+            // Create the system account
             $user = $usersTable->newEntity($data['user']);
 
             if (!$usersTable->save($user)) {
-                throw new \Exception('User save failed');
+                throw new \Exception('User save failed.');
             }
 
-            $data['farmer']['user_id'] = $user->id;
+            // Check if farmer already exists
+            $existingFarmer = $farmersTable->find()
+                ->where([
+                    'first_name'  => $data['farmer']['first_name'],
+                    'middle_name' => $data['farmer']['middle_name'],
+                    'last_name'   => $data['farmer']['last_name']
+                ])
+                ->first();
 
-            $farmer = $farmersTable->newEntity($data['farmer']);
+            if ($existingFarmer) {
 
-            if (!$farmersTable->save($farmer)) {
-                throw new \Exception('Farmer save failed');
+                // Farmer already exists
+                // Link the system account to the existing farmer
+                $existingFarmer->user_id = $user->id;
+
+                if (!$farmersTable->save($existingFarmer)) {
+                    throw new \Exception('Unable to link user to existing farmer.');
+                }
+
+            } else {
+
+                // Farmer not found
+                // Create a new farmer record
+                $data['farmer']['user_id'] = $user->id;
+
+                $farmer = $farmersTable->newEntity($data['farmer']);
+
+                if (!$farmersTable->save($farmer)) {
+                    throw new \Exception('Farmer save failed.');
+                }
             }
 
+            // Update notification
             $notification->status = 'approved';
             $notification->is_read = 1;
 
-            $notificationsTable->save($notification);
+            if (!$notificationsTable->save($notification)) {
+                throw new \Exception('Notification update failed.');
+            }
 
             $connection->commit();
 
-            $this->Flash->success(__('Registration approved.'));
+            $this->Flash->success(__('Registration approved successfully.'));
+
         } catch (\Exception $e) {
 
             $connection->rollback();
 
-            $this->Flash->error(__('Approval failed.'));
+            $this->Flash->error($e->getMessage());
         }
 
-        return $this->redirect(['action' => 'index']);
+        return $this->redirect(['controller'=>'Dashboard','action' => 'index']);
     }
 
     public function declineRegistration($id)
@@ -201,18 +237,30 @@ class NotificationsController extends AppController
             $this->Flash->error(__('Unable to decline registration.'));
         }
 
-        return $this->redirect(['action' => 'index']);
+        return $this->redirect(['controller'=>'Dashboard','action' => 'index']);
     }
 
     public function viewRegistration($id)
     {
-        $notification = $this->Notifications->get($id);
-    
+        $notificationsTable = $this->getTableLocator()->get('Notifications');
+        $farmersTable = $this->getTableLocator()->get('Farmers');
+        $notification = $notificationsTable->get($id);
         $data = json_decode($notification->data, true);
-    
-        $this->set(compact(
-            'notification',
-            'data'
-        ));
+
+        // Check existing farmer
+        $existingFarmer = $farmersTable->find()
+            ->where([
+                'first_name' => $data['farmer']['first_name'],
+                'middle_name' => $data['farmer']['middle_name'],
+                'last_name' => $data['farmer']['last_name']
+            ])
+            ->first();
+
+
+        $this->set([
+            'notification' => $notification,
+            'data' => $data,
+            'existingFarmer' => $existingFarmer
+        ]);
     }
-}
+    }

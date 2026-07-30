@@ -204,9 +204,7 @@
 <script>
 const labels = <?= json_encode($labels) ?>;
 const totals = <?= json_encode($totals) ?>;
-
 const ctx = document.getElementById('effectivenessChart').getContext('2d');
-
 new Chart(ctx, {
     type: 'pie',
     data: {
