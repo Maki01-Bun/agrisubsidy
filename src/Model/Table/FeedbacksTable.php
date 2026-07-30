@@ -55,7 +55,7 @@ class FeedbacksTable extends Table
     public function validationDefault(Validator $validator): Validator
     {
         $validator
-            ->integer('rating')
+            ->numeric('rating')
             ->requirePresence('rating', 'create')
             ->notEmptyString('rating');
 

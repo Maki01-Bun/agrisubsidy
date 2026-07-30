@@ -50,10 +50,7 @@ class EvaluationsController extends AppController
     public function getEvaluations()
 {
     try {
-        $evaluations = $this->Evaluations
-            ->find()
-            ->contain(['Farmers', 'Feedbacks'])
-            ->all();
+        $evaluations = $this->Evaluations->find()->contain(['Farmers', 'Feedbacks'])->all();
 
         $data = [];
 

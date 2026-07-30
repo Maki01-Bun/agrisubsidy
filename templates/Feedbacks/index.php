@@ -15,45 +15,30 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label>Farmer Name</label>
-                    <?= $this->Form->control('farmer_name', [
-                        'class' => 'form-control',
-                        'label' => false,
-                    ]) ?>
+                    <?= $this->Form->control('farmerName', ['value' => $farmerName ?? '','class' => 'form-control',
+                    'label' => false,'readonly' => true,]) ?>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label>Subsidy Type</label>
-                    <?= $this->Form->control('subsidy_type', [
-                        'class' => 'form-control',
-                        'label' => false,
-                    ]) ?>
+                    <?= $this->Form->control('subsidy_type', ['class' => 'form-control',
+                        'label' => false,]) ?>
                 </div>
                 <div class="col-md-4 mb-3">
                     <label>Farm Size (ha)</label>
-                    <?= $this->Form->control('farm_size', [
-                        'class' => 'form-control',
-                        'label' => false,
-                    ]) ?>
+                    <?= $this->Form->control('farm_size', ['class' => 'form-control',
+                        'label' => false,]) ?>
                 </div>
                 <div class="col-md-4 mb-3">
                     <label>Crop Yield Before</label>
-                    <?= $this->Form->control('crop_yield_before', [
-                        'class' => 'form-control',
-                        'label' => false,
-                    ]) ?>
+                    <?= $this->Form->control('crop_yield_before', ['class' => 'form-control','label' => false,]) ?>
                 </div>
                 <div class="col-md-4 mb-3">
                     <label>Crop Yield After</label>
-                    <?= $this->Form->control('crop_yield_after', [
-                        'class' => 'form-control',
-                        'label' => false,
-                    ]) ?>
+                    <?= $this->Form->control('crop_yield_after', ['class' => 'form-control','label' => false,]) ?>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label>Income Before</label>
-                    <?= $this->Form->control('income_before', [
-                        'class' => 'form-control',
-                        'label' => false,
-                    ]) ?>
+                    <?= $this->Form->control('income_before', ['class' => 'form-control','label' => false,]) ?>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label>Income After</label>
@@ -113,15 +98,11 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label>Pest</label>
-                    <?= $this->Form->control('pest', ['class' => 'form-control','label' => false
-                    ]) ?>
+                    <?= $this->Form->control('pest', ['class' => 'form-control','label' => false]) ?>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label>Calamity</label>
-                    <?= $this->Form->control('calamity', [
-                        'class' => 'form-control',
-                        'label' => false
-                    ]) ?>
+                    <?= $this->Form->control('calamity', ['class' => 'form-control','label' => false]) ?>
                 </div>
             </div>
         </div>
@@ -133,5 +114,42 @@
             </button>
         </div>
         <?= $this->Form->end() ?>
+    </div>
+</div>
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Submission Successful
+                </h5>
+            </div>
+
+            <div class="modal-body text-center">
+
+                <i class="fas fa-check-circle text-success"
+                   style="font-size:70px;"></i>
+
+                <h4 class="mt-3">
+                    Thank you!
+                </h4>
+
+                <p class="mb-0">
+                    Your feedback has been submitted successfully.
+                </p>
+
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-success"
+                        id="successOk">
+                    OK
+                </button>
+            </div>
+
+        </div>
     </div>
 </div>

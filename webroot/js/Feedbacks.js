@@ -34,7 +34,7 @@ $(function(){
 		let id = $('#id').val();
 		let url = '';
 		if(id==''){
-			url = BASE_URL + '/api/Feedbacks/add';
+			url = BASE_URL + '/api/Feedbacks/survey';
 		}else{
 			url = BASE_URL + '/api/Feedbacks/edit/' + id;
 		}

@@ -16,24 +16,38 @@ class FeedbacksController extends AppController
      * @return \Cake\Http\Response|null|void Renders view
      */
     public function index()
-    {
+{
+    $this->loadModel('Farmers');
 
+    $session = $this->request->getSession();
+    $user = $session->read('Auth.User');
+
+    $farmer = $this->Farmers->find()->where(['user_id' => $user['id']])->first();
+    if ($farmer) {
+        $this->set('farmerName', $farmer->first_name . ' ' . $farmer->middle_name . ' ' . $farmer->last_name);
+    } else {
+        $this->set('farmerName', '');
     }
+}
     public function survey()
     {
         if ($this->request->is('post')) {
 
-            $this->loadModel('Evaluations');
+            $this->loadModel('Evaluations');    
             $this->loadModel('Feedbacks');
+            $this->loadModel('Farmers');
+            
+            $user = $this->request->getSession()->read('Auth.User');
 
-            $session = $this->request->getSession();
+            $farmer = $this->Farmers->find()
+                ->where(['user_id' => $user['id']])
+                ->first();
 
-            $evaluationData = $session->read('EvaluationData');
-
-            if (!$evaluationData) {
-                $this->Flash->error('Evaluation session has expired.');
-                return $this->redirect(['action' => 'index']);
+            if (!$farmer) {
+                die('Farmer record not found.');
             }
+
+            $evaluationData = $this->request->getData();
 
             // Compute feedback score
             $feedbackScore = (
@@ -46,7 +60,6 @@ class FeedbacksController extends AppController
             ) / 6;
 
             // Call FastAPI
-
             $http = new \Cake\Http\Client();
 
             $payload = [
@@ -70,7 +83,6 @@ class FeedbacksController extends AppController
                     ]
                 ]
             );
-
             $result = $response->getJson();
 
             // Save Evaluation
@@ -88,19 +100,8 @@ class FeedbacksController extends AppController
                 debug($evaluation->getErrors());
                 die('Evaluation could not be saved.');
             }
-
-            // Save Feedback
-
-            $evaluation = $this->Evaluations->newEmptyEntity();
-
-            $evaluation = $this->Evaluations->patchEntity(
-                $evaluation,
-                $evaluationData
-            );
-
             $evaluation->feedback_score = $feedbackScore;
             $evaluation->effectiveness_label = $result['effectiveness'] ?? 'Pending';
-
             if (!$this->Evaluations->save($evaluation)) {
                 debug($evaluation->getErrors());
                 die('Evaluation could not be saved.');
@@ -109,7 +110,6 @@ class FeedbacksController extends AppController
 
             // Save Feedback
             $feedback = $this->Feedbacks->newEmptyEntity();
-
             $feedbackData = [
                 'evaluation_id' => $evaluation->id,
 
@@ -124,33 +124,19 @@ class FeedbacksController extends AppController
                 // Required fields
                 'rating' => $feedbackScore,
                 'comment' => $this->request->getData('comment'),
-                'feedback_date' => date('Y-m-d'),
+                'feedback_date' => date('Y-m-d H:i:s'),
             ];
-
             $feedback = $this->Feedbacks->patchEntity($feedback, $feedbackData);
-
             if (!$this->Feedbacks->save($feedback)) {
                 debug($feedback->getErrors());
                 debug($feedback);
                 die('Feedback could not be saved.');
             }
 
-
-            // =======================================
             // Link Feedback to Evaluation
-            // =======================================
-
             $evaluation->feedback_id = $feedback->id;
-
             $this->Evaluations->save($evaluation);
-
-
-            // Clear Session
-            $session->delete('EvaluationData');
-
-            $this->Flash->success('Your feedback has been submitted.');
-
-            return $this->redirect(['action' => 'index']);
+            return $this->redirect(['action' => 'index','?' => ['submitted' => 1]]);
         }
     }
 }

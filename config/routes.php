@@ -138,6 +138,17 @@ return function (RouteBuilder $routes): void {
                 'pass' => ['id']
             ]);
         });
+        $builder->scope('/Feedbacks', function (RouteBuilder $builder) {
+            $builder->connect('/', ['controller' => 'Feedbacks', 'action' => 'index']);
+            $builder->connect('/getFeedbacks', ['controller' => 'Feedbacks', 'action' => 'getFeedbacks']);
+            $builder->connect('/survey', ['controller' => 'Feedbacks', 'action' => 'survey']);
+            $builder->connect('/edit/{id}', ['controller' => 'Feedbacks', 'action' => 'edit'], [
+                'pass' => ['id']
+            ]);
+            $builder->connect('/delete/{id}', ['controller' => 'Feedbacks', 'action' => 'delete'], [
+                'pass' => ['id']
+            ]);
+        });
 
         $builder->scope('/Audit_Logs', function (RouteBuilder $builder) {
             $builder->connect('/', ['controller' => 'Audit_Logs', 'action' => 'index']);
