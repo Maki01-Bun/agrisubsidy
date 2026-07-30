@@ -16,19 +16,19 @@ class FeedbacksController extends AppController
      * @return \Cake\Http\Response|null|void Renders view
      */
     public function index()
-{
-    $this->loadModel('Farmers');
+    {
+        $this->loadModel('Farmers');
 
-    $session = $this->request->getSession();
-    $user = $session->read('Auth.User');
+        $session = $this->request->getSession();
+        $user = $session->read('Auth.User');
 
-    $farmer = $this->Farmers->find()->where(['user_id' => $user['id']])->first();
-    if ($farmer) {
-        $this->set('farmerName', $farmer->first_name . ' ' . $farmer->middle_name . ' ' . $farmer->last_name);
-    } else {
-        $this->set('farmerName', '');
+        $farmer = $this->Farmers->find()->where(['user_id' => $user['id']])->first();
+        if ($farmer) {
+            $this->set('farmerName', $farmer->first_name . ' ' . $farmer->middle_name . ' ' . $farmer->last_name);
+        } else {
+            $this->set('farmerName', '');
+        }
     }
-}
     public function survey()
     {
         if ($this->request->is('post')) {
@@ -90,7 +90,8 @@ class FeedbacksController extends AppController
                 $evaluation,
                 $evaluationData
             );
-
+            
+            $evaluation->farmer_id = $farmer->id;
             $evaluation->feedback_score = $feedbackScore;
             $evaluation->effectiveness_label = $result['effectiveness'] ?? 'Pending';
 

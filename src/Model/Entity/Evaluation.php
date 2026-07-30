@@ -43,6 +43,8 @@ class Evaluation extends Entity
         'pest' => true,
         'calamity' => true,
         'effectiveness_label' => true,
+        'farmer_id' => true,
+        'feedback_id' => true,
         'created' => true,
         'modified' => true,
     ];

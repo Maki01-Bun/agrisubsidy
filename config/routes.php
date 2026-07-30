@@ -127,27 +127,26 @@ return function (RouteBuilder $routes): void {
                 'pass' => ['id']
             ]);
         });
+        $builder->scope('/Distributions', function (RouteBuilder $builder) {
+            $builder->connect('/', ['controller' => 'Distributions', 'action' => 'index']);
+            $builder->connect('/getDistributions', ['controller' => 'Distributions', 'action' => 'getDistributions']);
+            $builder->connect('/add', ['controller' => 'Distributions', 'action' => 'add']);
+            $builder->connect('/edit/{id}', ['controller' => 'Distributions', 'action' => 'edit'], [
+                'pass' => ['id']
+            ]);
+            $builder->connect('/delete/{id}', ['controller' => 'Distributions', 'action' => 'delete'], [
+                'pass' => ['id']
+            ]);
+        });
         $builder->scope('/Evaluations', function (RouteBuilder $builder) {
             $builder->connect('/', ['controller' => 'Evaluations', 'action' => 'index']);
             $builder->connect('/getEvaluations', ['controller' => 'Evaluations', 'action' => 'getEvaluations']);
             $builder->connect('/add', ['controller' => 'Evaluations', 'action' => 'add']);
-            $builder->connect('/edit/{id}', ['controller' => 'Evaluations', 'action' => 'edit'], [
-                'pass' => ['id']
-            ]);
-            $builder->connect('/delete/{id}', ['controller' => 'Evaluations', 'action' => 'delete'], [
-                'pass' => ['id']
-            ]);
         });
         $builder->scope('/Feedbacks', function (RouteBuilder $builder) {
             $builder->connect('/', ['controller' => 'Feedbacks', 'action' => 'index']);
             $builder->connect('/getFeedbacks', ['controller' => 'Feedbacks', 'action' => 'getFeedbacks']);
             $builder->connect('/survey', ['controller' => 'Feedbacks', 'action' => 'survey']);
-            $builder->connect('/edit/{id}', ['controller' => 'Feedbacks', 'action' => 'edit'], [
-                'pass' => ['id']
-            ]);
-            $builder->connect('/delete/{id}', ['controller' => 'Feedbacks', 'action' => 'delete'], [
-                'pass' => ['id']
-            ]);
         });
 
         $builder->scope('/Audit_Logs', function (RouteBuilder $builder) {
