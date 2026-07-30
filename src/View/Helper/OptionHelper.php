@@ -36,4 +36,15 @@ class OptionHelper extends Helper
 
         return $array;
     }
+    public function status()
+    {
+        $array =[
+            'Pending'=>'Pending',
+            'Received'=>'Received',
+            'Expired'=>'Expired',
+            'Cancelled'=>'Cancelled',
+        ];
+
+        return $array;
+    }
 }

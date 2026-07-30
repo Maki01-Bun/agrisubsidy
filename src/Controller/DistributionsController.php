@@ -8,7 +8,7 @@ namespace App\Controller;
  *
  * @method \App\Model\Entity\Distribution[]|\Cake\Datasource\ResultSetInterface paginate($object = null, array $settings = [])
  */
-class DistributionController extends AppController
+class DistributionsController extends AppController
 {
     /**
      * Index method
@@ -17,7 +17,9 @@ class DistributionController extends AppController
      */
     public function index()
     {
+        $distributions = $this->Distributions->newEmptyEntity();
 
+        $this->set(compact('distributions'));
     }
 
     /**
@@ -29,11 +31,11 @@ class DistributionController extends AppController
      */
     public function view($id = null)
     {
-        $sample = $this->Distributions->get($id, [
+        $distribution = $this->Distributions->get($id, [
             'contain' => [],
         ]);
 
-        $this->set(compact('sample'));
+        $this->set(compact('distributions'));
     }
 
     /**
@@ -43,58 +45,58 @@ class DistributionController extends AppController
      */
     public function add()
     {
-        $sample = $this->Distributions->newEmptyEntity();
+        $distribution = $this->Distributions->newEmptyEntity();
         if ($this->request->is('post')) {
-            $sample = $this->Distributions->patchEntity($sample, $this->request->getDistributions());
-            if ($this->Distributions->save($sample)) {
-                $this->Flash->success(__('The sample has been saved.'));
+            $distribution = $this->Distributions->patchEntity($distribution, $this->request->getDistributions());
+            if ($this->Distributions->save($distribution)) {
+                $this->Flash->success(__('The distributions has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error(__('The sample could not be saved. Please, try again.'));
+            $this->Flash->error(__('The distribution could not be saved. Please, try again.'));
         }
-        $this->set(compact('sample'));
+        $this->set(compact('distribution'));
     }
 
     /**
      * Edit method
      *
-     * @param string|null $id Sample id.
+     * @param string|null $id Distribution id.
      * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
     public function edit($id = null)
     {
-        $sample = $this->Sample->get($id, [
+        $distribution = $this->Distributions->get($id, [
             'contain' => [],
         ]);
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $sample = $this->Sample->patchEntity($sample, $this->request->getData());
-            if ($this->Sample->save($sample)) {
-                $this->Flash->success(__('The sample has been saved.'));
+            $distribution = $this->Distributions->patchEntity($distribution, $this->request->getDistributions());
+            if ($this->Distributions->save($distribution)) {
+                $this->Flash->success(__('The distribution has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error(__('The sample could not be saved. Please, try again.'));
+            $this->Flash->error(__('The distribution could not be saved. Please, try again.'));
         }
-        $this->set(compact('sample'));
+        $this->set(compact('distribution'));
     }
 
     /**
      * Delete method
      *
-     * @param string|null $id Sample id.
+     * @param string|null $id Distribution id.
      * @return \Cake\Http\Response|null|void Redirects to index.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $sample = $this->Sample->get($id);
-        if ($this->Sample->delete($sample)) {
-            $this->Flash->success(__('The sample has been deleted.'));
+        $distribution = $this->Distributions->get($id);
+        if ($this->Distributions->delete($distribution)) {
+            $this->Flash->success(__('The distribution has been deleted.'));
         } else {
-            $this->Flash->error(__('The sample could not be deleted. Please, try again.'));
+            $this->Flash->error(__('The distribution could not be deleted. Please, try again.'));
         }
 
         return $this->redirect(['action' => 'index']);

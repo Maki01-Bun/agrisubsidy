@@ -17,7 +17,6 @@ use Cake\ORM\Entity;
  * @property \Cake\I18n\Time $start_time
  * @property \Cake\I18n\Time $end_time
  *
- * @property \App\Model\Entity\Beneficiary[] $beneficiaries
  */
 class Program extends Entity
 {
@@ -38,6 +37,5 @@ class Program extends Entity
         'end_date' => true,
         'start_time' => true,
         'end_time' => true,
-        'beneficiaries' => true,
     ];
 }
