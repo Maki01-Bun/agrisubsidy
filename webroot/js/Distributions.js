@@ -17,6 +17,7 @@ $(function(){
         })
             .done(function(data){
                 if(data!=''){
+                    $('#farmer_id').val(data.farmer_id);
                 	$('#subsidy_item').val(data.subsidy_item);
                 	$('#quantity').val(data.quantity);
                     $('#distribution_date').val(data.distribution_date);
@@ -112,6 +113,7 @@ function getDistributions()
             "url": BASE_URL + '/api/Distributions/getDistributions'
         },
         "columns": [
+            {data:"farmer_id"},
 			{data:"subsidy_item"},
             {data:"quantity"},
             {data:"distribution_date"},

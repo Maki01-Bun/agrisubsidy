@@ -1,6 +1,6 @@
 <div class="container mt-4">
     <div class="card shadow">
-        <div class="card-header bg-success   text-white">
+        <div class="card-header bg-success  text-dark">
             <h4 class="mb-0">
                 <i class="fas fa-clipboard-check me-2"></i>
                 Subsidy Effectiveness Evaluation Survey

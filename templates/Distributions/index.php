@@ -12,6 +12,7 @@
             <table id="distributions-table" class="table table-bordered table-hover">
                 <thead>
                     <tr>
+                        <th>Farmer</th>
                         <th>Subsidy Item</th>
                         <th>Quantity</th>
                         <th>Distribution Date</th>
@@ -35,7 +36,10 @@
             </div>
             <?= $this->Form->create($distributions,['id'=>'distributions-form']) ?>
             <div class="modal-body">
-                <div class="form-group">    
+                <div class="form-group">
+                    <label for="farmer_id">Farmer</label>
+                    <?= $this->Form->control('farmer_id', ['type' => 'select','options' => $farmers,
+                    'empty' => '-- Select Farmer --','class' => 'form-control','label' => false]) ?>
                     <label for="subsidy_item">Subsidy Item</label>
                     <?= $this->Form->control('subsidy_item',['class'=>'form-control','label'=>false]) ?>
                     <label for="quantity">Quantity</label>

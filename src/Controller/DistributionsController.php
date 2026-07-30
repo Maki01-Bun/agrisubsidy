@@ -19,7 +19,13 @@ class DistributionsController extends AppController
     {
         $distributions = $this->Distributions->newEmptyEntity();
 
-        $this->set(compact('distributions'));
+        $this->loadModel('Farmers');
+
+        $farmers = $this->Farmers->find()->all()->combine(
+        'id',
+        function ($farmer) {
+            return $farmer->first_name . ' ' . $farmer->last_name;})->toArray();
+        $this->set(compact('distributions','farmers'));
     }
 
     /**
@@ -55,7 +61,15 @@ class DistributionsController extends AppController
             }
             $this->Flash->error(__('The distribution could not be saved. Please, try again.'));
         }
-        $this->set(compact('distribution'));
+        $this->loadModel('Farmers');
+
+        $farmers = $this->Farmers->find()->all()->combine(
+        'id',
+        function ($farmer) {
+            return $farmer->first_name . ' ' . $farmer->last_name;})->toArray();
+
+        $this->set(compact('distribution', 'farmers'));
+
     }
 
     /**
@@ -101,4 +115,5 @@ class DistributionsController extends AppController
 
         return $this->redirect(['action' => 'index']);
     }
+
 }

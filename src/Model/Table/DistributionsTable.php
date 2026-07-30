@@ -43,8 +43,9 @@ class DistributionsTable extends Table
         $this->setDisplayField('subsidy_item');
         $this->setPrimaryKey('id');
 
-        $this->hasMany('Farmers', [
-            'foreignKey' => 'farmer_id',
+        $this->belongsTo('Farmers', [
+        'foreignKey' => 'farmer_id',
+        'joinType' => 'INNER',
         ]);
     }
 
@@ -72,14 +73,14 @@ class DistributionsTable extends Table
             ->requirePresence('status', 'create')
             ->notEmptyString('status');
         $validator
-            ->date('distribution_date')
+            ->dateTime('distribution_date')
             ->requirePresence('distribution_date', 'create')
-            ->notEmptyDate('distribution_date');
+            ->notEmptyDateTime('distribution_date');
 
         $validator
-            ->date('received_date')
+            ->dateTime('received_date')
             ->requirePresence('received_date', 'create')
-            ->notEmptyDate('received_date');
+            ->notEmptyDateTime('received_date');
 
         $validator
             ->integer('farmer_id')

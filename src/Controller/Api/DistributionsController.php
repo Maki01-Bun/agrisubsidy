@@ -38,19 +38,41 @@ class DistributionsController extends AppController
      * @return \Cake\Http\Response|null|void Redirects on successful add, renders view otherwise.
      */
    public function add()
-    {
-        $distribution = $this->Distributions->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $distribution = $this->Distributions->patchEntity($distribution, $this->request->getData());
-            if ($this->Distributions->save($distribution)) {
-                $result = ['status' => 'success', 'message' => 'The distribution has been saved.'];
-            }else {
-                $result = ['status'=>'error','message'=>'The distribution could not be saved. Please, try again.'];
-            }
-            return $this->response->withType('application/json')
-                ->withStringBody(json_encode($result));
+{
+    $distribution = $this->Distributions->newEmptyEntity();
+
+    if ($this->request->is('post')) {
+
+        $distribution = $this->Distributions->patchEntity(
+            $distribution,
+            $this->request->getData()
+        );
+
+        if ($this->Distributions->save($distribution)) {
+
+            $result = [
+                'status' => 'success',
+                'message' => 'The distribution has been saved.'
+            ];
+
+        } else {
+
+            debug($this->request->getData());
+            debug($distribution->getErrors());
+            debug($distribution);
+            die();
+
+            $result = [
+                'status' => 'error',
+                'message' => 'The distribution could not be saved.'
+            ];
         }
+
+        return $this->response
+            ->withType('application/json')
+            ->withStringBody(json_encode($result));
     }
+}
 
 
     /**
