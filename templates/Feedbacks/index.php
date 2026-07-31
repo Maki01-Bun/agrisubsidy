@@ -1,7 +1,7 @@
 <div class="container mt-4">
     <div class="card shadow">
-        <div class="card-header bg-success  text-dark">
-            <h4 class="mb-0">
+       <div class="card-header" style="background:#198754;">
+            <h4 class="mb-0" style="color:white;">
                 <i class="fas fa-clipboard-check me-2"></i>
                 Subsidy Effectiveness Evaluation Survey
             </h4>
@@ -10,7 +10,7 @@
         'id' => 'evaluations-form']) ?>
         <div class="card-body">
             <h5 class="text-success mb-3">
-                Beneficiary Information
+                Feedback Questions
             </h5>
             <div class="row">
                 <div class="col-md-6 mb-3">
@@ -97,11 +97,11 @@
             <hr>
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label>Pest</label>
+                    <label>Pest experienced?</label>
                     <?= $this->Form->control('pest', ['class' => 'form-control','label' => false]) ?>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label>Calamity</label>
+                    <label>Calamity experienced?</label>
                     <?= $this->Form->control('calamity', ['class' => 'form-control','label' => false]) ?>
                 </div>
             </div>

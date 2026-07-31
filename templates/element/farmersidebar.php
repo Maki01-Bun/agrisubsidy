@@ -28,22 +28,9 @@
                     <?= $this->Html->link(
                         '<i class="nav-icon fas fa-bullhorn"></i>
                         <p>Subsidy Announcements</p>',
-                        [
-                            'controller' => 'Programs',
-                            'action' => 'announcements'
-                        ],
-                        [
-                            'escape' => false,
-                            'class' => 'nav-link'
-                        ]
+                        ['controller' => 'Programs','action' => 'announcements'],
+                        ['escape' => false,'class' => 'nav-link']
                     ) ?>
-                </li>
-                <li class="nav-item">
-                    <?php $active = $title=='Distribution'?'active':'' ?>
-                    <?= $this->Html->link('<i class="nav-icon fas fa-box"></i>
-                        <p>
-                        Subsidy Distribution 
-                        </p>','/Distributions',['class'=>'nav-link '.$active,'escape'=>false]) ?>
                 </li>
                 <li class="nav-item">
                     <?php $active = $title=='Feedback'?'active':'' ?>

@@ -53,7 +53,7 @@ class DistributionsController extends AppController
     {
         $distribution = $this->Distributions->newEmptyEntity();
         if ($this->request->is('post')) {
-            $distribution = $this->Distributions->patchEntity($distribution, $this->request->getDistributions());
+            $distribution = $this->Distributions->patchEntity($distribution, $this->request->getData());
             if ($this->Distributions->save($distribution)) {
                 $this->Flash->success(__('The distributions has been saved.'));
 
@@ -62,7 +62,7 @@ class DistributionsController extends AppController
             $this->Flash->error(__('The distribution could not be saved. Please, try again.'));
         }
         $this->loadModel('Farmers');
-
+        $distributions->farmer_id = $farmer->id;
         $farmers = $this->Farmers->find()->all()->combine(
         'id',
         function ($farmer) {
@@ -85,7 +85,7 @@ class DistributionsController extends AppController
             'contain' => [],
         ]);
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $distribution = $this->Distributions->patchEntity($distribution, $this->request->getDistributions());
+            $distribution = $this->Distributions->patchEntity($distribution, $this->request->getData());
             if ($this->Distributions->save($distribution)) {
                 $this->Flash->success(__('The distribution has been saved.'));
 

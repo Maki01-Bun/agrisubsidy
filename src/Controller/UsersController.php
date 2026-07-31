@@ -58,8 +58,8 @@ class UsersController extends AppController
             $password = $userData['password'] ?? '';
             $confirmPassword = $userData['confirm_password'] ?? '';
 
-            if (!preg_match('/^(?=.*[A-Za-z])(?=.*[\W_]).{8,}$/', $password)) {
-                $this->Flash->error(  __('Password must be at least 8 characters and contain at least one letter and one special character.')
+            if (!preg_match('/^(?=.*[A-Z])(?=.*[\W_]).{8,}$/', $password)) {
+                $this->Flash->error(  __('Password must be at least 8 characters and contain at least one capital letter and one special character.')
                 );
                 return $this->redirect(['action' => 'register', 2]);
             }

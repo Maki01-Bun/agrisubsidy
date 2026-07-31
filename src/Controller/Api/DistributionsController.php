@@ -39,41 +39,49 @@ class DistributionsController extends AppController
      */
    public function add()
 {
+    $this->autoRender = false;
+
     $distribution = $this->Distributions->newEmptyEntity();
 
-    if ($this->request->is('post')) {
-
-        $distribution = $this->Distributions->patchEntity(
-            $distribution,
-            $this->request->getData()
-        );
-
-        if ($this->Distributions->save($distribution)) {
-
-            $result = [
-                'status' => 'success',
-                'message' => 'The distribution has been saved.'
-            ];
-
-        } else {
-
-            debug($this->request->getData());
-            debug($distribution->getErrors());
-            debug($distribution);
-            die();
-
-            $result = [
-                'status' => 'error',
-                'message' => 'The distribution could not be saved.'
-            ];
-        }
-
+    // Allow only POST requests
+    if (!$this->request->is('post')) {
         return $this->response
+            ->withStatus(405)
             ->withType('application/json')
-            ->withStringBody(json_encode($result));
+            ->withStringBody(json_encode([
+                'status' => 'error',
+                'message' => 'Only POST requests are allowed.'
+            ]));
     }
-}
 
+    $distribution = $this->Distributions->patchEntity(
+        $distribution,
+        $this->request->getData()
+    );
+
+    if ($this->Distributions->save($distribution)) {
+
+        $result = [
+            'status' => 'success',
+            'message' => 'The distribution has been saved.',
+            'data' => [
+                'id' => $distribution->id
+            ]
+        ];
+
+    } else {
+
+        $result = [
+            'status' => 'error',
+            'message' => 'The distribution could not be saved.',
+            'errors' => $distribution->getErrors()
+        ];
+    }
+
+    return $this->response
+        ->withType('application/json')
+        ->withStringBody(json_encode($result));
+}
 
     /**
      * Edit method

@@ -45,13 +45,13 @@
                             Programs
                         </p>','/Programs',['class'=>'nav-link '.$active,'escape'=>false]) ?>
                 </li>
-                <li class="nav-item">
+                <!-- <li class="nav-item">
                     <?php $active = $title=='Distributions'?'active':'' ?>
                     <?= $this->Html->link('<i class="nav-icon fas fa-user-clock"></i>
                         <p>
                             Distribution History
                         </p>','/Distributions',['class'=>'nav-link '.$active,'escape'=>false]) ?>
-                </li>
+                </li> -->
                 <li class="nav-item">
                     <?php $active = $title=='Users'?'active':'' ?>
                     <?= $this->Html->link('<i class="nav-icon fas fa-user-cog"></i>
