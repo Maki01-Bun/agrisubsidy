@@ -13,6 +13,8 @@ use Cake\ORM\Entity;
  * @property string $username
  * @property string $password
  * @property string $role
+ * @property int $failed_attempts
+ * @property \Cake\I18n\FrozenTime|null $locked_until
  * @property \Cake\I18n\FrozenTime $created
  * @property \Cake\I18n\FrozenTime $modified
  */
@@ -31,8 +33,12 @@ class User extends Entity
         'username' => true,
         'password' => true,
         'role' => true,
-        'created' => true,
-        'modified' => true,
+        'failed_attempts' => true,
+        'locked_until' => true,
+    ];
+
+    protected $_casts = [
+        'locked_until' => 'datetime',
     ];
 
     /**

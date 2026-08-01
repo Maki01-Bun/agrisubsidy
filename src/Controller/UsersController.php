@@ -108,46 +108,97 @@ class UsersController extends AppController
         $this->set(compact('user','step'));
     }
     public function login()
-{
-    $this->viewBuilder()->setLayout('login');
-
-    if ($this->request->is('post')) {
-
-        $user = $this->Auth->identify();
-
-        if ($user) {
-
-            $this->Auth->setUser($user);
-
-            if ($user['role'] == 'admin') {
-
-                return $this->redirect([
-                    'controller' => 'Dashboard',
-                    'action' => 'index'
-                ]);
-
-            } elseif ($user['role'] == 'staff') {
-
-                return $this->redirect([
-                    'controller' => 'Dashboard',
-                    'action' => 'index'
-                    // Change this if staff has a different dashboard
-                ]);
-
+    {
+        $this->viewBuilder()->setLayout('login');
+        if ($this->request->is('post')) {
+            $username = $this->request->getData('username');
+            // Load Users table
+            $this->loadModel('Users');
+            // Find user by username
+            $existingUser = $this->Users->find()
+                ->where([
+                    'username' => $username
+                ])
+                ->first();
+            // Check if account is locked
+            if (
+                $existingUser &&
+                $existingUser->locked_until &&
+                $existingUser->locked_until > date('Y-m-d H:i:s')
+            ) {
+                $this->Flash->error(
+                    'Your account is temporarily locked. Please try again later.'
+                );
+                return;
+            }
+            // Check username and password
+            $user = $this->Auth->identify();
+            if ($user) {
+                // Successful login reset attempts
+                if ($existingUser) {
+    
+                    $existingUser->failed_attempts = 0;
+                    $existingUser->locked_until = null;
+    
+                    $this->Users->save($existingUser);
+    
+                }
+    
+    
+    
+                $this->Auth->setUser($user);
+    
+    
+    
+                if ($user['role'] == 'admin') {
+    
+    
+                    return $this->redirect([
+                        'controller'=>'Dashboard',
+                        'action'=>'index'
+                    ]);
+    
+                } elseif ($user['role'] == 'staff') {
+                    return $this->redirect([
+                        'controller'=>'Dashboard',
+                        'action'=>'index'
+                    ]);
+                } else {
+                    return $this->redirect([
+                        'controller'=>'Feedbacks',
+                        'action'=>'index'
+                    ]);
+                }
+            }
+            // Wrong username/password
+            if ($existingUser) {
+                $existingUser->failed_attempts++;
+                if ($existingUser->failed_attempts >= 5) {
+                    $existingUser->locked_until =
+                        date(
+                            'Y-m-d H:i:s',
+                            strtotime('+5 seconds')
+                        );
+                    $existingUser->failed_attempts = 0;
+                    $this->Flash->error(
+                        'Too many failed attempts. Your account is locked for 15 minutes.'
+                    );
+                } else {
+                    $remaining =
+                        5 - $existingUser->failed_attempts;
+                    $this->Flash->error(
+                        "Invalid username or password. $remaining attempts remaining."
+                    );
+                }
+                $this->Users->save($existingUser);
             } else {
-
-                // farmer
-                return $this->redirect([
-                    'controller' => 'Feedbacks',
-                    'action' => 'index'
-                ]);
-
+                // Do not reveal that username does not exist
+                $this->Flash->error(
+                    'Invalid username or password.'
+                );
             }
         }
-
-        $this->Flash->error(__('Invalid username or password, try again'));
     }
-}
 
     public function logout()
     {
