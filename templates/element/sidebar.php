@@ -45,6 +45,13 @@
                             Programs
                         </p>','/Programs',['class'=>'nav-link '.$active,'escape'=>false]) ?>
                 </li>
+                <li class="nav-item">
+                    <?php $active = $title=='Pests'?'active':'' ?>
+                    <?= $this->Html->link('<i class="nav-icon fas fa-bug"></i>
+                        <p>
+                            Pests
+                        </p>','/Pests',['class'=>'nav-link '.$active,'escape'=>false]) ?>
+                </li>
                 <!-- <li class="nav-item">
                     <?php $active = $title=='Distributions'?'active':'' ?>
                     <?= $this->Html->link('<i class="nav-icon fas fa-user-clock"></i>

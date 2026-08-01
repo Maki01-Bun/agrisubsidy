@@ -38,7 +38,6 @@
     </div>
 </div>
 <div class="row mt-4 g-4">
-
     <!-- Effectiveness Chart -->
     <div class="col-lg-9">
         <div class="card shadow-sm border-0 h-100">
@@ -54,18 +53,14 @@
             </div>
         </div>
     </div>
-
     <!-- Feedback Summary -->
     <div class="col-lg-3">
-
         <div class="card shadow-sm border-0 h-100">
             <div class="card-header bg-white fw-semibold">
                 <i class="fas fa-star text-warning me-2"></i>
                 Feedback Summary
             </div>
-
             <div class="card-body">
-
                 <div class="text-center mb-4">
                     <h6 class="text-muted">Average Rating</h6>
                     <h1 class="fw-bold text-primary">
@@ -73,7 +68,6 @@
                         <small class="fs-6">/ 5</small>
                     </h1>
                 </div>
-
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <span>
                         <i class="fas fa-smile text-success me-2"></i>
@@ -83,7 +77,6 @@
                         <?= $positive ?? 0 ?>
                     </span>
                 </div>
-
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <span>
                         <i class="fas fa-meh text-warning me-2"></i>
@@ -93,7 +86,6 @@
                         <?= $neutral ?? 0 ?>
                     </span>
                 </div>
-
                 <div class="d-flex justify-content-between align-items-center">
                     <span>
                         <i class="fas fa-frown text-danger me-2"></i>
@@ -103,9 +95,7 @@
                         <?= $negative ?? 0 ?>
                     </span>
                 </div>
-
                 <hr>
-
                 <div class="row text-center mt-4">
                     <div class="col-6">
                         <h6>Total Beneficiaries</h6>
@@ -113,7 +103,6 @@
                             <?= $totalBeneficiaries ?? 0 ?>
                         </h4>
                     </div>
-
                     <div class="col-6">
                         <h6>Registered Farmers</h6>
                         <h4 class="text-success">
@@ -121,90 +110,98 @@
                         </h4>
                     </div>
                 </div>
-
             </div>
         </div>
-
     </div>
-
 </div>
 
 <!-- Registration Requests -->
-<div class="row mt-4 bottom-4">
-    <div class="col-lg-12">
-        <div class="card shadow-sm border-0">
-            <div class="card-header registration-header fw-semibold">
-                <i class="fas fa-user-clock me-2"></i>
-                Registration Requests
-            </div>
-            <div class="card-body">
-                <table id="registration-table" class="table table-striped table-hover w-100">
-                    <thead>
+<div class="col-lg-12 mt-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-header registration-header fw-semibold">
+            <i class="fas fa-user-clock me-2"></i>
+            Registration Requests
+        </div>
+        <div class="card-body">
+            <table id="registration-table" class="table table-striped table-hover w-100">
+                <thead>
+                    <tr>
+                        <th width="40">
+                            <input type="checkbox" id="check-all">
+                        </th>
+                        <th>Message</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th width="250">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php if (!empty($notifications)) : ?>
+                    <?php foreach ($notifications as $notif) : ?>
                         <tr>
-                            <th width="40">
-                                <input type="checkbox" id="check-all">
-                            </th>
-                            <th>Message</th>
-                            <th>Date</th>
-                            <th>Status</th>
-                            <th width="250">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php if (!empty($notifications)) : ?>
-                        <?php foreach ($notifications as $notif) : ?>
-                            <tr>
-                                <td>
-                                    <input type="checkbox" class="notif-checkbox"value="<?= $notif->id ?>">
-                                </td>
-                                <td>
-                                    <?= h($notif->message) ?>
-                                </td>
-                                <td>
-                                    <?= $notif->created? $notif->created->format('M d, Y h:i A'): '' ?>
-                                </td>
-                                <td>
-                                    <?php if ($notif->status == 'pending') : ?>
-                                        <span class="badge badge-warning">
-                                            Pending
-                                        </span>
-                                    <?php elseif ($notif->status == 'approved') : ?>
-                                        <span class="badge badge-success">
-                                            Approved
-                                        </span>
-                                    <?php elseif ($notif->status == 'declined') : ?>
-                                        <span class="badge badge-danger">
-                                            Declined
-                                        </span>
-                                    <?php endif; ?>
-                                </td>
-                                <td class="text-center">
-                                    <div class="btn-group">
-                                        <?= $this->Html->link('<i class="fas fa-eye"></i>',
+                            <td>
+                                <input
+                                    type="checkbox"
+                                    class="notif-checkbox"
+                                    value="<?= $notif->id ?>">
+                            </td>
+                            <td>
+                                <?= h($notif->message) ?>
+                            </td>
+                            <td>
+                                <?= $notif->created
+                                    ? $notif->created->format('M d, Y h:i A')
+                                    : '' ?>
+                            </td>
+                            <td>
+                                <?php
+                                $badgeClass = 'badge-secondary';
+                                switch ($notif->status) {
+                                    case 'pending':
+                                        $badgeClass = 'badge-warning';
+                                        break;
+                                    case 'approved':
+                                        $badgeClass = 'badge-success';
+                                        break;
+                                    case 'declined':
+                                        $badgeClass = 'badge-danger';
+                                        break;
+                                }?>
+                                <span class="badge <?= $badgeClass ?>">
+                                    <?= ucfirst($notif->status) ?>
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group">
+                                    <?= $this->Html->link(
+                                        '<i class="fas fa-eye"></i>',
                                         ['controller' => 'Notifications','action' => 'viewRegistration',$notif->id],
-                                        ['class' => 'btn btn-info btn-sm','escape' => false,'title' => 'View Details']) ?>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else : ?>
-                        <tr>
-                            <td colspan="5" class="text-center text-muted">
-                                No notifications found.
+                                        ['class' => 'btn btn-info btn-sm','escape' => false,'title' => 'View Details'])?>
+                                </div>
                             </td>
                         </tr>
-                    <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
+                    <?php endforeach; ?>
+                <?php else : ?>
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">
+                            No notifications found.
+                        </td>
+                </tr>
+                <?php endif; ?>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 <script>
+const ctx = document.getElementById('effectivenessChart').getContext('2d');
+
 const labels = <?= json_encode($labels) ?>;
 const totals = <?= json_encode($totals) ?>;
-const ctx = document.getElementById('effectivenessChart').getContext('2d');
+
+Chart.register(ChartDataLabels);
 new Chart(ctx, {
     type: 'pie',
     data: {
@@ -212,7 +209,13 @@ new Chart(ctx, {
         datasets: [{
             label: 'Evaluations',
             data: totals,
-            borderWidth: 1
+            backgroundColor: [
+                '#28a745', // Effective
+                '#ffc107', // Moderately Effective
+                '#dc3545'  // Not Effective
+            ],
+            borderColor: '#ffffff',
+            borderWidth: 2
         }]
     },
     options: {
@@ -220,9 +223,44 @@ new Chart(ctx, {
         maintainAspectRatio: false,
         plugins: {
             legend: {
-                position: 'bottom'
+                position: 'bottom',
+                labels: {
+                    font: {
+                        size: 13
+                    }
+                }
             },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        const value = context.raw;
+                        const total = context.dataset.data.reduce(
+                            (a, b) => a + b,
+                            0
+                        );
+                        const percentage = ((value / total) * 100).toFixed(1);
+                        return context.label + ': ' + value + ' (' + percentage + '%)';
+                    }
+                }
+            },
+            datalabels: {
+                color: '#fff',
+                font: {
+                    weight: 'bold',
+                    size: 14
+                },
+                formatter: function(value, context) {
+                    const data = context.chart.data.datasets[0].data;
+                    const total = data.reduce(
+                        (a, b) => a + b,
+                        0
+                    );
+                    const percentage = ((value / total) * 100).toFixed(1);
+                    return percentage + '%';
+                }
+            }
         }
-    }
+    },
+    plugins: [ChartDataLabels]
 });
 </script>

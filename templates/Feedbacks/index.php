@@ -91,7 +91,8 @@
                 <?= $this->Form->textarea('comment', [
                     'class' => 'form-control',
                     'rows' => 4,
-                    'placeholder' => 'Share your comments or suggestions...'
+                    'placeholder' => 'Share your comments or suggestions...',
+                    'required' => false
                 ]) ?>
             </div>
             <hr>
