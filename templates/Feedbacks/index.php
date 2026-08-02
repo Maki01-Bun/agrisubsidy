@@ -96,23 +96,39 @@
                 ]) ?>
             </div>
             <hr>
-            <div class="col-md-6 mb-3">
-                    <label>Pest experienced?</label>
-                    <?= $this->Form->control('pest', ['class' => 'form-control','label' => false]) ?>
+            <div class="row g-4">          
+                <!-- Pest -->
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <label class="form-label fw-bold text-danger mb-2">
+                                <i class="fas fa-bug me-2"></i>Pest Experienced
+                            </label>
+                            <?= $this->Form->control('pest', ['class' => 'form-control form-control-lg',
+                            'label' => false,'placeholder' => 'Enter pest experienced'])?>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label>Calamity experienced?</label>
-                    <?= $this->Form->control('calamity', ['class' => 'form-control','label' => false]) ?>
+                <!-- Calamity -->
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <label class="form-label fw-bold text-primary mb-2">
+                                <i class="fas fa-cloud-showers-heavy me-2"></i>Calamity Experienced
+                            </label>
+                            <?= $this->Form->control('calamity', ['class' => 'form-control form-control-lg',
+                            'label' => false,'placeholder' => 'Enter calamity experienced']) ?>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="card-footer text-end">
-            <?= $this->Form->hidden('id') ?>
-            <button type="submit" class="btn btn-success">
-                <i class="fas fa-save me-1"></i>
-                Submit Evaluation
-            </button>
-        </div>
+            <div class="card-footer bg-white border-top-0 text-end pt-4">
+                <?= $this->Form->hidden('id') ?>
+                <button type="submit" class="btn btn-success btn-lg px-5 rounded-pill shadow-sm">
+                    <i class="fas fa-paper-plane me-2"></i>
+                    Submit Evaluation
+                </button>
+            </div>
         <?= $this->Form->end() ?>
     </div>
 </div>

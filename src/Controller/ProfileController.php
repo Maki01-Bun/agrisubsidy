@@ -17,13 +17,21 @@ class ProfileController extends AppController
      */
     public function index()
     {
-         $user = $this->request->getAttribute('identity');
-
-        $this->set([
-            'user' => $user,
-            '_serialize' => ['user']
-        ]);
-    }   
+        $this->loadModel('Users');
+        $this->loadModel('Farmers');
+        $this->loadModel('Farms');
+            $userId = $this->request->getSession()->read('Auth.User.id');
+            $user = $this->Users->get($userId);
+            $farmer = null;
+            $farms = [];
+            if (strtolower($user->role) === 'farmer') {
+                $farmer = $this->Farmers->find()->where(['user_id' => $user->id])->first();
+                if ($farmer) {
+                    $farms = $this->Farms->find()->where(['farmer_id' => $farmer->id])->toArray();
+                }
+            }
+            $this->set(compact('user', 'farmer', 'farms'));
+    }
      public function edit()
     {
         $user = $this->request->getAttribute('identity');
