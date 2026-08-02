@@ -71,6 +71,14 @@ class UsersTable extends Table
             ->requirePresence('role', 'create')
             ->notEmptyString('role');
 
+        $validator
+            ->integer('failed_attempts')
+            ->allowEmptyString('failed_attempts');
+
+        $validator
+            ->dateTime('locked_until')
+            ->allowEmptyString('locked_until');
+
         return $validator;
     }
 
