@@ -24,7 +24,7 @@ $(function(){
                 	$('#crop_yield_after').val(data.crop_yield_after);
                 	$('#income_before').val(data.income_before);
                 	$('#income_after').val(data.income_after);
-                	$('#pest').val(data.pest);
+                	$('#pest_name').val(data.pest_name);
                 	$('#calamity').val(data.calamity);
                     $('#feedback_rating').val(data.feedback_rating);
                 	$('#effectiveness_label').val(data.effectiveness_label);
@@ -125,7 +125,7 @@ function getEvaluations()
             {data:"crop_yield_after"},
             {data:"income_before"},
             {data:"income_after"},
-            {data:"pest"},
+            {data:"pest_name"},
             {data:"calamity"},
             {data:"feedback_rating"},
             {data:"effectiveness_label"},

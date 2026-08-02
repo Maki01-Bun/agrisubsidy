@@ -92,6 +92,10 @@ class EvaluationsTable extends Table
             ->decimal('income_after')
             ->requirePresence('income_after', 'create')
             ->notEmptyString('income_after');
+            
+        $validator
+            ->integer('pest_id')
+            ->allowEmptyString('pest_id');
     
         $validator
             ->scalar('calamity')

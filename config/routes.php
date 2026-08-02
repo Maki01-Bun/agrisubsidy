@@ -138,6 +138,17 @@ return function (RouteBuilder $routes): void {
                 'pass' => ['id']
             ]);
         });
+        $builder->scope('/Farms', function (RouteBuilder $builder) {
+            $builder->connect('/', ['controller' => 'Farms', 'action' => 'index']);
+            $builder->connect('/getFarms', ['controller' => 'Farms', 'action' => 'getFarms']);
+            $builder->connect('/add', ['controller' => 'Farms', 'action' => 'add']);
+            $builder->connect('/edit/{id}', ['controller' => 'Farms', 'action' => 'edit'], [
+                'pass' => ['id']
+            ]);
+            $builder->connect('/delete/{id}', ['controller' => 'Farms', 'action' => 'delete'], [
+                'pass' => ['id']
+            ]);
+        });
         $builder->scope('/Pests', function (RouteBuilder $builder) {
             $builder->connect('/', ['controller' => 'Pests', 'action' => 'index']);
             $builder->connect('/getPests', ['controller' => 'Pests', 'action' => 'getPests']);

@@ -38,6 +38,13 @@
                             Beneficiaries
                         </p>','/Farmers',['class'=>'nav-link '.$active,'escape'=>false]) ?>
                 </li>
+                 <li class="nav-item">
+                    <?php $active = $title=='Farms'?'active':'' ?>
+                    <?= $this->Html->link('<i class="nav-icon fas fa-warehouse"></i>
+                        <p>
+                            Farms
+                        </p>','/Farms',['class'=>'nav-link '.$active,'escape'=>false]) ?>
+                </li>
                 <li class="nav-item">
                     <?php $active = $title=='Programs'?'active':'' ?>
                     <?= $this->Html->link('<i class="nav-icon fas fa-calendar-alt"></i>

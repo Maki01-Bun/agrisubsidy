@@ -38,7 +38,8 @@ class EvaluationsController extends AppController
         $evaluation = $this->Evaluations->get($id, [
             'contain' => [
                 'Farmers',
-                'Feedbacks'
+                'Feedbacks',
+                'Pests'
             ],
         ]);
     
@@ -50,7 +51,7 @@ class EvaluationsController extends AppController
     public function getEvaluations()
 {
     try {
-        $evaluations = $this->Evaluations->find()->contain(['Farmers', 'Feedbacks'])->all();
+        $evaluations = $this->Evaluations->find()->contain(['Farmers', 'Feedbacks', 'Pests'])->all();
 
         $data = [];
 
@@ -80,7 +81,12 @@ class EvaluationsController extends AppController
                 'crop_yield_after' => $evaluation->crop_yield_after,
                 'income_before' => $evaluation->income_before,
                 'income_after' => $evaluation->income_after,
-                'pest' => $evaluation->pest,
+                'pest_name' =>
+                $evaluation->pest
+                ?
+                $evaluation->pest->pest_name
+                :
+                'N/A',
                 'calamity' => $evaluation->calamity,
                 'feedback_rating' => $feedbackRating,
                 'effectiveness_label' => $evaluation->effectiveness_label

@@ -100,13 +100,17 @@ class FeedbacksController extends AppController
             $result = $response->getJson();
             $pestIds = $evaluationData['pest'] ?? [];
 
-            unset($evaluationData['pest']);
-            // Save Evaluation
-            $evaluation = $this->Evaluations->newEmptyEntity();
-            $evaluation = $this->Evaluations->patchEntity(
-                $evaluation,
-                $evaluationData
-            );
+// Save first pest ID (because your FK only accepts one pest_id)
+$evaluationData['pest_id'] = !empty($pestIds) ? $pestIds[0] : null;
+
+unset($evaluationData['pest']);
+
+$evaluation = $this->Evaluations->newEmptyEntity();
+
+$evaluation = $this->Evaluations->patchEntity(
+    $evaluation,
+    $evaluationData
+);
 
 
             $evaluation->farmer_id = $farmer->id;

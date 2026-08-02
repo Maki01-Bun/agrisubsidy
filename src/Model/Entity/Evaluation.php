@@ -10,6 +10,9 @@ use Cake\ORM\Entity;
  * Evaluation Entity
  *
  * @property int $id
+ * @property int|null $farmer_id
+ * @property int|null $feedback_id
+ * @property int|null $pest_id
  * @property string $subsidy_type
  * @property float $farm_size
  * @property float $crop_yield_before

@@ -96,34 +96,10 @@
                 ]) ?>
             </div>
             <hr>
-            <div class="row">
-                <div class="mb-3">
-    <label class="form-label fw-bold">
-        <i class="fas fa-bug text-danger me-2"></i>
-        Pests Encountered
-    </label>
-
-    <div class="border rounded p-3 bg-light">
-        <div class="row">
-
-            <?=
-            $this->Form->control('pest', [
-                'type' => 'select',
-                'multiple' => 'checkbox',
-                'options' => $pests,
-                'label' => false,
-                'hiddenField' => false,
-                'templates' => [
-                    'checkboxWrapper' => '<div class="col-md-4 mb-2"><div class="form-check">{{label}}</div></div>',
-                    'nestingLabel' => '<label class="form-check-label">{{hidden}}{{input}} {{text}}</label>',
-                    'checkbox' => '<input type="checkbox" class="form-check-input" name="{{name}}" value="{{value}}"{{attrs}}>',
-                ]
-            ]);
-            ?>
-
-        </div>
-    </div>
-</div>
+            <div class="col-md-6 mb-3">
+                    <label>Pest experienced?</label>
+                    <?= $this->Form->control('pest', ['class' => 'form-control','label' => false]) ?>
+                </div>
                 <div class="col-md-6 mb-3">
                     <label>Calamity experienced?</label>
                     <?= $this->Form->control('calamity', ['class' => 'form-control','label' => false]) ?>
