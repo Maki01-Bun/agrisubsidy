@@ -49,6 +49,9 @@ class EvaluationsTable extends Table
         $this->belongsTo('Feedbacks', [
             'foreignKey' => 'feedback_id',
         ]);
+        $this->belongsTo('Pests', [
+            'foreignKey' => 'pest_id',
+        ]);
     }
 
     /**
@@ -89,12 +92,6 @@ class EvaluationsTable extends Table
             ->decimal('income_after')
             ->requirePresence('income_after', 'create')
             ->notEmptyString('income_after');
-    
-        $validator
-            ->scalar('pest')
-            ->maxLength('pest', 100)
-            ->requirePresence('pest', 'create')
-            ->notEmptyString('pest');
     
         $validator
             ->scalar('calamity')

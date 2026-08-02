@@ -60,8 +60,8 @@ class FeedbacksTable extends Table
             ->notEmptyString('rating');
 
         $validator
-    ->scalar('comment')
-    ->maxLength('comment', 255);
+            ->scalar('comment')
+            ->maxLength('comment', 255);
 
         $validator
             ->dateTime('feedback_date')

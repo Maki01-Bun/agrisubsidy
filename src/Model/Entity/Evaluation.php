@@ -16,7 +16,6 @@ use Cake\ORM\Entity;
  * @property float $crop_yield_after
  * @property float $income_before
  * @property float $income_after
- * @property string $pest
  * @property string $calamity
  * @property string $effectiveness_label
  * @property \Cake\I18n\FrozenTime $created
@@ -40,7 +39,7 @@ class Evaluation extends Entity
         'crop_yield_after' => true,
         'income_before' => true,
         'income_after' => true,
-        'pest' => true,
+        'pest_id' => true,
         'calamity' => true,
         'effectiveness_label' => true,
         'farmer_id' => true,
