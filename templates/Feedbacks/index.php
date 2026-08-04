@@ -24,21 +24,23 @@
                         'label' => false,]) ?>
                 </div>
                 <div class="col-md-4 mb-3">
-                    <label>Farm Size (ha)</label>
-                    <?= $this->Form->control('farm_size', ['class' => 'form-control',
-                        'label' => false,]) ?>
+                    <label>Farm</label>
+                    <?= $this->Form->control('farm_id', ['class' => 'form-control form-control-lg', 'options' => $farms,
+                    'label' => false,'empty' => '-- Select Farm --', 'id' => 'farm_id'])?>
                 </div>
                 <div class="col-md-4 mb-3">
-                    <label>Crop Yield Before</label>
-                    <?= $this->Form->control('crop_yield_before', ['class' => 'form-control','label' => false,]) ?>
-                </div>
+                <label>Crop Yield Before</label>
+                <?= $this->Form->control('crop_yield_before', ['id' => 'crop_yield_before','class' => 'form-control',
+                    'label' => false,'readonly' => true]) ?>
+            </div>
                 <div class="col-md-4 mb-3">
                     <label>Crop Yield After</label>
                     <?= $this->Form->control('crop_yield_after', ['class' => 'form-control','label' => false,]) ?>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label>Income Before</label>
-                    <?= $this->Form->control('income_before', ['class' => 'form-control','label' => false,]) ?>
+                    <?= $this->Form->control('income_before', ['id' => 'income_before','class' => 'form-control',
+                        'label' => false,'readonly' => true]) ?>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label>Income After</label>

@@ -39,7 +39,9 @@ class EvaluationsController extends AppController
             'contain' => [
                 'Farmers',
                 'Feedbacks',
-                'Pests'
+                'Pests',
+                'Farms',
+                'Records'
             ],
         ]);
     
@@ -51,7 +53,7 @@ class EvaluationsController extends AppController
     public function getEvaluations()
 {
     try {
-        $evaluations = $this->Evaluations->find()->contain(['Farmers', 'Feedbacks', 'Pests'])->all();
+        $evaluations = $this->Evaluations->find()->contain(['Farmers', 'Feedbacks', 'Pests','Farms'])->all();
 
         $data = [];
 
@@ -73,22 +75,17 @@ class EvaluationsController extends AppController
             }
 
             $data[] = [
-                'id' => $evaluation->id,
-                'farmer_name' => $fullName,
-                'subsidy_type' => $evaluation->subsidy_type,
-                'farm_size' => $evaluation->farm_size,
-                'crop_yield_before' => $evaluation->crop_yield_before,
-                'crop_yield_after' => $evaluation->crop_yield_after,
-                'income_before' => $evaluation->income_before,
-                'income_after' => $evaluation->income_after,
-                'pest_name' =>
-                $evaluation->pest
-                ?
-                $evaluation->pest->pest_name
-                :
-                'N/A',
-                'calamity' => $evaluation->calamity,
-                'feedback_rating' => $feedbackRating,
+                'id'                  => $evaluation->id,
+                'farmer_name'         => $fullName,
+                'subsidy_type'        => $evaluation->subsidy_type,
+                'farm_size'           => $evaluation->farm?$evaluation->farm->farm_size:'N/A',
+                'crop_yield_before'   => $evaluation->record?$evaluation->record->crop_yield:'N/A',
+                'crop_yield_after'    => $evaluation->crop_yield_after,
+                'income_before'       => $evaluation->record?$evaluation->record->income:'N/A',
+                'income_after'        => $evaluation->income_after,
+                'pest_name'           => $evaluation->pest?$evaluation->pest->pest_name:'N/A',
+                'calamity'            => $evaluation->calamity,
+                'feedback_rating'     => $feedbackRating,
                 'effectiveness_label' => $evaluation->effectiveness_label
             ];
         }

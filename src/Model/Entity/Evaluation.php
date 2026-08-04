@@ -14,10 +14,9 @@ use Cake\ORM\Entity;
  * @property int|null $feedback_id
  * @property int|null $pest_id
  * @property string $subsidy_type
- * @property float $farm_size
- * @property float $crop_yield_before
+ * @property float $farm_id
+ * @property float $record_id
  * @property float $crop_yield_after
- * @property float $income_before
  * @property float $income_after
  * @property string $calamity
  * @property string $effectiveness_label
@@ -37,10 +36,9 @@ class Evaluation extends Entity
      */
     protected $_accessible = [
         'subsidy_type' => true,
-        'farm_size' => true,
-        'crop_yield_before' => true,
+        'farm_id' => true,
+        'record_id' => true,
         'crop_yield_after' => true,
-        'income_before' => true,
         'income_after' => true,
         'pest_id' => true,
         'calamity' => true,

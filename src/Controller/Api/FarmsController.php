@@ -19,11 +19,33 @@ class FarmsController extends AppController
      * @return \Cake\Http\Response|null|void Renders view
      */
      public function index()
-    {
-        $farms = $this->Farms->find();
-        return $this->response->withType('application/json')
-            ->withStringBody(json_encode($farms));
+{
+    $this->loadModel('Farmers');
+
+    $user = $this->request->getSession()->read('Auth.User');
+   
+    if ($user['role'] === 'admin') {
+
+        // Admin sees all farms
+        $farms = $this->Farms->find()
+            ->contain(['Farmers'])
+            ->all();
+
+    } else {
+
+        // Farmer sees only their farms
+        $farmer = $this->Farmers->find()
+            ->where(['user_id' => $user['id']])
+            ->first();
+
+        $farms = $this->Farms->find()
+            ->where(['farmer_id' => $farmer->id])
+            ->contain(['Farmers'])
+            ->all();
     }
+
+    $this->set(compact('farms'));
+}
 
 
     /**
@@ -44,16 +66,40 @@ class FarmsController extends AppController
     
     public function getFarms()
 {
-    $farms = $this->Farms->find()
-        ->contain(['Farmers'])
-        ->all();
+    $this->loadModel('Farmers');
+
+    $user = $this->request->getSession()->read('Auth.User');
+
+    $query = $this->Farms->find()
+        ->contain(['Farmers']);
+
+    // If the logged-in user is a Farmer, filter their farms only
+    if ($user['role'] === 'farmer') {
+
+        $farmer = $this->Farmers->find()
+            ->where(['user_id' => $user['id']])
+            ->first();
+
+        if ($farmer) {
+            $query->where([
+                'Farms.farmer_id' => $farmer->id
+            ]);
+        } else {
+            // No farmer record found, return no farms
+            $query->where([
+                'Farms.id IS' => null
+            ]);
+        }
+    }
+
+    $farms = $query->all();
 
     $data = [];
 
     foreach ($farms as $farm) {
         $data[] = [
             'id' => $farm->id,
-            'farmer_id' => $farm->farmer->id,
+            'farmer_id' => $farm->farmer_id,
             'farmer_name' => $farm->farmer->first_name . ' ' . $farm->farmer->last_name,
             'farm_name' => $farm->farm_name,
             'farm_size' => $farm->farm_size,

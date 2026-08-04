@@ -39,6 +39,13 @@
                             Feedback
                         </p>','/Feedbacks',['class'=>'nav-link '.$active,'escape'=>false]) ?>
                 </li>
+                <li class="nav-item">
+                    <?php $active = $title=='Farms'?'active':'' ?>
+                    <?= $this->Html->link('<i class="nav-icon fas fa-user-cog"></i>
+                        <p>
+                            Farms
+                        </p>','/Farms',['class'=>'nav-link '.$active,'escape'=>false]) ?>
+                </li>
             </ul>
         </nav>
         <div class="mt-auto px-3 pb-3">

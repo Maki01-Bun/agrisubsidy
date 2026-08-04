@@ -160,6 +160,17 @@ return function (RouteBuilder $routes): void {
                 'pass' => ['id']
             ]);
         });
+        $builder->scope('/Records', function (RouteBuilder $builder) {
+            $builder->connect('/', ['controller' => 'Records', 'action' => 'index']);
+            $builder->connect('/getRecords', ['controller' => 'Records', 'action' => 'getRecords']);
+            $builder->connect('/add', ['controller' => 'Records', 'action' => 'add']);
+            $builder->connect('/edit/{id}', ['controller' => 'Records', 'action' => 'edit'], [
+                'pass' => ['id']
+            ]);
+            $builder->connect('/delete/{id}', ['controller' => 'Records', 'action' => 'delete'], [
+                'pass' => ['id']
+            ]);
+        });
         $builder->scope('/Evaluations', function (RouteBuilder $builder) {
             $builder->connect('/', ['controller' => 'Evaluations', 'action' => 'index']);
             $builder->connect('/getEvaluations', ['controller' => 'Evaluations', 'action' => 'getEvaluations']);

@@ -1,0 +1,61 @@
+<div class="col-12">
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">History Records</h3>
+            <div class="card-tools">
+                <?= $this->Html->link('<i class="fas fa-plus"></i>','',
+                    ['id'=>'add','data-toggle'=>'tooltip','data-placement'=>'bottom','title'=>'Add Record','escape'=>false]) ?>
+            </div>
+        </div>
+        <div class="card-body">
+            <table id="records-table" class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>Farm Name</th>
+                        <th>Crop Yield</th>
+                        <th>Income</th>
+                        <th>Record Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="records-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h4 class="modal-title"></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <?= $this->Form->create($record,['id'=>'records-form']) ?>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="farm_id">Farm Name</label>
+                    <?= $this->Form->control('farm_id',['class'=>'form-control','label'=>false]) ?>
+                </div>
+                <div class="form-group">
+                    <label for="crop_yield">Crop Yield</label>
+                    <?= $this->Form->control('crop_yield',['class'=>'form-control','label'=>false]) ?>
+                </div>
+                <div class="form-group">
+                    <label for="income">Income</label>
+                    <?= $this->Form->control('income',['class'=>'form-control','label'=>false]) ?>
+                </div>
+                <div class="form-group">
+                    <label for="record_date">Record Date</label>
+                    <?= $this->Form->control('record_date',['class'=>'form-control','label'=>false,'type'=>'date']) ?>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <?= $this->Form->control('id',['type'=>'hidden','label'=>false]) ?>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+            <?= $this->Form->end() ?>
+        </div>
+    </div>
+</div>

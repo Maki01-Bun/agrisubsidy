@@ -18,7 +18,7 @@
         </div>
     </div>
 </div>
-<!-- <div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="farms-modal">
+<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="farms-modal">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-light">
@@ -50,4 +50,4 @@
             <?= $this->Form->end() ?>
         </div>
     </div>
-</div> -->
+</div>

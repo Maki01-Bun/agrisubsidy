@@ -16,26 +16,54 @@ class FeedbacksController extends AppController
      * @return \Cake\Http\Response|null|void Renders view
      */
     public function index()
-    {
-        $this->loadModel('Farmers');
-        $this->loadModel('Pests');
-        $pests = $this->Pests->find('list', [
+{
+    $this->loadModel('Farmers');
+    $this->loadModel('Pests');
+    $this->loadModel('Farms');
+
+    // Logged-in user
+    $user = $this->request->getSession()->read('Auth.User');
+
+    // Load pests
+    $pests = $this->Pests->find('list', [
+        'keyField' => 'id',
+        'valueField' => 'pest_name'
+    ])->toArray();
+
+    // Default values
+    $farms = [];
+    $farmerName = '';
+
+    // Get logged-in farmer
+    $farmer = $this->Farmers->find()
+        ->where(['user_id' => $user['id']])
+        ->first();
+
+    if ($farmer) {
+
+        $farmerName = trim(
+            $farmer->first_name . ' ' .
+            $farmer->middle_name . ' ' .
+            $farmer->last_name
+        );
+
+        // Only this farmer's farms
+        $farms = $this->Farms->find('list', [
             'keyField' => 'id',
-            'valueField' => 'pest_name'
-        ])->toArray();
-
-        $this->set(compact('pests'));
-
-        $session = $this->request->getSession();
-        $user = $session->read('Auth.User');
-
-        $farmer = $this->Farmers->find()->where(['user_id' => $user['id']])->first();
-        if ($farmer) {
-            $this->set('farmerName', $farmer->first_name . ' ' . $farmer->middle_name . ' ' . $farmer->last_name);
-        } else {
-            $this->set('farmerName', '');
-        }
+            'valueField' => 'farm_name'
+        ])
+        ->where([
+            'farmer_id' => $farmer->id
+        ])
+        ->toArray();
     }
+
+    $this->set(compact(
+        'pests',
+        'farms',
+        'farmerName'
+    ));
+}
     public function survey()
     {
             if ($this->request->is('post')) {
@@ -44,6 +72,8 @@ class FeedbacksController extends AppController
                 $this->loadModel('Feedbacks');
                 $this->loadModel('Farmers');
                 $this->loadModel('Pests');
+                $this->loadModel('Farms');
+                $this->loadModel('Records');
 
                 $user = $this->request->getSession()->read('Auth.User');
 
@@ -54,7 +84,6 @@ class FeedbacksController extends AppController
                 }
                 $evaluationData = $this->request->getData();
                 $pestIds = $evaluationData['pest'] ?? [];
-
                 $pestNames = [];
 
                 if (!empty($pestIds)) {
@@ -66,6 +95,8 @@ class FeedbacksController extends AppController
                     }
                 }
             $pestString = implode(', ', $pestNames);
+
+
             // Compute feedback score
             $feedbackScore = (
                 (int)$this->request->getData('q1') +    
@@ -75,11 +106,31 @@ class FeedbacksController extends AppController
                 (int)$this->request->getData('q5') +
                 (int)$this->request->getData('q6')
             ) / 6;
+
+           $farm = $this->Farms->find()
+                ->where(['id' => $this->request->getData('farm_id')])->first();
+            if (!$farm) {
+                $this->Flash->error('Selected farm not found.');
+                return $this->redirect($this->referer());
+            }
+            $farmSize = $farm->farm_size;
+            $record = $this->Records->find()
+                ->where(['farm_id' => $farm->id])
+                ->order(['record_date' => 'DESC'])
+                ->first();
+
+            if (!$record) {
+                $this->Flash->error('No previous record found for the selected farm.');
+                return $this->redirect($this->referer());
+            }
+
+            $cropYieldBefore = (float)$record->crop_yield;
+            $incomeBefore = (float)$record->income;
             // Call FastAPI
             $http = new \Cake\Http\Client();
             $payload = [
                 'subsidy_type'      => $evaluationData['subsidy_type'],
-                'farm_size'         => (float)$evaluationData['farm_size'],
+                'farm_size'         => (float)$farmSize,
                 'crop_yield_before' => (float)$evaluationData['crop_yield_before'],
                 'crop_yield_after'  => (float)$evaluationData['crop_yield_after'],
                 'income_before'     => (float)$evaluationData['income_before'],
@@ -100,17 +151,18 @@ class FeedbacksController extends AppController
             $result = $response->getJson();
             $pestIds = $evaluationData['pest'] ?? [];
 
-// Save first pest ID (because your FK only accepts one pest_id)
-$evaluationData['pest_id'] = !empty($pestIds) ? $pestIds[0] : null;
+            // Save first pest ID (because your FK only accepts one pest_id)
+            $evaluationData['pest_id'] = !empty($pestIds) ? $pestIds[0] : null;
+            $evaluationData['farm_id'] = $farm ? $farm->id : null;
 
-unset($evaluationData['pest']);
+            unset($evaluationData['pest']);
 
-$evaluation = $this->Evaluations->newEmptyEntity();
+            $evaluation = $this->Evaluations->newEmptyEntity();
 
-$evaluation = $this->Evaluations->patchEntity(
-    $evaluation,
-    $evaluationData
-);
+            $evaluation = $this->Evaluations->patchEntity(
+                $evaluation,
+                $evaluationData
+            );
 
 
             $evaluation->farmer_id = $farmer->id;
@@ -142,6 +194,7 @@ $evaluation = $this->Evaluations->patchEntity(
                 debug($feedback);
                 die('Feedback could not be saved.');
             }
+
             // Link Feedback to Evaluation
             $evaluation->feedback_id = $feedback->id;
             $this->Evaluations->save($evaluation);

@@ -187,3 +187,40 @@ function viewFeedback(evaluation_id)
 
     });
 }
+$(document).ready(function () {
+
+    $('#farm_id').change(function () {
+
+        let farmId = $(this).val();
+
+        if (farmId == '') {
+            $('#crop_yield_before').val('');
+            $('#income_before').val('');
+            return;
+        }
+
+        $.ajax({
+            url: BASE_URL + '/feedbacks/getRecord/' + farmId,
+            type: 'GET',
+            dataType: 'json',
+
+            success: function (data) {
+
+                console.log(data);
+
+                $('#crop_yield_before').val(data.crop_yield);
+                $('#income_before').val(data.income);
+
+            },
+
+            error: function (xhr) {
+
+                console.log(xhr.responseText);
+
+            }
+
+        });
+
+    });
+
+});

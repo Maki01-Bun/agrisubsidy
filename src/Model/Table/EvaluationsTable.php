@@ -52,6 +52,12 @@ class EvaluationsTable extends Table
         $this->belongsTo('Pests', [
             'foreignKey' => 'pest_id',
         ]);
+        $this->belongsTo('Farms', [
+            'foreignKey' => 'farm_id',
+        ]);
+        $this->hasMany('Records', [
+            'foreignKey' => 'record_id',
+        ]);
     }
 
     /**
@@ -69,24 +75,17 @@ class EvaluationsTable extends Table
             ->notEmptyString('subsidy_type');
 
         $validator
-            ->decimal('farm_size')
-            ->requirePresence('farm_size', 'create')
-            ->notEmptyString('farm_size');
+            ->integer('farm_id')
+            ->allowEmptyString('farm_id');
     
         $validator
-            ->decimal('crop_yield_before')
-            ->requirePresence('crop_yield_before', 'create')
-            ->notEmptyString('crop_yield_before');
+            ->integer('record_id')
+            ->allowEmptyString('record_id');
     
         $validator
             ->decimal('crop_yield_after')
             ->requirePresence('crop_yield_after', 'create')
             ->notEmptyString('crop_yield_after');
-    
-        $validator
-            ->decimal('income_before')
-            ->requirePresence('income_before', 'create')
-            ->notEmptyString('income_before');
     
         $validator
             ->decimal('income_after')
