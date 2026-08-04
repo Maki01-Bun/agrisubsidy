@@ -104,6 +104,8 @@ class FarmsController extends AppController
             'farm_name' => $farm->farm_name,
             'farm_size' => $farm->farm_size,
             'location' => $farm->location,
+            'crop_yield' => $farm->crop_yield,
+            'income' => $farm->income,
         ];
     }
 
@@ -141,22 +143,34 @@ class FarmsController extends AppController
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
     public function edit($id = null)
-    {
-        $farm = $this->Farms->get($id);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $farm = $this->Farms->patchEntity(
-                $farm,$this->request->getData() );
-            if ($this->Farms->save($farm)) {
-                return $this->response->withType('application/json')->withStringBody(json_encode([
-                'status' => 'success','message' => 'Farm updated successfully']));
-            }
-            return $this->response->withType('application/json')
-            ->withStringBody(json_encode(['status' => 'error','errors' => $farm->getErrors()]));
+{
+    $farm = $this->Farms->get($id);
+
+    if ($this->request->is(['patch', 'post', 'put'])) {
+
+        $farm = $this->Farms->patchEntity($farm, $this->request->getData());
+
+        if (!$this->Farms->save($farm)) {
+
+            debug($this->request->getData());
+            debug($farm);
+            debug($farm->getErrors());
+            die();
+
         }
+
         return $this->response
             ->withType('application/json')
-            ->withStringBody(json_encode($farm));
+            ->withStringBody(json_encode([
+                'status' => 'success',
+                'message' => 'Farm updated successfully'
+            ]));
     }
+
+    return $this->response
+        ->withType('application/json')
+        ->withStringBody(json_encode($farm));
+}
 
     /**
      * Delete method

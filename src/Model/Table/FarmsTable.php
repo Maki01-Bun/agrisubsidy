@@ -74,6 +74,14 @@ class FarmsTable extends Table
             ->notEmptyString('location');
 
         $validator
+            ->decimal('crop_yield')
+            ->allowEmptyString('crop_yield');
+
+        $validator
+            ->decimal('income')
+            ->allowEmptyString('income');
+
+        $validator
             ->dateTime('created')
             ->requirePresence('created', 'create')
             ->notEmptyDateTime('created');

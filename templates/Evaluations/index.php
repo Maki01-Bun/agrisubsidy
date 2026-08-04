@@ -10,9 +10,7 @@
                         <th>Farmer Name</th>
                         <th>Subsidy Type</th>
                         <th>Farm Size</th> 
-                        <th>Yield Before</th> 
                         <th>Yield After</th> 
-                        <th>Income Before</th> 
                         <th>Income After</th> 
                         <th>Pest</th> 
                         <th>Calamity</th> 

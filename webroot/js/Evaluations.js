@@ -20,9 +20,7 @@ $(function(){
                     $('#farmer_name').val(data.farmer_name);
                     $('#subsidy_type').val(data.subsidy_type);
                 	$('#farm_size').val(data.farm_size);
-                	$('#crop_yield_before').val(data.crop_yield_before);
                 	$('#crop_yield_after').val(data.crop_yield_after);
-                	$('#income_before').val(data.income_before);
                 	$('#income_after').val(data.income_after);
                 	$('#pest_name').val(data.pest_name);
                 	$('#calamity').val(data.calamity);
@@ -121,9 +119,7 @@ function getEvaluations()
             {data:"farmer_name"},
             {data:"subsidy_type"},
 			{data:"farm_size"},
-            {data:"crop_yield_before"},
             {data:"crop_yield_after"},
-            {data:"income_before"},
             {data:"income_after"},
             {data:"pest_name"},
             {data:"calamity"},
@@ -131,96 +127,12 @@ function getEvaluations()
             {data:"effectiveness_label"},
             {data: null,render: function(data) {
                     var option =
-                        '<div style="text-align:center;">' +
-        '<a href="javascript:void(0)" ' +
-        'class="text-info" ' +
-        'onclick="viewFeedback(' + data.id + ')" ' +
-        'data-toggle="tooltip" ' +
-        'data-placement="bottom" ' +
-        'title="View Feedback">' +
-        '<i class="fa fa-eye"></i>' +
-        '</a>' +
-    '</div>';
+                        '<div style="text-align:center;">' + '<a href="javascript:void(0)" ' + 'class="text-info" ' + 
+                        'onclick="viewFeedback(' + data.id + ')" ' + 'data-toggle="tooltip" ' + 'data-placement="bottom" ' + 
+                        'title="View Feedback">' + '<i class="fa fa-eye"></i>' + '</a>' + '</div>';
                     return option;
                 }
             }
-
         ]
 	});
 }
-function viewFeedback(evaluation_id)
-{
-    $.ajax({
-
-        url: BASE_URL + '/api/Evaluations/viewFeedback/' + evaluation_id,
-
-        type: "GET",
-
-        dataType: "json",
-
-        success:function(response){
-
-            console.log(response);
-
-            $('#farmer_name').html(response.farmer_name);
-
-            $('#feedback_rating')
-                .html(response.rating + " / 5");
-
-            $('#feedback_comments')
-                .html(response.comments);
-
-            $('#feedback_date')
-                .html(response.feedback_date);
-
-
-            $('#feedbackModal').modal('show');
-
-        },
-
-        error:function(xhr){
-
-            console.log(xhr.responseText);
-            alert("Unable to load farmer feedback.");
-
-        }
-
-    });
-}
-$(document).ready(function () {
-
-    $('#farm_id').change(function () {
-
-        let farmId = $(this).val();
-
-        if (farmId == '') {
-            $('#crop_yield_before').val('');
-            $('#income_before').val('');
-            return;
-        }
-
-        $.ajax({
-            url: BASE_URL + '/feedbacks/getRecord/' + farmId,
-            type: 'GET',
-            dataType: 'json',
-
-            success: function (data) {
-
-                console.log(data);
-
-                $('#crop_yield_before').val(data.crop_yield);
-                $('#income_before').val(data.income);
-
-            },
-
-            error: function (xhr) {
-
-                console.log(xhr.responseText);
-
-            }
-
-        });
-
-    });
-
-});

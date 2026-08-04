@@ -55,9 +55,6 @@ class EvaluationsTable extends Table
         $this->belongsTo('Farms', [
             'foreignKey' => 'farm_id',
         ]);
-        $this->hasMany('Records', [
-            'foreignKey' => 'record_id',
-        ]);
     }
 
     /**
@@ -77,10 +74,6 @@ class EvaluationsTable extends Table
         $validator
             ->integer('farm_id')
             ->allowEmptyString('farm_id');
-    
-        $validator
-            ->integer('record_id')
-            ->allowEmptyString('record_id');
     
         $validator
             ->decimal('crop_yield_after')

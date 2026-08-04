@@ -11,6 +11,8 @@
                         <th>Farm Name</th>
                         <th>Farm Size</th>
                         <th>Location</th>
+                        <th>Crop Yield</th>
+                        <th>Income</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -30,16 +32,24 @@
             <?= $this->Form->create(null,['id'=>'farms-form']) ?>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="sy">Farm Name</label>
+                    <label for="farm_name">Farm Name</label>
                     <?= $this->Form->control('farm_name',['class'=>'form-control','label'=>false]) ?>
                 </div>
                 <div class="form-group">
-                    <label for="sy">Farm Size</label>
+                    <label for="farm_size">Farm Size</label>
                     <?= $this->Form->control('farm_size',['class'=>'form-control','label'=>false]) ?>
                 </div>
                 <div class="form-group">
-                    <label for="sy">Location</label>
+                    <label for="location">Location</label>
                     <?= $this->Form->control('location',['class'=>'form-control','label'=>false]) ?>
+                </div>
+                <div class="form-group">
+                    <label for="crop_yield">Crop Yield</label>
+                    <?= $this->Form->control('crop_yield',['class'=>'form-control','label'=>false]) ?>
+                </div>
+                <div class="form-group">
+                    <label for="income">Income</label>
+                    <?= $this->Form->control('income',['class'=>'form-control','label'=>false]) ?>
                 </div>
             </div>
             <div class="modal-footer">

@@ -46,13 +46,6 @@
                         </p>','/Farms',['class'=>'nav-link '.$active,'escape'=>false]) ?>
                 </li>
                 <li class="nav-item">
-                    <?php $active = $title=='Records'?'active':'' ?>
-                    <?= $this->Html->link('<i class="nav-icon fas fa-scroll"></i>
-                        <p>
-                            History Records
-                        </p>','/Records',['class'=>'nav-link '.$active,'escape'=>false]) ?>
-                </li>
-                <li class="nav-item">
                     <?php $active = $title=='Programs'?'active':'' ?>
                     <?= $this->Html->link('<i class="nav-icon fas fa-calendar-alt"></i>
                         <p>

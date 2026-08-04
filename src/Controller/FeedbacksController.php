@@ -73,7 +73,6 @@ class FeedbacksController extends AppController
                 $this->loadModel('Farmers');
                 $this->loadModel('Pests');
                 $this->loadModel('Farms');
-                $this->loadModel('Records');
 
                 $user = $this->request->getSession()->read('Auth.User');
 
@@ -114,26 +113,16 @@ class FeedbacksController extends AppController
                 return $this->redirect($this->referer());
             }
             $farmSize = $farm->farm_size;
-            $record = $this->Records->find()
-                ->where(['farm_id' => $farm->id])
-                ->order(['record_date' => 'DESC'])
-                ->first();
-
-            if (!$record) {
-                $this->Flash->error('No previous record found for the selected farm.');
-                return $this->redirect($this->referer());
-            }
-
-            $cropYieldBefore = (float)$record->crop_yield;
-            $incomeBefore = (float)$record->income;
+            $cropYieldBefore = (float)$farm->crop_yield;
+            $incomeBefore = (float)$farm->income;
             // Call FastAPI
             $http = new \Cake\Http\Client();
             $payload = [
                 'subsidy_type'      => $evaluationData['subsidy_type'],
                 'farm_size'         => (float)$farmSize,
-                'crop_yield_before' => (float)$evaluationData['crop_yield_before'],
+                'crop_yield_before' => (float)$cropYieldBefore,
                 'crop_yield_after'  => (float)$evaluationData['crop_yield_after'],
-                'income_before'     => (float)$evaluationData['income_before'],
+                'income_before'     => (float)$incomeBefore,
                 'income_after'      => (float)$evaluationData['income_after'],
                 'feedback_score'    => $feedbackScore,
                 'pest'              => $pestString,
@@ -153,7 +142,12 @@ class FeedbacksController extends AppController
 
             // Save first pest ID (because your FK only accepts one pest_id)
             $evaluationData['pest_id'] = !empty($pestIds) ? $pestIds[0] : null;
-            $evaluationData['farm_id'] = $farm ? $farm->id : null;
+            $evaluationData['farm_id'] = $farm->id;
+
+            // Automatically save the "before" values from the selected farm
+            $evaluationData['farm_size'] = $farmSize;
+            $evaluationData['crop_yield_before'] = $cropYieldBefore;
+            $evaluationData['income_before'] = $incomeBefore;
 
             unset($evaluationData['pest']);
 
@@ -167,7 +161,7 @@ class FeedbacksController extends AppController
 
             $evaluation->farmer_id = $farmer->id;
             $evaluation->feedback_score = $feedbackScore;
-            $evaluation->effectiveness_label = $result['effectiveness'] ?? 'Pending';
+            $evaluation->effectiveness_label = $result['effectiveness'] ?? 'Not Predicted';
             if (!$this->Evaluations->save($evaluation)) {
                 debug($evaluation->getErrors());
                 die('Evaluation could not be saved.');

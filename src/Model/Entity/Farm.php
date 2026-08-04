@@ -12,6 +12,8 @@ use Cake\ORM\Entity;
  * @property string $farmer_name
  * @property float $farm_size
  * @property string $location
+ * @property float $crop_yield
+ * @property float $income
  * @property \Cake\I18n\FrozenTime $created
  * @property \Cake\I18n\FrozenTime $modified
  */
@@ -30,8 +32,10 @@ class Farm extends Entity
         'farmer_name' => true,
         'farm_size' => true,
         'location' => true,
+        'crop_yield' => true,
+        'income' => true,
         'created' => true,
         'modified' => true,
-        'farmers' => true,
+        'farmer_id' => true,
     ];
 }
