@@ -17,7 +17,7 @@ $(function(){
         })
             .done(function(data){
                 if(data!=''){
-                	$('#pest_name').val(data.pest_name);
+                	$('#pest-name').val(data.pest_name);
                 	$('#description').val(data.description);
                 	$('#id').val(data.id);
                     $('#pests-modal').modal('show');

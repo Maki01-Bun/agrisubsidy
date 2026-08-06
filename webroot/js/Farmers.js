@@ -17,14 +17,14 @@ $(function(){
         })
             .done(function(data){
                 if(data!=''){
-                    $('#farmer_no').val(data.farmer_no);
-                    $('#first_name').val(data.first_name);
-                    $('#last_name').val(data.last_name);
-                    $('#middle_name').val(data.middle_name);
+                    $('#farmer-no').val(data.farmer_no);
+                    $('#first-name').val(data.first_name);
+                    $('#last-name').val(data.last_name);
+                    $('#middle-name').val(data.middle_name);
                     $('#birthdate').val(data.birthdate);
                     $('#gender').val(data.gender);
                     $('#address').val(data.address);
-                    $('#contact_no').val(data.contact_no);
+                    $('#contact-no').val(data.contact_no);
                     $('#created').val(data.created);
                     $('#modified').val(data.modified);
                     $('#user_id').val(data.user_id);

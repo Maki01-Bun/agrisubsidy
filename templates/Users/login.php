@@ -8,8 +8,7 @@
                      'style' => 'width:80px;'
                 ]) ?>
         </div>
-
-            <p class="login-box-msg">Sign in</p>
+            <p class="login-box-msg">AgriSubsidy</p>
             <center><?php echo $this->Flash->render(); ?></center>
             <?= $this->Form->create(null,['templates'=>['inputContainer' => '{{content}}']]) ?>
             <div class="input-group mb-3">

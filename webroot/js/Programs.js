@@ -17,13 +17,13 @@ $(function(){
         })
             .done(function(data){
                 if(data!=''){
-                	$('#program_name').val(data.program_name);
-                    $('#subsidy_type').val(data.subsidy_type);
+                	$('#program-name').val(data.program_name);
+                    $('#subsidy-type').val(data.subsidy_type);
                 	$('#description').val(data.description);
-                    $('#start_date').val(data.start_date);
-                	$('#end_date').val(data.end_date);
-                    $('#start_time').val(data.start_time);
-                    $('#end_time').val(data.end_time);
+                    $('#start-date').val(data.start_date);
+                	$('#end-date').val(data.end_date);
+                    $('#start-time').val(data.start_time);
+                    $('#end-time').val(data.end_time);
                 	$('#id').val(data.id);
                     $('#programs-modal').modal('show');
                 }
