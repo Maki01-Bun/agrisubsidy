@@ -20,7 +20,6 @@
                         '/Profile',
                         ['class' => 'nav-link '.($title == 'Profile' ? 'active' : ''),'escape' => false])?>
                 </li>
-                <li class="nav-item">
                     <li class="nav-item">
                         <?= $this->Html->link(
                             '<i class="nav-icon fas fa-bullhorn"></i>

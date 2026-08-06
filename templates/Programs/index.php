@@ -56,7 +56,7 @@
             <div class="modal-footer">
                 <?= $this->Form->control('id',['type'=>'hidden','label'=>false]) ?>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="submit" class="btn btn-primary">Save & Notify Farmers</button>
             </div>
             <?= $this->Form->end() ?>
         </div>

@@ -113,7 +113,7 @@
                 <?php foreach ($farms as $farm): ?>
                 <div class="col-md-6 mb-4">
                     <div class="card border-0 shadow-sm h-100">
-                        <div class="card-header bg-success text-white">
+                       <div class="card-header text-white" style="background:#dc3545 !important;">
                             <h5 class="mb-0">
                                 <i class="fas fa-tractor"></i>
                                 <?= h($farm->farm_name) ?>

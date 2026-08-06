@@ -1,6 +1,6 @@
 <div class="container mt-4">
     <div class="card shadow">
-        <div class="card-header bg-success text-white">
+        <div class="card-header text-white" style="background:#dc3545 !important;">
             <h4 class="mb-0">
                 <i class="fas fa-clipboard-check me-2"></i>
                 Subsidy Effectiveness Evaluation Survey
@@ -70,15 +70,16 @@
                     <?= $this->Form->control('pest', [
                         'class' => 'form-control',
                         'label' => false,
-                        'placeholder' => 'Enter pest experienced'
+                        'empty' => '-- Enter pest experienced --'
                     ]) ?>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label>Calamity Experienced</label>
+                    <label for="calamity">Calamity Experienced</label>
                     <?= $this->Form->control('calamity', [
                         'class' => 'form-control',
                         'label' => false,
-                        'placeholder' => 'Enter calamity experienced'
+                        'options' => $this->Option->calamity(),
+                        'empty' => '-- Enter calamity experienced --'
                     ]) ?>
                 </div>
             </div>
