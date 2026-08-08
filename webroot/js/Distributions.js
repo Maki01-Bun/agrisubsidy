@@ -93,7 +93,7 @@ $(function(){
 
     $('#distributions-modal').on('shown.bs.modal', function() {
         setTimeout(function() {
-            $('#subsidy_item').focus();
+            $('#farmer-id').focus();
         }, 500);
     });
 

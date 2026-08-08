@@ -1049,3 +1049,111 @@ side-bar logout part
 
 }
 
+.analytics-page {
+    background: #f5f7f9;
+    padding: 20px;
+}
+
+/* HEADER */
+
+.analytics-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+/* MODEL CARDS */
+
+.model-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    min-height: 100px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,.05);
+}
+
+.model-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    background: #f1f1f1;
+}
+
+.model-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #444;
+}
+
+.model-value {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+/* PANELS */
+
+.analytics-panel {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-top: 15px;
+    height: 100%;
+}
+
+.panel-title {
+    padding: 12px 15px;
+    border-bottom: 1px solid #ddd;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.panel-body {
+    padding: 15px;
+}
+
+/* CHART */
+
+.chart-container {
+    height: 260px;
+}
+
+/* RECOMMENDATION */
+
+.recommendation-table {
+    font-size: 13px;
+}
+
+.recommendation-table th {
+    background: #f4f4f4;
+}
+
+.prediction-effective {
+    color: green;
+    font-weight: bold;
+}
+
+.prediction-moderate {
+    color: #f39c12;
+    font-weight: bold;
+}
+
+.prediction-not {
+    color: red;
+    font-weight: bold;
+}
+
+/* ACTIONS */
+
+.model-action {
+    width: 100%;
+    margin-bottom: 10px;
+    text-align: left;
+}

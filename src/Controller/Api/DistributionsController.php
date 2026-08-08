@@ -38,50 +38,19 @@ class DistributionsController extends AppController
      * @return \Cake\Http\Response|null|void Redirects on successful add, renders view otherwise.
      */
    public function add()
-{
-    $this->autoRender = false;
-
-    $distribution = $this->Distributions->newEmptyEntity();
-
-    // Allow only POST requests
-    if (!$this->request->is('post')) {
-        return $this->response
-            ->withStatus(405)
-            ->withType('application/json')
-            ->withStringBody(json_encode([
-                'status' => 'error',
-                'message' => 'Only POST requests are allowed.'
-            ]));
+    {
+        $distribution = $this->Distributions->newEmptyEntity();
+        if ($this->request->is('post')) {
+            $distribution = $this->Distributions->patchEntity($distribution, $this->request->getData());
+            if ($this->Distributions->save($distribution)) {
+                $result = ['status' => 'success', 'message' => 'The distribution has been saved.'];
+            }else {
+                $result = ['status'=>'error','message'=>'The distribution could not be saved. Please, try again.'];
+            }
+            return $this->response->withType('application/json')
+                ->withStringBody(json_encode($result));
+        }
     }
-
-    $distribution = $this->Distributions->patchEntity(
-        $distribution,
-        $this->request->getData()
-    );
-
-    if ($this->Distributions->save($distribution)) {
-
-        $result = [
-            'status' => 'success',
-            'message' => 'The distribution has been saved.',
-            'data' => [
-                'id' => $distribution->id
-            ]
-        ];
-
-    } else {
-
-        $result = [
-            'status' => 'error',
-            'message' => 'The distribution could not be saved.',
-            'errors' => $distribution->getErrors()
-        ];
-    }
-
-    return $this->response
-        ->withType('application/json')
-        ->withStringBody(json_encode($result));
-}
 
     /**
      * Edit method

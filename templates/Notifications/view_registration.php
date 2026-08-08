@@ -15,8 +15,8 @@
                     </h5>
                     This farmer is already listed.
                     <br>
-                    <strong>Farmer ID:</strong>
-                    <?= h($existingFarmer->id) ?>
+                    <strong>Farmer Number:</strong>
+                    <?= h($existingFarmer->farmer_no) ?>
                     <br>
                 </div>
             <?php else: ?>

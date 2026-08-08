@@ -50,7 +50,12 @@
                     '/Pests',
                     ['class' => 'nav-link '.($title == 'Pests' ? 'active' : ''),'escape' => false])?>
             </li>
-            <!-- Users -->
+            <!-- <li class="nav-item">
+                <?= $this->Html->link(
+                    '<i class="nav-icon fas fa-seedling"></i><p>Distribution</p>',
+                    '/Distributions',
+                    ['class' => 'nav-link '.($title == 'Distributions' ? 'active' : ''),'escape' => false])?>
+            </li> -->
             <li class="nav-item">
                 <?= $this->Html->link(
                     '<i class="nav-icon fas fa-user-cog"></i><p>Users</p>',
@@ -59,9 +64,15 @@
             </li>
             <li class="nav-item">
                 <?= $this->Html->link(
-                    '<i class="nav-icon fas fa-chart-line"></i><p>Evaluations</p>',
+                    '<i class="nav-icon fas fa-clipboard-list"></i><p>Evaluations</p>',
                     '/Evaluations',
                     ['class' => 'nav-link '.($title == 'Evaluations' ? 'active' : ''),'escape' => false])?>
+            </li>
+             <li class="nav-item">
+                <?= $this->Html->link(
+                    '<i class="nav-icon fas fa-chart-line"></i><p>Data Analytics</p>',
+                    '/Analytics',
+                    ['class' => 'nav-link '.($title == 'Analytics' ? 'active' : ''),'escape' => false])?>
             </li>
         </ul>
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview">

@@ -5,7 +5,7 @@
             
             <div class="card-tools">
                 <?= $this->Html->link('<i class="fas fa-plus"></i>','',
-                    ['id'=>'add','data-toggle'=>'tooltip','data-placement'=>'bottom','title'=>'Add User','escape'=>false]) ?>
+                    ['id'=>'add','data-toggle'=>'tooltip','data-placement'=>'bottom','title'=>'Add Distribution Data','escape'=>false]) ?>
             </div>
         </div>
         <div class="card-body">
