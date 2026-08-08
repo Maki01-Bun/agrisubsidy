@@ -17,29 +17,18 @@ class AnalyticsController extends AppController
      */
      public function index()
     {
-        /*
-         * LOAD MODELS
-         */
         $this->loadModel('Evaluations');
         $this->loadModel('Farms');
         $this->loadModel('Feedbacks');
 
-
-        /*
-         * ============================================================
-         * TOTAL EVALUATION DATA
-         * ============================================================
-         */
+        //TOTAL EVALUATION DATA
 
         $totalEvaluations = $this->Evaluations->find()
             ->count();
 
 
-        /*
-         * ============================================================
-         * EFFECTIVENESS COUNTS
-         * ============================================================
-         */
+        // EFFECTIVENESS COUNTS
+
 
         $effective = $this->Evaluations->find()
             ->where([
@@ -61,12 +50,8 @@ class AnalyticsController extends AppController
             ])
             ->count();
 
+        //SUBSIDY PROGRAM COUNTS
 
-        /*
-         * ============================================================
-         * SUBSIDY PROGRAM COUNTS
-         * ============================================================
-         */
 
         $programs = $this->Evaluations->find()
             ->select([
@@ -84,14 +69,7 @@ class AnalyticsController extends AppController
             ->toArray();
 
 
-        /*
-         * ============================================================
-         * AVERAGE FEEDBACK
-         * ============================================================
-         *
-         * Change "rating" below if your Feedbacks table uses another
-         * column such as feedback_rating or feedback_score.
-         */
+        //AVERAGE FEEDBACK
 
         $feedbackData = $this->Feedbacks->find()
             ->select([
@@ -109,26 +87,9 @@ class AnalyticsController extends AppController
         }
 
 
-        /*
-         * ============================================================
-         * AVERAGE CROP YIELD
-         * ============================================================
-         *
-         * BEFORE:
-         *     Farms.crop_yield
-         *
-         * AFTER:
-         *     Evaluations.crop_yield_after
-         *
-         * The evaluation is connected to the farm through:
-         *
-         *     Evaluations.farm_id
-         *     Farms.id
-         *
-         * IMPORTANT:
-         * Do NOT use aliases named "before" or "after".
-         * MariaDB treats BEFORE/AFTER as SQL keywords.
-         */
+
+        //  AVERAGE CROP YIELD
+
 
         $yieldData = $this->Evaluations->find()
             ->select([
@@ -163,17 +124,7 @@ class AnalyticsController extends AppController
         }
 
 
-        /*
-         * ============================================================
-         * AVERAGE INCOME
-         * ============================================================
-         *
-         * BEFORE:
-         *     Farms.income
-         *
-         * AFTER:
-         *     Evaluations.income_after
-         */
+        //AVERAGE INCOME
 
         $incomeData = $this->Evaluations->find()
             ->select([
@@ -208,11 +159,7 @@ class AnalyticsController extends AppController
         }
 
 
-        /*
-         * ============================================================
-         * CALCULATE IMPROVEMENT
-         * ============================================================
-         */
+        // CALCULATE IMPROVEMENT
 
         $yieldImprovement = 0;
 
@@ -232,15 +179,7 @@ class AnalyticsController extends AppController
         }
 
 
-        /*
-         * ============================================================
-         * MACHINE LEARNING MODEL INFORMATION
-         * ============================================================
-         *
-         * These are temporary values.
-         *
-         * Later, connect these to your Random Forest / FastAPI model.
-         */
+        //  * MACHINE LEARNING MODEL INFORMATION
 
         $modelStatus = 'Active';
 
@@ -251,16 +190,7 @@ class AnalyticsController extends AppController
         $lastTrained = 'July 22, 2026 11:30 PM';
 
 
-        /*
-         * ============================================================
-         * FEATURE IMPORTANCE
-         * ============================================================
-         *
-         * Temporary values for the dashboard.
-         *
-         * Later these should come directly from your Random Forest
-         * feature_importances_.
-         */
+        //FEATURE IMPORTANCE
 
         $featureImportance = [
 
@@ -281,11 +211,8 @@ class AnalyticsController extends AppController
         ];
 
 
-        /*
-         * ============================================================
-         * PROGRAM EFFECTIVENESS RECOMMENDATIONS
-         * ============================================================
-         */
+  
+        //PROGRAM EFFECTIVENESS RECOMMENDATIONS
 
         $recommendations = [];
 
@@ -293,12 +220,6 @@ class AnalyticsController extends AppController
         foreach ($programs as $program) {
 
             $programName = $program['subsidy_type'] ?? 'Unknown';
-
-
-            /*
-             * Find the most common effectiveness label
-             * for this subsidy program.
-             */
 
             $result = $this->Evaluations->find()
                 ->select([
@@ -326,10 +247,6 @@ class AnalyticsController extends AppController
             $prediction = $result['effectiveness_label']
                 ?? 'No Data';
 
-
-            /*
-             * Determine recommendation
-             */
 
             if ($prediction === 'Effective') {
 
@@ -364,10 +281,6 @@ class AnalyticsController extends AppController
             }
 
 
-            /*
-             * Store recommendation
-             */
-
             $recommendations[] = [
 
                 'program' =>
@@ -384,80 +297,26 @@ class AnalyticsController extends AppController
             ];
         }
 
-
-        /*
-         * ============================================================
-         * SET DATA TO VIEW
-         * ============================================================
-         */
+        // SET DATA TO VIEW
 
         $this->set(compact(
-
-            /*
-             * Evaluation statistics
-             */
             'totalEvaluations',
-
             'effective',
-
             'moderatelyEffective',
-
             'notEffective',
-
-
-            /*
-             * Programs
-             */
             'programs',
-
-
-            /*
-             * Feedback
-             */
             'feedbackAverage',
-
-
-            /*
-             * Crop yield
-             */
             'yieldBefore',
-
             'yieldAfter',
-
             'yieldImprovement',
-
-
-            /*
-             * Income
-             */
             'incomeBefore',
-
             'incomeAfter',
-
             'incomeImprovement',
-
-
-            /*
-             * Machine learning
-             */
             'modelStatus',
-
             'modelName',
-
             'modelAccuracy',
-
             'lastTrained',
-
-
-            /*
-             * Feature importance
-             */
             'featureImportance',
-
-
-            /*
-             * Recommendations
-             */
             'recommendations'
         ));
     }
