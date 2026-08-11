@@ -83,17 +83,18 @@
     </div>
 
     <!-- CHART ROW -->
-    <div class="row g-3">
+    <div class="row g-3 mt-3">
 
         <!-- EFFECTIVENESS -->
         <div class="col-lg-5">
             <div class="analytics-panel">
                 <div class="panel-title">
-                    Effectiveness Evaluation
+                    <i class="fas fa-chart-pie me-2"></i>
+                    Most Effective Subsidy Program
                 </div>
                 <div class="panel-body">
                     <div class="chart-container">
-                        <canvas id="effectivenessChart"></canvas>
+                        <canvas id="programEffectivenessChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -115,16 +116,17 @@
         </div>
     </div>
 
-    <!-- PROGRAM RECOMMENDATIONS -->
+   <!--PROGRAM EFFECTIVENESS RECOMMENDATION-->
     <div class="row g-3 mt-3">
-        <div class="col-lg-8">
-            <div class="analytics-panel">
-                <div class="panel-title bg-success text-white">
+        <div class="col-12">
+            <div class="analytics-panel recommendation-panel">
+                <div class="panel-title recommendation-title bg-success">
                     Program Effectiveness Recommendation
                 </div>
                 <div class="panel-body p-0">
                     <div class="table-responsive">
                         <table class="table table-bordered mb-0 recommendation-table">
+
                             <thead>
                                 <tr>
                                     <th>Subsidy Program</th>
@@ -134,62 +136,58 @@
                                 </tr>
                             </thead>
                             <tbody>
-                            <?php foreach ($recommendations as $recommendation): ?>
+                            <?php if (!empty($recommendations)): ?>
+                                <?php foreach ($recommendations as $recommendation): ?>
+                                    <tr>
+                                        <td class="program-name">
+                                            <?= h($recommendation['program']) ?>
+                                        </td>
+                                        <td>
+                                            <?php if (
+                                                $recommendation['prediction']
+                                                === 'Effective'
+                                            ): ?>
+                                                <span class="prediction-effective">
+                                                    <i class="fas fa-check-circle me-1"></i>
+                                                    <?= h($recommendation['prediction']) ?>
+                                                </span>
+                                            <?php elseif (
+                                                $recommendation['prediction']
+                                                === 'Moderately Effective'
+                                            ): ?>
+                                                <span class="prediction-moderate">
+                                                    <i class="fas fa-exclamation-circle me-1"></i>
+                                                    <?= h($recommendation['prediction']) ?>
+                                                </span>
+                                            <?php else: ?>
+                                                <span class="prediction-not">
+                                                    <i class="fas fa-times-circle me-1"></i>
+                                                    <?= h($recommendation['prediction']) ?>
+                                                </span>
+
+                                            <?php endif; ?>
+                                        </td>
+                                        <td class="confidence-value">
+                                            <?= h($recommendation['confidence']) ?>%
+                                        </td>
+                                        <td class="action-value">
+                                            <?= h($recommendation['action']) ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
                                 <tr>
-                                    <td>
-                                        <?= h($recommendation['program']) ?>
-                                    </td>
-                                    <td>
-                                        <?php if ($recommendation['prediction'] === 'Effective'): ?>
-                                            <span class="prediction-effective">
-                                                <?= h($recommendation['prediction']) ?>
-                                            </span>
-                                        <?php elseif ($recommendation['prediction'] === 'Moderately Effective'): ?>
-                                            <span class="prediction-moderate">
-                                                <?= h($recommendation['prediction']) ?>
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="prediction-not">
-                                                <?= h($recommendation['prediction']) ?>
-                                            </span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <?= h($recommendation['confidence']) ?>%
-                                    </td>
-                                    <td>
-                                        <?= h($recommendation['action']) ?>
+                                    <td colspan="4">
+                                        <div class="analytics-empty">
+                                            <i class="fas fa-info-circle"></i>
+                                            No program recommendations available.
+                                        </div>
                                     </td>
                                 </tr>
-                            <?php endforeach; ?>
+                            <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
-                </div>
-            </div>
-        </div>
-        <!-- MODEL ACTIONS -->
-        <div class="col-lg-4">
-            <div class="analytics-panel">
-                <div class="panel-title bg-danger text-white">
-                    Model Actions
-                </div>
-                <div class="panel-body">
-                    <?= $this->Html->link(
-                        '<i class="fas fa-sync-alt"></i> Retrain Model',['controller' => 'Analytics', 'action' => 'retrain'],
-                        ['class' => 'btn btn-light border model-action','escape' => false])?>
-                    <button class="btn btn-light border model-action">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        Upload New Data
-                    </button>
-                    <button class="btn btn-light border model-action">
-                        <i class="fas fa-download"></i>
-                        Export Results
-                    </button>
-                    <button class="btn btn-light border model-action">
-                        <i class="fas fa-chart-bar"></i>
-                        View Model Reports
-                    </button>
                 </div>
             </div>
         </div>
@@ -198,34 +196,74 @@
 
 <?= $this->Html->script('https://cdn.jsdelivr.net/npm/chart.js') ?>
 <script>
-const effectivenessChart =
-    document.getElementById('effectivenessChart');
-new Chart(effectivenessChart, {
-    type: 'pie',
-    data: {
-        labels: [
-            'Effective',
-            'Moderately Effective',
-            'Not Effective'
-        ],
-        datasets: [{
-            data: [
-                <?= $effective ?>,
-                <?= $moderatelyEffective ?>,
-                <?= $notEffective ?>
-            ]
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                position: 'bottom'
+const programEffectivenessChart =
+    document.getElementById('programEffectivenessChart');
+if (programEffectivenessChart) {
+    const recommendations =
+        <?= json_encode($recommendations ?? []) ?>;
+    if (recommendations.length > 0) {
+        // Sort by confidence, highest first
+        recommendations.sort(function (a, b) {
+            return parseFloat(b.confidence) -
+            parseFloat(a.confidence);
+        });
+        const programs = recommendations.map(function (item) {
+            return item.program;
+        });
+        const confidence = recommendations.map(function (item) {
+            return parseFloat(item.confidence);
+        });
+        const predictions = recommendations.map(function (item) {
+            return item.prediction;
+        });
+        new Chart(programEffectivenessChart, {
+            type: 'doughnut',
+            data: {
+                labels: programs,
+                datasets: [{
+                    data: confidence,
+                    backgroundColor: [
+                        '#28a745',
+                        '#ffb13b',
+                        '#ff6384',
+                        '#36a2eb',
+                        '#9966ff'
+                    ],
+                    borderColor: '#ffffff',
+                    borderWidth: 3,
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '62%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            usePointStyle: true,
+
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                const index =
+                                    context.dataIndex;
+                                return (' ' + predictions [index] + ' — ' + confidence[index] + '% confidence');
+                            }
+                        }
+                    }
+                }
             }
-        }
+        });
     }
-});
+}
 
 const featureChart =
     document.getElementById('featureChart');
