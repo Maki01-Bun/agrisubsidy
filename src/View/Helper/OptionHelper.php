@@ -69,4 +69,13 @@ class OptionHelper extends Helper
     
         return $array;
     }
+    public function subsidy()
+    {
+        $array =[
+            'Seed Subsidy'=>'Seed Subsidy',
+            'Fertilizer Subsidy'=>'Fertilizer Subsidy',
+        ];
+
+        return $array;
+    }
 }

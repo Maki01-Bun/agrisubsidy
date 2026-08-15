@@ -81,8 +81,6 @@ class EvaluationsController extends AppController
                 'farm_size'           => $evaluation->farm?$evaluation->farm->farm_size:'N/A',
                 'crop_yield_before'   => $evaluation->record?$evaluation->record->crop_yield:'N/A',
                 'crop_yield_after'    => $evaluation->crop_yield_after,
-                'income_before'       => $evaluation->record?$evaluation->record->income:'N/A',
-                'income_after'        => $evaluation->income_after,
                 'pest_name'           => $evaluation->pest?$evaluation->pest->pest_name:'N/A',
                 'calamity'            => $evaluation->calamity,
                 'feedback_rating'     => $feedbackRating,

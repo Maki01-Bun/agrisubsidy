@@ -13,7 +13,6 @@ use Cake\ORM\Entity;
  * @property float $farm_size
  * @property string $location
  * @property float $crop_yield
- * @property float $income
  * @property \Cake\I18n\FrozenTime $created
  * @property \Cake\I18n\FrozenTime $modified
  */
@@ -33,7 +32,6 @@ class Farm extends Entity
         'farm_size' => true,
         'location' => true,
         'crop_yield' => true,
-        'income' => true,
         'created' => true,
         'modified' => true,
         'farmer_id' => true,

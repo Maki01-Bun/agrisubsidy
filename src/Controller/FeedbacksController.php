@@ -114,7 +114,6 @@ class FeedbacksController extends AppController
             }
             $farmSize = $farm->farm_size;
             $cropYieldBefore = (float)$farm->crop_yield;
-            $incomeBefore = (float)$farm->income;
             // Call FastAPI
             $http = new \Cake\Http\Client();
             $payload = [
@@ -122,8 +121,6 @@ class FeedbacksController extends AppController
                 'farm_size'         => (float)$farmSize,
                 'crop_yield_before' => (float)$cropYieldBefore,
                 'crop_yield_after'  => (float)$evaluationData['crop_yield_after'],
-                'income_before'     => (float)$incomeBefore,
-                'income_after'      => (float)$evaluationData['income_after'],
                 'feedback_score'    => $feedbackScore,
                 'pest'              => $pestString,
                 'calamity'          => $evaluationData['calamity']
@@ -147,7 +144,6 @@ class FeedbacksController extends AppController
             // Automatically save the "before" values from the selected farm
             $evaluationData['farm_size'] = $farmSize;
             $evaluationData['crop_yield_before'] = $cropYieldBefore;
-            $evaluationData['income_before'] = $incomeBefore;
 
             unset($evaluationData['pest']);
 

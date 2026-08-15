@@ -12,7 +12,6 @@
                         <th>Farm Size</th>
                         <th>Location</th>
                         <th>Crop Yield</th>
-                        <th>Income</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -46,10 +45,6 @@
                 <div class="form-group">
                     <label for="crop_yield">Crop Yield</label>
                     <?= $this->Form->control('crop_yield',['class'=>'form-control','label'=>false]) ?>
-                </div>
-                <div class="form-group">
-                    <label for="income">Income</label>
-                    <?= $this->Form->control('income',['class'=>'form-control','label'=>false]) ?>
                 </div>
             </div>
             <div class="modal-footer">

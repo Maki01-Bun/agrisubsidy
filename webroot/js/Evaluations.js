@@ -21,7 +21,6 @@ $(function(){
                     $('#subsidy_type').val(data.subsidy_type);
                 	$('#farm_size').val(data.farm_size);
                 	$('#crop_yield_after').val(data.crop_yield_after);
-                	$('#income_after').val(data.income_after);
                 	$('#pest_name').val(data.pest_name);
                 	$('#calamity').val(data.calamity);
                     $('#feedback_rating').val(data.feedback_rating);
@@ -120,7 +119,6 @@ function getEvaluations()
             {data:"subsidy_type"},
 			{data:"farm_size"},
             {data:"crop_yield_after"},
-            {data:"income_after"},
             {data:"pest_name"},
             {data:"calamity"},
             {data:"feedback_rating"},

@@ -37,7 +37,6 @@ class Evaluation extends Entity
         'subsidy_type' => true,
         'farm_id' => true,
         'crop_yield_after' => true,
-        'income_after' => true,
         'pest_id' => true,
         'calamity' => true,
         'effectiveness_label' => true,

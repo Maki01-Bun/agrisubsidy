@@ -79,11 +79,6 @@ class EvaluationsTable extends Table
             ->decimal('crop_yield_after')
             ->requirePresence('crop_yield_after', 'create')
             ->notEmptyString('crop_yield_after');
-    
-        $validator
-            ->decimal('income_after')
-            ->requirePresence('income_after', 'create')
-            ->notEmptyString('income_after');
             
         $validator
             ->integer('pest_id')

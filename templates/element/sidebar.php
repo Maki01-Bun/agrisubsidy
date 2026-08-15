@@ -50,12 +50,12 @@
                     '/Pests',
                     ['class' => 'nav-link '.($title == 'Pests' ? 'active' : ''),'escape' => false])?>
             </li>
-            <!-- <li class="nav-item">
+            <li class="nav-item">
                 <?= $this->Html->link(
                     '<i class="nav-icon fas fa-seedling"></i><p>Distribution</p>',
                     '/Distributions',
                     ['class' => 'nav-link '.($title == 'Distributions' ? 'active' : ''),'escape' => false])?>
-            </li> -->
+            </li>
             <li class="nav-item">
                 <?= $this->Html->link(
                     '<i class="nav-icon fas fa-user-cog"></i><p>Users</p>',

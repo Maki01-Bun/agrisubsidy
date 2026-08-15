@@ -132,48 +132,46 @@
                                     <th>Subsidy Program</th>
                                     <th>Prediction</th>
                                     <th>Confidence</th>
+                                    <th>Trend</th>
                                     <th>Suggested Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                             <?php if (!empty($recommendations)): ?>
                                 <?php foreach ($recommendations as $recommendation): ?>
-                                    <tr>
-                                        <td class="program-name">
+                                <tr>
+                                    <td>
+                                        <strong>
                                             <?= h($recommendation['program']) ?>
-                                        </td>
-                                        <td>
-                                            <?php if (
-                                                $recommendation['prediction']
-                                                === 'Effective'
-                                            ): ?>
-                                                <span class="prediction-effective">
-                                                    <i class="fas fa-check-circle me-1"></i>
-                                                    <?= h($recommendation['prediction']) ?>
-                                                </span>
-                                            <?php elseif (
-                                                $recommendation['prediction']
-                                                === 'Moderately Effective'
-                                            ): ?>
-                                                <span class="prediction-moderate">
-                                                    <i class="fas fa-exclamation-circle me-1"></i>
-                                                    <?= h($recommendation['prediction']) ?>
-                                                </span>
-                                            <?php else: ?>
-                                                <span class="prediction-not">
-                                                    <i class="fas fa-times-circle me-1"></i>
-                                                    <?= h($recommendation['prediction']) ?>
-                                                </span>
-
-                                            <?php endif; ?>
-                                        </td>
-                                        <td class="confidence-value">
+                                        </strong>
+                                    </td>
+                                    <td>
+                                        <?= h($recommendation['prediction']) ?>
+                                    </td>
+                                    <td>
+                                        <strong>
                                             <?= h($recommendation['confidence']) ?>%
-                                        </td>
-                                        <td class="action-value">
-                                            <?= h($recommendation['action']) ?>
-                                        </td>
-                                    </tr>
+                                        </strong>
+                                    </td>
+                                    <td>
+                                        <?php if ($recommendation['trend'] === 'Improving'): ?>
+                                            <span class="badge bg-success">
+                                                ↑ Improving
+                                            </span>
+                                        <?php elseif ($recommendation['trend'] === 'Declining'): ?>
+                                            <span class="badge bg-danger">
+                                                ↓ Declining
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="badge bg-secondary">
+                                                → Stable
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <?= h($recommendation['action']) ?>
+                                    </td>  
+                                </tr> 
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <tr>

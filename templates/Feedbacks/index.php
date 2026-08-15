@@ -26,15 +26,17 @@
                     ]) ?>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label>Subsidy Type</label>
+                    <label for="subsidy_type">Subsidy Type</label>
                     <?= $this->Form->control('subsidy_type', [
                         'class' => 'form-control',
-                        'label' => false
+                        'label' => false,
+                        'options' => $this->Option->subsidy(),
+                        'empty' => '-- Enter Subsidy Type --'
                     ]) ?>
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-4 mb-3">
+                <div class="col-md-6 mb-3">
                     <label>Farm</label>
                     <?= $this->Form->control('farm_id', [
                         'options' => $farms,
@@ -44,16 +46,9 @@
                         'id' => 'farm_id'
                     ]) ?>
                 </div>
-                <div class="col-md-4 mb-3">
+                <div class="col-md-6 mb-3">
                     <label>Crop Yield After (tons/ha)</label>
                     <?= $this->Form->control('crop_yield_after', [
-                        'class' => 'form-control',
-                        'label' => false
-                    ]) ?>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label>Income After (₱)</label>
-                    <?= $this->Form->control('income_after', [
                         'class' => 'form-control',
                         'label' => false
                     ]) ?>
