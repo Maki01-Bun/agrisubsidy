@@ -25,6 +25,22 @@ class DistributionsController extends AppController
             ->withStringBody(json_encode($distributions));
     }
 
+    /**
+     * View method
+     *
+     * @param string|null $id Distribution id.
+     * @return \Cake\Http\Response|null|void Renders view
+     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
+     */
+    public function view($id = null)
+    {
+        $distribution = $this->Distributions->get($id, [
+            'contain' => ['Farmers'],
+        ]);
+
+        $this->set(compact('distribution'));
+    }
+
     public function getDistributions()
     {
         $distributions = $this->Distributions->find();

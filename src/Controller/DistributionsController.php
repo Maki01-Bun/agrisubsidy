@@ -61,14 +61,8 @@ class DistributionsController extends AppController
             }
             $this->Flash->error(__('The distribution could not be saved. Please, try again.'));
         }
-        $this->loadModel('Farmers');
-        $distributions->farmer_id = $farmer->id;
-        $farmers = $this->Farmers->find()->all()->combine(
-        'id',
-        function ($farmer) {
-            return $farmer->first_name . ' ' . $farmer->last_name;})->toArray();
 
-        $this->set(compact('distribution', 'farmers'));
+        $this->set(compact('distribution'));
 
     }
 
