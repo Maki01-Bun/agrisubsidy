@@ -16,7 +16,6 @@ use Cake\ORM\Entity;
  * @property string $subsidy_type
  * @property float $farm_id
  * @property float $crop_yield_after
- * @property float $income_after
  * @property string $calamity
  * @property string $effectiveness_label
  * @property \Cake\I18n\FrozenTime $created

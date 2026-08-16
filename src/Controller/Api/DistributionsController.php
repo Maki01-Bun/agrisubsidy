@@ -20,7 +20,7 @@ class DistributionsController extends AppController
      */
     public function index()
     {
-        $distributions = $this->Distributions->find();
+        $distributions = $this->Distributions->find()->contain(['Farmers'])->all();
         return $this->response->withType('application/json')
             ->withStringBody(json_encode($distributions));
     }
@@ -42,11 +42,55 @@ class DistributionsController extends AppController
     }
 
     public function getDistributions()
-    {
-        $distributions = $this->Distributions->find();
-        return $this->response->withType('application/json')
-            ->withStringBody(json_encode(['data'=>$distributions]));
+{
+    $distributions = $this->Distributions->find()
+        ->select([
+            'id' => 'Distributions.id',
+            'farmer_id' => 'Distributions.farmer_id',
+            'first_name' => 'Farmers.first_name',
+            'last_name' => 'Farmers.last_name',
+            'subsidy_item' => 'Distributions.subsidy_item',
+            'quantity' => 'Distributions.quantity',
+            'distribution_date' => 'Distributions.distribution_date',
+            'received_date' => 'Distributions.received_date',
+            'status' => 'Distributions.status'
+        ])
+        ->join([
+            'Farmers' => [
+                'table' => 'farmers',
+                'type' => 'LEFT',
+                'conditions' => [
+                    'Farmers.id = Distributions.farmer_id'
+                ]
+            ]
+        ])
+        ->enableHydration(false)
+        ->all();
+
+    $data = [];
+
+    foreach ($distributions as $distribution) {
+        $data[] = [
+            'id' => $distribution['id'],
+            'farmer_id' => $distribution['farmer_id'],
+            'farmer_name' => trim(
+                ($distribution['first_name'] ?? '') . ' ' .
+                ($distribution['last_name'] ?? '')
+            ),
+            'subsidy_item' => $distribution['subsidy_item'],
+            'quantity' => $distribution['quantity'],
+            'distribution_date' => $distribution['distribution_date'],
+            'received_date' => $distribution['received_date'],
+            'status' => $distribution['status']
+        ];
     }
+
+    return $this->response
+        ->withType('application/json')
+        ->withStringBody(json_encode([
+            'data' => $data
+        ]));
+}
 
     /**
      * Add method
@@ -91,7 +135,7 @@ class DistributionsController extends AppController
                 ->withStringBody(json_encode($result));
         }
         return $this->response->withType('application/json')
-            ->withStringBody(json_encode($farmer));
+            ->withStringBody(json_encode($distribution));
     }
 
     /**

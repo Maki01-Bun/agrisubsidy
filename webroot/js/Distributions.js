@@ -17,11 +17,11 @@ $(function(){
         })
             .done(function(data){
                 if(data!=''){
-                    $('#farmer_id').val(data.farmer_id);
-                	$('#subsidy_item').val(data.subsidy_item);
+                    $('#farmer-id').val(data.farmer_id);
+                	$('#subsidy-item').val(data.subsidy_item);
                 	$('#quantity').val(data.quantity);
-                    $('#distribution_date').val(data.distribution_date);
-                    $('#received_date').val(data.received_date);
+                    $('#distribution-date').val(data.distribution_date);
+                    $('#received-date').val(data.received_date);
                     $('#status').val(data.status);
                 	$('#id').val(data.id);
                     $('#distributions-modal').modal('show');
@@ -54,7 +54,7 @@ $(function(){
 			if(data.status=='success'){
 				getDistributions();
 				msgBox(data.status,data.message);
-				$('#users-modal').modal('hide');
+				$('#distributions-modal').modal('hide');
 			}else{
 				msgBox(data.status,data.message);
 			}
@@ -93,7 +93,7 @@ $(function(){
 
     $('#distributions-modal').on('shown.bs.modal', function() {
         setTimeout(function() {
-            $('#farmer-id').focus();
+            $('#farmer_name').focus();
         }, 500);
     });
 
@@ -113,7 +113,7 @@ function getDistributions()
             "url": BASE_URL + '/api/Distributions/getDistributions'
         },
         "columns": [
-            {data:"farmer_id"},
+            {data:"farmer_name"},
 			{data:"subsidy_item"},
             {data:"quantity"},
             {data:"distribution_date"},

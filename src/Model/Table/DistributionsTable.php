@@ -11,7 +11,7 @@ use Cake\Validation\Validator;
 /**
  * Distributions Model
  *
- * @property \App\Model\Table\FarmersTable&\Cake\ORM\Association\HasMany $Farmers
+ * @property \App\Model\Table\FarmersTable&\Cake\ORM\Association\BelongsTo $Farmers
  *
  * @method \App\Model\Entity\Distribution newEmptyEntity()
  * @method \App\Model\Entity\Distribution newEntity(array $data, array $options = [])
@@ -40,12 +40,12 @@ class DistributionsTable extends Table
         parent::initialize($config);
 
         $this->setTable('distributions');
-        $this->setDisplayField('subsidy_item');
         $this->setPrimaryKey('id');
 
         $this->belongsTo('Farmers', [
-        'foreignKey' => 'farmer_id',
-        'joinType' => 'INNER',
+            'foreignKey' => 'farmer_id',
+            'bindingKey' => 'id',
+            'joinType' => 'INNER',
         ]);
     }
 
@@ -65,8 +65,8 @@ class DistributionsTable extends Table
 
         $validator
             ->decimal('quantity')
-            ->requirePresence('quantity', 'create')
-            ->notEmptyString('quantity');
+            ->allowEmptyString('quantity');
+
 
         $validator
             ->scalar('status')

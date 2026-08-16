@@ -9,8 +9,8 @@ use Cake\ORM\Entity;
  * Distribution Entity
  *
  * @property int $id
- * @property string $subsidy_name
- * @property string $quantity
+ * @property string $subsidy_item
+ * @property float $quantity
  * @property \Cake\I18n\FrozenTime $distribution_date
  * @property \Cake\I18n\FrozenTime $received_date
  * @property string $status
@@ -29,14 +29,15 @@ class Distribution extends Entity
      *
      * @var array<string, bool>
      */
-    protected $_accessible = [
-        'subsidy_name' => true,
+     protected $_accessible = [
+        'farmer_id' => true,
+        'subsidy_item' => true,
         'quantity' => true,
         'distribution_date' => true,
         'received_date' => true,
         'status' => true,
         'created' => true,
         'modified' => true,
-        'farmers' => true,
+        'farmer' => true,
     ];
 }

@@ -41,7 +41,12 @@
                     <?= $this->Form->control('farmer_id', ['type' => 'select','options' => $farmers,
                     'empty' => '-- Select Farmer --','class' => 'form-control','label' => false]) ?>
                     <label for="subsidy_item">Subsidy Item</label>
-                    <?= $this->Form->control('subsidy_item',['class'=>'form-control','label'=>false]) ?>
+                    <?= $this->Form->control('subsidy_item', [
+                        'class' => 'form-control',
+                        'label' => false,
+                        'options' => $this->Option->subsidy(),
+                        'empty' => '-- Enter Subsidy Item --'
+                    ]) ?>
                     <label for="quantity">Quantity</label>
                     <?= $this->Form->control('quantity',['class'=>'form-control','label'=>false]) ?>
                     <label for="distribution_date">Distribution Date</label>
