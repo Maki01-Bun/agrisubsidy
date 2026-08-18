@@ -6,7 +6,7 @@ namespace App\Model\Entity;
 use Cake\ORM\Entity;
 
 /**
- * Program Entity
+ * Schedule Entity
  *
  * @property int $id
  * @property string $program_name
@@ -18,7 +18,7 @@ use Cake\ORM\Entity;
  * @property \Cake\I18n\Time $end_time
  *
  */
-class Program extends Entity
+class Schedule extends Entity
 {
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().

@@ -9,25 +9,25 @@ use Cake\ORM\Table;
 use Cake\Validation\Validator;
 
 /**
- * Distributions Model
+ * Records Model
  *
  * @property \App\Model\Table\FarmersTable&\Cake\ORM\Association\BelongsTo $Farmers
  *
- * @method \App\Model\Entity\Distribution newEmptyEntity()
- * @method \App\Model\Entity\Distribution newEntity(array $data, array $options = [])
- * @method \App\Model\Entity\Distribution[] newEntities(array $data, array $options = [])
- * @method \App\Model\Entity\Distribution get($primaryKey, $options = [])
- * @method \App\Model\Entity\Distribution findOrCreate($search, ?callable $callback = null, $options = [])
- * @method \App\Model\Entity\Distribution patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
- * @method \App\Model\Entity\Distribution[] patchEntities(iterable $entities, array $data, array $options = [])
- * @method \App\Model\Entity\Distribution|false save(\Cake\Datasource\EntityInterface $entity, $options = [])
- * @method \App\Model\Entity\Distribution saveOrFail(\Cake\Datasource\EntityInterface $entity, $options = [])
- * @method \App\Model\Entity\Distribution[]|\Cake\Datasource\ResultSetInterface|false saveMany(iterable $entities, $options = [])
- * @method \App\Model\Entity\Distribution[]|\Cake\Datasource\ResultSetInterface saveManyOrFail(iterable $entities, $options = [])
- * @method \App\Model\Entity\Distribution[]|\Cake\Datasource\ResultSetInterface|false deleteMany(iterable $entities, $options = [])
- * @method \App\Model\Entity\Distribution[]|\Cake\Datasource\ResultSetInterface deleteManyOrFail(iterable $entities, $options = [])
+ * @method \App\Model\Entity\Record newEmptyEntity()
+ * @method \App\Model\Entity\Record newEntity(array $data, array $options = [])
+ * @method \App\Model\Entity\Record[] newEntities(array $data, array $options = [])
+ * @method \App\Model\Entity\Record get($primaryKey, $options = [])
+ * @method \App\Model\Entity\Record findOrCreate($search, ?callable $callback = null, $options = [])
+ * @method \App\Model\Entity\Record patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
+ * @method \App\Model\Entity\Record[] patchEntities(iterable $entities, array $data, array $options = [])
+ * @method \App\Model\Entity\Record|false save(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @method \App\Model\Entity\Record saveOrFail(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @method \App\Model\Entity\Record[]|\Cake\Datasource\ResultSetInterface|false saveMany(iterable $entities, $options = [])
+ * @method \App\Model\Entity\Record[]|\Cake\Datasource\ResultSetInterface saveManyOrFail(iterable $entities, $options = [])
+ * @method \App\Model\Entity\Record[]|\Cake\Datasource\ResultSetInterface|false deleteMany(iterable $entities, $options = [])
+ * @method \App\Model\Entity\Record[]|\Cake\Datasource\ResultSetInterface deleteManyOrFail(iterable $entities, $options = [])
  */
-class DistributionsTable extends Table
+class RecordsTable extends Table
 {
     /**
      * Initialize method
@@ -39,7 +39,7 @@ class DistributionsTable extends Table
     {
         parent::initialize($config);
 
-        $this->setTable('distributions');
+        $this->setTable('records');
         $this->setPrimaryKey('id');
 
         $this->belongsTo('Farmers', [

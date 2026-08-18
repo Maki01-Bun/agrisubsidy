@@ -4,11 +4,11 @@ declare(strict_types=1);
 namespace App\Controller;
 
 /**
- * Distribution Controller
+ * Record Controller
  *
- * @method \App\Model\Entity\Distribution[]|\Cake\Datasource\ResultSetInterface paginate($object = null, array $settings = [])
+ * @method \App\Model\Entity\Record[]|\Cake\Datasource\ResultSetInterface paginate($object = null, array $settings = [])
  */
-class DistributionsController extends AppController
+class RecordsController extends AppController
 {
     /**
      * Index method
@@ -17,7 +17,7 @@ class DistributionsController extends AppController
      */
     public function index()
     {
-        $distributions = $this->Distributions->newEmptyEntity();
+        $records = $this->Records->newEmptyEntity();
 
         $this->loadModel('Farmers');
 
@@ -25,7 +25,7 @@ class DistributionsController extends AppController
         'id',
         function ($farmer) {
             return $farmer->first_name . ' ' . $farmer->last_name;})->toArray();
-        $this->set(compact('distributions','farmers'));
+        $this->set(compact('records','farmers'));
     }
 
     /**
@@ -37,11 +37,11 @@ class DistributionsController extends AppController
      */
     public function view($id = null)
     {
-        $distribution = $this->Distributions->get($id, [
+        $record = $this->Records->get($id, [
             'contain' => [],
         ]);
 
-        $this->set(compact('distributions'));
+        $this->set(compact('record'));
     }
 
     /**
@@ -51,60 +51,60 @@ class DistributionsController extends AppController
      */
     public function add()
     {
-        $distribution = $this->Distributions->newEmptyEntity();
+        $record = $this->Records->newEmptyEntity();
         if ($this->request->is('post')) {
-            $distribution = $this->Distributions->patchEntity($distribution, $this->request->getData());
-            if ($this->Distributions->save($distribution)) {
-                $this->Flash->success(__('The distributions has been saved.'));
+            $record = $this->Records->patchEntity($record, $this->request->getData());
+            if ($this->Records->save($record)) {
+                $this->Flash->success(__('The record has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error(__('The distribution could not be saved. Please, try again.'));
+            $this->Flash->error(__('The record could not be saved. Please, try again.'));
         }
 
-        $this->set(compact('distribution'));
+        $this->set(compact('record'));
 
     }
 
     /**
      * Edit method
      *
-     * @param string|null $id Distribution id.
+     * @param string|null $id Record id.
      * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
     public function edit($id = null)
     {
-        $distribution = $this->Distributions->get($id, [
+        $record = $this->Records->get($id, [
             'contain' => [],
         ]);
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $distribution = $this->Distributions->patchEntity($distribution, $this->request->getData());
-            if ($this->Distributions->save($distribution)) {
-                $this->Flash->success(__('The distribution has been saved.'));
+            $record = $this->Records->patchEntity($record, $this->request->getData());
+            if ($this->Records->save($record)) {
+                $this->Flash->success(__('The record has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error(__('The distribution could not be saved. Please, try again.'));
+            $this->Flash->error(__('The record could not be saved. Please, try again.'));
         }
-        $this->set(compact('distribution'));
+        $this->set(compact('record'));
     }
 
     /**
      * Delete method
      *
-     * @param string|null $id Distribution id.
+     * @param string|null $id Record id.
      * @return \Cake\Http\Response|null|void Redirects to index.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $distribution = $this->Distributions->get($id);
-        if ($this->Distributions->delete($distribution)) {
-            $this->Flash->success(__('The distribution has been deleted.'));
+        $record = $this->Records->get($id);
+        if ($this->Records->delete($record)) {
+            $this->Flash->success(__('The record has been deleted.'));
         } else {
-            $this->Flash->error(__('The distribution could not be deleted. Please, try again.'));
+            $this->Flash->error(__('The record could not be deleted. Please, try again.'));
         }
 
         return $this->redirect(['action' => 'index']);

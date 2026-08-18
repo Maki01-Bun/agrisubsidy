@@ -116,25 +116,25 @@ return function (RouteBuilder $routes): void {
                 'pass' => ['id']
             ]);
         });
-         $builder->scope('/Programs', function (RouteBuilder $builder) {
-            $builder->connect('/', ['controller' => 'Programs', 'action' => 'index']);
-            $builder->connect('/getPrograms', ['controller' => 'Programs', 'action' => 'getPrograms']);
-            $builder->connect('/add', ['controller' => 'Programs', 'action' => 'add']);
-            $builder->connect('/edit/{id}', ['controller' => 'Programs', 'action' => 'edit'], [
+         $builder->scope('/Schedules', function (RouteBuilder $builder) {
+            $builder->connect('/', ['controller' => 'Schedules', 'action' => 'index']);
+            $builder->connect('/getSchedules', ['controller' => 'Schedules', 'action' => 'getSchedules']);
+            $builder->connect('/add', ['controller' => 'Schedules', 'action' => 'add']);
+            $builder->connect('/edit/{id}', ['controller' => 'Schedules', 'action' => 'edit'], [
                 'pass' => ['id']
             ]);
-            $builder->connect('/delete/{id}', ['controller' => 'Programs', 'action' => 'delete'], [
+            $builder->connect('/delete/{id}', ['controller' => 'Schedules', 'action' => 'delete'], [
                 'pass' => ['id']
             ]);
         });
-        $builder->scope('/Distributions', function (RouteBuilder $builder) {
-            $builder->connect('/', ['controller' => 'Distributions', 'action' => 'index']);
-            $builder->connect('/getDistributions', ['controller' => 'Distributions', 'action' => 'getDistributions']);
-            $builder->connect('/add', ['controller' => 'Distributions', 'action' => 'add']);
-            $builder->connect('/edit/{id}', ['controller' => 'Distributions', 'action' => 'edit'], [
+        $builder->scope('/Records', function (RouteBuilder $builder) {
+            $builder->connect('/', ['controller' => 'Records', 'action' => 'index']);
+            $builder->connect('/getRecords', ['controller' => 'Records', 'action' => 'getRecords']);
+            $builder->connect('/add', ['controller' => 'Records', 'action' => 'add']);
+            $builder->connect('/edit/{id}', ['controller' => 'Records', 'action' => 'edit'], [
                 'pass' => ['id']
             ]);
-            $builder->connect('/delete/{id}', ['controller' => 'Distributions', 'action' => 'delete'], [
+            $builder->connect('/delete/{id}', ['controller' => 'Records', 'action' => 'delete'], [
                 'pass' => ['id']
             ]);
         });

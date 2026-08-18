@@ -6,7 +6,7 @@ namespace App\Model\Entity;
 use Cake\ORM\Entity;
 
 /**
- * Distribution Entity
+ * Record Entity
  *
  * @property int $id
  * @property string $subsidy_item
@@ -18,7 +18,7 @@ use Cake\ORM\Entity;
  * @property \Cake\I18n\FrozenTime $modified
  * @property \App\Model\Entity\Farmer[] $farmers
  */
-class Distribution extends Entity
+class Record extends Entity
 {
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().

@@ -9,25 +9,25 @@ use Cake\ORM\Table;
 use Cake\Validation\Validator;
 
 /**
- * Programs Model
+ * Schedules Model
  *
- * @property \App\Model\Table\BeneficiariesTable&\Cake\ORM\Association\HasMany $Beneficiaries
+ * @property \App\Model\Table\FarmersTable&\Cake\ORM\Association\HasMany $Farmers
  *
- * @method \App\Model\Entity\Program newEmptyEntity()
- * @method \App\Model\Entity\Program newEntity(array $data, array $options = [])
- * @method \App\Model\Entity\Program[] newEntities(array $data, array $options = [])
- * @method \App\Model\Entity\Program get($primaryKey, $options = [])
- * @method \App\Model\Entity\Program findOrCreate($search, ?callable $callback = null, $options = [])
- * @method \App\Model\Entity\Program patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
- * @method \App\Model\Entity\Program[] patchEntities(iterable $entities, array $data, array $options = [])
- * @method \App\Model\Entity\Program|false save(\Cake\Datasource\EntityInterface $entity, $options = [])
- * @method \App\Model\Entity\Program saveOrFail(\Cake\Datasource\EntityInterface $entity, $options = [])
- * @method \App\Model\Entity\Program[]|\Cake\Datasource\ResultSetInterface|false saveMany(iterable $entities, $options = [])
- * @method \App\Model\Entity\Program[]|\Cake\Datasource\ResultSetInterface saveManyOrFail(iterable $entities, $options = [])
- * @method \App\Model\Entity\Program[]|\Cake\Datasource\ResultSetInterface|false deleteMany(iterable $entities, $options = [])
- * @method \App\Model\Entity\Program[]|\Cake\Datasource\ResultSetInterface deleteManyOrFail(iterable $entities, $options = [])
+ * @method \App\Model\Entity\Schedule newEmptyEntity()
+ * @method \App\Model\Entity\Schedule newEntity(array $data, array $options = [])
+ * @method \App\Model\Entity\Schedule[] newEntities(array $data, array $options = [])
+ * @method \App\Model\Entity\Schedule get($primaryKey, $options = [])
+ * @method \App\Model\Entity\Schedule findOrCreate($search, ?callable $callback = null, $options = [])
+ * @method \App\Model\Entity\Schedule patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
+ * @method \App\Model\Entity\Schedule[] patchEntities(iterable $entities, array $data, array $options = [])
+ * @method \App\Model\Entity\Schedule|false save(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @method \App\Model\Entity\Schedule saveOrFail(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @method \App\Model\Entity\Schedule[]|\Cake\Datasource\ResultSetInterface|false saveMany(iterable $entities, $options = [])
+ * @method \App\Model\Entity\Schedule[]|\Cake\Datasource\ResultSetInterface saveManyOrFail(iterable $entities, $options = [])
+ * @method \App\Model\Entity\Schedule[]|\Cake\Datasource\ResultSetInterface|false deleteMany(iterable $entities, $options = [])
+ * @method \App\Model\Entity\Schedule[]|\Cake\Datasource\ResultSetInterface deleteManyOrFail(iterable $entities, $options = [])
  */
-class ProgramsTable extends Table
+class SchedulesTable extends Table
 {
     /**
      * Initialize method
@@ -39,12 +39,12 @@ class ProgramsTable extends Table
     {
         parent::initialize($config);
 
-        $this->setTable('programs');
+        $this->setTable('schedules');
         $this->setDisplayField('program_name');
         $this->setPrimaryKey('id');
 
-        $this->hasMany('Beneficiaries', [
-            'foreignKey' => 'program_id',
+        $this->hasMany('Farmers', [
+            'foreignKey' => 'farmer_id',
         ]);
     }
 

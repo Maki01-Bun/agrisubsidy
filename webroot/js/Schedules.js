@@ -1,17 +1,17 @@
 $(function(){
-	getPrograms();
+	getSchedules();
 
     $('#add').on('click',function (e) {
         e.preventDefault();
-        $('.modal-title').html('Add Program');
-        $('#programs-modal').modal('show');
+        $('.modal-title').html('Add Schedule');
+        $('#schedules-modal').modal('show');
     });
-    $('#programs-table').on('click','.edit',function (e) {
+    $('#schedules-table').on('click','.edit',function (e) {
         e.preventDefault();
         let id = $(this).data('id');
-        $('.modal-title').html('Update Program');
+        $('.modal-title').html('Update Schedule');
         $.ajax({
-            url: BASE_URL + '/api/Programs/edit/' + id,
+            url: BASE_URL + '/api/Schedules/edit/' + id,
             type: "GET",
             dataType: 'json'
         })
@@ -25,7 +25,7 @@ $(function(){
                     $('#start-time').val(data.start_time);
                     $('#end-time').val(data.end_time);
                 	$('#id').val(data.id);
-                    $('#programs-modal').modal('show');
+                    $('#schedules-modal').modal('show');
                 }
             })
             .fail(function(jqXHR, textStatus, errorThrown){
@@ -33,15 +33,15 @@ $(function(){
             });
     });
 
-	$('#programs-form').submit(function(e){
+	$('#schedules-form').submit(function(e){
 		e.preventDefault();
 		let fd =new FormData(this);
 		let id = $('#id').val();
 		let url = '';
 		if(id==''){
-			url = BASE_URL + '/api/Programs/add';
+			url = BASE_URL + '/api/Schedules/add';
 		}else{
-			url = BASE_URL + '/api/Programs/edit/' + id;
+			url = BASE_URL + '/api/Schedules/edit/' + id;
 		}
 
 		$.ajax({
@@ -53,9 +53,9 @@ $(function(){
 			dataType:'json'
 		}).done(function(data){
 			if(data.status=='success'){
-				getPrograms();
+				getSchedules();
 				msgBox(data.status,data.message);
-				$('#programs-modal').modal('hide');
+				$('#schedules-modal').modal('hide');
 			}else{
 				msgBox(data.status,data.message);
 			}
@@ -64,13 +64,13 @@ $(function(){
 		});
 	});
 
-    $('#programs-table').on('click', '.delete', function (e) {
+    $('#schedules-table').on('click', '.delete', function (e) {
         e.preventDefault();
         let id=$(this).data('id');
         isDelete(function (confirmed) {
             if (confirmed) {
                 $.ajax({
-                    url: BASE_URL + '/api/Programs/delete/'+ id,
+                    url: BASE_URL + '/api/Schedules/delete/'+ id,
                     type: "DELETE",
                     dataType: 'json',
                     headers : {
@@ -79,7 +79,7 @@ $(function(){
                 })
                     .done(function(data, textStatus, jqXHR){
                         if(data.status=='success'){
-                            getPrograms();
+                            getSchedules();
                             msgBox(data.status,data.message);
                         }else{
                             msgBox(data.status,data.message);
@@ -92,26 +92,26 @@ $(function(){
         });
     });
 
-    $('#programs-modal').on('shown.bs.modal', function() {
+    $('#schedules-modal').on('shown.bs.modal', function() {
         setTimeout(function() {
             $('#program_name').focus();
         }, 500);
     });
 
-    $('#programs-modal').on('hidden.bs.modal', function() {
-        $("#programs-form").trigger("reset");
+    $('#schedules-modal').on('hidden.bs.modal', function() {
+        $("#schedules-form").trigger("reset");
         $("#id").val('');
     });
 });
 
-function getPrograms()
+function getSchedules()
 {
-	$('#programs-table').DataTable({
+	$('#schedules-table').DataTable({
         "responsive": true,
         "destroy":true,
         "order": [[ 0, "asc" ]],
         "ajax": {
-            "url": BASE_URL + '/api/Programs/getPrograms'
+            "url": BASE_URL + '/api/Schedules/getSchedules'
         },
         "columns": [
 			{data:"program_name"},
@@ -123,9 +123,9 @@ function getPrograms()
             {data:"end_time"},
             { data: null,render: function(data){
                     var option = '<div style="text-align:center;"><a href="" class="edit" data-toggle="tooltip" + ' +
-                        'data-placement="bottom" title="Edit Program" data-id="'+ data.id +'"><i' +
+                        'data-placement="bottom" title="Edit Schedule" data-id="'+ data.id +'"><i' +
                         ' class="fa fas fa-pen"></i></a> | <a href="" class="delete text-danger" data-toggle="tooltip" + ' +
-                        'data-placement="bottom" title="Delete Program" data-id="'+ data.id +'"><i' +
+                        'data-placement="bottom" title="Delete Schedule" data-id="'+ data.id +'"><i' +
                         ' class="fa fa fa-trash"></i></a></div>';
                     return option;
                 }

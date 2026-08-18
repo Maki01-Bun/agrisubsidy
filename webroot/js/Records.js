@@ -17,10 +17,12 @@ $(function(){
         })
             .done(function(data){
                 if(data!=''){
-                	$('#farm_id').val(data.farm_id);
-                	$('#crop_yield_before').val(data.crop_yield);
-                	$('#income_before').val(data.income);
-                	$('#record_date').val(data.record_date);
+                	$('#farmer-id').val(data.farmer_id);
+                	$('#subsidy-item').val(data.subsidy_item);
+                	$('#quantity').val(data.quantity);
+                    $('#distribution-date').val(data.distribution_date);
+                    $('#received-date').val(data.received_date);
+                    $('#status').val(data.status);
                 	$('#id').val(data.id);
                     $('#records-modal').modal('show');
                 }
@@ -91,7 +93,7 @@ $(function(){
 
     $('#records-modal').on('shown.bs.modal', function() {
         setTimeout(function() {
-            $('#farm_id').focus();
+            $('#farmer_id').focus();
         }, 500);
     });
 
@@ -111,15 +113,17 @@ function getRecords()
             "url": BASE_URL + '/api/Records/getRecords'
         },
         "columns": [
-			{data:"farm_id"},
-            {data:"crop_yield_before"},
-            {data:"income_before"},
-            {data:"record_date"},
+			{data:"farmer_name"},
+			{data:"subsidy_item"},
+            {data:"quantity"},
+            {data:"distribution_date"},
+            {data:"received_date"},
+            {data:"status"},
             { data: null,render: function(data){
                     var option = '<div style="text-align:center;"><a href="" class="edit" data-toggle="tooltip" + ' +
-                        'data-placement="bottom" title="Edit Personnel" data-id="'+ data.id +'"><i' +
+                        'data-placement="bottom" title="Edit Record" data-id="'+ data.id +'"><i' +
                         ' class="fa fas fa-pen"></i></a> | <a href="" class="delete text-danger" data-toggle="tooltip" + ' +
-                        'data-placement="bottom" title="Delete Personnel" data-id="'+ data.id +'"><i' +
+                        'data-placement="bottom" title="Delete Record" data-id="'+ data.id +'"><i' +
                         ' class="fa fa fa-trash"></i></a></div>';
                     return option;
                 }

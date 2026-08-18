@@ -6,12 +6,12 @@ namespace App\Controller\Api;
 use App\Controller\AppController;
 
 /**
- * Programs Controller
+ * Schedules Controller
  *
- * @property \App\Model\Table\ProgramsTable $Programs
- * @method \App\Model\Entity\Program[]|\Cake\Datasource\ResultSetInterface paginate($object = null, array $settings = [])
+ * @property \App\Model\Table\SchedulesTable $Schedules
+ * @method \App\Model\Entity\Schedule[]|\Cake\Datasource\ResultSetInterface paginate($object = null, array $settings = [])
  */
-class ProgramsController extends AppController
+class SchedulesController extends AppController
 {
     /**
      * Index method
@@ -20,33 +20,33 @@ class ProgramsController extends AppController
      */
      public function index()
     {
-        $programs = $this->Programs->find();
+        $schedules = $this->Schedules->find();
         return $this->response->withType('application/json')
-            ->withStringBody(json_encode($programs));
+            ->withStringBody(json_encode($schedules));
     }
 
 
     /**
      * View method
      *
-     * @param string|null $id Program id.
+     * @param string|null $id Schedule id.
      * @return \Cake\Http\Response|null|void Renders view
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
     public function view($id = null)
     {
-        $program = $this->Programs->get($id, [
+        $schedule = $this->Schedules->get($id, [
             'contain' => ['Farmers'],
         ]);
 
-        $this->set(compact('program'));
+        $this->set(compact('schedule'));
     }
     
-    public function getPrograms()
+    public function getSchedules()
     {
-        $programs = $this->Programs->find();
+        $schedules = $this->Schedules->find();
         return $this->response->withType('application/json')
-            ->withStringBody(json_encode(['data'=>$programs]));
+            ->withStringBody(json_encode(['data'=>$schedules]));
     }
 
 
@@ -57,13 +57,13 @@ class ProgramsController extends AppController
      */
     public function add()
     {
-        $program = $this->Programs->newEmptyEntity();
+        $schedule = $this->Schedules->newEmptyEntity();
         if ($this->request->is('post')) {
-            $program = $this->Programs->patchEntity($program, $this->request->getData());
-            if ($this->Programs->save($program)) {
-                $result = ['status' => 'success', 'message' => 'The program has been saved.'];
+            $schedule = $this->Schedules->patchEntity($schedule, $this->request->getData());
+            if ($this->Schedules->save($schedule)) {
+                $result = ['status' => 'success', 'message' => 'The schedule has been saved.'];
             }else {
-                $result = ['status'=>'error','message'=>'The program could not be saved. Please, try again.'];
+                $result = ['status'=>'error','message'=>'The schedule could not be saved. Please, try again.'];
             }
             return $this->response->withType('application/json')
                 ->withStringBody(json_encode($result));
@@ -73,43 +73,43 @@ class ProgramsController extends AppController
     /**
      * Edit method
      *
-     * @param string|null $id Program id.
+     * @param string|null $id Schedule id.
      * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
     public function edit($id = null)
     {
-        $program = $this->Programs->get($id);
+        $schedule = $this->Schedules->get($id);
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $program = $this->Programs->patchEntity(
-                $program,$this->request->getData() );
-            if ($this->Programs->save($program)) {
+            $schedule = $this->Schedules->patchEntity(
+                $schedule,$this->request->getData() );
+            if ($this->Schedules->save($schedule)) {
                 return $this->response->withType('application/json')->withStringBody(json_encode([
-                'status' => 'success','message' => 'Program updated successfully']));
+                'status' => 'success','message' => 'schedule updated successfully']));
             }
             return $this->response->withType('application/json')
-            ->withStringBody(json_encode(['status' => 'error','errors' => $program->getErrors()]));
+            ->withStringBody(json_encode(['status' => 'error','errors' => $schedule->getErrors()]));
         }
         return $this->response
             ->withType('application/json')
-            ->withStringBody(json_encode($program));
+            ->withStringBody(json_encode($schedule));
     }
 
     /**
      * Delete method
      *
-     * @param string|null $id Program id.
+     * @param string|null $id Schedule id.
      * @return \Cake\Http\Response|null|void Redirects to index.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $program = $this->Programs->get($id);
-        if ($this->Programs->delete($program)) {
-            $result = ['status' => 'success', 'message' => 'The Program has been deleted.'];
+        $schedule = $this->Schedules->get($id);
+        if ($this->Schedules->delete($schedule)) {
+            $result = ['status' => 'success', 'message' => 'The Schedule has been deleted.'];
         }else {
-            $result = ['status'=>'error','message'=>'The Program could not be deleted. Please, try again.'];
+            $result = ['status'=>'error','message'=>'The Schedule could not be deleted. Please, try again.'];
         }
         return $this->response->withType('application/json')
             ->withStringBody(json_encode($result));

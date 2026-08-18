@@ -1,6 +1,6 @@
 <div class="row">
 
-    <?php foreach ($programs as $program): ?>
+    <?php foreach ($schedules as $schedule): ?>
 
         <div class="col-lg-12 col-md-6 col-sm-12">
 
@@ -9,7 +9,7 @@
                 <div class="card-header">
 
                     <h3 class="card-title font-weight-bold">
-                        <?= h($program->program_name) ?>
+                        <?= h($schedule->program_name) ?>
                     </h3>
 
                     <div class="card-tools">
@@ -36,14 +36,14 @@
                         <div class="col-12">
                             <p>
                                 <strong>Subsidy Type:</strong><br>
-                                <?= h($program->subsidy_type) ?>
+                                <?= h($schedule->subsidy_type) ?>
                             </p>
                         </div>
                     </div>
 
                     <div class="alert alert-light border">
                         <strong>Description</strong><br>
-                        <?= nl2br(h($program->description)) ?>
+                        <?= nl2br(h($schedule->description)) ?>
                     </div>
 
                     <div class="info-box">
@@ -57,7 +57,7 @@
                             </span>
 
                             <span class="info-box-number">
-                                <?= date('F d, Y', strtotime($program->start_date)) ?>
+                                <?= date('F d, Y', strtotime($schedule->start_date)) ?>
                             </span>
                         </div>
                     </div>
@@ -73,9 +73,9 @@
                             </span>
 
                             <span class="info-box-number">
-                                <?= date('h:i A', strtotime($program->start_time)) ?>
+                                <?= date('h:i A', strtotime($schedule->start_time)) ?>
                                 -
-                                <?= date('h:i A', strtotime($program->end_time)) ?>
+                                <?= date('h:i A', strtotime($schedule->end_time)) ?>
                             </span>
                         </div>
                     </div>

@@ -1,15 +1,15 @@
 <div class="col-12">
     <div class="card card-primary">
         <div class="card-header">
-            <h3 class="card-title text-dark">Distribution History</h3>
+            <h3 class="card-title text-dark">Distribution Record History</h3>
             
             <div class="card-tools">
                 <?= $this->Html->link('<i class="fas fa-plus"></i>','',
-                    ['id'=>'add','data-toggle'=>'tooltip','data-placement'=>'bottom','title'=>'Add Distribution Data','escape'=>false]) ?>
+                    ['id'=>'add','data-toggle'=>'tooltip','data-placement'=>'bottom','title'=>'Add Distribution Record','escape'=>false]) ?>
             </div>
         </div>
         <div class="card-body">
-            <table id="distributions-table" class="table table-bordered table-hover">
+            <table id="records-table" class="table table-bordered table-hover">
                 <thead>
                     <tr>
                         <th>Farmer</th>
@@ -25,7 +25,7 @@
         </div>
     </div>
 </div>
-<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="distributions-modal">
+<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="records-modal">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-primary">
@@ -34,7 +34,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <?= $this->Form->create($distributions,['id'=>'distributions-form']) ?>
+            <?= $this->Form->create($records,['id'=>'records-form']) ?>
             <div class="modal-body">
                 <div class="form-group">
                     <label for="farmer_id">Farmer</label>

@@ -4,12 +4,12 @@ declare(strict_types=1);
 namespace App\Controller;
 
 /**
- * Programs Controller
+ * Schedules Controller
  *
- * @property \App\Model\Table\ProgramsTable $Programs
- * @method \App\Model\Entity\Program[]|\Cake\Datasource\ResultSetInterface paginate($object = null, array $settings = [])
+ * @property \App\Model\Table\SchedulesTable $Schedules
+ * @method \App\Model\Entity\Schedule[]|\Cake\Datasource\ResultSetInterface paginate($object = null, array $settings = [])
  */
-class ProgramsController extends AppController
+class SchedulesController extends AppController
 {
     /**
      * Index method
@@ -18,25 +18,25 @@ class ProgramsController extends AppController
      */
     public function index()
     {
-         $program = $this->Programs->newEmptyEntity();
+         $schedule = $this->Schedules->newEmptyEntity();
 
-        $this->set(compact('program'));
+        $this->set(compact('schedule'));
     }
 
     /**
      * View method
      *
-     * @param string|null $id Program id.
+     * @param string|null $id Schedule id.
      * @return \Cake\Http\Response|null|void Renders view
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
     public function view($id = null)
     {
-        $program = $this->Programs->get($id, [
+        $schedule = $this->Schedules->get($id, [
             'contain' => ['Beneficiaries'],
         ]);
 
-        $this->set(compact('program'));
+        $this->set(compact('schedule'));
     }
 
     /**
@@ -46,58 +46,58 @@ class ProgramsController extends AppController
      */
     public function add()
     {
-        $program = $this->Programs->newEmptyEntity();
+        $schedule = $this->Schedules->newEmptyEntity();
         if ($this->request->is('post')) {
-            $program = $this->Programs->patchEntity($program, $this->request->getData());
-            if ($this->Programs->save($program)) {
-                $this->Flash->success(__('The program has been saved.'));
+            $schedule = $this->Schedules->patchEntity($schedule, $this->request->getData());
+            if ($this->Schedules->save($schedule)) {
+                $this->Flash->success(__('The schedule has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error(__('The program could not be saved. Please, try again.'));
+            $this->Flash->error(__('The schedule could not be saved. Please, try again.'));
         }
-        $this->set(compact('program'));
+        $this->set(compact('schedule'));
     }
 
     /**
      * Edit method
      *
-     * @param string|null $id Program id.
+     * @param string|null $id Schedule id.
      * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
     public function edit($id = null)
     {
-        $program = $this->Programs->get($id, [
+        $schedule = $this->Schedules->get($id, [
             'contain' => [],
         ]);
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $program = $this->Programs->patchEntity($program, $this->request->getData());
-            if ($this->Programs->save($program)) {
-                $this->Flash->success(__('The program has been saved.'));
+            $schedule = $this->Schedules->patchEntity($schedule, $this->request->getData());
+            if ($this->Schedules->save($schedule)) {
+                $this->Flash->success(__('The schedule has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error(__('The program could not be saved. Please, try again.'));
+            $this->Flash->error(__('The schedule could not be saved. Please, try again.'));
         }
-        $this->set(compact('program'));
+        $this->set(compact('schedule'));
     }
 
     /**
      * Delete method
      *
-     * @param string|null $id Program id.
+     * @param string|null $id Schedule id.
      * @return \Cake\Http\Response|null|void Redirects to index.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $program = $this->Programs->get($id);
-        if ($this->Programs->delete($program)) {
-            $this->Flash->success(__('The program has been deleted.'));
+        $schedule = $this->Schedules->get($id);
+        if ($this->Schedules->delete($schedule)) {
+            $this->Flash->success(__('The schedule has been deleted.'));
         } else {
-            $this->Flash->error(__('The program could not be deleted. Please, try again.'));
+            $this->Flash->error(__('The schedule could not be deleted. Please, try again.'));
         }
 
         return $this->redirect(['action' => 'index']);
@@ -106,7 +106,7 @@ class ProgramsController extends AppController
     {
         $title = 'Subsidy Announcements';
     
-        $programs = $this->Programs->find()
+        $schedules = $this->Schedules->find()
             ->select([
                 'id',
                 'program_name',
@@ -123,6 +123,6 @@ class ProgramsController extends AppController
             ])
             ->all();
     
-        $this->set(compact('programs', 'title'));
+        $this->set(compact('schedules', 'title'));
     }
 }

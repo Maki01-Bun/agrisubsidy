@@ -40,9 +40,9 @@
             </li>
             <li class="nav-item">
                 <?= $this->Html->link(
-                    '<i class="nav-icon fas fa-calendar-alt"></i><p>Programs</p>',
-                    '/Programs',
-                    ['class' => 'nav-link '.($title == 'Programs' ? 'active' : ''),'escape' => false])?>
+                    '<i class="nav-icon fas fa-calendar-alt"></i><p>Program Schedules</p>',
+                    '/Schedules',
+                    ['class' => 'nav-link '.($title == 'Schedules' ? 'active' : ''),'escape' => false])?>
             </li>
             <li class="nav-item">
                 <?= $this->Html->link(
@@ -52,9 +52,9 @@
             </li>
             <li class="nav-item">
                 <?= $this->Html->link(
-                    '<i class="nav-icon fas fa-seedling"></i><p>Distribution</p>',
-                    '/Distributions',
-                    ['class' => 'nav-link '.($title == 'Distributions' ? 'active' : ''),'escape' => false])?>
+                    '<i class="nav-icon fas fa-seedling"></i><p>Distribution Records</p>',
+                    '/Records',
+                    ['class' => 'nav-link '.($title == 'Records' ? 'active' : ''),'escape' => false])?>
             </li>
             <li class="nav-item">
                 <?= $this->Html->link(
