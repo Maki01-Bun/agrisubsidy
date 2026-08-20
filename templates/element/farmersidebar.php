@@ -24,7 +24,7 @@
                         <?= $this->Html->link(
                             '<i class="nav-icon fas fa-bullhorn"></i>
                             <p>Subsidy Announcements</p>',
-                            ['controller' => 'Programs','action' => 'announcements'],
+                            ['controller' => 'Schedules','action' => 'announcements'],
                             ['escape' => false,'class' => 'nav-link']
                         ) ?>
                     </li>

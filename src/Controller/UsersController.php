@@ -165,8 +165,8 @@ class UsersController extends AppController
                     ]);
                 } else {
                     return $this->redirect([
-                        'controller'=>'Feedbacks',
-                        'action'=>'index'
+                        'controller'=>'Schedules',
+                        'action'=>'announcements'
                     ]);
                 }
             }

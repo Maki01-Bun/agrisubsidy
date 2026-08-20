@@ -39,8 +39,9 @@
                 <div class="form-group">
                     <label for="program_name">Program Name</label>
                     <?= $this->Form->control('program_name',['class'=>'form-control','label'=>false]) ?>
-                    <label for="subsidy_type">Subsidy Type</label>
-                    <?= $this->Form->control('subsidy_type',['class'=>'form-control','label'=>false]) ?>
+                   <label for="subsidy_type">Subsidy Type</label>
+                    <?= $this->Form->control('subsidy_type', ['class' => 'form-control','label' => false,
+                    'options' => $this->Option->subsidy(),'empty' => '-- Enter Subsidy Type --']) ?>
                     <label for="description">Description</label>
                     <?= $this->Form->control('description',['class'=>'form-control','label'=>false]) ?>
                     <label for="start_date">Start Date</label>

@@ -1,96 +1,316 @@
-<div class="row">
+<?php
+use Cake\I18n\FrozenDate;
 
-    <?php foreach ($schedules as $schedule): ?>
+$today = date('Y-m-d');
+?>
+<div class="container-fluid px-0">
 
-        <div class="col-lg-12 col-md-6 col-sm-12">
+    <!-- Announcement Header -->
+    <div class="announcement-header mb-4">
+        <div class="announcement-header-content">
+            <div>
+                <span class="announcement-label">
+                    <i class="fas fa-bullhorn mr-2"></i>
+                    OFFICIAL ANNOUNCEMENT
+                </span>
 
-            <div class="card card-success mb-4 shadow">
+                <h2 class="announcement-title">
+                    Subsidy Distribution Announcements
+                </h2>
 
-                <div class="card-header">
-
-                    <h3 class="card-title font-weight-bold">
-                        <?= h($schedule->program_name) ?>
-                    </h3>
-
-                    <div class="card-tools">
-
-                        <button type="button"
-                                class="btn btn-tool"
-                                data-card-widget="collapse">
-                            <i class="fas fa-minus"></i>
-                        </button>
-
-                        <button type="button"
-                                class="btn btn-tool"
-                                data-card-widget="remove">
-                            <i class="fas fa-times"></i>
-                        </button>
-
-                    </div>
-
-                </div>
-
-                <div class="card-body">
-
-                    <div class="row">
-                        <div class="col-12">
-                            <p>
-                                <strong>Subsidy Type:</strong><br>
-                                <?= h($schedule->subsidy_type) ?>
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="alert alert-light border">
-                        <strong>Description</strong><br>
-                        <?= nl2br(h($schedule->description)) ?>
-                    </div>
-
-                    <div class="info-box">
-                        <span class="info-box-icon bg-success">
-                            <i class="fas fa-calendar-alt"></i>
-                        </span>
-
-                        <div class="info-box-content">
-                            <span class="info-box-text">
-                                Distribution Date
-                            </span>
-
-                            <span class="info-box-number">
-                                <?= date('F d, Y', strtotime($schedule->start_date)) ?>
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="info-box">
-                        <span class="info-box-icon bg-primary">
-                            <i class="fas fa-clock"></i>
-                        </span>
-
-                        <div class="info-box-content">
-                            <span class="info-box-text">
-                                Distribution Time
-                            </span>
-
-                            <span class="info-box-number">
-                                <?= date('h:i A', strtotime($schedule->start_time)) ?>
-                                -
-                                <?= date('h:i A', strtotime($schedule->end_time)) ?>
-                            </span>
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="card-footer text-success">
-                    <i class="fas fa-check-circle"></i>
-                    Official Subsidy Distribution Schedule
-                </div>
-
+                <p class="announcement-subtitle mb-0">
+                    Stay updated with the latest subsidy distribution schedules
+                    from AgriSubsidy.
+                </p>
             </div>
+
+            <div class="announcement-icon">
+                <i class="fas fa-bullhorn"></i>
+            </div>
+        </div>
+    </div>
+
+
+    <?php if (!empty($schedules)): ?>
+
+        <div class="row">
+
+            <?php foreach ($schedules as $schedule): ?>
+
+                <?php
+                $startDate = date('Y-m-d', strtotime($schedule->start_date));
+                $endDate = !empty($schedule->end_date)
+                    ? date('Y-m-d', strtotime($schedule->end_date))
+                    : $startDate;
+
+                $startTimestamp = strtotime($schedule->start_date);
+                $endTimestamp = strtotime($endDate);
+
+                if ($today < $startDate) {
+                    $status = 'Upcoming';
+                    $statusClass = 'status-upcoming';
+                    $statusIcon = 'fa-clock';
+                } elseif ($today >= $startDate && $today <= $endDate) {
+                    $status = 'Ongoing';
+                    $statusClass = 'status-ongoing';
+                    $statusIcon = 'fa-play-circle';
+                } else {
+                    $status = 'Completed';
+                    $statusClass = 'status-completed';
+                    $statusIcon = 'fa-check-circle';
+                }
+                ?>
+
+                <div class="col-xl-6 col-lg-6 col-md-12 mb-4">
+
+                    <div class="announcement-card">
+
+                        <!-- Top Status Bar -->
+                        <div class="announcement-card-top">
+
+                            <div class="announcement-program">
+                                <i class="fas fa-seedling mr-2"></i>
+                                <?= h($schedule->program_name) ?>
+                            </div>
+
+                            <span class="announcement-status <?= $statusClass ?>">
+                                <i class="fas <?= $statusIcon ?> mr-1"></i>
+                                <?= h($status) ?>
+                            </span>
+
+                        </div>
+
+
+                        <!-- Main Content -->
+                        <div class="announcement-card-body">
+
+                            <!-- Title -->
+                            <div class="announcement-title-section">
+
+                                <div class="announcement-bell">
+                                    <i class="fas fa-bullhorn"></i>
+                                </div>
+
+                                <div>
+                                    <h4>
+                                        Subsidy Distribution
+                                    </h4>
+
+                                    <span class="text-muted">
+                                        Official distribution schedule
+                                    </span>
+                                </div>
+
+                            </div>
+
+
+                            <!-- Subsidy Type -->
+                            <div class="subsidy-type-box">
+
+                                <span class="label">
+                                    Subsidy Type
+                                </span>
+
+                                <strong>
+                                    <?= h($schedule->subsidy_type) ?>
+                                </strong>
+
+                            </div>
+
+
+                            <!-- Description -->
+                            <div class="announcement-description">
+
+                                <div class="description-title">
+                                    <i class="fas fa-info-circle mr-2"></i>
+                                    Announcement Details
+                                </div>
+
+                                <p>
+                                    <?= nl2br(h($schedule->description)) ?>
+                                </p>
+
+                            </div>
+
+
+                            <!-- Schedule Information -->
+                            <div class="schedule-grid">
+
+                                <!-- Date -->
+                                <div class="schedule-item">
+
+                                    <div class="schedule-icon date-icon">
+                                        <i class="fas fa-calendar-alt"></i>
+                                    </div>
+
+                                    <div class="schedule-content">
+
+                                        <span>
+                                            Distribution Date
+                                        </span>
+
+                                        <strong>
+                                            <?= date('F d, Y', strtotime($schedule->start_date)) ?>
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- Time -->
+                                <div class="schedule-item">
+
+                                    <div class="schedule-icon time-icon">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+
+                                    <div class="schedule-content">
+
+                                        <span>
+                                            Distribution Time
+                                        </span>
+
+                                        <strong>
+                                            <?= date('h:i A', strtotime($schedule->start_time)) ?>
+                                            -
+                                            <?= date('h:i A', strtotime($schedule->end_time)) ?>
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Countdown -->
+                            <?php if ($status === 'Upcoming'): ?>
+
+                                <div class="countdown-box">
+
+                                    <div class="countdown-icon">
+                                        <i class="fas fa-hourglass-half"></i>
+                                    </div>
+
+                                    <div>
+
+                                        <span class="countdown-label">
+                                            Distribution starts on
+                                        </span>
+
+                                        <strong>
+                                            <?= date('F d, Y', strtotime($schedule->start_date)) ?>
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+                            <?php elseif ($status === 'Ongoing'): ?>
+
+                                <div class="ongoing-box">
+
+                                    <i class="fas fa-broadcast-tower mr-2"></i>
+
+                                    <strong>
+                                        Distribution is currently ongoing.
+                                    </strong>
+
+                                    <span>
+                                        Please proceed according to the official schedule.
+                                    </span>
+
+                                </div>
+
+                            <?php else: ?>
+
+                                <div class="completed-box">
+
+                                    <i class="fas fa-check-circle mr-2"></i>
+
+                                    <strong>
+                                        This distribution schedule has been completed.
+                                    </strong>
+
+                                </div>
+
+                            <?php endif; ?>
+
+
+                            <!-- Important Reminder -->
+                            <?php if ($status !== 'Completed'): ?>
+
+                                <div class="reminder-box">
+
+                                    <div class="reminder-icon">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                    </div>
+
+                                    <div>
+
+                                        <strong>
+                                            Please be guided
+                                        </strong>
+
+                                        <p>
+                                            Farmers are encouraged to arrive on time
+                                            and bring the necessary identification
+                                            or documents required for subsidy claiming.
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            <?php endif; ?>
+
+                        </div>
+
+
+                        <!-- Footer -->
+                        <div class="announcement-card-footer">
+
+                            <div class="official-label">
+                                <i class="fas fa-shield-alt mr-2"></i>
+                                Official AgriSubsidy Announcement
+                            </div>
+
+                            <div class="announcement-date">
+                                <i class="far fa-calendar-check mr-1"></i>
+                                <?= date('M d, Y', strtotime($schedule->start_date)) ?>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            <?php endforeach; ?>
 
         </div>
 
-    <?php endforeach; ?>
+    <?php else: ?>
+
+        <!-- No Announcements -->
+        <div class="no-announcement">
+
+            <div class="no-announcement-icon">
+                <i class="fas fa-bullhorn"></i>
+            </div>
+
+            <h4>
+                No Announcements Available
+            </h4>
+
+            <p>
+                There are currently no subsidy distribution announcements.
+                Please check again later.
+            </p>
+
+        </div>
+
+    <?php endif; ?>
 
 </div>
