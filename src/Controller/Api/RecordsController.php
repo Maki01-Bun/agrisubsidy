@@ -47,13 +47,22 @@ class RecordsController extends AppController
         ->select([
             'id' => 'Records.id',
             'farmer_id' => 'Records.farmer_id',
+            'schedule_id' => 'Records.schedule_id',
+
             'first_name' => 'Farmers.first_name',
             'last_name' => 'Farmers.last_name',
+
             'subsidy_item' => 'Records.subsidy_item',
             'quantity' => 'Records.quantity',
-            'distribution_date' => 'Records.distribution_date',
+
+            // Distribution date comes from Schedules
+            'distribution_date' => 'Schedules.start_date',
+            'distribution_time' => 'Schedules.start_time',
+
+            // These come from Records
             'received_date' => 'Records.received_date',
-            'status' => 'Records.status'
+            'status' => 'Records.status',
+            'confirmed_at' => 'Records.confirmed_at',
         ])
         ->join([
             'Farmers' => [
@@ -61,6 +70,13 @@ class RecordsController extends AppController
                 'type' => 'LEFT',
                 'conditions' => [
                     'Farmers.id = Records.farmer_id'
+                ]
+            ],
+            'Schedules' => [
+                'table' => 'schedules',
+                'type' => 'LEFT',
+                'conditions' => [
+                    'Schedules.id = Records.schedule_id'
                 ]
             ]
         ])
@@ -70,18 +86,28 @@ class RecordsController extends AppController
     $data = [];
 
     foreach ($records as $record) {
+
         $data[] = [
             'id' => $record['id'],
             'farmer_id' => $record['farmer_id'],
+            'schedule_id' => $record['schedule_id'],
+
             'farmer_name' => trim(
                 ($record['first_name'] ?? '') . ' ' .
                 ($record['last_name'] ?? '')
             ),
+
             'subsidy_item' => $record['subsidy_item'],
             'quantity' => $record['quantity'],
+
+            // From schedules table
             'distribution_date' => $record['distribution_date'],
+            'distribution_time' => $record['distribution_time'],
+
+            // From records table
             'received_date' => $record['received_date'],
-            'status' => $record['status']
+            'status' => $record['status'],
+            'confirmed_at' => $record['confirmed_at'],
         ];
     }
 

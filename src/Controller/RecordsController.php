@@ -100,14 +100,84 @@ class RecordsController extends AppController
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
+
         $record = $this->Records->get($id);
+
         if ($this->Records->delete($record)) {
-            $this->Flash->success(__('The record has been deleted.'));
+
+            $this->Flash->success(
+                __('The record has been deleted.')
+            );
+
         } else {
-            $this->Flash->error(__('The record could not be deleted. Please, try again.'));
+
+            $this->Flash->error(
+                __('The record could not be deleted. Please, try again.')
+            );
         }
 
-        return $this->redirect(['action' => 'index']);
+        return $this->redirect([
+            'action' => 'index'
+        ]);
     }
+
+    public function cancel($id = null)
+    {
+        $this->request->allowMethod(['post']);
+
+        $record = $this->Records->get($id);
+
+        $record->status = 'Cancelled';
+
+        if ($this->Records->save($record)) {
+
+            $this->Flash->success(
+                __('The record has been cancelled.')
+            );
+
+        } else {
+
+            $this->Flash->error(
+                __('The record could not be cancelled.')
+            );
+        }
+
+        return $this->redirect([
+            'action' => 'index'
+        ]);
+    }
+
+    public function notReceived($id = null)
+    {
+        $this->request->allowMethod(['post']);
+
+        $record = $this->Records->get($id);
+
+        $record->status = 'Not Received';
+        $record->confirmed_at = FrozenTime::now();
+
+        // There is no received date because
+        // the farmer did not receive the subsidy.
+        $record->received_date = null;
+
+        if ($this->Records->save($record)) {
+
+            $this->Flash->success(
+                __('The subsidy has been marked as not received.')
+            );
+
+        } else {
+
+            $this->Flash->error(
+                __('The record could not be updated.')
+            );
+        }
+
+        return $this->redirect([
+            'action' => 'index'
+        ]);
+    }
+
+    
 
 }

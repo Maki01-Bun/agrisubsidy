@@ -1558,6 +1558,104 @@ side-bar logout part
 
 }
 
+/* =========================================
+   RECEIPT CONFIRMATION
+========================================= */
+
+.confirmation-box {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    background: #f8f9fa;
+}
+
+.confirmation-header {
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 15px;
+    color: #343a40;
+}
+
+.confirmation-content p {
+    color: #6c757d;
+}
+
+.confirmation-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.confirmation-buttons .btn {
+    border-radius: 6px;
+    padding: 9px 16px;
+}
+
+
+/* RECEIVED */
+
+.confirmation-success {
+    padding: 15px;
+    border-radius: 8px;
+    background: #d4edda;
+    color: #155724;
+}
+
+.confirmation-success strong {
+    font-size: 16px;
+}
+
+.confirmation-success p {
+    margin-top: 5px;
+    margin-bottom: 3px;
+}
+
+.confirmation-success small {
+    color: #496b50;
+}
+
+
+/* NOT RECEIVED */
+
+.confirmation-danger {
+    padding: 15px;
+    border-radius: 8px;
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.confirmation-danger strong {
+    font-size: 16px;
+}
+
+.confirmation-danger p {
+    margin-top: 5px;
+    margin-bottom: 3px;
+}
+
+.confirmation-danger small {
+    color: #8b5559;
+}
+
+
+/* CANCELLED */
+
+.confirmation-cancelled {
+    padding: 15px;
+    border-radius: 8px;
+    background: #e2e3e5;
+    color: #383d41;
+}
+
+.confirmation-cancelled strong {
+    font-size: 16px;
+}
+
+.confirmation-cancelled p {
+    margin-top: 5px;
+}
+
 
 /* =========================================
    ANNOUNCEMENT HEADER

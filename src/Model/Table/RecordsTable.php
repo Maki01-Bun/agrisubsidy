@@ -12,6 +12,8 @@ use Cake\Validation\Validator;
  * Records Model
  *
  * @property \App\Model\Table\FarmersTable&\Cake\ORM\Association\BelongsTo $Farmers
+ * @property \App\Model\Table\FarmersTable&\Cake\ORM\Association\BelongsTo $Schedules
+ *
  *
  * @method \App\Model\Entity\Record newEmptyEntity()
  * @method \App\Model\Entity\Record newEntity(array $data, array $options = [])
@@ -47,6 +49,12 @@ class RecordsTable extends Table
             'bindingKey' => 'id',
             'joinType' => 'INNER',
         ]);
+
+        $this->belongsTo('Schedules', [
+            'foreignKey' => 'schedule_id',
+            'bindingKey' => 'id',
+            'joinType' => 'INNER',
+        ]);
     }
 
     /**
@@ -67,24 +75,28 @@ class RecordsTable extends Table
             ->decimal('quantity')
             ->allowEmptyString('quantity');
 
-
         $validator
             ->scalar('status')
             ->requirePresence('status', 'create')
             ->notEmptyString('status');
-        $validator
-            ->dateTime('distribution_date')
-            ->requirePresence('distribution_date', 'create')
-            ->notEmptyDateTime('distribution_date');
+
 
         $validator
             ->dateTime('received_date')
             ->requirePresence('received_date', 'create')
             ->notEmptyDateTime('received_date');
+            
+        $validator
+            ->dateTime('confirmed_at')
+            ->allowEmptyDateTime('confirmed_at');
 
         $validator
             ->integer('farmer_id')
             ->notEmptyString('farmer_id');
+
+        $validator
+            ->integer('schedule_id')
+            ->notEmptyString('schedule_id');
 
         return $validator;
     }
