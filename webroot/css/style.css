@@ -2579,3 +2579,417 @@ side-bar logout part
     }
 
 }
+
+/* =========================================================
+   FARM CONDITIONS - SELECTION BOX
+========================================================= */
+
+.selection-box {
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 16px;
+
+    background: #f8faf9;
+    border: 1px solid #dfe7e2;
+    border-radius: 12px;
+
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.03),
+        0 4px 14px rgba(25, 135, 84, 0.04);
+}
+
+
+/* =========================================================
+   GRID
+========================================================= */
+
+.selection-box .row {
+    --bs-gutter-x: 10px;
+    --bs-gutter-y: 10px;
+
+    margin-left: -5px;
+    margin-right: -5px;
+}
+
+.selection-box .row > div {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+
+/* =========================================================
+   SELECTION ITEM
+========================================================= */
+
+.selection-item {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+    min-height: 54px;
+
+    padding: 10px 14px;
+
+    box-sizing: border-box;
+
+    background: #ffffff;
+
+    border: 1px solid #dfe5e2;
+    border-radius: 10px;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.15s ease;
+}
+
+
+/* Hover */
+
+.selection-item:hover {
+    background: #f5fbf7;
+    border-color: #79b99a;
+
+    box-shadow:
+        0 3px 10px rgba(25, 135, 84, 0.08);
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   CHECKBOX
+   IMPORTANT:
+   Bootstrap's default negative margin is removed here.
+========================================================= */
+
+.selection-item .form-check-input {
+    appearance: none;
+    -webkit-appearance: none;
+
+    flex: 0 0 19px;
+
+    width: 19px;
+    height: 19px;
+
+    margin: 0 11px 0 0 !important;
+    padding: 0;
+
+    position: relative;
+
+    background-color: #ffffff;
+
+    border: 1.5px solid #aebbb4;
+    border-radius: 5px;
+
+    cursor: pointer;
+
+    box-shadow: none;
+
+    transition:
+        background-color 0.18s ease,
+        border-color 0.18s ease,
+        box-shadow 0.18s ease,
+        transform 0.12s ease;
+}
+
+
+/* Hover checkbox */
+
+.selection-item .form-check-input:hover {
+    border-color: #198754;
+}
+
+
+/* =========================================================
+   CHECKED CHECKBOX
+========================================================= */
+
+.selection-item .form-check-input:checked {
+    background-color: #198754;
+    border-color: #198754;
+
+    box-shadow:
+        0 2px 5px rgba(25, 135, 84, 0.2);
+}
+
+
+/* Checkmark */
+
+.selection-item .form-check-input:checked::after {
+    content: "";
+
+    position: absolute;
+
+    width: 5px;
+    height: 10px;
+
+    left: 6px;
+    top: 2px;
+
+    border: solid #ffffff;
+    border-width: 0 2px 2px 0;
+
+    transform: rotate(45deg);
+}
+
+
+/* Press animation */
+
+.selection-item .form-check-input:active {
+    transform: scale(0.92);
+}
+
+
+/* =========================================================
+   LABEL
+========================================================= */
+
+.selection-item .form-check-label {
+    display: block;
+
+    flex: 1;
+    min-width: 0;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    color: #34413a;
+
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+
+    cursor: pointer;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* Checked label */
+
+.selection-item .form-check-input:checked + .form-check-label {
+    color: #146c43;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   CHECKED ITEM
+========================================================= */
+
+.selection-item:has(.form-check-input:checked) {
+    background: #f0f9f3;
+
+    border-color: #78b995;
+
+    box-shadow:
+        0 2px 8px rgba(25, 135, 84, 0.08);
+}
+
+
+/* =========================================================
+   KEYBOARD FOCUS
+========================================================= */
+
+.selection-item:focus-within {
+    border-color: #198754;
+
+    box-shadow:
+        0 0 0 3px rgba(25, 135, 84, 0.13);
+}
+
+
+/* =========================================================
+   DISABLED
+========================================================= */
+
+.selection-item .form-check-input:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.selection-item .form-check-input:disabled + .form-check-label {
+    color: #9aa49f;
+    cursor: not-allowed;
+}
+
+.selection-item:has(.form-check-input:disabled) {
+    background: #f5f6f6;
+    cursor: not-allowed;
+    opacity: 0.75;
+}
+
+
+/* =========================================================
+   SECTION HEADINGS
+========================================================= */
+
+.selection-box + .section-title,
+.section-title {
+    margin-bottom: 10px;
+
+    color: #173c2a;
+
+    font-size: 16px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 575.98px) {
+
+    .selection-box {
+        padding: 10px;
+
+        border-radius: 10px;
+    }
+
+    .selection-box .row {
+        --bs-gutter-x: 8px;
+        --bs-gutter-y: 8px;
+
+        margin-left: -4px;
+        margin-right: -4px;
+    }
+
+    .selection-box .row > div {
+        padding-left: 4px;
+        padding-right: 4px;
+    }
+
+    .selection-item {
+        min-height: 50px;
+
+        padding: 10px 11px;
+
+        border-radius: 9px;
+    }
+
+    .selection-item .form-check-input {
+        flex-basis: 18px;
+
+        width: 18px;
+        height: 18px;
+
+        margin-right: 9px !important;
+    }
+
+    .selection-item .form-check-input:checked::after {
+        width: 5px;
+        height: 9px;
+
+        left: 5px;
+        top: 2px;
+    }
+
+    .selection-item .form-check-label {
+        font-size: 13px;
+        line-height: 1.35;
+    }
+}
+
+
+/* =========================================================
+   SMALL TABLETS
+========================================================= */
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+
+    .selection-box {
+        padding: 12px;
+    }
+
+    .selection-item {
+        min-height: 50px;
+
+        padding: 9px 11px;
+    }
+
+    .selection-item .form-check-label {
+        font-size: 13.5px;
+    }
+}
+
+
+/* =========================================================
+   TABLETS
+========================================================= */
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+
+    .selection-box {
+        padding: 14px;
+    }
+
+    .selection-item {
+        min-height: 52px;
+
+        padding: 10px 12px;
+    }
+
+    .selection-item .form-check-label {
+        font-size: 14px;
+    }
+}
+
+
+/* =========================================================
+   LARGE SCREENS
+========================================================= */
+
+@media (min-width: 992px) {
+
+    .selection-box {
+        padding: 16px;
+    }
+
+    .selection-item {
+        min-height: 54px;
+    }
+
+    .selection-item .form-check-label {
+        font-size: 14px;
+    }
+}
+
+
+/* =========================================================
+   TOUCH DEVICES
+========================================================= */
+
+@media (hover: none) and (pointer: coarse) {
+
+    .selection-item {
+        min-height: 52px;
+    }
+
+    .selection-item:active {
+        background: #eaf7ee;
+        border-color: #198754;
+
+        transform: scale(0.99);
+    }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .selection-item,
+    .selection-item .form-check-input {
+        transition: none;
+    }
+}

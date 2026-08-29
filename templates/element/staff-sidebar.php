@@ -55,8 +55,8 @@
             <li class="nav-item">
                 <?= $this->Html->link(
                     '<i class="nav-icon fas fa-chart-line"></i><p>Data Analytics</p>',
-                    '/Models',
-                    ['class' => 'nav-link '.($title == 'Models' ? 'active' : ''),'escape' => false])?>
+                    '/Analytics',
+                    ['class' => 'nav-link '.($title == 'Analytics' ? 'active' : ''),'escape' => false])?>
             </li>
         </ul>
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview">

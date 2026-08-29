@@ -3,9 +3,14 @@
         <div class="card-header">
             <h3 class="card-title text-dark">Distribution Record History</h3>
             
-            <div class="card-tools">
-                <?= $this->Html->link('<i class="fas fa-plus"></i>','',
-                    ['id'=>'add','data-toggle'=>'tooltip','data-placement'=>'bottom','title'=>'Add Distribution Record','escape'=>false]) ?>
+            <div class="card-tools d-flex align-items-center">
+                <!-- Upload Excel -->
+                <button type="button"class="btn btn-success mr-2" data-toggle="modal" data-target="#excelUploadModal" data-toggle="tooltip" data-placement="bottom" title="Upload Excel">
+                    <i class="fas fa-file-excel mr-1"></i>
+                    Upload Excel
+                </button>
+                <?= $this->Html->link('<i class="fas fa-plus"></i>','',['id' => 'add','class' => 'btn btn-primary','data-toggle' => 'tooltip',
+                    'data-placement' => 'bottom','title' => 'Add Record','escape' => false])?>
             </div>
         </div>
         <div class="card-body">

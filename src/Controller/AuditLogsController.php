@@ -8,7 +8,7 @@ namespace App\Controller;
  *
  * @method \App\Model\Entity\PO[]|\Cake\Datasource\ResultSetInterface paginate($object = null, array $settings = [])
  */
-class Audit_LogsController extends AppController
+class AuditLogsController extends AppController
 {
      public function index()
     {

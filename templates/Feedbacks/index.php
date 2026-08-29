@@ -60,22 +60,81 @@
                 <i class="fas fa-seedling me-2"></i>Farm Conditions
             </h5>
             <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label>Pest Experienced</label>
-                    <?= $this->Form->control('pest', [
-                        'class' => 'form-control',
-                        'label' => false,
-                        'empty' => '-- Enter pest experienced --'
-                    ]) ?>
+                <div class="col-md-12 mb-3">
+                    <label class="form-label fw-bold">
+                        Pest Experienced
+                    </label>
+
+                    <div class="selection-box border rounded-3 p-3">
+                        <?php if (!empty($pests)): ?>
+                            <div class="row">
+                                <?php foreach ($pests as $id => $name): ?>
+                                    <div class="col-12 col-sm-6 mb-2">
+                                        <div class="form-check selection-item">
+                                            <?= $this->Form->checkbox("pest[]", [
+                                                'value' => $id,
+                                                'id' => 'pest-' . $id,
+                                                'class' => 'form-check-input',
+                                            ]) ?>
+
+                                            <label
+                                                class="form-check-label"
+                                                for="pest-<?= h($id) ?>"
+                                            >
+                                                <?= h($name) ?>
+                                            </label>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="text-muted small">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                No pests available.
+                            </div>
+                        <?php endif; ?>
+                    </div>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label for="calamity">Calamity Experienced</label>
-                    <?= $this->Form->control('calamity', [
-                        'class' => 'form-control',
-                        'label' => false,
-                        'options' => $this->Option->calamity(),
-                        'empty' => '-- Enter calamity experienced --'
-                    ]) ?>
+                        
+                        
+                <div class="col-md-12 mb-3">
+                    <label class="form-label fw-bold">
+                        Calamity Experienced
+                    </label>
+                        
+                    <div class="selection-box border rounded-3 p-3">
+                        <?php
+                        $calamities = $this->Option->calamity();
+                        ?>
+
+                        <?php if (!empty($calamities)): ?>
+                            <div class="row">
+                                <?php foreach ($calamities as $value => $label): ?>
+                                    <div class="col-12 col-sm-6 mb-2">
+                                        <div class="form-check selection-item">
+                                            <?= $this->Form->checkbox("calamity[]", [
+                                                'value' => $value,
+                                                'id' => 'calamity-' . $value,
+                                                'class' => 'form-check-input',
+                                            ]) ?>
+
+                                            <label
+                                                class="form-check-label"
+                                                for="calamity-<?= h($value) ?>"
+                                            >
+                                                <?= h($label) ?>
+                                            </label>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="text-muted small">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                No calamities available.
+                            </div>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
             <hr>
