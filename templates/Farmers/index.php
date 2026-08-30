@@ -10,7 +10,7 @@
                 'type' => 'file'
             ]) ?>
                 <i class="fas fa-file-excel mr-1"></i>
-                    Upload Beneficiaries Excel
+                    Upload Beneficiaries
                 </button>
                 <?= $this->Html->link('<i class="fas fa-plus"></i>','',['id' => 'add','class' => 'btn btn-primary','data-toggle' => 'tooltip',
                     'data-placement' => 'bottom','title' => 'Add Farmer','escape' => false])?>
@@ -93,7 +93,7 @@
             <div class="modal-header">
                 <h5 class="modal-title">
                     <i class="fas fa-file-excel text-success"></i>
-                    Upload Farmers Excel
+                    Upload Beneficiaries Informations
                 </h5>
 
                 <button type="button"

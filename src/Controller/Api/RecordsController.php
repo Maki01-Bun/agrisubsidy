@@ -48,7 +48,6 @@ class RecordsController extends AppController
             'id' => 'Records.id',
             'farmer_id' => 'Records.farmer_id',
             'schedule_id' => 'Records.schedule_id',
-
             'first_name' => 'Farmers.first_name',
             'last_name' => 'Farmers.last_name',
 
@@ -58,6 +57,7 @@ class RecordsController extends AppController
             // Distribution date comes from Schedules
             'distribution_date' => 'Schedules.start_date',
             'distribution_time' => 'Schedules.start_time',
+            'program_name' => 'Schedules.program_name',
 
             // These come from Records
             'received_date' => 'Records.received_date',
@@ -103,6 +103,7 @@ class RecordsController extends AppController
             // From schedules table
             'distribution_date' => $record['distribution_date'],
             'distribution_time' => $record['distribution_time'],
+            'program_name' => $record['program_name'],
 
             // From records table
             'received_date' => $record['received_date'],

@@ -18,6 +18,7 @@ $(function(){
             .done(function(data){
                 if(data!=''){
                 	$('#farmer-id').val(data.farmer_id);
+                    $('#program_name').val(data.program_name);
                 	$('#subsidy-item').val(data.subsidy_item);
                 	$('#quantity').val(data.quantity);
                     $('#distribution-date').val(data.distribution_date);
@@ -114,6 +115,7 @@ function getRecords()
         },
         "columns": [
 			{data:"farmer_name"},
+            {data:"program_name"},
 			{data:"subsidy_item"},
             {data:"quantity"},
             {data:"distribution_date"},

@@ -2,6 +2,9 @@
 declare(strict_types=1);
 
 namespace App\Controller;
+use Cake\I18n\FrozenDate;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 /**
  * Record Controller
@@ -178,6 +181,108 @@ class RecordsController extends AppController
         ]);
     }
 
-    
+    public function uploadExcel()
+    {
+        if ($this->request->is('post')) {
+            $file = $this->request->getData('excel_file');
+            if (!$file || $file->getError() !== UPLOAD_ERR_OK) {
+                $this->Flash->error('Please select a valid Excel file.');
+                return $this->redirect(['action' => 'index']);
+            }
+            $extension = strtolower(
+                pathinfo($file->getClientFilename(), PATHINFO_EXTENSION)
+            );
+            if (!in_array($extension, ['xlsx', 'xls'])) {
+                $this->Flash->error('Only Excel files (.xlsx or .xls) are allowed.');
+                return $this->redirect(['action' => 'index']);
+            }
+
+            try {
+                $spreadsheet = IOFactory::load(
+                    $file->getStream()->getMetadata('uri')
+                );
+                $sheet = $spreadsheet->getActiveSheet();
+                $rows = $sheet->toArray(
+                    null,
+                    true,
+                    true,
+                    true
+                );
+
+                $success = 0;
+                $failed = 0;
+
+                foreach ($rows as $index => $row) {
+
+                    // Skip header
+                    if ($index == 1) {
+                        continue;
+                    }
+
+                    // Skip completely empty rows
+                    if (
+                        empty($row['A']) &&
+                        empty($row['B']) &&
+                        empty($row['C'])
+                    ) {
+                        continue;
+                    }
+
+                    $programName = trim((string)($row['A'] ?? ''));
+                    $subsidyItem = trim((string)($row['B'] ?? ''));
+                    $quantity = (float)($row['C'] ?? 0);
+                    $receivedDate = trim((string)($row['D'] ?? ''));
+                    $status = trim((string)($row['E'] ?? ''));
+
+                    $schedule = $this->Records->Schedules->find()
+                        ->where([
+                            'Schedules.program_name' => $programName,
+                            'Schedules.start_date' => $distributionDate,
+                        ])
+                        ->first();
+
+                    if (!$schedule) {
+                        throw new \RuntimeException(
+                            "Schedule not found: {$programName} / {$subsidyItem} / {$distributionDate}"
+                        );
+                    }
+
+                    $record = $this->Records->newEmptyEntity();
+
+                    $record->program_name = $programName;
+                    $record->subsidy_item = $subsidyItem;
+                    $record->quantity = $quantity;
+                    $record->received_date = $received_date;
+                    $record->status = $status;
+                    $record->schedule_id = $schedule->id;
+
+                    if (!$this->Records->save($record)) {
+                        throw new \RuntimeException(
+                            'Failed to save record: ' .
+                            json_encode($record->getErrors())
+                        );
+                    }
+                    if ($this->Records->save($record)) {
+                        $success++;
+                    } else {
+                        $failed++;
+                    }
+                }
+
+                $this->Flash->success(
+                    "Excel import completed. {$success} record(s) imported."
+                );
+
+                if ($failed > 0) {
+                    $this->Flash->warning("{$failed} row(s) could not be imported.");
+                }
+            } catch (\Exception $e) {
+                $this->Flash->error(
+                    'Unable to read the Excel file: ' . $e->getMessage()
+                );
+            }
+        }
+        return $this->redirect(['action' => 'index']);
+    }
 
 }

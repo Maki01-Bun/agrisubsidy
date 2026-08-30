@@ -2,7 +2,9 @@
 declare(strict_types=1);
 
 namespace App\Controller;
+use Cake\I18n\FrozenDate;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 /**
  * Farmer Controller
@@ -104,311 +106,119 @@ class FarmersController extends AppController
     }
 
     public function uploadExcel()
-{
-    if (!$this->request->is('post')) {
-        return $this->redirect(['action' => 'index']);
-    }
-
-    // Get uploaded file
-    $file = $this->request->getData('excel_file');
-
-    // Check if file exists and uploaded successfully
-    if (!$file || $file->getError() !== UPLOAD_ERR_OK) {
-
-        $this->Flash->error(
-            'Please select a valid Excel file.'
-        );
-
-        return $this->redirect(['action' => 'index']);
-    }
-
-    // Check file extension
-    $extension = strtolower(
-        pathinfo(
-            $file->getClientFilename(),
-            PATHINFO_EXTENSION
-        )
-    );
-
-    if (!in_array($extension, ['xlsx', 'xls'])) {
-
-        $this->Flash->error(
-            'Only Excel files (.xlsx or .xls) are allowed.'
-        );
-
-        return $this->redirect(['action' => 'index']);
-    }
-
-    try {
-
-        /*
-         * Load Excel file
-         */
-        $spreadsheet = IOFactory::load(
-            $file->getStream()->getMetadata('uri')
-        );
-
-        /*
-         * Get active worksheet
-         */
-        $sheet = $spreadsheet->getActiveSheet();
-
-        /*
-         * Convert worksheet to array
-         *
-         * true  = return formulas calculated values
-         * true  = calculate formulas
-         * true  = preserve cell formatting
-         * true  = use column letters
-         */
-        $rows = $sheet->toArray(
-            null,
-            true,
-            true,
-            true
-        );
-
-        $success = 0;
-        $failed = 0;
-
-        $errors = [];
-
-        /*
-         * Loop through Excel rows
-         */
-        foreach ($rows as $index => $row) {
-
-            /*
-             * Skip header row
-             */
-            if ($index == 1) {
-                continue;
+    {
+        if ($this->request->is('post')) {
+            $file = $this->request->getData('excel_file');
+            if (!$file || $file->getError() !== UPLOAD_ERR_OK) {
+                $this->Flash->error('Please select a valid Excel file.');
+                return $this->redirect(['action' => 'index']);
             }
-
-            /*
-             * Skip completely empty rows
-             */
-            if (
-                empty($row['A']) &&
-                empty($row['B']) &&
-                empty($row['C']) &&
-                empty($row['D']) &&
-                empty($row['E']) &&
-                empty($row['F']) &&
-                empty($row['G']) &&
-                empty($row['H'])
-            ) {
-                continue;
+            $extension = strtolower(
+                pathinfo($file->getClientFilename(), PATHINFO_EXTENSION)
+            );
+            if (!in_array($extension, ['xlsx', 'xls'])) {
+                $this->Flash->error('Only Excel files (.xlsx or .xls) are allowed.');
+                return $this->redirect(['action' => 'index']);
             }
 
             try {
-
-                /*
-                 * Create new Farmer entity
-                 */
-                $farmer = $this->Farmers->newEmptyEntity();
-
-                /*
-                 * Farmer Number
-                 *
-                 * IMPORTANT:
-                 * Treat this as a string.
-                 */
-                $farmer->farmer_no = trim(
-                    (string)($row['A'] ?? '')
+                $spreadsheet = IOFactory::load(
+                    $file->getStream()->getMetadata('uri')
+                );
+                $sheet = $spreadsheet->getActiveSheet();
+                $rows = $sheet->toArray(
+                    null,
+                    true,
+                    true,
+                    true
                 );
 
-                /*
-                 * First Name
-                 */
-                $farmer->first_name = trim(
-                    (string)($row['B'] ?? '')
-                );
+                $success = 0;
+                $failed = 0;
 
-                /*
-                 * Last Name
-                 */
-                $farmer->last_name = trim(
-                    (string)($row['C'] ?? '')
-                );
+                foreach ($rows as $index => $row) {
 
-                /*
-                 * Middle Name
-                 */
-                $farmer->middle_name = trim(
-                    (string)($row['D'] ?? '')
-                );
+                    // Skip header
+                    if ($index == 1) {
+                        continue;
+                    }
 
-                /*
-                 * Gender
-                 */
-                $farmer->gender = trim(
-                    (string)($row['E'] ?? '')
-                );
+                    // Skip completely empty rows
+                    if (
+                        empty($row['A']) &&
+                        empty($row['B']) &&
+                        empty($row['C'])
+                    ) {
+                        continue;
+                    }
 
-                /*
-                 * Birthdate
-                 */
-                if (!empty($row['F'])) {
+                    $farmer = $this->Farmers->newEmptyEntity();
+                    $farmer->farmer_no = trim($row['A'] ?? '');
+                    $farmer->first_name = trim($row['B'] ?? '');
+                    $farmer->last_name = trim($row['C'] ?? '');
+                    $farmer->middle_name = trim($row['D'] ?? '');
+                    if (!empty($row['E'])) {
+                        $birthdate = $row['E'];
 
-                    /*
-                     * Excel stores dates as numbers.
-                     */
-                    if (is_numeric($row['F'])) {
-
-                        $farmer->birthdate =
-                            Date::excelToDateTimeObject(
-                                $row['F']
-                            );
-
+                        if (is_numeric($birthdate)) {
+                            $dateTime = Date::excelToDateTimeObject((float)$birthdate);
+                            $farmer->birthdate = FrozenDate::createFromMutable($dateTime);
+                        } else {
+                            $dateValue = trim((string)$birthdate);
+                            $dateTime = false;
+                            $formats = ['Y-m-d','m/d/Y','d/m/Y','m-d-Y','d-m-Y','F j, Y','M j, Y',];
+                            foreach ($formats as $format) {
+                                $dateTime =\DateTime::createFromFormat($format, $dateValue);
+                                if ($dateTime !== false) {
+                                    break;
+                                }
+                            }
+                            if ($dateTime === false) {
+                                try {
+                                    $dateTime = new \DateTime($dateValue);
+                                } catch (\Throwable $e) {
+                                    $dateTime = false;
+                                }
+                            }
+                            if ($dateTime === false) {
+                                throw new \Exception(
+                                    "Invalid birthdate: " .
+                                    $dateValue
+                                );
+                            }
+                            $farmer->birthdate =
+                                FrozenDate::createFromMutable(
+                                    $dateTime
+                                );
+                        }
                     } else {
-
-                        /*
-                         * Handle normal date strings
-                         */
-                        $farmer->birthdate =
-                            date_create(
-                                (string)$row['F']
-                            );
+                        $farmer->birthdate = null;
                     }
+                    $farmer->gender = trim($row['F'] ?? '');
+                    $farmer->address = trim($row['G'] ?? '');
+                    $farmer->contact_no = trim($row['H'] ?? '');
+                    
 
-                } else {
-
-                    $farmer->birthdate = null;
+                    if ($this->Farmers->save($farmer)) {
+                        $success++;
+                    } else {
+                        $failed++;
+                    }
                 }
 
-                /*
-                 * Contact Number
-                 *
-                 * Treat as STRING to preserve
-                 * leading zero.
-                 */
-                $farmer->contact_no = trim(
-                    (string)($row['G'] ?? '')
+                $this->Flash->success(
+                    "Excel import completed. {$success} farmer(s) imported."
                 );
 
-                /*
-                 * Address
-                 */
-                $farmer->address = trim(
-                    (string)($row['H'] ?? '')
-                );
-
-                /*
-                 * Save Farmer
-                 */
-                if ($this->Farmers->save($farmer)) {
-
-                    $success++;
-
-                } else {
-
-                    $failed++;
-
-                    /*
-                     * Get validation errors
-                     */
-                    $validationErrors =
-                        $farmer->getErrors();
-
-                    $errorText =
-                        "Row {$index}: Could not save farmer.";
-
-                    if (!empty($validationErrors)) {
-
-                        $errorText .= ' ' .
-                            json_encode(
-                                $validationErrors
-                            );
-                    }
-
-                    $errors[] = $errorText;
+                if ($failed > 0) {
+                    $this->Flash->warning("{$failed} row(s) could not be imported.");
                 }
-
-            } catch (\Throwable $e) {
-
-                /*
-                 * Catch errors for individual rows
-                 * so one bad row doesn't stop
-                 * the entire Excel import.
-                 */
-                $failed++;
-
-                $errors[] =
-                    "Row {$index}: " .
-                    $e->getMessage();
+            } catch (\Exception $e) {
+                $this->Flash->error(
+                    'Unable to read the Excel file: ' . $e->getMessage()
+                );
             }
         }
-
-        /*
-         * ==========================================
-         * DISPLAY IMPORT RESULT
-         * ==========================================
-         */
-
-        /*
-         * Successful imports
-         */
-        if ($success > 0) {
-
-            $this->Flash->success(
-                "Excel import completed successfully. " .
-                "{$success} farmer(s) imported."
-            );
-        }
-
-        /*
-         * Failed rows
-         */
-        if ($failed > 0) {
-
-            $errorMessage =
-                "{$failed} row(s) could not be imported.";
-
-            /*
-             * Display first 3 errors only
-             * so the alert doesn't become too large.
-             */
-            if (!empty($errors)) {
-
-                $errorMessage .= ' ' .
-                    implode(
-                        ' | ',
-                        array_slice($errors, 0, 3)
-                    );
-            }
-
-            $this->Flash->error(
-                $errorMessage
-            );
-        }
-
-        /*
-         * No records found
-         */
-        if ($success === 0 && $failed === 0) {
-
-            $this->Flash->warning(
-                'The Excel file contains no farmer records.'
-            );
-        }
-
-    } catch (\Throwable $e) {
-
-        /*
-         * Excel itself could not be read.
-         */
-        $this->Flash->error(
-            'Unable to read the Excel file: ' .
-            $e->getMessage()
-        );
+        return $this->redirect(['action' => 'index']);
     }
-
-    /*
-     * Return to Farmers page
-     */
-    return $this->redirect([
-        'action' => 'index'
-    ]);
-}
 }
