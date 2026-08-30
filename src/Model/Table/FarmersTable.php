@@ -74,7 +74,7 @@ class FarmersTable extends Table
     {
         $validator
             ->scalar('farmer_no')
-            ->maxLength('farmer_no', 20)
+            ->maxLength('farmer_no', 50)
             ->requirePresence('farmer_no', 'create')
             ->notEmptyString('farmer_no');
 
@@ -120,7 +120,7 @@ class FarmersTable extends Table
 
         $validator
             ->integer('user_id')
-            ->notEmptyString('user_id');
+            ->allowEmptyString('user_id');
 
         return $validator;
     }

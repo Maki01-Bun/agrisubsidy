@@ -74,7 +74,7 @@ INSERT INTO `evaluations` (`id`, `subsidy_type`, `farm_id`, `crop_yield_after`, 
 
 CREATE TABLE `farmers` (
   `id` int(11) NOT NULL,
-  `farmer_no` int(20) NOT NULL,
+  `farmer_no` varchar(50) NOT NULL,
   `first_name` varchar(255) NOT NULL,
   `last_name` varchar(255) NOT NULL,
   `middle_name` varchar(255) NOT NULL,
