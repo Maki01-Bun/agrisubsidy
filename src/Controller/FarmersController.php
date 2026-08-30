@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 namespace App\Controller;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 /**
  * Farmer Controller
@@ -97,6 +98,101 @@ class FarmersController extends AppController
             $this->Flash->success(__('The farmer has been deleted.'));
         } else {
             $this->Flash->error(__('The farmer could not be deleted. Please, try again.'));
+        }
+
+        return $this->redirect(['action' => 'index']);
+    }
+
+    public function uploadExcel()
+    {
+        if ($this->request->is('post')) {
+
+            $file = $this->request->getData('excel_file');
+
+            if (!$file || $file->getError() !== UPLOAD_ERR_OK) {
+                $this->Flash->error('Please select a valid Excel file.');
+                return $this->redirect(['action' => 'index']);
+            }
+
+            $extension = strtolower(
+                pathinfo($file->getClientFilename(), PATHINFO_EXTENSION)
+            );
+
+            if (!in_array($extension, ['xlsx', 'xls'])) {
+                $this->Flash->error('Only Excel files (.xlsx or .xls) are allowed.');
+                return $this->redirect(['action' => 'index']);
+            }
+
+            try {
+
+                $spreadsheet = IOFactory::load(
+                    $file->getStream()->getMetadata('uri')
+                );
+
+                $sheet = $spreadsheet->getActiveSheet();
+
+                $rows = $sheet->toArray(
+                    null,
+                    true,
+                    true,
+                    true
+                );
+
+                $success = 0;
+                $failed = 0;
+
+                foreach ($rows as $index => $row) {
+
+                    // Skip header
+                    if ($index == 1) {
+                        continue;
+                    }
+
+                    // Skip completely empty rows
+                    if (
+                        empty($row['A']) &&
+                        empty($row['B']) &&
+                        empty($row['C'])
+                    ) {
+                        continue;
+                    }
+
+                    $farmer = $this->Farmers->newEmptyEntity();
+
+                    $farmer->farmer_no = trim($row['A'] ?? '');
+                    $farmer->first_name = trim($row['B'] ?? '');
+                    $farmer->last_name = trim($row['C'] ?? '');
+                    $farmer->middle_name = trim($row['D'] ?? '');
+                    $farmer->gender = trim($row['E'] ?? '');
+                    $farmer->birthdate = !empty($row['F'])
+                        ? $row['F']
+                        : null;
+                    $farmer->contact_no = trim($row['G'] ?? '');
+                    $farmer->address = trim($row['H'] ?? '');
+
+                    if ($this->Farmers->save($farmer)) {
+                        $success++;
+                    } else {
+                        $failed++;
+                    }
+                }
+
+                $this->Flash->success(
+                    "Excel import completed. {$success} farmer(s) imported."
+                );
+
+                if ($failed > 0) {
+                    $this->Flash->warning(
+                        "{$failed} row(s) could not be imported."
+                    );
+                }
+
+            } catch (\Exception $e) {
+
+                $this->Flash->error(
+                    'Unable to read the Excel file: ' . $e->getMessage()
+                );
+            }
         }
 
         return $this->redirect(['action' => 'index']);

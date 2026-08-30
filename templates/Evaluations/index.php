@@ -4,8 +4,7 @@
             <h3 class="card-title text-dark">Evaluations</h3>
 
              <div class="card-tools d-flex align-items-center">
-                <!-- Upload Excel -->
-                <button type="button"class="btn btn-success mr-2" data-toggle="modal" data-target="#exceldownloadModal" data-toggle="tooltip" data-placement="bottom" title="Upload Excel">
+                <button type="button"class="btn btn-success mr-2" data-toggle="modal" data-target="#downloadEvaluationSummary" data-toggle="tooltip" data-placement="bottom" title="Upload Excel">
                     <i class="fas fa-file-excel mr-1"></i>
                         Download Evaluation Summary
                 </button>

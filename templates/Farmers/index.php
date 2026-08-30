@@ -5,7 +5,11 @@
              <div class="card-tools d-flex align-items-center">
                 <!-- Upload Excel -->
                 <button type="button"class="btn btn-success mr-2" data-toggle="modal" data-target="#excelUploadModal" data-toggle="tooltip" data-placement="bottom" title="Upload Excel">
-                    <i class="fas fa-file-excel mr-1"></i>
+                    <?= $this->Form->create(null, [
+                'url' => ['action' => 'uploadExcel'],
+                'type' => 'file'
+            ]) ?>
+                <i class="fas fa-file-excel mr-1"></i>
                     Upload Beneficiaries Excel
                 </button>
                 <?= $this->Html->link('<i class="fas fa-plus"></i>','',['id' => 'add','class' => 'btn btn-primary','data-toggle' => 'tooltip',
@@ -73,6 +77,69 @@
                 <button type="submit" class="btn btn-primary">Save</button>
             </div>
             <?= $this->Form->end() ?>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="excelUploadModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <?= $this->Form->create(null, [
+                'url' => ['action' => 'uploadExcel'],
+                'type' => 'file'
+            ]) ?>
+
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-file-excel text-success"></i>
+                    Upload Farmers Excel
+                </h5>
+
+                <button type="button"
+                        class="close"
+                        data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="form-group">
+                    <label>Select Excel File</label>
+
+                    <?= $this->Form->control('excel_file', [
+                        'type' => 'file',
+                        'label' => false,
+                        'class' => 'form-control',
+                        'accept' => '.xlsx,.xls'
+                    ]) ?>
+                </div>
+
+                <small class="text-muted">
+                    Accepted files: .xlsx and .xls
+                </small>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal">
+                    Cancel
+                </button>
+
+                <button type="submit"
+                        class="btn btn-success">
+                    <i class="fas fa-upload"></i>
+                    Upload & Import
+                </button>
+
+            </div>
+
+            <?= $this->Form->end() ?>
+
         </div>
     </div>
 </div>
