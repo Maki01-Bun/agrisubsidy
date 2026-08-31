@@ -3020,3 +3020,20 @@ side-bar logout part
     height: auto !important;
     margin-right: 0.25rem !important;
 }
+
+.evaluation-card-tools,
+.evaluation-card-tools .evaluation-download-btn {
+    transform: none !important;
+    rotate: none !important;
+    animation: none !important;
+}
+
+/* Also prevent rotation on hover/focus/active */
+.evaluation-card-tools .evaluation-download-btn:hover,
+.evaluation-card-tools .evaluation-download-btn:focus,
+.evaluation-card-tools .evaluation-download-btn:active {
+    transform: none !important;
+    rotate: none !important;
+    animation: none !important;
+}
+

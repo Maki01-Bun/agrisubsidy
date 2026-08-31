@@ -2,6 +2,11 @@
 declare(strict_types=1);
 
 namespace App\Controller;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 /**
  * Evaluations Controller
@@ -141,17 +146,14 @@ public function downloadSummary()
 
         $headers = [
             'A3' => 'No.',
-            'B3' => 'Farmer Number',
-            'C3' => 'Farmer Name',
-            'D3' => 'Program',
-            'E3' => 'Farm Size (ha)',
-            'F3' => 'Crop Yield Before',
-            'G3' => 'Crop Yield After',
-            'H3' => 'Pest',
-            'I3' => 'Calamity',
-            'J3' => 'Feedback Score',
-            'K3' => 'Effectiveness',
-            'L3' => 'Evaluation Date'
+            'B3' => 'Farmer Name',
+            'C3' => 'Program',
+            'D3' => 'Farm Size (ha)',
+            'E3' => 'Crop Yield After',
+            'F3' => 'Pest',
+            'G3' => 'Calamity',
+            'H3' => 'Feedback Score',
+            'I3' => 'Effectiveness',
         ];
 
         foreach ($headers as $cell => $value) {
@@ -177,13 +179,9 @@ public function downloadSummary()
 
         foreach ($evaluations as $evaluation) {
 
-            $farmerNumber = '';
             $farmerName = '';
 
             if (!empty($evaluation->farmer)) {
-
-                $farmerNumber =
-                    $evaluation->farmer->farmer_number ?? '';
 
                 $farmerName = trim(
                     ($evaluation->farmer->first_name ?? '') . ' ' .
@@ -211,33 +209,15 @@ public function downloadSummary()
                 $program = $evaluation->subsidy_type;
             }
 
-            $pest = '';
+            $pest = 'None';
 
             if (!empty($evaluation->pest)) {
 
-                if (is_array($evaluation->pest)) {
-
-                    $pestNames = [];
-
-                    foreach ($evaluation->pest as $pestItem) {
-
-                        if (!empty($pestItem->name)) {
-                            $pestNames[] = $pestItem->name;
-                        }
-                    }
-
-                    $pest = implode(
-                        ', ',
-                        $pestNames
-                    );
-
-                } else {
-
-                    $pest =
-                        $evaluation->pest->name ?? '';
-                }
+                $pest = $evaluation->pest->name
+                    ?? $evaluation->pest->pest_name
+                    ?? $evaluation->pest->pest
+                    ?? 'None';
             }
-
             $feedbackScore = '';
 
             if (!empty($evaluation->feedback)) {
@@ -275,57 +255,43 @@ public function downloadSummary()
 
             $sheet->setCellValue(
                 "B{$row}",
-                $farmerNumber
-            );
-
-            $sheet->setCellValue(
-                "C{$row}",
                 $farmerName
             );
 
             $sheet->setCellValue(
-                "D{$row}",
+                "C{$row}",
                 $program
             );
 
             $sheet->setCellValue(
-                "E{$row}",
+                "D{$row}",
                 $farmSize
             );
 
-            $sheet->setCellValue(
-                "F{$row}",
-                $evaluation->crop_yield_before ?? ''
-            );
 
             $sheet->setCellValue(
-                "G{$row}",
+                "E{$row}",
                 $evaluation->crop_yield_after ?? ''
             );
 
             $sheet->setCellValue(
-                "H{$row}",
+                'F' . $row,
                 $pest
             );
 
             $sheet->setCellValue(
-                "I{$row}",
+                "G{$row}",
                 $evaluation->calamity ?? ''
             );
 
             $sheet->setCellValue(
-                "J{$row}",
+                "H{$row}",
                 $feedbackScore
             );
 
             $sheet->setCellValue(
-                "K{$row}",
+                "I{$row}",
                 $effectiveness
-            );
-
-            $sheet->setCellValue(
-                "L{$row}",
-                $evaluationDate
             );
 
             $row++;
@@ -334,12 +300,12 @@ public function downloadSummary()
         if ($row > 4) {
 
             $sheet->getStyle(
-                "A3:L" . ($row - 1)
+                "A3:I" . ($row - 1)
             )
             ->getBorders()
             ->getAllBorders()
             ->setBorderStyle(
-                \PhpOffice\PhpSpreadsheet\Style\Border\Border::BORDER_THIN
+                \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN
             );
         }
         foreach (range('A', 'L') as $column) {

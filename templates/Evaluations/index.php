@@ -2,14 +2,14 @@
     <div class="card card-primary">
         <div class="card-header">
             <h3 class="card-title text-dark">Evaluations</h3>
-            <<div class="card-tools evaluation-card-tools d-flex align-items-center">
-    <a href="<?= $this->Url->build(['controller' => 'Evaluations', 'action' => 'downloadSummary']) ?>"
-       class="btn btn-success mr-2 evaluation-download-btn"
-       title="Download Evaluation Summary">
-        <i class="fas fa-file-excel mr-1"></i>
-        Download Evaluation Summary
-    </a>
-</div>
+            <div class="card-tools evaluation-card-tools d-flex align-items-center">
+                <a href="<?= $this->Url->build(['controller' => 'Evaluations', 'action' => 'downloadSummary']) ?>"
+                   class="btn btn-success mr-2 evaluation-download-btn"
+                   title="Download Evaluation Summary">
+                    <i class="fas fa-file-excel mr-1"></i>
+                    Download Evaluation Summary
+                </a>
+            </div>
 
         </div>
         <div class="card-body"> 
