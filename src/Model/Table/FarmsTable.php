@@ -47,6 +47,8 @@ class FarmsTable extends Table
         'foreignKey' => 'farmer_id',
         'joinType' => 'INNER',
         ]);
+
+        $this->addBehavior('Timestamp');
     }
 
     /**

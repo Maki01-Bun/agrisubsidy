@@ -55,6 +55,8 @@ class EvaluationsTable extends Table
         $this->belongsTo('Farms', [
             'foreignKey' => 'farm_id',
         ]);
+
+        $this->addBehavior('Timestamp');
     }
 
     /**

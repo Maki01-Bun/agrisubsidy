@@ -46,6 +46,8 @@ class SchedulesTable extends Table
         $this->hasMany('Farmers', [
             'foreignKey' => 'farmer_id',
         ]);
+
+        $this->addBehavior('Timestamp');
     }
 
     /**

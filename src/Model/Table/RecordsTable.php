@@ -55,6 +55,8 @@ class RecordsTable extends Table
             'bindingKey' => 'id',
             'joinType' => 'INNER',
         ]);
+
+        $this->addBehavior('Timestamp');
     }
 
     /**

@@ -62,6 +62,8 @@ class FarmersTable extends Table
         $this->hasMany('Evaluations', [
             'foreignKey' => 'farmer_id',
         ]);
+
+        $this->addBehavior('Timestamp');
     }
 
     /**
