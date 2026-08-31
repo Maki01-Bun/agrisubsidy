@@ -263,4 +263,124 @@ class NotificationsController extends AppController
             'existingFarmer' => $existingFarmer
         ]);
     }
+
+
+/**
+ * Bulk approve registration requests
+ */
+public function bulkApprove()
+{
+    $this->request->allowMethod(['post']);
+
+    $notificationIds =
+        $this->request->getData('notification_ids');
+
+
+    /*
+     * Make sure IDs were selected
+     */
+    if (
+        empty($notificationIds) ||
+        !is_array($notificationIds)
+    ) {
+
+        $this->Flash->error(
+            'Please select at least one registration request.'
+        );
+
+        return $this->redirect(
+            $this->referer()
+        );
     }
+
+
+    $approved = 0;
+    $failed = 0;
+
+
+    foreach ($notificationIds as $notificationId) {
+
+        try {
+
+            /*
+             * Get notification
+             */
+            $notification =
+                $this->Notifications->get(
+                    $notificationId
+                );
+
+
+            /*
+             * Only approve pending requests
+             */
+            if (
+                strtolower(
+                    trim(
+                        (string)$notification->status
+                    )
+                ) !== 'pending'
+            ) {
+                continue;
+            }
+
+
+            /*
+             * Change notification status
+             */
+            $notification->status =
+                'approved';
+
+
+            /*
+             * Save
+             */
+            if (
+                $this->Notifications->save(
+                    $notification
+                )
+            ) {
+
+                $approved++;
+
+            } else {
+
+                $failed++;
+            }
+
+
+        } catch (\Exception $e) {
+
+            $failed++;
+        }
+    }
+
+
+    /*
+     * Success message
+     */
+    if ($approved > 0) {
+
+        $this->Flash->success(
+            "{$approved} registration request(s) approved successfully."
+        );
+    }
+
+
+    /*
+     * Failed message
+     */
+    if ($failed > 0) {
+
+        $this->Flash->error(
+            "{$failed} registration request(s) could not be approved."
+        );
+    }
+
+
+    return $this->redirect(
+        $this->referer()
+    );
+}
+
+}

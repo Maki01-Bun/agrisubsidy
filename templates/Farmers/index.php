@@ -2,18 +2,54 @@
     <div class="card card-primary">
         <div class="card-header">
             <h3 class="card-title text-dark">Beneficiaries</h3>
-             <div class="card-tools d-flex align-items-center">
-                <!-- Upload Excel -->
-                <button type="button"class="btn btn-success mr-2" data-toggle="modal" data-target="#excelUploadModal" data-toggle="tooltip" data-placement="bottom" title="Upload Excel">
-                    <?= $this->Form->create(null, [
-                'url' => ['action' => 'uploadExcel'],
-                'type' => 'file'
-            ]) ?>
-                <i class="fas fa-file-excel mr-1"></i>
+            <div class="card-tools d-flex align-items-center">
+                <button type="button" class="btn btn-success mr-2" data-toggle="modal" data-target="#excelUploadModal" data-placement="bottom" title="Upload Excel">
+                    <i class="fas fa-file-excel mr-1"></i>
                     Upload Beneficiaries
                 </button>
-                <?= $this->Html->link('<i class="fas fa-plus"></i>','',['id' => 'add','class' => 'btn btn-primary','data-toggle' => 'tooltip',
-                    'data-placement' => 'bottom','title' => 'Add Farmer','escape' => false])?>
+                <?= $this->Html->link('<i class="fas fa-plus"></i>',['action' => 'add'],
+                [ 'id' => 'add', 'class' => 'btn btn-primary', 'data-toggle' => 'tooltip', 'data-placement' => 'bottom', 'title' => 'Add Record', 'escape' => false ])?>
+            </div>
+            <div class="modal fade" id="excelUploadModal" tabindex="-1" role="dialog" aria-labelledby="excelUploadModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="excelUploadModalLabel">
+                                <i class="fas fa-file-excel mr-2"></i>
+                                Upload Beneficiaries
+                            </h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <?= $this->Form->create(null, ['url' => ['action' => 'uploadExcel'], 'type' => 'file', 'id' => 'excelUploadForm'])?>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="excel_file">
+                                        Select Excel File
+                                    </label>
+                                    <?= $this->Form->control('excel_file', ['type' => 'file', 'class' => 'form-control',
+                                    'label' => false, 'required' => true, 'accept' => '.xlsx,.xls'])?>
+                                    <small class="form-text text-muted">
+                                        Please upload an Excel file (.xlsx or .xls).
+                                    </small>
+                                </div>
+                            </div>
+                            <!-- Modal Footer -->
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                    <i class="fas fa-times mr-1"></i>
+                                    Cancel
+                                </button>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-upload mr-1"></i>
+                                    Upload
+                                </button>
+                            </div>
+                        <?= $this->Form->end() ?>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="card-body">

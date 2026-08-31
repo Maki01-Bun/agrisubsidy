@@ -73,9 +73,8 @@ class DashboardController extends AppController
     // HISTORY RECORDS / DASHBOARD CARDS
 
     // Fertilizer Distributed
-    $fertilizerDistributed = $this->Records->find()
+    $subsidyDistributed = $this->Records->find()
         ->where([
-            'subsidy_item' => 'Fertilizer',
             'status' => 'Received'
         ])
         ->count();
@@ -113,7 +112,7 @@ class DashboardController extends AppController
         'totalBeneficiaries' => $totalBeneficiaries,
 
         // History Records
-        'fertilizerDistributed' => $fertilizerDistributed,
+        'subsidyDistributed' => $subsidyDistributed,
         'rescheduled' => $rescheduled,
         'cancelled' => $cancelled,
 

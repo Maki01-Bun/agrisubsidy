@@ -7,8 +7,8 @@
                     <i class="fas fa-seedling"></i>
                 </div>
                 <div class="stat-content">
-                    <span class="stat-label">Fertilizer Distributed</span>
-                    <h2><?= h($fertilizerDistributed ?? 0) ?></h2>
+                    <span class="stat-label">Subsidy Distributed</span>
+                    <h2><?= h($subsidyDistributed ?? 0) ?></h2>
                     <small>
                         <i class="fas fa-check-circle me-1"></i>
                         Successfully distributed
@@ -222,53 +222,129 @@
     <div class="row mt-4">
         <div class="col-12">
             <div class="dashboard-card">
+
+                <!-- HEADER -->
                 <div class="dashboard-card-header registration-header">
+
                     <div>
                         <div class="section-icon bg-info-subtle text-info">
                             <i class="fas fa-user-clock"></i>
                         </div>
+
                         <div>
                             <h5>Registration Requests</h5>
-                            <p>Review and manage farmer registration requests</p>
+                            <p>
+                                Review and manage farmer registration requests
+                            </p>
                         </div>
                     </div>
-                    <?php if (!empty($notifications)) : ?>
-                        <span class="request-count">
-                            <?= count($notifications) ?> Requests
-                        </span>
-                    <?php endif; ?>
+
+                    <div class="d-flex align-items-center">
+
+                        <?php if (!empty($notifications)) : ?>
+
+                            <span class="request-count mr-2">
+                                <?= count($notifications) ?> Requests
+                            </span>
+
+                            <!-- BULK APPROVE BUTTON -->
+                            <button
+                                type="button"
+                                id="bulkApproveBtn"
+                                class="btn btn-success btn-sm"
+                                disabled
+                            >
+                                <i class="fas fa-check-double mr-1"></i>
+                                Approve Selected
+                            </button>
+
+                        <?php endif; ?>
+
+                    </div>
                 </div>
+
+
+                <!-- TABLE -->
                 <div class="dashboard-card-body p-0">
+
                     <div class="table-responsive">
-                        <table id="registration-table" class="table dashboard-table align-middle mb-0 w-100">
+
+                        <table
+                            id="registration-table"
+                            class="table dashboard-table align-middle mb-0 w-100"
+                        >
+
                             <thead>
+
                                 <tr>
-                                    <th width="60"></th>
+
+                                    <!-- SELECT ALL -->
+                                    <th width="60" class="text-center">
+
+                                        <div class="form-check d-flex justify-content-center">
+
+                                            <input
+                                                type="checkbox"
+                                                class="form-check-input"
+                                                id="selectAllNotifications"
+                                                title="Select All"
+                                            >
+
+                                        </div>
+
+                                    </th>
+
                                     <th>Message</th>
+
                                     <th>Date</th>
+
                                     <th>Status</th>
+
                                     <th width="120" class="text-center">
                                         Action
                                     </th>
+
                                 </tr>
+
                             </thead>
+
+
                             <tbody>
+
                             <?php if (!empty($notifications)) : ?>
+
                                 <?php foreach ($notifications as $notif) : ?>
+
                                     <tr>
-                                        <!-- Checkbox -->
+
+                                        <!-- CHECKBOX -->
                                         <td class="text-center">
+
                                             <div class="form-check d-flex justify-content-center">
-                                                <input type="checkbox" class="form-check-input notif-checkbox" value="<?= h($notif->id) ?>"id="notif-<?= h($notif->id) ?>">
+
+                                                <input
+                                                    type="checkbox"
+                                                    class="form-check-input notif-checkbox"
+                                                    value="<?= h($notif->id) ?>"
+                                                    id="notif-<?= h($notif->id) ?>"
+                                                >
+
                                             </div>
+
                                         </td>
-                                        <!-- Message -->
+
+
+                                        <!-- MESSAGE -->
                                         <td>
+
                                             <div class="request-message">
+
                                                 <div class="message-icon">
                                                     <i class="fas fa-user"></i>
                                                 </div>
+
                                                 <div>
+
                                                     <span>
                                                         <?= h($notif->message) ?>
                                                     </span>
@@ -276,30 +352,48 @@
                                                     <small>
                                                         Registration request
                                                     </small>
+
                                                 </div>
+
                                             </div>
+
                                         </td>
-                                        <!-- Date -->
+
+
+                                        <!-- DATE -->
                                         <td>
+
                                             <span class="date-text">
+
                                                 <i class="far fa-calendar me-1"></i>
+
                                                 <?= $notif->created
                                                     ? $notif->created->format('M d, Y')
                                                     : ''
                                                 ?>
+
                                             </span>
+
                                             <?php if ($notif->created) : ?>
 
                                                 <small class="d-block text-muted">
                                                     <?= $notif->created->format('h:i A') ?>
                                                 </small>
+
                                             <?php endif; ?>
+
                                         </td>
-                                        <!-- Status -->
+
+
+                                        <!-- STATUS -->
                                         <td>
+
                                             <?php
+
                                             $badgeClass = 'status-pending';
+
                                             switch ($notif->status) {
+
                                                 case 'approved':
                                                     $badgeClass = 'status-approved';
                                                     break;
@@ -311,20 +405,38 @@
                                                 case 'pending':
                                                     $badgeClass = 'status-pending';
                                                     break;
-                                            }?>
-                                            <span class="status-badge <?= $badgeClass ?>">
+                                            }
+
+                                            ?>
+
+                                            <span
+                                                class="status-badge <?= $badgeClass ?>"
+                                            >
+
                                                 <?php if ($notif->status === 'approved') : ?>
+
                                                     <i class="fas fa-check-circle"></i>
+
                                                 <?php elseif ($notif->status === 'declined') : ?>
+
                                                     <i class="fas fa-times-circle"></i>
+
                                                 <?php else : ?>
+
                                                     <i class="fas fa-clock"></i>
+
                                                 <?php endif; ?>
+
                                                 <?= ucfirst($notif->status) ?>
+
                                             </span>
+
                                         </td>
-                                        <!-- Action -->
+
+
+                                        <!-- ACTION -->
                                         <td class="text-center">
+
                                             <?= $this->Html->link(
                                                 '<i class="fas fa-eye"></i>',
                                                 [
@@ -338,28 +450,50 @@
                                                     'title' => 'View Registration'
                                                 ]
                                             ) ?>
+
                                         </td>
+
                                     </tr>
+
                                 <?php endforeach; ?>
+
                             <?php else : ?>
+
                                 <tr>
+
                                     <td colspan="5">
+
                                         <div class="empty-state">
+
                                             <div class="empty-icon">
                                                 <i class="fas fa-inbox"></i>
                                             </div>
-                                            <h6>No Registration Requests</h6>
+
+                                            <h6>
+                                                No Registration Requests
+                                            </h6>
+
                                             <p>
-                                                There are currently no pending registration requests.
+                                                There are currently no pending
+                                                registration requests.
                                             </p>
+
                                         </div>
+
                                     </td>
+
                                 </tr>
+
                             <?php endif; ?>
+
                             </tbody>
+
                         </table>
+
                     </div>
+
                 </div>
+
             </div>
         </div>
     </div>
@@ -435,4 +569,242 @@ new Chart(ctx, {
     },
     plugins: [ChartDataLabels]
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const selectAll =
+        document.getElementById('selectAllNotifications');
+
+    const checkboxes =
+        document.querySelectorAll('.notif-checkbox');
+
+    const bulkApproveBtn =
+        document.getElementById('bulkApproveBtn');
+
+
+    /*
+     * Update Approve button
+     */
+    function updateBulkButton() {
+
+        const selected =
+            document.querySelectorAll(
+                '.notif-checkbox:checked'
+            );
+
+        if (bulkApproveBtn) {
+
+            bulkApproveBtn.disabled =
+                selected.length === 0;
+
+            if (selected.length > 0) {
+
+                bulkApproveBtn.innerHTML =
+                    '<i class="fas fa-check-double mr-1"></i> ' +
+                    'Approve Selected (' +
+                    selected.length +
+                    ')';
+
+            } else {
+
+                bulkApproveBtn.innerHTML =
+                    '<i class="fas fa-check-double mr-1"></i> ' +
+                    'Approve Selected';
+            }
+        }
+    }
+
+
+    /*
+     * Select All
+     */
+    if (selectAll) {
+
+        selectAll.addEventListener(
+            'change',
+            function () {
+
+                checkboxes.forEach(
+                    function (checkbox) {
+
+                        checkbox.checked =
+                            selectAll.checked;
+
+                    }
+                );
+
+                updateBulkButton();
+            }
+        );
+    }
+
+
+    /*
+     * Individual checkbox
+     */
+    checkboxes.forEach(
+        function (checkbox) {
+
+            checkbox.addEventListener(
+                'change',
+                function () {
+
+                    const total =
+                        checkboxes.length;
+
+                    const selected =
+                        document.querySelectorAll(
+                            '.notif-checkbox:checked'
+                        ).length;
+
+
+                    /*
+                     * Update Select All
+                     */
+                    if (selectAll) {
+
+                        selectAll.checked =
+                            total > 0 &&
+                            selected === total;
+
+                        selectAll.indeterminate =
+                            selected > 0 &&
+                            selected < total;
+                    }
+
+
+                    updateBulkButton();
+                }
+            );
+
+        }
+    );
+
+
+    /*
+     * Bulk Approve
+     */
+    if (bulkApproveBtn) {
+
+        bulkApproveBtn.addEventListener(
+            'click',
+            function () {
+
+                const selected =
+                    document.querySelectorAll(
+                        '.notif-checkbox:checked'
+                    );
+
+
+                if (selected.length === 0) {
+
+                    alert(
+                        'Please select at least one registration request.'
+                    );
+
+                    return;
+                }
+
+
+                const ids = [];
+
+                selected.forEach(
+                    function (checkbox) {
+
+                        ids.push(
+                            checkbox.value
+                        );
+
+                    }
+                );
+
+
+                /*
+                 * Confirmation
+                 */
+                const confirmed =
+                    confirm(
+                        'Are you sure you want to approve ' +
+                        ids.length +
+                        ' registration request(s)?'
+                    );
+
+
+                if (!confirmed) {
+                    return;
+                }
+
+
+                /*
+                 * Create form
+                 */
+                const form =
+                    document.createElement('form');
+
+                form.method = 'POST';
+
+                form.action =
+                    '<?= $this->Url->build([
+                        'controller' => 'Notifications',
+                        'action' => 'bulkApprove'
+                    ]) ?>';
+
+
+                /*
+                 * CSRF token
+                 */
+                const csrfToken =
+                    document.querySelector(
+                        'input[name="_csrfToken"]'
+                    );
+
+
+                if (csrfToken) {
+
+                    const csrf =
+                        document.createElement('input');
+
+                    csrf.type = 'hidden';
+
+                    csrf.name = '_csrfToken';
+
+                    csrf.value =
+                        csrfToken.value;
+
+                    form.appendChild(csrf);
+                }
+
+
+                /*
+                 * Add selected IDs
+                 */
+                ids.forEach(
+                    function (id) {
+
+                        const input =
+                            document.createElement('input');
+
+                        input.type = 'hidden';
+
+                        input.name =
+                            'notification_ids[]';
+
+                        input.value = id;
+
+                        form.appendChild(input);
+
+                    }
+                );
+
+
+                document.body.appendChild(form);
+
+                form.submit();
+
+            }
+        );
+    }
+
+});
+
 </script>

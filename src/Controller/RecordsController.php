@@ -23,14 +23,49 @@ class RecordsController extends AppController
         $records = $this->Records->newEmptyEntity();
 
         $this->loadModel('Farmers');
+        $this->loadModel('Schedules');
 
-        $farmers = $this->Farmers->find()->all()->combine(
-        'id',
-        function ($farmer) {
-            return $farmer->first_name . ' ' . $farmer->last_name;})->toArray();
-        $this->set(compact('records','farmers'));
+        // Farmers
+        $farmers = $this->Farmers->find()
+            ->all()
+            ->combine(
+                'id',
+                function ($farmer) {
+                    return trim(
+                        ($farmer->first_name ?? '') . ' ' .
+                        ($farmer->last_name ?? '')
+                    );
+                }
+            )
+            ->toArray();
+
+        // Schedules
+        $scheduleData = $this->Schedules->find()
+            ->select([
+                'id',
+                'program_name',
+                'start_date'
+            ])
+            ->order([
+                'program_name' => 'ASC'
+            ])
+            ->all()
+            ->toArray();
+
+        // Schedule dropdown
+        $schedules = [];
+
+        foreach ($scheduleData as $schedule) {
+            $schedules[$schedule->id] = $schedule->program_name;
+        }
+
+        $this->set(compact(
+            'records',
+            'farmers',
+            'schedules',
+            'scheduleData'
+        ));
     }
-
     /**
      * View method
      *
@@ -183,104 +218,236 @@ class RecordsController extends AppController
 
     public function uploadExcel()
     {
-        if ($this->request->is('post')) {
-            $file = $this->request->getData('excel_file');
-            if (!$file || $file->getError() !== UPLOAD_ERR_OK) {
-                $this->Flash->error('Please select a valid Excel file.');
-                return $this->redirect(['action' => 'index']);
-            }
-            $extension = strtolower(
-                pathinfo($file->getClientFilename(), PATHINFO_EXTENSION)
+        if (!$this->request->is('post')) {
+            return $this->redirect(['action' => 'index']);
+        }
+        $file = $this->request->getData('excel_file');
+        // Validate uploaded file
+        if (!$file || $file->getError() !== UPLOAD_ERR_OK) {
+            $this->Flash->error('Please select a valid Excel file.');
+            return $this->redirect(['action' => 'index']);
+        }
+        // Validate extension
+        $extension = strtolower(
+            pathinfo(
+                $file->getClientFilename(),
+                PATHINFO_EXTENSION
+            )
+        );
+        if (!in_array($extension, ['xlsx', 'xls'])) {
+            $this->Flash->error(
+                'Only Excel files (.xlsx or .xls) are allowed.'
             );
-            if (!in_array($extension, ['xlsx', 'xls'])) {
-                $this->Flash->error('Only Excel files (.xlsx or .xls) are allowed.');
-                return $this->redirect(['action' => 'index']);
-            }
+            return $this->redirect(['action' => 'index']);
+        }
+        try {
 
-            try {
-                $spreadsheet = IOFactory::load(
-                    $file->getStream()->getMetadata('uri')
+            $this->loadModel('Farmers');
+            $this->loadModel('Schedules');
+            // Load Excel
+            $spreadsheet = IOFactory::load(
+                $file->getStream()->getMetadata('uri')
+            );
+            $sheet = $spreadsheet->getActiveSheet();
+            $rows = $sheet->toArray(
+                null,
+                true,
+                true,
+                true
+            );
+
+            $success = 0;
+            $failed = 0;
+            $errors = [];
+
+            foreach ($rows as $index => $row) {
+
+                // Skip header
+                if ($index == 1) {
+                    continue;
+                }
+
+                // Skip empty rows
+                if (
+                    empty($row['A']) &&
+                    empty($row['B']) &&
+                    empty($row['C']) &&
+                    empty($row['D']) &&
+                    empty($row['E'])
+                ) {
+                    continue;
+                }
+
+                $farmerName = trim((string)($row['A'] ?? ''));
+                $subsidyItem = trim((string)($row['B'] ?? ''));
+                $quantity = (float)($row['C'] ?? 0);
+                $receivedDate = trim((string)($row['D'] ?? ''));
+                $status = trim((string)($row['E'] ?? ''));
+
+
+                // Validate farmer
+                if ($farmerName === '') {
+                    $failed++;
+                    $errors[] =
+                        "Row {$index}: Farmer name is required.";
+                    continue;
+                }
+
+                // Validate subsidy item
+                if ($subsidyItem === '') {
+                    $failed++;
+                    $errors[] =
+                        "Row {$index}: Subsidy item is required.";
+
+                    continue;
+                }
+
+                // Validate quantity
+                if ($quantity <= 0) {
+                    $failed++;
+                    $errors[] =
+                        "Row {$index}: Quantity must be greater than 0.";
+
+                    continue;
+                }
+
+                /*
+                 * Find farmer
+                 */
+
+                $nameParts = preg_split(
+                    '/\s+/',
+                    $farmerName
                 );
-                $sheet = $spreadsheet->getActiveSheet();
-                $rows = $sheet->toArray(
-                    null,
-                    true,
-                    true,
-                    true
-                );
+                $firstName = $nameParts[0] ?? '';
+                $lastName = '';
+                if (count($nameParts) > 1) {
+                    $lastName = end($nameParts);
+                }
+                $farmer = $this->Farmers->find()
+                    ->where([
+                        'Farmers.first_name' => $firstName,
+                        'Farmers.last_name' => $lastName
+                    ])
+                    ->first();
 
-                $success = 0;
-                $failed = 0;
 
-                foreach ($rows as $index => $row) {
+                if (!$farmer) {
+                    $failed++;
+                    $errors[] =
+                        "Row {$index}: Farmer not found: " .
+                        $farmerName;
+                    continue;
+                }
 
-                    // Skip header
-                    if ($index == 1) {
-                        continue;
-                    }
 
-                    // Skip completely empty rows
-                    if (
-                        empty($row['A']) &&
-                        empty($row['B']) &&
-                        empty($row['C'])
-                    ) {
-                        continue;
-                    }
+                /*
+                 * Find schedule
+                 *
+                 * We are no longer comparing
+                 * program_name with farmer name.
+                 *
+                 * We use subsidy_type.
+                 */
+                $schedule = $this->Schedules->find()
+                    ->where([
+                        'Schedules.subsidy_type' => $subsidyItem
+                    ])
+                    ->order([
+                        'Schedules.start_date' => 'DESC'
+                    ])
+                    ->first();
+                if (!$schedule) {
+                    $failed++;
+                    $errors[] =
+                        "Row {$index}: Schedule not found for " .
+                        "subsidy item: {$subsidyItem}";
 
-                    $programName = trim((string)($row['A'] ?? ''));
-                    $subsidyItem = trim((string)($row['B'] ?? ''));
-                    $quantity = (float)($row['C'] ?? 0);
-                    $receivedDate = trim((string)($row['D'] ?? ''));
-                    $status = trim((string)($row['E'] ?? ''));
+                    continue;
+                }
 
-                    $schedule = $this->Records->Schedules->find()
-                        ->where([
-                            'Schedules.program_name' => $programName,
-                            'Schedules.start_date' => $distributionDate,
-                        ])
-                        ->first();
+                /*
+                 * Distribution date comes from schedule
+                 */
+                $distributionDate = $schedule->start_date;
 
-                    if (!$schedule) {
-                        throw new \RuntimeException(
-                            "Schedule not found: {$programName} / {$subsidyItem} / {$distributionDate}"
-                        );
-                    }
-
-                    $record = $this->Records->newEmptyEntity();
-
-                    $record->program_name = $programName;
-                    $record->subsidy_item = $subsidyItem;
-                    $record->quantity = $quantity;
-                    $record->received_date = $received_date;
-                    $record->status = $status;
-                    $record->schedule_id = $schedule->id;
-
-                    if (!$this->Records->save($record)) {
-                        throw new \RuntimeException(
-                            'Failed to save record: ' .
-                            json_encode($record->getErrors())
-                        );
-                    }
-                    if ($this->Records->save($record)) {
-                        $success++;
-                    } else {
+                /*
+                 * Convert received date
+                 */
+                $formattedReceivedDate = null;
+                if ($receivedDate !== '') {
+                    try {
+                        if (is_numeric($receivedDate)) {
+                            $formattedReceivedDate =
+                                \PhpOffice\PhpSpreadsheet\Shared\Date
+                                    ::excelToDateTimeObject(
+                                        $receivedDate
+                                    )
+                                    ->format('Y-m-d');
+                        } else {
+                            $formattedReceivedDate =
+                                (new \DateTime($receivedDate))
+                                    ->format('Y-m-d');
+                        }
+                    } catch (\Exception $e) {
                         $failed++;
+                        $errors[] =
+                            "Row {$index}: Invalid received date: " .
+                            $receivedDate;
+
+                        continue;
                     }
                 }
 
-                $this->Flash->success(
-                    "Excel import completed. {$success} record(s) imported."
-                );
+                /*
+                 * Create record
+                 */
+                $record = $this->Records->newEmptyEntity();
+                $record->farmer_id = $farmer->id;
+                $record->schedule_id = $schedule->id;
+                // Get program name from schedule
+                $record->program_name = $schedule->program_name;
+                // Get subsidy item from Excel
+                $record->subsidy_item = $subsidyItem;
+                $record->quantity = $quantity;
+                // Get distribution date from schedule
+                $record->distribution_date = $distributionDate;
+                // Get received date from Excel
+                $record->received_date = $formattedReceivedDate;
+                $record->status = $status;
 
-                if ($failed > 0) {
-                    $this->Flash->warning("{$failed} row(s) could not be imported.");
+                /*
+                 * Save
+                 */
+                if ($this->Records->save($record)) {
+                    $success++;
+                } else {
+                    $failed++;
+                    $errors[] =
+                        "Row {$index}: Failed to save record: " .
+                        json_encode(
+                            $record->getErrors()
+                        );
                 }
-            } catch (\Exception $e) {
-                $this->Flash->error(
-                    'Unable to read the Excel file: ' . $e->getMessage()
+            }
+
+            if ($success > 0) {
+                $this->Flash->success(
+                    "Excel import completed. " .
+                    "{$success} record(s) imported."
                 );
             }
+            if ($failed > 0) {
+                $message =
+                    "{$failed} row(s) could not be imported.";
+                if (!empty($errors)) {
+                $message .= '<br>' . implode( '<br>', $errors );
+                }
+                $this->Flash->warning($message);
+            }
+        } catch (\Exception $e) {
+            $this->Flash->error('Unable to read the Excel file: ' . $e->getMessage()
+            );
         }
         return $this->redirect(['action' => 'index']);
     }

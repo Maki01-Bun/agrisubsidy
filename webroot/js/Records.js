@@ -21,6 +21,7 @@ $(function(){
                     $('#program_name').val(data.program_name);
                 	$('#subsidy-item').val(data.subsidy_item);
                 	$('#quantity').val(data.quantity);
+                    $('#schedule-id').val(data.schedule_id);
                     $('#distribution-date').val(data.distribution_date);
                     $('#received-date').val(data.received_date);
                     $('#status').val(data.status);

@@ -2,19 +2,54 @@
     <div class="card card-primary">
         <div class="card-header">
             <h3 class="card-title text-dark">Distribution Record History</h3>
-            
-            <div class="card-tools d-flex align-items-center">
-                <!-- Upload Excel -->
-                <button type="button"class="btn btn-success mr-2" data-toggle="modal" data-target="#excelUploadModal" data-toggle="tooltip" data-placement="bottom" title="Upload Excel">
-                    <?= $this->Form->create(null, [
-                'url' => ['action' => 'uploadExcel'],
-                'type' => 'file'
-            ]) ?>
-                <i class="fas fa-file-excel mr-1"></i>
+                <div class="card-tools d-flex align-items-center">
+                <button type="button" class="btn btn-success mr-2" data-toggle="modal" data-target="#excelUploadModal" data-placement="bottom" title="Upload Excel">
+                    <i class="fas fa-file-excel mr-1"></i>
                     Upload Records
                 </button>
-                <?= $this->Html->link('<i class="fas fa-plus"></i>','',['id' => 'add','class' => 'btn btn-primary','data-toggle' => 'tooltip',
-                    'data-placement' => 'bottom','title' => 'Add Farmer','escape' => false])?>
+                <?= $this->Html->link('<i class="fas fa-plus"></i>',['action' => 'add'],
+                [ 'id' => 'add', 'class' => 'btn btn-primary', 'data-toggle' => 'tooltip', 'data-placement' => 'bottom', 'title' => 'Add Record', 'escape' => false ])?>
+            </div>
+            <div class="modal fade" id="excelUploadModal" tabindex="-1" role="dialog" aria-labelledby="excelUploadModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="excelUploadModalLabel">
+                                <i class="fas fa-file-excel mr-2"></i>
+                                Upload Records
+                            </h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <?= $this->Form->create(null, ['url' => ['action' => 'uploadExcel'], 'type' => 'file', 'id' => 'excelUploadForm'])?>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="excel_file">
+                                        Select Excel File
+                                    </label>
+                                    <?= $this->Form->control('excel_file', ['type' => 'file', 'class' => 'form-control',
+                                    'label' => false, 'required' => true, 'accept' => '.xlsx,.xls'])?>
+                                    <small class="form-text text-muted">
+                                        Please upload an Excel file (.xlsx or .xls).
+                                    </small>
+                                </div>
+                            </div>
+                            <!-- Modal Footer -->
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                    <i class="fas fa-times mr-1"></i>
+                                    Cancel
+                                </button>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-upload mr-1"></i>
+                                    Upload
+                                </button>
+                            </div>
+                        <?= $this->Form->end() ?>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="card-body">
@@ -51,16 +86,29 @@
                     <?= $this->Form->control('farmer_id', ['type' => 'select','options' => $farmers,
                     'empty' => '-- Select Farmer --','class' => 'form-control','label' => false]) ?>
                     <label for="subsidy_item">Subsidy Item</label>
-                    <?= $this->Form->control('subsidy_item', [
-                        'class' => 'form-control',
-                        'label' => false,
-                        'options' => $this->Option->subsidy(),
-                        'empty' => '-- Enter Subsidy Item --'
-                    ]) ?>
+                    <?= $this->Form->control('subsidy_item', ['class' => 'form-control', 'label' => false,
+                    'options' => $this->Option->subsidy(), 'empty' => '-- Enter Subsidy Item --'])?>
                     <label for="quantity">Quantity</label>
                     <?= $this->Form->control('quantity',['class'=>'form-control','label'=>false]) ?>
+                    <label for="schedule_id">Schedule</label>
+
+<?= $this->Form->control('schedule_id', [
+    'type' => 'select',
+    'options' => $schedules,
+    'empty' => '-- Select Schedule --',
+    'class' => 'form-control',
+    'label' => false,
+    'id' => 'schedule_id'
+]) ?>
                     <label for="distribution_date">Distribution Date</label>
-                    <?= $this->Form->control('distribution_date',['class'=>'form-control','label'=>false]) ?>
+
+<?= $this->Form->control('distribution_date', [
+    'type' => 'text',
+    'class' => 'form-control',
+    'label' => false,
+    'id' => 'distribution_date',
+    'readonly' => true
+]) ?>
                     <label for="received_date">Received Date</label>
                     <?= $this->Form->control('received_date',['class'=>'form-control','label'=>false]) ?>
                     <label for="status">Status</label>
@@ -140,3 +188,29 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const scheduleData = <?= json_encode($scheduleData) ?>;
+
+    const scheduleSelect = document.getElementById('schedule_id');
+    const distributionDate = document.getElementById('distribution_date');
+
+    scheduleSelect.addEventListener('change', function () {
+
+        const scheduleId = this.value;
+
+        const schedule = scheduleData.find(function (item) {
+            return String(item.id) === String(scheduleId);
+        });
+
+        if (schedule && schedule.start_date) {
+            distributionDate.value = schedule.start_date;
+        } else {
+            distributionDate.value = '';
+        }
+    });
+
+});
+</script>
