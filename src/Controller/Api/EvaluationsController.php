@@ -167,4 +167,30 @@ class EvaluationsController extends AppController
         return $this->response->withType('application/json')
             ->withStringBody(json_encode($result));
     } 
+
+     public function viewFeedback($id)
+    {
+        $this->request->allowMethod(['get']);
+        $evaluation = $this->Evaluations->find()
+            ->contain([
+                'Farmers',
+                'Feedbacks'
+            ])
+            ->where(['Evaluations.id' => $id])->first();
+        if (!$evaluation) {
+            return $this->response
+                ->withType('application/json')
+                ->withStringBody(json_encode([
+                    'error' => 'Evaluation not found'
+                ]));
+        }
+        $data = [
+            'farmer_name' => $evaluation->farmer->first_name . ' ' . $evaluation->farmer->last_name,
+            'rating' =>$evaluation->feedback->rating ?? 0,
+            'comments' =>$evaluation->feedback->comments ?? 'No feedback found',
+            'feedback_date' =>$evaluation->feedback->feedback_date ?? ''
+        ];
+        return $this->response->withType('application/json')
+            ->withStringBody(json_encode($data));
+    } 
 }

@@ -2993,3 +2993,45 @@ side-bar logout part
         transition: none;
     }
 }
+
+    .evaluation-card-tools {
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    .evaluation-card-tools .evaluation-download-btn {
+        /* Prevent circular/square sizing */
+        width: auto !important;
+        height: auto !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+
+        /* Normal Bootstrap button shape */
+        border-radius: 0.25rem !important;
+
+        /* Make the complete text visible */
+        overflow: visible !important;
+        white-space: nowrap !important;
+
+        /* Normal button padding */
+        padding: 0.375rem 0.75rem !important;
+
+        /* Keep icon + text together */
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+
+        /* Prevent global positioning rules */
+        position: static !important;
+
+        /* Reset any strange text sizing */
+        font-size: 1rem !important;
+        line-height: 1.5 !important;
+    }
+
+    .evaluation-card-tools .evaluation-download-btn i {
+        display: inline-block !important;
+        width: auto !important;
+        height: auto !important;
+        margin-right: 0.25rem !important;
+    }
