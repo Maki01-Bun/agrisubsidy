@@ -119,9 +119,6 @@ function getEvaluations()
             {data:"subsidy_type"},
 			{data:"farm_size"},
             {data:"crop_yield_after"},
-            {data:"pest_name"},
-            {data:"calamity"},
-            {data:"feedback_rating"},
             {data:"effectiveness_label"},
             {data: null,render: function(data) {
                     var option =

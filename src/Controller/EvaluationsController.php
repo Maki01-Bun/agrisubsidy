@@ -424,15 +424,27 @@ public function downloadSummary()
 
         try {
 
+            /*
+             * Get evaluation together with:
+             * - Farmer
+             * - Feedback
+             * - Pest
+             */
             $evaluation = $this->Evaluations->get(
                 $evaluationId,
                 [
                     'contain' => [
                         'Farmers',
-                        'Feedbacks'
+                        'Feedbacks',
+                        'Pests'
                     ]
                 ]
             );
+
+
+            /* ==========================================
+             * FARMER INFORMATION
+             * ========================================== */
 
             $farmerName = 'N/A';
             $farmerNumber = 'N/A';
@@ -445,10 +457,22 @@ public function downloadSummary()
                     ($evaluation->farmer->last_name ?? '')
                 );
 
+                /*
+                 * Your Farmers table appears to use farmer_no.
+                 *
+                 * farmer_number is also checked in case
+                 * your entity uses that field.
+                 */
                 $farmerNumber =
-                    $evaluation->farmer->farmer_number
+                    $evaluation->farmer->farmer_no
+                    ?? $evaluation->farmer->farmer_number
                     ?? 'N/A';
             }
+
+
+            /* ==========================================
+             * FEEDBACK INFORMATION
+             * ========================================== */
 
             $feedbackRating = 'N/A';
             $comments = '';
@@ -458,16 +482,25 @@ public function downloadSummary()
 
                 $feedback = $evaluation->feedback;
 
+
+                /* Feedback rating */
+
                 $feedbackRating =
                     $feedback->feedback_score
                     ?? $feedback->rating
                     ?? 'N/A';
+
+
+                /* Comments */
 
                 $comments =
                     $feedback->comments
                     ?? $feedback->comment
                     ?? $feedback->suggestions
                     ?? '';
+
+
+                /* Feedback date */
 
                 if (!empty($feedback->created)) {
 
@@ -486,21 +519,76 @@ public function downloadSummary()
                 }
             }
 
+
+            /* ==========================================
+             * PEST INFORMATION
+             * ========================================== */
+
+            $pest = 'None';
+
+            if (!empty($evaluation->pest)) {
+
+                /*
+                 * Assuming the pests table has a
+                 * "name" column.
+                 */
+                $pest =
+                    $evaluation->pest->name
+                    ?? 'None';
+            }
+
+
+            /* ==========================================
+             * CALAMITY
+             * ========================================== */
+
+            $calamity =
+                !empty($evaluation->calamity)
+                    ? $evaluation->calamity
+                    : 'None';
+            $crop_yield_after =
+                !empty($evaluation->crop_yield_after)
+                    ? $evaluation->crop_yield_after
+                    : 'None';
+
+
+            /* ==========================================
+             * JSON RESPONSE
+             * ========================================== */
+
             return $this->response
                 ->withType('application/json')
                 ->withStringBody(json_encode([
                     'success' => true,
+
                     'data' => [
-                        'farmer_name' => $farmerName,
-                        'farmer_number' => $farmerNumber,
-                        'feedback_rating' => $feedbackRating,
-                        'comments' => $comments,
-                        'feedback_date' => $feedbackDate
+
+                        'farmer_name' =>
+                            $farmerName,
+
+                        'farmer_number' =>
+                            $farmerNumber,
+
+                        'feedback_rating' =>
+                            $feedbackRating,
+
+                        'comments' =>
+                            $comments,
+
+                        'feedback_date' =>
+                            $feedbackDate,
+
+                        'pest' =>
+                            $pest,
+
+                        'calamity' =>
+                            $calamity,
+
+                        'crop_yield_after'  =>
+                            $crop_yield_after
                     ]
                 ]));
-
         } catch (\Exception $e) {
-
             return $this->response
                 ->withType('application/json')
                 ->withStringBody(json_encode([

@@ -10,7 +10,6 @@
                     Download Evaluation Summary
                 </a>
             </div>
-
         </div>
         <div class="card-body"> 
             <table id="evaluations-table" class="table table-bordered table-hover">
@@ -20,9 +19,6 @@
                         <th>Subsidy Type</th>
                         <th>Farm Size</th> 
                         <th>Yield After</th> 
-                        <th>Pest</th> 
-                        <th>Calamity</th> 
-                        <th>Feedback Rating</th>
                         <th>Effectiveness Label</th> 
                         <th>Action</th>
                     </tr>
@@ -35,13 +31,11 @@
 <div class="modal fade" id="feedbackModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-
             <div class="modal-header bg-success text-white">
                 <h5 class="modal-title">
                     <i class="fas fa-comment-dots"></i>
                     Farmer Feedback Details
                 </h5>
-
                 <button type="button" 
                         class="close text-white" 
                         data-dismiss="modal">
@@ -55,16 +49,24 @@
                         <td id="farmer_name"></td>
                     </tr>
                     <tr>
+                        <th width="30%">Pest</th>
+                        <td id="feedback_pest">N/A</td>
+                    </tr>
+                    <tr>
+                        <th width="30%">Yield After</th>
+                        <td id="crop_yield_after">N/A</td>
+                    </tr>
+                    <tr>
+                        <th>Calamity</th>
+                        <td id="feedback_calamity">N/A</td>
+                    </tr>
+                    <tr>
                         <th>Rating</th>
                         <td id="feedback_rating"></td>
                     </tr>
                     <tr>
                         <th>Comments</th>
                         <td id="feedback_comments"></td>
-                    </tr>
-                    <tr>
-                        <th>Date Submitted</th>
-                        <td id="feedback_date"></td>
                     </tr>
                 </table>
             </div>
@@ -111,6 +113,17 @@ function viewFeedback(evaluationId)
                 $('#farmer_name').text(
                     response.data.farmer_name || 'N/A'
                 );
+                $('#feedback_pest').text(
+                    response.data.pest || 'None'
+                );
+
+                $('#crop_yield_after').text(
+                    response.data.crop_yield_after || 'None'
+                );
+
+                $('#feedback_calamity').text(
+                    response.data.calamity || 'None'
+                );
 
                 $('#farmer_number').text(
                     response.data.farmer_number || 'N/A'
@@ -127,9 +140,6 @@ function viewFeedback(evaluationId)
                     response.data.comments || 'No comments provided.'
                 );
 
-                $('#feedback_date').text(
-                    response.data.feedback_date || 'N/A'
-                );
 
                 $('#feedbackContent').show();
 
