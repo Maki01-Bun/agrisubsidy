@@ -131,3 +131,232 @@ function getEvaluations()
         ]
 	});
 }
+
+$(function () {
+
+    if (!$.fn.DataTable.isDataTable('#evaluations-table')) {
+        console.error(
+            'evaluations-table has not been initialized yet.'
+        );
+        return;
+    }
+
+
+    var evaluationTable = $('#evaluations-table').DataTable();
+    $(document).on(
+        'click',
+        '.effectiveness-filter',
+        function (e) {
+            e.preventDefault();
+            var $item = $(this);
+
+            if ($item.hasClass('clear-effectiveness')) {
+
+                $('#effectivenessLabel').text(
+                    'Filter Effectiveness'
+                );
+                $('.effectiveness-filter')
+                    .removeClass('active');
+                evaluationTable.column(4).search('').draw();
+
+                console.log(
+                    'Effectiveness filter cleared'
+                );
+                return;
+            }
+
+            var value = $item.attr('data-value');
+            if (!value) {
+
+                return;
+
+            }
+
+            $('#effectivenessLabel').text(
+                value
+            );
+            $('.effectiveness-filter')
+                .removeClass('active');
+
+            $item.addClass('active');
+
+            evaluationTable
+                .column(4)
+                .search(
+                    '^' +
+                    $.fn.dataTable.util.escapeRegex(value) +
+                    '$',
+                    true,
+                    false
+                )
+                .draw();
+
+
+            console.log(
+                'Filtering Effectiveness:',
+                value
+            );
+
+        }
+    );
+
+});
+
+
+
+function viewFeedback(evaluationId)
+{
+
+    /*
+     * Show modal
+     */
+
+    $('#feedbackModal').modal('show');
+
+    /*
+     * Reset modal fields
+     */
+
+    $('#farmer_name').text('Loading...');
+    $('#feedback_pest').text('Loading...');
+    $('#crop_yield_after').text('Loading...');
+    $('#feedback_calamity').text('Loading...');
+    $('#feedback_rating').text('Loading...');
+    $('#feedback_comments').text('Loading...');
+
+    $.ajax({
+        url: 'Evaluations/getFeedback/' + evaluationId,
+        type: 'GET',
+        dataType: 'json',
+
+
+        /*
+         * SUCCESS
+         */
+
+        success: function (response) {
+            console.log(
+                'Feedback Response:',
+                response
+            );
+
+            if (
+                response &&
+                response.success
+            ) {
+
+                /*
+                 * Farmer Name
+                 */
+
+                $('#farmer_name').text(
+                    response.data.farmer_name ||
+                    'N/A'
+                );
+
+                /*
+                 * Pest
+                 */
+
+                $('#feedback_pest').text(
+                    response.data.pest ||
+                    'None'
+                );
+
+                /*
+                 * Yield After
+                 */
+
+                $('#crop_yield_after').text(
+                    response.data.crop_yield_after ||
+                    'N/A'
+                );
+
+                /*
+                 * Calamity
+                 */
+
+                $('#feedback_calamity').text(
+                    response.data.calamity ||
+                    'None'
+                );
+
+                /*
+                 * Rating
+                 */
+
+                if (
+                    response.data.feedback_rating !== null &&
+                    response.data.feedback_rating !== undefined &&
+                    response.data.feedback_rating !== ''
+                ) {
+
+                    $('#feedback_rating').html(
+                        '<span class="badge badge-primary" ' +
+                        'style="font-size:16px;">' +
+                        response.data.feedback_rating +
+                        '</span>'
+                    );
+
+                } else {
+
+                    $('#feedback_rating').text(
+                        'N/A'
+                    );
+                }
+
+                /*
+                 * Comments
+                 */
+
+                $('#feedback_comments').text(
+                    response.data.comments ||
+                    'No comments provided.'
+                );
+
+            }
+
+            else {
+                $('#farmer_name').text('N/A');
+                $('#feedback_pest').text('N/A');
+                $('#crop_yield_after').text('N/A');
+                $('#feedback_calamity').text('N/A');
+                $('#feedback_rating').text('N/A');
+                $('#feedback_comments').text(
+                    response.message ||
+                    'Feedback not found.'
+                );
+            }
+        },
+
+        /*
+         * ERROR
+         */
+        error: function (xhr) {
+            console.error(
+                'Feedback AJAX Error:',
+                xhr.responseText
+            );
+
+            $('#farmer_name').text(
+                'Unable to load'
+            );
+            $('#feedback_pest').text(
+                'Unable to load'
+            );
+            $('#crop_yield_after').text(
+                'Unable to load'
+            );
+            $('#feedback_calamity').text(
+                'Unable to load'
+            );
+            $('#feedback_rating').text(
+                'Unable to load'
+            );
+            $('#feedback_comments').text(
+                'Unable to load feedback. Please try again.'
+            );
+        }
+
+    });
+}

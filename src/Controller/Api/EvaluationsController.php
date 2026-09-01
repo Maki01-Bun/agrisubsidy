@@ -51,57 +51,57 @@ class EvaluationsController extends AppController
     }
     
     public function getEvaluations()
-{
-    try {
-        $evaluations = $this->Evaluations->find()->contain(['Farmers', 'Feedbacks', 'Pests','Farms'])->all();
-
-        $data = [];
-
-        foreach ($evaluations as $evaluation) {
-
-            $fullName = '';
-            $feedbackRating = '';
-
-            if ($evaluation->farmer) {
-                $fullName = trim(
-                    ($evaluation->farmer->first_name ?? '') . ' ' .
-                    ($evaluation->farmer->middle_name ?? '') . ' ' .
-                    ($evaluation->farmer->last_name ?? '')
-                );
+    {
+        try {
+            $evaluations = $this->Evaluations->find()->contain(['Farmers', 'Feedbacks', 'Pests','Farms'])->all();
+    
+            $data = [];
+    
+            foreach ($evaluations as $evaluation) {
+    
+                $fullName = '';
+                $feedbackRating = '';
+    
+                if ($evaluation->farmer) {
+                    $fullName = trim(
+                        ($evaluation->farmer->first_name ?? '') . ' ' .
+                        ($evaluation->farmer->middle_name ?? '') . ' ' .
+                        ($evaluation->farmer->last_name ?? '')
+                    );
+                }
+    
+                if ($evaluation->feedback) {
+                    $feedbackRating = $evaluation->feedback->rating;
+                }
+    
+                $data[] = [
+                    'id'                  => $evaluation->id,
+                    'farmer_name'         => $fullName,
+                    'subsidy_type'        => $evaluation->subsidy_type,
+                    'farm_size'           => $evaluation->farm?$evaluation->farm->farm_size:'N/A',
+                    'crop_yield_before'   => $evaluation->record?$evaluation->record->crop_yield:'N/A',
+                    'crop_yield_after'    => $evaluation->crop_yield_after,
+                    'pest_name'           => $evaluation->pest?$evaluation->pest->pest_name:'N/A',
+                    'calamity'            => $evaluation->calamity,
+                    'feedback_rating'     => $feedbackRating,
+                    'effectiveness_label' => $evaluation->effectiveness_label
+                ];
             }
-
-            if ($evaluation->feedback) {
-                $feedbackRating = $evaluation->feedback->rating;
-            }
-
-            $data[] = [
-                'id'                  => $evaluation->id,
-                'farmer_name'         => $fullName,
-                'subsidy_type'        => $evaluation->subsidy_type,
-                'farm_size'           => $evaluation->farm?$evaluation->farm->farm_size:'N/A',
-                'crop_yield_before'   => $evaluation->record?$evaluation->record->crop_yield:'N/A',
-                'crop_yield_after'    => $evaluation->crop_yield_after,
-                'pest_name'           => $evaluation->pest?$evaluation->pest->pest_name:'N/A',
-                'calamity'            => $evaluation->calamity,
-                'feedback_rating'     => $feedbackRating,
-                'effectiveness_label' => $evaluation->effectiveness_label
-            ];
+    
+            return $this->response
+                ->withType('application/json')
+                ->withStringBody(json_encode(['data' => $data]));
+    
+        } catch (\Throwable $e) {
+            return $this->response
+                ->withType('application/json')
+                ->withStringBody(json_encode([
+                    'error' => $e->getMessage(),
+                    'line' => $e->getLine(),
+                    'file' => $e->getFile()
+                ]));
         }
-
-        return $this->response
-            ->withType('application/json')
-            ->withStringBody(json_encode(['data' => $data]));
-
-    } catch (\Throwable $e) {
-        return $this->response
-            ->withType('application/json')
-            ->withStringBody(json_encode([
-                'error' => $e->getMessage(),
-                'line' => $e->getLine(),
-                'file' => $e->getFile()
-            ]));
     }
-}
 
     /**
      * Add method

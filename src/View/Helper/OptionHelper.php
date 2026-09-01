@@ -89,4 +89,14 @@ class OptionHelper extends Helper
 
         return $array;
     }
+
+    public function filterStatus()
+    {
+        return [
+            'Received' => 'Received',
+            'Cancelled' => 'Cancelled',
+            'Not Received' => 'Not Received'
+        ];
+        return $array;
+    }
 }

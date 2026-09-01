@@ -2,7 +2,58 @@
     <div class="card card-primary">
         <div class="card-header">
             <h3 class="card-title text-dark">Distribution Record History</h3>
-                <div class="card-tools d-flex align-items-center">
+            <div class="card-tools d-flex align-items-center">
+                <div class="dropdown status-dropdown">
+                    <button class="btn btn-outline-primary dropdown-toggle status-btn" type="button"
+                    id="statusDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-filter"></i>
+                        <span id="statusLabel">
+                            Filter Status
+                        </span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right status-menu" aria-labelledby="statusDropdown">
+                        <!-- Header -->
+                        <div class="dropdown-header status-header">
+                            <span class="status-header-icon">
+                                <i class="fas fa-tasks"></i>
+                            </span>
+                            <span>
+                                Filter by Status
+                            </span>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <!-- Status Options -->
+                        <?php foreach ($this->Option->filterStatus() as $value => $label): ?>
+                            <a href="#" class="dropdown-item status-filter" data-value="<?= h($value) ?>">
+                                <?php if ($value === 'Received'): ?>
+                                    <span class="status-icon received">
+                                        <i class="fas fa-check"></i>
+                                    </span>
+                                <?php elseif ($value === 'Cancelled'): ?>
+                                    <span class="status-icon cancelled">
+                                        <i class="fas fa-times"></i>
+                                    </span>
+                                <?php elseif ($value === 'Not Received'): ?>
+                                    <span class="status-icon not-received">
+                                        <i class="fas fa-exclamation"></i>
+                                    </span>
+                                <?php endif; ?>
+                                <span class="status-text">
+                                    <?= h($label) ?>
+                                </span>
+                            </a>
+                        <?php endforeach; ?>  
+                        <div class="dropdown-divider"></div>    
+                        <!-- Clear -->      
+                        <a
+                            href="#"
+                            class="dropdown-item status-filter clear-status">
+                            <span class="status-text">
+                                Clear Filter
+                            </span>
+                        </a>    
+                    </div>       
+                </div>
                 <button type="button" class="btn btn-success mr-2" data-toggle="modal" data-target="#excelUploadModal" data-placement="bottom" title="Upload Excel">
                     <i class="fas fa-file-excel mr-1"></i>
                     Upload Records
@@ -91,24 +142,22 @@
                     <label for="quantity">Quantity</label>
                     <?= $this->Form->control('quantity',['class'=>'form-control','label'=>false]) ?>
                     <label for="schedule_id">Schedule</label>
-
-<?= $this->Form->control('schedule_id', [
-    'type' => 'select',
-    'options' => $schedules,
-    'empty' => '-- Select Schedule --',
-    'class' => 'form-control',
-    'label' => false,
-    'id' => 'schedule_id'
-]) ?>
+                    <?= $this->Form->control('schedule_id', [
+                        'type' => 'select',
+                        'options' => $schedules,
+                        'empty' => '-- Select Schedule --',
+                        'class' => 'form-control',
+                        'label' => false,
+                        'id' => 'schedule_id'
+                    ]) ?>
                     <label for="distribution_date">Distribution Date</label>
-
-<?= $this->Form->control('distribution_date', [
-    'type' => 'text',
-    'class' => 'form-control',
-    'label' => false,
-    'id' => 'distribution_date',
-    'readonly' => true
-]) ?>
+                    <?= $this->Form->control('distribution_date', [
+                        'type' => 'text',
+                        'class' => 'form-control',
+                        'label' => false,
+                        'id' => 'distribution_date',
+                        'readonly' => true
+                    ]) ?>
                     <label for="received_date">Received Date</label>
                     <?= $this->Form->control('received_date',['class'=>'form-control','label'=>false]) ?>
                     <label for="status">Status</label>
@@ -125,34 +174,27 @@
         </div>
     </div>
 </div>
-
 <div class="modal fade" id="excelUploadModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-
             <?= $this->Form->create(null, [
                 'url' => ['action' => 'uploadExcel'],
                 'type' => 'file'
             ]) ?>
-
             <div class="modal-header">
                 <h5 class="modal-title">
                     <i class="fas fa-file-excel text-success"></i>
                     Upload Distribution Records
                 </h5>
-
                 <button type="button"
                         class="close"
                         data-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
-
             <div class="modal-body">
-
                 <div class="form-group">
                     <label>Select Excel File</label>
-
                     <?= $this->Form->control('excel_file', [
                         'type' => 'file',
                         'label' => false,
@@ -160,35 +202,126 @@
                         'accept' => '.xlsx,.xls'
                     ]) ?>
                 </div>
-
                 <small class="text-muted">
                     Accepted files: .xlsx and .xls
                 </small>
-
             </div>
-
             <div class="modal-footer">
-
                 <button type="button"
                         class="btn btn-secondary"
                         data-dismiss="modal">
                     Cancel
                 </button>
-
                 <button type="submit"
                         class="btn btn-success">
                     <i class="fas fa-upload"></i>
                     Upload & Import
                 </button>
-
             </div>
-
             <?= $this->Form->end() ?>
-
         </div>
     </div>
 </div>
-
+<div class="modal fade" id="recordViewModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-file-alt"></i>
+                    Distribution Record Details
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Farmer -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-user"></i>
+                                Farmer Name
+                            </label>
+                            <p
+                                id="view_farmer_name"
+                                class="form-control-plaintext">
+                                N/A
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Program -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-seedling"></i>
+                                Program
+                            </label>
+                            <p
+                                id="view_program"
+                                class="form-control-plaintext">
+                                N/A
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Subsidy Item -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-box"></i>
+                                Subsidy Item
+                            </label>
+                            <p id="view_subsidy_item" class="form-control-plaintext">
+                                N/A
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Quantity -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-sort-numeric-up"></i>
+                                Quantity
+                            </label>
+                            <p id="view_quantity" class="form-control-plaintext">
+                                N/A
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Distribution Date -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-calendar"></i>
+                                Distribution Date
+                            </label>
+                            <p id="view_distribution_date" class="form-control-plaintext">
+                                N/A
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Status -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-tasks"></i>
+                                Status
+                            </label>
+                            <p id="view_status" class="form-control-plaintext">
+                                N/A
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
