@@ -117,10 +117,6 @@ function getRecords()
         "columns": [
 			{data:"farmer_name"},
             {data:"program_name"},
-			{data:"subsidy_item"},
-            {data:"quantity"},
-            {data:"distribution_date"},
-            {data:"received_date"},
             {data:"status"},
             { data: null,render: function(data){
                     var option = '<div style="text-align:center;">' + '<a href="" class="edit" ' + 'data-toggle="tooltip" ' + 'data-placement="bottom" ' +
@@ -174,7 +170,7 @@ $(function () {
 
 
                 recordsTable
-                    .column(6)
+                    .column(2)
                     .search('')
                     .draw();
 
@@ -209,7 +205,7 @@ $(function () {
             $item.addClass('active');
 
             recordsTable
-                .column(6)
+                .column(2)
                 .search(
                     '^' +
                     $.fn.dataTable.util.escapeRegex(

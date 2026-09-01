@@ -109,10 +109,6 @@
                     <tr>
                         <th>Farmer</th>
                         <th>Program Name</th>
-                        <th>Subsidy Item</th>
-                        <th>Quantity</th>
-                        <th>Distribution Date</th>
-                        <th>Received Date</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
@@ -296,6 +292,17 @@
                                 Distribution Date
                             </label>
                             <p id="view_distribution_date" class="form-control-plaintext">
+                                N/A
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-calendar"></i>
+                               Received Date
+                            </label>
+                            <p id="view_received_date" class="form-control-plaintext">
                                 N/A
                             </p>
                         </div>
