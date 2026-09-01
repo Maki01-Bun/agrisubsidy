@@ -117,6 +117,10 @@ function getRecords()
         "columns": [
 			{data:"farmer_name"},
             {data:"program_name"},
+            {data:"subsidy_item"},
+            {data:"quantity"},
+            {data:"distribution_date"},
+            {data:"received_date"},
             {data:"status"},
             { data: null,render: function(data){
                     var option = '<div style="text-align:center;">' + '<a href="" class="edit" ' + 'data-toggle="tooltip" ' + 'data-placement="bottom" ' +
@@ -231,97 +235,69 @@ $(function () {
 function viewRecord(recordId)
 {
 
+    /*
+     * Show modal
+     */
+
     $('#recordViewModal').modal('show');
 
-    $('#view_farmer_name').text(
-        'Loading...'
-    );
+    /*
+     * Reset modal fields
+     */
 
-    $('#view_program_name').text(
-        'Loading...'
-    );
-
-    $('#view_subsidy_item').text(
-        'Loading...'
-    );
-
-    $('#view_quantity').text(
-        'Loading...'
-    );
-
-    $('#view_distribution_date').text(
-        'Loading...'
-    );
-
-    $('#view_received_date').text(
-        'Loading...'
-    );
-
-    $('#view_status').text(
-        'Loading...'
-    );
-
-    $('#view_distribution_time').text(
-        'Loading...'
-    );
-
-    $('#view_confirmed_at').text(
-        'Loading...'
-    );
+    $('#farmer_name').text('Loading...');
+    $('#program_name').text('Loading...');
+    $('#subsidy_item').text('Loading...');
+    $('#quantity').text('Loading...');
+    $('#distribution_date').text('Loading...');
+    $('#received_date').text('Loading...');
+    $('#status').text('Loading...');
 
     $.ajax({
-
-        url:
-            'Records/view/' +
-            recordId,
-
+        url: 'Records/getRecord/' + recordId,
         type: 'GET',
-
         dataType: 'json',
 
-        success: function (response) {
 
+        /*
+         * SUCCESS
+         */
+
+        success: function (response) {
             console.log(
-                'Record Response:',
+                'Distribution Records:',
                 response
             );
-
 
             if (
                 response &&
                 response.success
             ) {
 
-                var data =
-                    response.data;
-
-
                 /*
                  * Farmer Name
                  */
 
-                $('#view_farmer_name').text(
-                    data.farmer_name ||
+                $('#farmer_name').text(
+                    response.data.farmer_name ||
                     'N/A'
                 );
-
 
                 /*
                  * Program Name
                  */
 
-                $('#view_program_name').text(
-                    data.program_name ||
-                    'N/A'
+                $('#program_name').text(
+                    response.data.program_name ||
+                    'None'
                 );
-
 
                 /*
                  * Subsidy Item
                  */
 
-                $('#view_subsidy_item').text(
-                    data.subsidy_item ||
+                $('#subsidy_item').text(
+                    response.data.subsidy_item ||
                     'N/A'
                 );
 
@@ -330,160 +306,80 @@ function viewRecord(recordId)
                  * Quantity
                  */
 
-                $('#view_quantity').text(
-                    data.quantity ||
+                $('#quantity').text(
+                    response.data.quantity ||
                     'N/A'
                 );
-
 
                 /*
                  * Distribution Date
                  */
 
-                $('#view_distribution_date').text(
-                    data.distribution_date ||
-                    'N/A'
+                $('#distribution_date').text(
+                    response.data.distribution_date ||
+                    'None'
                 );
 
-
-                /*
-                 * Distribution Time
-                 */
-
-                $('#view_distribution_time').text(
-                    data.distribution_time ||
-                    'N/A'
+                $('#received_date').text(
+                    response.data.received_date ||
+                    'None'
                 );
 
-
-                /*
-                 * Received Date
-                 */
-
-                $('#view_received_date').text(
-                    data.received_date ||
-                    'N/A'
+                $('#status').text(
+                    response.data.status ||
+                    'None'
                 );
 
-
-                /*
-                 * Status
-                 */
-
-                $('#view_status').html(
-                    getStatusBadge(
-                        data.status
-                    )
-                );
-
-
-                /*
-                 * Confirmed At
-                 */
-
-                $('#view_confirmed_at').text(
-                    data.confirmed_at ||
-                    'N/A'
-                );
 
             }
 
             else {
-
-                $('#view_farmer_name').text(
-                    'N/A'
-                );
-
-                $('#view_program_name').text(
-                    'N/A'
-                );
-
-                $('#view_subsidy_item').text(
-                    'N/A'
-                );
-
-                $('#view_quantity').text(
-                    'N/A'
-                );
-
-                $('#view_distribution_date').text(
-                    'N/A'
-                );
-
-                $('#view_distribution_time').text(
-                    'N/A'
-                );
-
-                $('#view_received_date').text(
-                    'N/A'
-                );
-
-                $('#view_status').text(
-                    'N/A'
-                );
-
-                $('#view_confirmed_at').text(
-                    'N/A'
-                );
-
-
-                console.error(
+                $('#farmer_name').text('N/A');
+                $('#program_name').text('N/A');
+                $('#subsidy_item').text('N/A');
+                $('#quantity').text('N/A');
+                $('#distribution_date').text('N/A');
+                $('#received_date').text('N/A');
+                $('#status').text(
                     response.message ||
-                    'Record not found.'
+                    'Records not found.'
                 );
-
             }
-
         },
 
+        /*
+         * ERROR
+         */
         error: function (xhr) {
-
             console.error(
-                'Record AJAX Error:',
+                'Distribution Records AJAX Error:',
                 xhr.responseText
             );
 
-
-            $('#view_farmer_name').text(
+            $('#farmer_name').text(
                 'Unable to load'
             );
-
-            $('#view_program_name').text(
+            $('#program_name').text(
                 'Unable to load'
             );
-
-            $('#view_subsidy_item').text(
+            $('#subsidy_item').text(
                 'Unable to load'
             );
-
-            $('#view_quantity').text(
+            $('#quantity').text(
                 'Unable to load'
             );
-
-            $('#view_distribution_date').text(
+            $('#distribution_date').text(
                 'Unable to load'
             );
-
-            $('#view_distribution_time').text(
+            $('#received_date').text(
                 'Unable to load'
             );
-
-            $('#view_received_date').text(
+            $('#status').text(
                 'Unable to load'
             );
-
-            $('#view_status').text(
-                'Unable to load'
-            );
-
-            $('#view_confirmed_at').text(
-                'Unable to load'
-            );
-
         }
 
     });
-
 }
 
 function getStatusBadge(status)

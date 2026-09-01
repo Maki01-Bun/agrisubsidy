@@ -35,89 +35,81 @@ class RecordsController extends AppController
     public function view($id = null)
     {
         $record = $this->Records->get($id, [
-            'contain' => ['Farmers'],
+            'contain' => ['Farmers', 'Schedules'],
         ]);
 
         $this->set(compact('record'));
     }
 
     public function getRecords()
-{
-    $records = $this->Records->find()
-        ->select([
-            'id' => 'Records.id',
-            'farmer_id' => 'Records.farmer_id',
-            'schedule_id' => 'Records.schedule_id',
-            'first_name' => 'Farmers.first_name',
-            'last_name' => 'Farmers.last_name',
+    {
+        $records = $this->Records->find()
+            ->select([
+                'id' => 'Records.id',
+                'farmer_id' => 'Records.farmer_id',
+                'schedule_id' => 'Records.schedule_id',
+                'first_name' => 'Farmers.first_name',
+                'last_name' => 'Farmers.last_name',
 
-            'subsidy_item' => 'Records.subsidy_item',
-            'quantity' => 'Records.quantity',
+                'subsidy_item' => 'Records.subsidy_item',
+                'quantity' => 'Records.quantity',
 
-            // Distribution date comes from Schedules
-            'distribution_date' => 'Schedules.start_date',
-            'distribution_time' => 'Schedules.start_time',
-            'program_name' => 'Schedules.program_name',
+                // Distribution date comes from Schedules
+                'distribution_date' => 'Schedules.start_date',
+                'distribution_time' => 'Schedules.start_time',
+                'program_name' => 'Schedules.program_name',
 
-            // These come from Records
-            'received_date' => 'Records.received_date',
-            'status' => 'Records.status',
-            'confirmed_at' => 'Records.confirmed_at',
-        ])
-        ->join([
-            'Farmers' => [
-                'table' => 'farmers',
-                'type' => 'LEFT',
-                'conditions' => [
-                    'Farmers.id = Records.farmer_id'
+                // These come from Records
+                'received_date' => 'Records.received_date',
+                'status' => 'Records.status',
+                'confirmed_at' => 'Records.confirmed_at',
+            ])
+            ->join([
+                'Farmers' => [
+                    'table' => 'farmers',
+                    'type' => 'LEFT',
+                    'conditions' => [
+                        'Farmers.id = Records.farmer_id'
+                    ]
+                ],
+                'Schedules' => [
+                    'table' => 'schedules',
+                    'type' => 'LEFT',
+                    'conditions' => [
+                        'Schedules.id = Records.schedule_id'
+                    ]
                 ]
-            ],
-            'Schedules' => [
-                'table' => 'schedules',
-                'type' => 'LEFT',
-                'conditions' => [
-                    'Schedules.id = Records.schedule_id'
-                ]
-            ]
-        ])
-        ->enableHydration(false)
-        ->all();
+            ])
+            ->enableHydration(false)
+            ->all();
+        $data = [];
+        foreach ($records as $record) {
+            $data[] = [
+                'id' => $record['id'],
+                'farmer_id' => $record['farmer_id'],
+                'schedule_id' => $record['schedule_id'],
 
-    $data = [];
+                'farmer_name' => trim(
+                    ($record['first_name'] ?? '') . ' ' .
+                    ($record['last_name'] ?? '')
+                ),
+                'subsidy_item' => $record['subsidy_item'],
+                'quantity' => $record['quantity'],
+                // From schedules table
+                'distribution_date' => $record['distribution_date'],
+                'distribution_time' => $record['distribution_time'],
+                'program_name' => $record['program_name'],
 
-    foreach ($records as $record) {
-
-        $data[] = [
-            'id' => $record['id'],
-            'farmer_id' => $record['farmer_id'],
-            'schedule_id' => $record['schedule_id'],
-
-            'farmer_name' => trim(
-                ($record['first_name'] ?? '') . ' ' .
-                ($record['last_name'] ?? '')
-            ),
-
-            'subsidy_item' => $record['subsidy_item'],
-            'quantity' => $record['quantity'],
-
-            // From schedules table
-            'distribution_date' => $record['distribution_date'],
-            'distribution_time' => $record['distribution_time'],
-            'program_name' => $record['program_name'],
-
-            // From records table
-            'received_date' => $record['received_date'],
-            'status' => $record['status'],
-            'confirmed_at' => $record['confirmed_at'],
-        ];
+                // From records table
+                'received_date' => $record['received_date'],
+                'status' => $record['status'],
+                'confirmed_at' => $record['confirmed_at'],
+            ];
+        }
+        return $this->response
+            ->withType('application/json')
+            ->withStringBody(json_encode(['data' => $data]));
     }
-
-    return $this->response
-        ->withType('application/json')
-        ->withStringBody(json_encode([
-            'data' => $data
-        ]));
-}
 
     /**
      * Add method

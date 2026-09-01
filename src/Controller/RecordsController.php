@@ -452,4 +452,202 @@ class RecordsController extends AppController
         return $this->redirect(['action' => 'index']);
     }
 
+    public function viewRecord($id = null)
+    {
+        if (!$id) {
+            $this->Flash->error('Invalid record ID.');
+            return $this->redirect(['action' => 'index']);
+        }
+
+        try {
+
+            $record = $this->Records->get($id, [
+                'contain' => [
+                    'Farmers',
+                    'Schedules'
+                ]
+                ]);
+
+            $this->set([
+                'record' => $record
+            ]);
+
+        } catch (\Exception $e) {
+
+            $this->Flash->error('Record not found.');
+
+            return $this->redirect([
+                'action' => 'index'
+            ]);
+        }
+    }
+
+    public function getRecord($recordId = null)
+    {
+        $this->request->allowMethod(['get']);
+    
+        $this->autoRender = false;
+    
+        if (!$recordId) {
+            return $this->response
+                ->withType('application/json')
+                ->withStringBody(json_encode([
+                    'success' => false,
+                    'message' => 'Invalid record ID.'
+                ]));
+        }
+    
+        try {
+    
+            /*
+             * Get Record
+             * Including Farmer and Schedule
+             */
+            $record = $this->Records->get(
+                $recordId,
+                [
+                    'contain' => [
+                        'Farmers',
+                        'Schedules'
+                    ]
+                ]
+            );
+    
+            /*
+             * ==========================================
+             * FARMER INFORMATION
+             * ==========================================
+             */
+    
+            $farmerName = 'N/A';
+    
+            if (!empty($record->farmer)) {
+    
+                $farmerName = trim(
+                    ($record->farmer->first_name ?? '') . ' ' .
+                    ($record->farmer->last_name ?? '')
+                );
+            }
+    
+            /*
+             * ==========================================
+             * SCHEDULE INFORMATION
+             * ==========================================
+             */
+    
+            $distributionDate = 'N/A';
+            $distributionTime = 'N/A';
+            $programName = 'N/A';
+    
+            if (!empty($record->schedule)) {
+    
+                $schedule = $record->schedule;
+    
+                /*
+                 * Date
+                 */
+                if (!empty($schedule->start_date)) {
+                    $distributionDate = $schedule->start_date;
+                }
+    
+                /*
+                 * Time
+                 */
+                if (!empty($schedule->start_time)) {
+                    $distributionTime = $schedule->start_time;
+                }
+    
+                /*
+                 * Program
+                 */
+                if (!empty($schedule->program_name)) {
+                    $programName = $schedule->program_name;
+                }
+            }
+    
+            /*
+             * ==========================================
+             * RECORD INFORMATION
+             * ==========================================
+             */
+    
+            $subsidyItem =
+                !empty($record->subsidy_item)
+                    ? $record->subsidy_item
+                    : 'N/A';
+    
+            $quantity =
+                isset($record->quantity)
+                    ? $record->quantity
+                    : 'N/A';
+    
+            $receivedDate =
+                !empty($record->received_date)
+                    ? $record->received_date
+                    : 'N/A';
+    
+            $status =
+                !empty($record->status)
+                    ? $record->status
+                    : 'N/A';
+    
+            /*
+             * ==========================================
+             * JSON RESPONSE
+             * ==========================================
+             */
+    
+            return $this->response
+                ->withType('application/json')
+                ->withStringBody(json_encode([
+                    'success' => true,
+    
+                    'data' => [
+    
+                        'id' =>
+                            $record->id,
+    
+                        'farmer_id' =>
+                            $record->farmer_id,
+    
+                        'schedule_id' =>
+                            $record->schedule_id,
+    
+                        'farmer_name' =>
+                            $farmerName,
+    
+                        'farmer_number' =>
+                            $farmerNumber,
+    
+                        'program_name' =>
+                            $programName,
+    
+                        'subsidy_item' =>
+                            $subsidyItem,
+    
+                        'quantity' =>
+                            $quantity,
+    
+                        'distribution_date' =>
+                            $distributionDate,
+    
+                        'received_date' =>
+                            $receivedDate,
+    
+                        'status' =>
+                            $status,
+    
+                    ]
+                ]));
+    
+        } catch (\Exception $e) {
+    
+            return $this->response
+                ->withType('application/json')
+                ->withStringBody(json_encode([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ]));
+        }
+    }
 }

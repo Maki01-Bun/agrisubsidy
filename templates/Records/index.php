@@ -109,6 +109,10 @@
                     <tr>
                         <th>Farmer</th>
                         <th>Program Name</th>
+                        <th>Subsidy Item</th>
+                        <th>Quantity</th>
+                        <th>Distribution Date</th>
+                        <th>Received Date</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
@@ -218,111 +222,55 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="recordViewModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg" role="document">
+<div class="modal fade" id="recordViewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
+            <div class="modal-header bg-success text-white">
                 <h5 class="modal-title">
-                    <i class="fas fa-file-alt"></i>
-                    Distribution Record Details
+                    <i class="fas fa-comment-dots"></i>
+                    Distribution Records Details
                 </h5>
-                <button type="button" class="close text-white" data-dismiss="modal">
-                    <span>&times;</span>
+                <button type="button" 
+                        class="close text-white" 
+                        data-dismiss="modal">
+                    &times;
                 </button>
             </div>
             <div class="modal-body">
-                <div class="row">
-                    <!-- Farmer -->
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>
-                                <i class="fas fa-user"></i>
-                                Farmer Name
-                            </label>
-                            <p
-                                id="view_farmer_name"
-                                class="form-control-plaintext">
-                                N/A
-                            </p>
-                        </div>
-                    </div>
-                    <!-- Program -->
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>
-                                <i class="fas fa-seedling"></i>
-                                Program
-                            </label>
-                            <p
-                                id="view_program"
-                                class="form-control-plaintext">
-                                N/A
-                            </p>
-                        </div>
-                    </div>
-                    <!-- Subsidy Item -->
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>
-                                <i class="fas fa-box"></i>
-                                Subsidy Item
-                            </label>
-                            <p id="view_subsidy_item" class="form-control-plaintext">
-                                N/A
-                            </p>
-                        </div>
-                    </div>
-                    <!-- Quantity -->
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>
-                                <i class="fas fa-sort-numeric-up"></i>
-                                Quantity
-                            </label>
-                            <p id="view_quantity" class="form-control-plaintext">
-                                N/A
-                            </p>
-                        </div>
-                    </div>
-                    <!-- Distribution Date -->
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>
-                                <i class="fas fa-calendar"></i>
-                                Distribution Date
-                            </label>
-                            <p id="view_distribution_date" class="form-control-plaintext">
-                                N/A
-                            </p>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>
-                                <i class="fas fa-calendar"></i>
-                               Received Date
-                            </label>
-                            <p id="view_received_date" class="form-control-plaintext">
-                                N/A
-                            </p>
-                        </div>
-                    </div>
-                    <!-- Status -->
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>
-                                <i class="fas fa-tasks"></i>
-                                Status
-                            </label>
-                            <p id="view_status" class="form-control-plaintext">
-                                N/A
-                            </p>
-                        </div>
-                    </div>
-                </div>
+                <table class="table table-bordered">
+                    <tr>
+                        <th width="30%">Farmer Name</th>
+                        <td id="farmer_name"></td>
+                    </tr>
+                    <tr>
+                        <th width="30%">Program Name</th>
+                        <td id="program_name"></td>
+                    </tr>
+                    <tr>
+                        <th width="30%">Subsidy Item</th>
+                        <td id="subsidy_item"></td>
+                    </tr>
+                    <tr>
+                        <th>Quantity</th>
+                        <td id="quantity">N/A</td>
+                    </tr>
+                    <tr>
+                        <th>Distribution Date</th>
+                        <td id="distribution_date">N/A</td>
+                    </tr>
+                    <tr>
+                        <th>Received Date</th>
+                        <td id="received_date">N/A</td>
+                    </tr>
+                    <tr>
+                        <th>Status</th>
+                        <td id="status">N/A</td>
+                    </tr>
+                </table>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                <button class="btn btn-secondary" 
+                        data-dismiss="modal">
                     Close
                 </button>
             </div>
