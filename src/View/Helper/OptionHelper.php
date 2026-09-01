@@ -78,4 +78,15 @@ class OptionHelper extends Helper
 
         return $array;
     }
+
+    public function filterEffectiveness()
+    {
+        $array =[
+            'Effective'=>'Effective',
+            'Not Effective'=>'Not Effective',
+            'Moderately Effective'=>'Moderately Effective'
+        ];
+
+        return $array;
+    }
 }
