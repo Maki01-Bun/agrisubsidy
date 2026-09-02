@@ -616,9 +616,6 @@ class RecordsController extends AppController
                         'farmer_name' =>
                             $farmerName,
     
-                        'farmer_number' =>
-                            $farmerNumber,
-    
                         'program_name' =>
                             $programName,
     
@@ -641,13 +638,9 @@ class RecordsController extends AppController
                 ]));
     
         } catch (\Exception $e) {
-    
-            return $this->response
-                ->withType('application/json')
-                ->withStringBody(json_encode([
-                    'success' => false,
-                    'message' => $e->getMessage()
-                ]));
+            return $this->response->withType('application/json')
+            ->withStringBody(json_encode(['success' => false,
+            'message' => $e->getMessage()]));
         }
     }
 }

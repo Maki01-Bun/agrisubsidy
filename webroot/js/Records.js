@@ -118,8 +118,6 @@ function getRecords()
 			{data:"farmer_name"},
             {data:"program_name"},
             {data:"subsidy_item"},
-            {data:"quantity"},
-            {data:"distribution_date"},
             {data:"received_date"},
             {data:"status"},
             { data: null,render: function(data){
@@ -174,7 +172,7 @@ $(function () {
 
 
                 recordsTable
-                    .column(2)
+                    .column(4)
                     .search('')
                     .draw();
 
@@ -209,7 +207,7 @@ $(function () {
             $item.addClass('active');
 
             recordsTable
-                .column(2)
+                .column(4)
                 .search(
                     '^' +
                     $.fn.dataTable.util.escapeRegex(
@@ -245,13 +243,13 @@ function viewRecord(recordId)
      * Reset modal fields
      */
 
-    $('#farmer_name').text('Loading...');
-    $('#program_name').text('Loading...');
-    $('#subsidy_item').text('Loading...');
-    $('#quantity').text('Loading...');
-    $('#distribution_date').text('Loading...');
-    $('#received_date').text('Loading...');
-    $('#status').text('Loading...');
+    $('#view_farmer_name').text('Loading...');
+    $('#view_program_name').text('Loading...');
+    $('#view_subsidy_item').text('Loading...');
+    $('#view_quantity').text('Loading...');
+    $('#view_distribution_date').text('Loading...');
+    $('#view_received_date').text('Loading...');
+    $('#view_status').text('Loading...');
 
     $.ajax({
         url: 'Records/getRecord/' + recordId,
@@ -278,7 +276,7 @@ function viewRecord(recordId)
                  * Farmer Name
                  */
 
-                $('#farmer_name').text(
+                $('#view_farmer_name').text(
                     response.data.farmer_name ||
                     'N/A'
                 );
@@ -287,7 +285,7 @@ function viewRecord(recordId)
                  * Program Name
                  */
 
-                $('#program_name').text(
+                $('#view_program_name').text(
                     response.data.program_name ||
                     'None'
                 );
@@ -296,7 +294,7 @@ function viewRecord(recordId)
                  * Subsidy Item
                  */
 
-                $('#subsidy_item').text(
+                $('#view_subsidy_item').text(
                     response.data.subsidy_item ||
                     'N/A'
                 );
@@ -306,7 +304,7 @@ function viewRecord(recordId)
                  * Quantity
                  */
 
-                $('#quantity').text(
+                $('#view_quantity').text(
                     response.data.quantity ||
                     'N/A'
                 );
@@ -315,17 +313,17 @@ function viewRecord(recordId)
                  * Distribution Date
                  */
 
-                $('#distribution_date').text(
+                $('#view_distribution_date').text(
                     response.data.distribution_date ||
                     'None'
                 );
 
-                $('#received_date').text(
+                $('#view_received_date').text(
                     response.data.received_date ||
                     'None'
                 );
 
-                $('#status').text(
+                $('#view_status').text(
                     response.data.status ||
                     'None'
                 );
@@ -334,13 +332,13 @@ function viewRecord(recordId)
             }
 
             else {
-                $('#farmer_name').text('N/A');
-                $('#program_name').text('N/A');
-                $('#subsidy_item').text('N/A');
-                $('#quantity').text('N/A');
-                $('#distribution_date').text('N/A');
-                $('#received_date').text('N/A');
-                $('#status').text(
+                $('#view_farmer_name').text('N/A');
+                $('#view_program_name').text('N/A');
+                $('#view_subsidy_item').text('N/A');
+                $('#view_quantity').text('N/A');
+                $('#view_distribution_date').text('N/A');
+                $('#view_received_date').text('N/A');
+                $('#view_status').text(
                     response.message ||
                     'Records not found.'
                 );
@@ -356,25 +354,25 @@ function viewRecord(recordId)
                 xhr.responseText
             );
 
-            $('#farmer_name').text(
+            $('#view_farmer_name').text(
                 'Unable to load'
             );
-            $('#program_name').text(
+            $('#view_program_name').text(
                 'Unable to load'
             );
-            $('#subsidy_item').text(
+            $('#view_subsidy_item').text(
                 'Unable to load'
             );
-            $('#quantity').text(
+            $('#view_quantity').text(
                 'Unable to load'
             );
-            $('#distribution_date').text(
+            $('#view_distribution_date').text(
                 'Unable to load'
             );
-            $('#received_date').text(
+            $('#view_received_date').text(
                 'Unable to load'
             );
-            $('#status').text(
+            $('#view_status').text(
                 'Unable to load'
             );
         }

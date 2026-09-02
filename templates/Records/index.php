@@ -110,8 +110,6 @@
                         <th>Farmer</th>
                         <th>Program Name</th>
                         <th>Subsidy Item</th>
-                        <th>Quantity</th>
-                        <th>Distribution Date</th>
                         <th>Received Date</th>
                         <th>Status</th>
                         <th>Action</th>
@@ -240,31 +238,31 @@
                 <table class="table table-bordered">
                     <tr>
                         <th width="30%">Farmer Name</th>
-                        <td id="farmer_name"></td>
+                        <td id="view_farmer_name"></td>
                     </tr>
                     <tr>
                         <th width="30%">Program Name</th>
-                        <td id="program_name"></td>
+                        <td id="view_program_name"></td>
                     </tr>
                     <tr>
                         <th width="30%">Subsidy Item</th>
-                        <td id="subsidy_item"></td>
+                        <td id="view_subsidy_item"></td>
                     </tr>
                     <tr>
                         <th>Quantity</th>
-                        <td id="quantity">N/A</td>
+                        <td id="view_quantity">N/A</td>
                     </tr>
                     <tr>
                         <th>Distribution Date</th>
-                        <td id="distribution_date">N/A</td>
+                        <td id="view_distribution_date">N/A</td>
                     </tr>
                     <tr>
                         <th>Received Date</th>
-                        <td id="received_date">N/A</td>
+                        <td id="view_received_date">N/A</td>
                     </tr>
                     <tr>
                         <th>Status</th>
-                        <td id="status">N/A</td>
+                        <td id="view_status">N/A</td>
                     </tr>
                 </table>
             </div>

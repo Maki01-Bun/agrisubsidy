@@ -43,7 +43,8 @@ class OptionHelper extends Helper
             'Pending'=>'Pending',
             'Received'=>'Received',
             'Cancelled'=>'Cancelled',
-            'Expired'=>'Expired'
+            'Expired'=>'Expired',
+            'Not Received'=>'Not Received'
         ];
 
         return $array;
