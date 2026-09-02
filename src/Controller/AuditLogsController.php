@@ -4,9 +4,9 @@ declare(strict_types=1);
 namespace App\Controller;
 
 /**
- * POS Controller
+ * AuditLogs Controller
  *
- * @method \App\Model\Entity\PO[]|\Cake\Datasource\ResultSetInterface paginate($object = null, array $settings = [])
+ * @method \App\Model\Entity\AuditLogs[]|\Cake\Datasource\ResultSetInterface paginate($object = null, array $settings = [])
  */
 class AuditLogsController extends AppController
 {
