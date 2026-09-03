@@ -53,6 +53,26 @@
                         'label' => false
                     ]) ?>
                 </div>
+                <!-- <div class="col-md-3 mb-3">
+                    <label>Subsidy Received</label>
+                    <?= $this->Form->control('subsidy_received', [
+                        'type' => 'select',
+                        'options' => [
+                            'Yes' => 'Yes',
+                            'No' => 'No'
+                        ],
+                        'empty' => 'Select Yes or No',
+                        'class' => 'form-control',
+                        'label' => false
+                    ]) ?>
+                </div> -->
+                <!-- <div class="col-md-3 mb-3">
+                    <label>Average Selling Price (₱/kg)</label>
+                    <?= $this->Form->control('average_selling_price', [
+                        'class' => 'form-control',
+                        'label' => false
+                    ]) ?>
+                </div> -->
             </div>
             <hr>
             <!-- FARM CONDITIONS -->
@@ -94,14 +114,15 @@
                             </div>
                         <?php endif; ?>
                     </div>
-                </div>
-                        
-                        
+                </div>                
                 <div class="col-md-12 mb-3">
-                    <label class="form-label fw-bold">
+                    <label for="role">Calamity Experienced</label>
+                    <?= $this->Form->control('calamity',['class'=>'form-control',
+                    'options'=>$this->Option->calamity(),'label'=>false]) ?>
+                    <!-- <label class="form-label fw-bold">
                         Calamity Experienced
                     </label>
-                        
+
                     <div class="selection-box border rounded-3 p-3">
                         <?php
                         $calamities = $this->Option->calamity();
@@ -112,18 +133,20 @@
                                 <?php foreach ($calamities as $value => $label): ?>
                                     <div class="col-12 col-sm-6 mb-2">
                                         <div class="form-check selection-item">
-                                            <?= $this->Form->checkbox("calamity[]", [
+
+                                            <?= $this->Form->checkbox('calamity', [
                                                 'value' => $value,
-                                                'id' => 'calamity-' . $value,
-                                                'class' => 'form-check-input',
+                                                'id' => 'calamity_' . $value,
+                                                'class' => 'form-check-input'
                                             ]) ?>
 
                                             <label
                                                 class="form-check-label"
-                                                for="calamity-<?= h($value) ?>"
+                                                for="calamity_<?= h($value) ?>"
                                             >
                                                 <?= h($label) ?>
                                             </label>
+
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
@@ -134,7 +157,7 @@
                                 No calamities available.
                             </div>
                         <?php endif; ?>
-                    </div>
+                    </div> -->
                 </div>
             </div>
             <hr>
@@ -243,7 +266,7 @@
 $(document).ready(function () {
     $('#successModal').modal('show');
     $('#successOk').click(function () {
-        window.location.href = "<?= $this->Url->build(['controller' => 'Programs', 'action' => 'announcements']) ?>";
+        window.location.href = "<?= $this->Url->build(['controller' => 'Schedules', 'action' => 'announcements']) ?>";
     });
 });
 </script>

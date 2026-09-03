@@ -27,6 +27,7 @@ class Feedback extends Entity
      * @var array<string, bool>
      */
     protected $_accessible = [
+        'farmer_id' => true,
         'rating' => true,
         'comment' => true,
         'feedback_date' => true,

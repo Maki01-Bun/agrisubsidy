@@ -64,67 +64,240 @@ class FeedbacksController extends AppController
         'farmerName'
     ));
 }
+
     public function survey()
     {
-            if ($this->request->is('post')) {
+        // =========================================================
+        // ONLY ALLOW POST
+        // =========================================================
 
-                $this->loadModel('Evaluations');    
-                $this->loadModel('Feedbacks');
-                $this->loadModel('Farmers');
-                $this->loadModel('Pests');
-                $this->loadModel('Farms');
+        if (!$this->request->is('post')) {
+            return $this->redirect(['action' => 'index']);
+        }
 
-                $user = $this->request->getSession()->read('Auth.User');
+        // =========================================================
+        // LOAD MODELS
+        // =========================================================
 
-                $farmer = $this->Farmers->find()->where(['user_id' => $user['id']])->first();
+        $this->loadModel('Evaluations');
+        $this->loadModel('Feedbacks');
+        $this->loadModel('Farmers');
+        $this->loadModel('Pests');
+        $this->loadModel('Farms');
 
-                if (!$farmer) {
-                    die('Farmer record not found.');
-                }
-                $evaluationData = $this->request->getData();
-                $pestIds = $evaluationData['pest'] ?? [];
-                $pestNames = [];
+        // =========================================================
+        // GET LOGGED-IN USER
+        // =========================================================
 
-                if (!empty($pestIds)) {
-                        $pests = $this->Pests->find()
-                        ->where(['id IN' => $pestIds])
-                        ->all();
-                    foreach ($pests as $pest) {
-                        $pestNames[] = $pest->pest_name;
-                    }
-                }
-            $pestString = implode(', ', $pestNames);
+        $user = $this->request->getSession()->read('Auth.User');
+
+        if (empty($user) || empty($user['id'])) {
+
+            $this->Flash->error('User session not found.');
+
+            return $this->redirect(['action' => 'index']);
+        }
+
+        // =========================================================
+        // FIND FARMER
+        // =========================================================
+
+        $farmer = $this->Farmers->find()
+            ->where([
+                'Farmers.user_id' => $user['id']
+            ])
+            ->first();
+
+        if (!$farmer) {
+
+            $this->Flash->error('Farmer record not found.');
+
+            return $this->redirect(['action' => 'index']);
+        }
+
+        // =========================================================
+        // GET FORM DATA
+        // =========================================================
+
+        $evaluationData = $this->request->getData();
 
 
-            // Compute feedback score
-            $feedbackScore = (
-                (int)$this->request->getData('q1') +    
-                (int)$this->request->getData('q2') +
-                (int)$this->request->getData('q3') +
-                (int)$this->request->getData('q4') +
-                (int)$this->request->getData('q5') +
-                (int)$this->request->getData('q6')
-            ) / 6;
+        // =========================================================
+        // PEST
+        // =========================================================
 
-           $farm = $this->Farms->find()
-                ->where(['id' => $this->request->getData('farm_id')])->first();
-            if (!$farm) {
-                $this->Flash->error('Selected farm not found.');
-                return $this->redirect($this->referer());
+        $pestIds = $evaluationData['pest'] ?? [];
+
+        // Convert single value into array
+        if (!is_array($pestIds)) {
+            $pestIds = [$pestIds];
+        }
+
+        // Remove invalid / empty values
+        $pestIds = array_filter($pestIds, function ($id) {
+
+            return $id !== null
+                && $id !== ''
+                && is_numeric($id)
+                && (int)$id > 0;
+        });
+
+        // Convert IDs to integers
+        $pestIds = array_map('intval', $pestIds);
+
+        // Remove duplicates and reset indexes
+        $pestIds = array_values(array_unique($pestIds));
+
+        $pestNames = [];
+
+        // This will be the ONE pest_id saved in evaluations
+        $pestId = null;
+
+
+        // =========================================================
+        // VALIDATE PEST IDS AGAINST DATABASE
+        // =========================================================
+
+        if (!empty($pestIds)) {
+
+            $pests = $this->Pests->find()
+                ->where([
+                    'Pests.id IN' => $pestIds
+                ])
+                ->all();
+
+            foreach ($pests as $pest) {
+
+                $pestNames[] = $pest->pest_name;
             }
-            $farmSize = $farm->farm_size;
-            $cropYieldBefore = (float)$farm->crop_yield;
-            // Call FastAPI
-            $http = new \Cake\Http\Client();
-            $payload = [
-                'subsidy_type'      => $evaluationData['subsidy_type'],
-                'farm_size'         => (float)$farmSize,
-                'crop_yield_before' => (float)$cropYieldBefore,
-                'crop_yield_after'  => (float)$evaluationData['crop_yield_after'],
-                'feedback_score'    => $feedbackScore,
-                'pest'              => $pestString,
-                'calamity'          => $evaluationData['calamity']
-            ];
+
+            // Get valid database IDs
+            $validPestIds = [];
+
+            foreach ($pests as $pest) {
+
+                $validPestIds[] = (int)$pest->id;
+            }
+
+            /*
+            * evaluations.pest_id is only ONE foreign key.
+            *
+            * Therefore we save the first valid pest ID.
+            */
+            if (!empty($validPestIds)) {
+
+                $pestId = $validPestIds[0];
+            }
+        }
+
+        // String sent to FastAPI
+        $pestString = !empty($pestNames)
+            ? implode(', ', $pestNames)
+            : 'None';
+
+
+        $calamity = $evaluationData['calamity'] ?? [];
+
+if (is_array($calamity)) {
+    $calamity = array_filter($calamity, function ($value) {
+        return $value !== null && $value !== '';
+    });
+
+    $calamity = implode(', ', $calamity);
+}
+
+if (empty($calamity)) {
+    $calamity = 'None';
+}
+
+
+        // =========================================================
+        // FEEDBACK SCORE
+        // =========================================================
+
+        $q1 = (int)($evaluationData['q1'] ?? 0);
+        $q2 = (int)($evaluationData['q2'] ?? 0);
+        $q3 = (int)($evaluationData['q3'] ?? 0);
+        $q4 = (int)($evaluationData['q4'] ?? 0);
+        $q5 = (int)($evaluationData['q5'] ?? 0);
+        $q6 = (int)($evaluationData['q6'] ?? 0);
+
+        $feedbackScore = (
+            $q1 +
+            $q2 +
+            $q3 +
+            $q4 +
+            $q5 +
+            $q6
+        ) / 6;
+
+
+        // =========================================================
+        // FARM
+        // =========================================================
+
+        $farmId = $evaluationData['farm_id'] ?? null;
+
+        if (empty($farmId)) {
+
+            $this->Flash->error('Please select a farm.');
+
+            return $this->redirect($this->referer());
+        }
+
+        $farm = $this->Farms->find()
+            ->where([
+                'Farms.id' => $farmId
+            ])
+            ->first();
+
+        if (!$farm) {
+
+            $this->Flash->error('Selected farm not found.');
+
+            return $this->redirect($this->referer());
+        }
+
+
+        // =========================================================
+        // FARM VALUES
+        // =========================================================
+
+        $farmSize = (float)$farm->farm_size;
+
+        $cropYieldBefore = (float)$farm->crop_yield;
+
+        $cropYieldAfter = (float)(
+            $evaluationData['crop_yield_after'] ?? 0
+        );
+
+
+        // =========================================================
+        // FASTAPI PREDICTION
+        // =========================================================
+
+        $http = new \Cake\Http\Client();
+
+        $payload = [
+
+            'subsidy_type' => $evaluationData['subsidy_type'] ?? '',
+
+            'farm_size' => $farmSize,
+
+            'crop_yield_before' => $cropYieldBefore,
+
+            'crop_yield_after' => $cropYieldAfter,
+
+            'feedback_score' => $feedbackScore,
+
+            'pest' => $pestString,
+
+            'calamity' => $calamity
+        ];
+
+
+        try {
+
             $response = $http->post(
                 'http://127.0.0.1:8000/predict',
                 json_encode($payload),
@@ -134,62 +307,236 @@ class FeedbacksController extends AppController
                     ]
                 ]
             );
+
             $result = $response->getJson();
-            $pestIds = $evaluationData['pest'] ?? [];
 
-            // Save first pest ID (because your FK only accepts one pest_id)
-            $evaluationData['pest_id'] = !empty($pestIds) ? $pestIds[0] : null;
-            $evaluationData['farm_id'] = $farm->id;
+            if (!is_array($result)) {
 
-            // Automatically save the "before" values from the selected farm
-            $evaluationData['farm_size'] = $farmSize;
-            $evaluationData['crop_yield_before'] = $cropYieldBefore;
+                $result = [];
+            }
 
-            unset($evaluationData['pest']);
+        } catch (\Exception $e) {
 
-            $evaluation = $this->Evaluations->newEmptyEntity();
-
-            $evaluation = $this->Evaluations->patchEntity(
-                $evaluation,
-                $evaluationData
+            $this->Flash->error(
+                'Prediction server error: ' . $e->getMessage()
             );
 
-
-            $evaluation->farmer_id = $farmer->id;
-            $evaluation->feedback_score = $feedbackScore;
-            $evaluation->effectiveness_label = $result['effectiveness'] ?? 'Not Predicted';
-            if (!$this->Evaluations->save($evaluation)) {
-                debug($evaluation->getErrors());
-                die('Evaluation could not be saved.');
-            }
-            // Save Feedback
-            $feedback = $this->Feedbacks->newEmptyEntity();
-            $feedbackData = [
-                'evaluation_id' => $evaluation->id,
-                // Survey answers
-                'q1' => (int)$this->request->getData('q1'),
-                'q2' => (int)$this->request->getData('q2'),
-                'q3' => (int)$this->request->getData('q3'),
-                'q4' => (int)$this->request->getData('q4'),
-                'q5' => (int)$this->request->getData('q5'),
-                'q6' => (int)$this->request->getData('q6'),
-                // Required fields
-                'rating' => $feedbackScore,
-                'comment' => $this->request->getData('comment'),
-                'feedback_date' => date('Y-m-d H:i:s'),
-            ];
-            $feedback = $this->Feedbacks->patchEntity($feedback, $feedbackData);
-            if (!$this->Feedbacks->save($feedback)) {
-                debug($feedback->getErrors());
-                debug($feedback);
-                die('Feedback could not be saved.');
-            }
-
-            // Link Feedback to Evaluation
-            $evaluation->feedback_id = $feedback->id;
-            $this->Evaluations->save($evaluation);
-            return $this->redirect(['action' => 'index','?' => ['submitted' => 1]]);
+            return $this->redirect($this->referer());
         }
+
+
+        // =========================================================
+        // PREPARE EVALUATION DATA
+        // =========================================================
+
+        $evaluationData['farmer_id'] = $farmer->id;
+
+        $evaluationData['farm_id'] = $farm->id;
+
+        /*
+        * IMPORTANT:
+        *
+        * This is a VALID ID from pests.id.
+        */
+        $evaluationData['pest_id'] = $pestId;
+
+        $evaluationData['farm_size'] = $farmSize;
+
+        $evaluationData['crop_yield_before'] = $cropYieldBefore;
+
+        $evaluationData['calamity'] = $calamity;
+
+        /*
+        * Remove pest[] because the database field
+        * is pest_id, not pest.
+        */
+        unset($evaluationData['pest']);
+
+
+        // =========================================================
+        // CREATE EVALUATION
+        // =========================================================
+
+        $evaluation = $this->Evaluations->newEmptyEntity();
+
+        $evaluation = $this->Evaluations->patchEntity(
+            $evaluation,
+            $evaluationData
+        );
+
+
+        // =========================================================
+        // SET EVALUATION VALUES
+        // =========================================================
+
+        $evaluation->farmer_id = $farmer->id;
+
+        $evaluation->farm_id = $farm->id;
+
+        $evaluation->pest_id = $pestId;
+
+        $evaluation->farm_size = $farmSize;
+
+        $evaluation->crop_yield_before = $cropYieldBefore;
+
+        $evaluation->feedback_score = $feedbackScore;
+
+        $evaluation->effectiveness_label =
+            $result['effectiveness'] ?? 'Not Predicted';
+
+
+        // =========================================================
+        // SAVE EVALUATION
+        // =========================================================
+
+        if (!$this->Evaluations->save($evaluation)) {
+
+            debug($evaluation->getErrors());
+            debug($evaluation);
+
+            die('Evaluation could not be saved.');
+        }
+
+
+        // =========================================================
+        // CREATE FEEDBACK
+        // =========================================================
+
+        $feedback = $this->Feedbacks->newEmptyEntity();
+
+
+        // =========================================================
+        // FEEDBACK DATA
+        // =========================================================
+
+        $feedbackData = [
+
+            /*
+            * IMPORTANT FIX:
+            *
+            * feedbacks.farmer_id
+            * references
+            * farmers.id
+            *
+            * Therefore use:
+            */
+            'farmer_id' => $farmer->id,
+
+            /*
+            * Link feedback to the evaluation.
+            */
+            'evaluation_id' => $evaluation->id,
+
+            'q1' => $q1,
+
+            'q2' => $q2,
+
+            'q3' => $q3,
+
+            'q4' => $q4,
+
+            'q5' => $q5,
+
+            'q6' => $q6,
+
+            'rating' => $feedbackScore,
+
+            'comment' => $evaluationData['comment'] ?? null,
+
+            'feedback_date' => date('Y-m-d H:i:s')
+        ];
+
+
+        // =========================================================
+        // PATCH FEEDBACK
+        // =========================================================
+
+        $feedback = $this->Feedbacks->patchEntity(
+            $feedback,
+            $feedbackData
+        );
+
+
+    // =========================================================
+    // SAVE FEEDBACK
+    // =========================================================
+
+    $feedback = $this->Feedbacks->newEmptyEntity();
+
+    $feedbackData = [
+        'farmer_id' => $farmer->id,
+        'evaluation_id' => $evaluation->id,
+
+        'q1' => $q1,
+        'q2' => $q2,
+        'q3' => $q3,
+        'q4' => $q4,
+        'q5' => $q5,
+        'q6' => $q6,
+
+        'rating' => $feedbackScore,
+        'comment' => $evaluationData['comment'] ?? null,
+        'feedback_date' => date('Y-m-d H:i:s')
+    ];
+
+    $feedback = $this->Feedbacks->patchEntity(
+        $feedback,
+        $feedbackData
+    );
+
+    if (!$this->Feedbacks->save($feedback)) {
+
+        debug($feedback->getErrors());
+        debug($feedback);
+
+        die('Feedback could not be saved.');
     }
+
+
+    // =========================================================
+    // GET NEW FEEDBACK ID
+    // =========================================================
+
+    $feedbackId = $feedback->id;
+
+    if (empty($feedbackId)) {
+
+        die('Feedback was saved but no feedback ID was generated.');
+    }
+
+
+    // =========================================================
+    // UPDATE EVALUATION WITH FEEDBACK ID
+    // =========================================================
+
+    $evaluation = $this->Evaluations->get($evaluation->id);
+
+    $evaluation->feedback_id = (int)$feedbackId;
+
+    if (!$this->Evaluations->save($evaluation)) {
+
+        debug($evaluation->getErrors());
+        debug($evaluation);
+
+        die('Evaluation could not be updated with feedback_id.');
+    }
+
+
+    // =========================================================
+    // SUCCESS
+    // =========================================================
+
+    $this->Flash->success(
+        'Evaluation and feedback submitted successfully.'
+    );
+
+    return $this->redirect([
+        'action' => 'index',
+        '?' => [
+            'submitted' => 1
+        ]
+    ]);
+    }
+
 }
 

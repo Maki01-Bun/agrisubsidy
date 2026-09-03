@@ -413,7 +413,6 @@ public function downloadSummary()
         $this->autoRender = false;
 
         if (!$evaluationId) {
-
             return $this->response
                 ->withType('application/json')
                 ->withStringBody(json_encode([
@@ -425,11 +424,15 @@ public function downloadSummary()
         try {
 
             /*
-             * Get evaluation together with:
-             * - Farmer
-             * - Feedback
-             * - Pest
-             */
+            * =====================================================
+            * GET EVALUATION
+            * =====================================================
+            *
+            * Get:
+            * - Farmer
+            * - Feedback
+            * - Pest
+            */
             $evaluation = $this->Evaluations->get(
                 $evaluationId,
                 [
@@ -442,9 +445,11 @@ public function downloadSummary()
             );
 
 
-            /* ==========================================
-             * FARMER INFORMATION
-             * ========================================== */
+            /*
+            * =====================================================
+            * FARMER INFORMATION
+            * =====================================================
+            */
 
             $farmerName = 'N/A';
             $farmerNumber = 'N/A';
@@ -457,12 +462,6 @@ public function downloadSummary()
                     ($evaluation->farmer->last_name ?? '')
                 );
 
-                /*
-                 * Your Farmers table appears to use farmer_no.
-                 *
-                 * farmer_number is also checked in case
-                 * your entity uses that field.
-                 */
                 $farmerNumber =
                     $evaluation->farmer->farmer_no
                     ?? $evaluation->farmer->farmer_number
@@ -470,91 +469,153 @@ public function downloadSummary()
             }
 
 
-            /* ==========================================
-             * FEEDBACK INFORMATION
-             * ========================================== */
+            /*
+            * =====================================================
+            * FEEDBACK INFORMATION
+            * =====================================================
+            */
 
             $feedbackRating = 'N/A';
-            $comments = '';
+            $comments = 'No comments provided.';
             $feedbackDate = 'N/A';
 
             if (!empty($evaluation->feedback)) {
 
-                $feedback = $evaluation->feedback;
+                /*
+                * Because Feedbacks is a hasMany association,
+                * CakePHP may return an array/ResultSet.
+                *
+                * Get the first feedback record.
+                */
+                if (is_iterable($evaluation->feedback)) {
+
+                    foreach ($evaluation->feedback as $feedback) {
+                        break;
+                    }
+
+                } else {
+
+                    $feedback = $evaluation->feedback;
+                }
 
 
-                /* Feedback rating */
+                if (!empty($feedback)) {
 
-                $feedbackRating =
-                    $feedback->feedback_score
-                    ?? $feedback->rating
-                    ?? 'N/A';
-
-
-                /* Comments */
-
-                $comments =
-                    $feedback->comments
-                    ?? $feedback->comment
-                    ?? $feedback->suggestions
-                    ?? '';
+                    /*
+                    * Rating
+                    */
+                    if (isset($feedback->rating)) {
+                        $feedbackRating = $feedback->rating;
+                    }
 
 
-                /* Feedback date */
+                    /*
+                    * Comment
+                    */
+                    if (!empty($feedback->comment)) {
+                        $comments = $feedback->comment;
+                    }
 
-                if (!empty($feedback->created)) {
 
-                    if ($feedback->created instanceof \DateTimeInterface) {
+                    /*
+                    * Feedback date
+                    */
+                    if (!empty($feedback->feedback_date)) {
 
-                        $feedbackDate =
-                            $feedback->created->format(
-                                'F d, Y h:i A'
-                            );
+                        if ($feedback->feedback_date instanceof \DateTimeInterface) {
 
-                    } else {
+                            $feedbackDate =
+                                $feedback->feedback_date->format(
+                                    'F d, Y h:i A'
+                                );
 
-                        $feedbackDate =
-                            (string)$feedback->created;
+                        } else {
+
+                            $feedbackDate =
+                                (string)$feedback->feedback_date;
+                        }
+
+                    } elseif (!empty($feedback->created)) {
+
+                        if ($feedback->created instanceof \DateTimeInterface) {
+
+                            $feedbackDate =
+                                $feedback->created->format(
+                                    'F d, Y h:i A'
+                                );
+
+                        } else {
+
+                            $feedbackDate =
+                                (string)$feedback->created;
+                        }
                     }
                 }
             }
 
 
-            /* ==========================================
-             * PEST INFORMATION
-             * ========================================== */
+            /*
+            * =====================================================
+            * PEST INFORMATION
+            * =====================================================
+            *
+            * Your pests table uses:
+            *
+            * id
+            * pest_name
+            *
+            * NOT "name".
+            */
 
             $pest = 'None';
 
             if (!empty($evaluation->pest)) {
 
-                /*
-                 * Assuming the pests table has a
-                 * "name" column.
-                 */
-                $pest =
-                    $evaluation->pest->name
-                    ?? 'None';
+                $pest = !empty($evaluation->pest->pest_name)
+                    ? $evaluation->pest->pest_name
+                    : 'None';
             }
 
 
-            /* ==========================================
-             * CALAMITY
-             * ========================================== */
+            /*
+            * =====================================================
+            * CALAMITY
+            * =====================================================
+            */
 
-            $calamity =
-                !empty($evaluation->calamity)
-                    ? $evaluation->calamity
-                    : 'None';
-            $crop_yield_after =
-                !empty($evaluation->crop_yield_after)
-                    ? $evaluation->crop_yield_after
-                    : 'None';
+            $calamity = 'None';
+
+            if (
+                isset($evaluation->calamity) &&
+                $evaluation->calamity !== null &&
+                trim((string)$evaluation->calamity) !== ''
+            ) {
+                $calamity = (string)$evaluation->calamity;
+            }
 
 
-            /* ==========================================
-             * JSON RESPONSE
-             * ========================================== */
+            /*
+            * =====================================================
+            * CROP YIELD AFTER
+            * =====================================================
+            */
+
+            $cropYieldAfter = 'None';
+
+            if (
+                isset($evaluation->crop_yield_after) &&
+                $evaluation->crop_yield_after !== null &&
+                $evaluation->crop_yield_after !== ''
+            ) {
+                $cropYieldAfter = $evaluation->crop_yield_after;
+            }
+
+
+            /*
+            * =====================================================
+            * JSON RESPONSE
+            * =====================================================
+            */
 
             return $this->response
                 ->withType('application/json')
@@ -584,11 +645,14 @@ public function downloadSummary()
                         'calamity' =>
                             $calamity,
 
-                        'crop_yield_after'  =>
-                            $crop_yield_after
+                        'crop_yield_after' =>
+                            $cropYieldAfter
                     ]
                 ]));
-        } catch (\Exception $e) {
+        }
+
+        catch (\Exception $e) {
+
             return $this->response
                 ->withType('application/json')
                 ->withStringBody(json_encode([
