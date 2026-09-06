@@ -5,118 +5,68 @@ namespace App\Controller\Api;
 
 use App\Controller\AppController;
 
+/**
+ * AuditLogs Controller
+ *
+ * @property \App\Model\Table\AuditLogsTable $AuditLogs
+ * @method \App\Model\Entity\AuditLog[]|\Cake\Datasource\ResultSetInterface paginate($object = null, array $settings = [])
+ */
 class AuditLogsController extends AppController
 {
     /**
-     * GET /api/AuditLogs/index
+     * Index method
+     *
+     * @return \Cake\Http\Response|null|void Renders view
      */
-    public function index()
+       public function index()
     {
-        $this->request->allowMethod(['get']);
-
-        $audits = $this->AuditLogs->find()
-            ->order([
-                'action_date' => 'DESC'
-            ])
-            ->all();
-
-        $data = [];
-
-        foreach ($audits as $audit) {
-
-            $data[] = [
-                'id' => $audit->id,
-                'action' => $audit->action,
-                'action_date' => $audit->action_date
-                    ? $audit->action_date->format('Y-m-d H:i:s')
-                    : null
-            ];
-        }
-
-        return $this->response
-            ->withType('application/json')
-            ->withStringBody(
-                json_encode([
-                    'data' => $data
-                ])
-            );
+        $auditLogs = $this->AuditLogs->find();
+        return $this->response->withType('application/json')
+            ->withStringBody(json_encode($auditLogs));
     }
 
 
     /**
-     * GET /api/AuditLogs/getAudits
-     */
-    public function getAudits()
-    {
-        $this->request->allowMethod(['get']);
-
-        $audits = $this->AuditLogs->find()
-            ->order([
-                'action_date' => 'DESC'
-            ])
-            ->all();
-
-        $data = [];
-
-        foreach ($audits as $audit) {
-
-            $data[] = [
-                'id' => $audit->id,
-                'action' => $audit->action,
-                'action_date' => $audit->action_date
-                    ? $audit->action_date->format('Y-m-d H:i:s')
-                    : null
-            ];
-        }
-
-        return $this->response
-            ->withType('application/json')
-            ->withStringBody(
-                json_encode([
-                    'data' => $data
-                ])
-            );
-    }
-
-
-    /**
-     * GET /api/AuditLogs/view/{id}
+     * View method
+     *
+     * @param string|null $id Audit Log id.
+     * @return \Cake\Http\Response|null|void Renders view
+     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
     public function view($id = null)
     {
-        $this->request->allowMethod(['get']);
+        $auditLog = $this->AuditLogs->get($id, [
+            'contain' => [],
+        ]);
 
-        try {
+        $this->set(compact('auditLog'));
+    }
+    
+    public function getAuditLogs()
+    {
+        $auditLogs = $this->AuditLogs->find();
+        return $this->response->withType('application/json')
+            ->withStringBody(json_encode(['data'=>$auditLogs]));
+    }
+    
 
-            $audit = $this->AuditLogs->get($id);
-
-            $data = [
-                'id' => $audit->id,
-                'action' => $audit->action,
-                'action_date' => $audit->action_date
-                    ? $audit->action_date->format('Y-m-d H:i:s')
-                    : null
-            ];
-
-            return $this->response
-                ->withType('application/json')
-                ->withStringBody(
-                    json_encode([
-                        'data' => $data
-                    ])
-                );
-
-        } catch (\Exception $e) {
-
-            return $this->response
-                ->withStatus(404)
-                ->withType('application/json')
-                ->withStringBody(
-                    json_encode([
-                        'success' => false,
-                        'message' => 'Audit log not found.'
-                    ])
-                );
+    /**
+     * Add method
+     *
+     * @return \Cake\Http\Response|null|void Redirects on successful add, renders view otherwise.
+     */
+    public function add()
+    {
+        $auditLog = $this->AuditLogs->newEmptyEntity();
+        if ($this->request->is('post')) {
+            $auditLog = $this->AuditLogs->patchEntity($auditLog, $this->request->getData());
+            if ($this->AuditLogs->save($auditLog)) {
+                $result = ['status' => 'success', 'message' => 'The audit log has been saved.'];
+            }else {
+                $result = ['status'=>'error','message'=>'The audit log could not be saved. Please, try again.'];
+            }
+            return $this->response->withType('application/json')
+                ->withStringBody(json_encode($result));
         }
     }
 }

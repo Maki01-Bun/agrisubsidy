@@ -22,7 +22,7 @@ class AuditLogsFixture extends TestFixture
                 'id' => 1,
                 'user_id' => 1,
                 'action' => 'Lorem ipsum dolor sit amet',
-                'action_date' => '2026-06-19 07:01:58',
+                'action_date' => '2026-09-06 07:27:16',
             ],
         ];
         parent::init();

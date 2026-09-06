@@ -175,9 +175,12 @@ return function (RouteBuilder $routes): void {
             $builder->connect('/survey', ['controller' => 'Feedbacks', 'action' => 'survey']);
         });
 
-        $builder->scope('/Audit_Logs', function (RouteBuilder $builder) {
-            $builder->connect('/', ['controller' => 'Audit_Logs', 'action' => 'index']);
-            $builder->connect('/getAudit_Logs', ['controller' => 'Audit_Logs', 'action' => 'getAudit_Logs']);
+        $builder->scope('/AuditLogs', function (RouteBuilder $builder) {
+            $builder->connect('/', ['controller' => 'AuditLogs', 'action' => 'index']);
+            $builder->connect('/getAuditLogs', ['controller' => 'AuditLogs', 'action' => 'getAuditLogs']);
+            $builder->connect('/view/{id}', ['controller' => 'AuditLogs', 'action' => 'view'], [
+                'pass' => ['id']
+            ]);
         });
 
         $builder->scope('/Token', function (RouteBuilder $builder) {

@@ -47,8 +47,6 @@ class AuditLogsTable extends Table
             'foreignKey' => 'user_id',
             'joinType' => 'INNER',
         ]);
-
-        $this->addBehavior('Timestamp');
     }
 
     /**
