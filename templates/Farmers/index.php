@@ -160,12 +160,6 @@
 
             <div class="modal-footer">
 
-                <button type="button"
-                        class="btn btn-secondary"
-                        data-dismiss="modal">
-                    Cancel
-                </button>
-
                 <button type="submit"
                         class="btn btn-success">
                     <i class="fas fa-upload"></i>
@@ -178,4 +172,107 @@
 
         </div>
     </div>
+</div>
+<div class="modal fade"
+     id="viewRecordModal"
+     tabindex="-1"
+     role="dialog"
+     aria-labelledby="viewRecordModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-xl" role="document">
+
+        <div class="modal-content">
+
+            <!-- HEADER -->
+            <div class="modal-header bg-success text-white">
+
+                <h5 class="modal-title" id="viewRecordModalLabel">
+
+                    <i class="fas fa-user mr-2"></i>
+
+                    Farmer Distribution Records
+
+                </h5>
+
+                <button type="button"
+                        class="close text-white"
+                        data-dismiss="modal"
+                        aria-label="Close">
+
+                    <span aria-hidden="true">&times;</span>
+
+                </button>
+
+            </div>
+
+
+            <!-- BODY -->
+            <div class="modal-body">
+
+                <!-- FARMER INFORMATION -->
+                <div id="farmerInformation"
+                     class="mb-3">
+
+                    <div class="text-center">
+
+                        <i class="fas fa-spinner fa-spin"></i>
+                        Loading farmer information...
+
+                    </div>
+
+                </div>
+
+
+                <!-- DISTRIBUTION RECORDS -->
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-hover">
+
+                        <thead class="thead-light">
+
+                            <tr>
+
+                                <th>Program</th>
+
+                                <th>Subsidy Item</th>
+
+                                <th>Quantity</th>
+
+                                <th>Distribution Date</th>
+
+                                <th>Received Date</th>
+
+                                <th>Status</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="distributionRecordsBody">
+
+                            <tr>
+
+                                <td colspan="7"
+                                    class="text-center">
+
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    Loading records...
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </div>

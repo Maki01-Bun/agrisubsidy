@@ -98,4 +98,114 @@ class FarmersController extends AppController
         return $this->response->withType('application/json')
             ->withStringBody(json_encode($result));
     }
+public function viewRecord()
+{
+    $this->Authorization->skipAuthorization();
+
+    $this->request->allowMethod(['get']);
+
+    try {
+
+        $farmerId = $this->request->getQuery('id');
+
+        if (empty($farmerId) || !is_numeric($farmerId)) {
+            return $this->response
+                ->withType('application/json')
+                ->withStringBody(json_encode([
+                    'status' => 'error',
+                    'message' => 'Invalid farmer ID.'
+                ]));
+        }
+
+        $farmerId = (int)$farmerId;
+
+        $farmer = $this->Farmers->find()
+            ->select([
+                'id',
+                'first_name',
+                'last_name'
+            ])
+            ->where([
+                'Farmers.id' => $farmerId
+            ])
+            ->first();
+
+        if (!$farmer) {
+            return $this->response
+                ->withType('application/json')
+                ->withStringBody(json_encode([
+                    'status' => 'error',
+                    'message' => 'Farmer not found.'
+                ]));
+        }
+
+        $this->loadModel('Records');
+
+        $records = $this->Records->find()
+            ->where([
+                'Records.farmer_id' => $farmerId
+            ])
+            ->order([
+                'Records.distribution_date' => 'DESC',
+                'Records.id' => 'DESC'
+            ])
+            ->enableHydration(false)
+            ->toArray();
+
+        foreach ($records as &$record) {
+
+            if (
+                isset($record['distribution_date']) &&
+                $record['distribution_date'] instanceof \DateTimeInterface
+            ) {
+                $record['distribution_date'] =
+                    $record['distribution_date']->format('Y-m-d');
+            }
+
+            if (
+                isset($record['received_date']) &&
+                $record['received_date'] instanceof \DateTimeInterface
+            ) {
+                $record['received_date'] =
+                    $record['received_date']->format('Y-m-d');
+            }
+        }
+
+        unset($record);
+
+        $farmerData = [
+            'id' => $farmer->id,
+            'first_name' => $farmer->first_name ?? '',
+            'last_name' => $farmer->last_name ?? ''
+        ];
+
+        return $this->response
+            ->withType('application/json')
+            ->withStringBody(
+                json_encode([
+                    'status' => 'success',
+                    'farmer' => $farmerData,
+                    'records' => $records
+                ], JSON_UNESCAPED_UNICODE)
+            );
+
+    } catch (\Throwable $e) {
+
+        \Cake\Log\Log::error(
+            'FarmersController::viewRecord(): ' .
+            $e->getMessage()
+        );
+
+        return $this->response
+            ->withStatus(500)
+            ->withType('application/json')
+            ->withStringBody(
+                json_encode([
+                    'status' => 'error',
+                    'message' => $e->getMessage()
+                ])
+            );
+    }
+}
+
 }

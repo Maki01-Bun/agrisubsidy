@@ -105,12 +105,6 @@
 
             <div class="modal-footer">
 
-                <button type="button"
-                        class="btn btn-secondary"
-                        data-dismiss="modal">
-                    Cancel
-                </button>
-
                 <button type="submit"
                         class="btn btn-success">
                     <i class="fas fa-upload"></i>

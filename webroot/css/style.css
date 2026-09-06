@@ -1154,6 +1154,160 @@ side-bar logout part
     margin-top: 18px;
 }
 
+/* =========================================================
+   AGRISUBSIDY ANALYTICS
+   ========================================================= */
+
+.analytics-page {
+    width: 100%;
+    min-height: 100vh;
+    padding: 20px 30px 40px;
+    background: #f5f7f8;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.analytics-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 22px;
+    color: #17212b;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.analytics-title i {
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #198754, #20c997);
+    color: #fff;
+    font-size: 20px;
+    box-shadow: 0 5px 15px rgba(25, 135, 84, .20);
+}
+
+
+/* =========================================================
+   MODEL CARDS
+   ========================================================= */
+
+.model-card {
+    position: relative;
+    width: 100%;
+    min-height: 125px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #e5e8ea;
+    border-radius: 16px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, .05);
+    transition: all .25s ease;
+    overflow: hidden;
+}
+
+.model-card::after {
+    content: "";
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    right: -35px;
+    bottom: -35px;
+    border-radius: 50%;
+    background: rgba(25, 135, 84, .05);
+}
+
+.model-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(25, 135, 84, .25);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, .09);
+}
+
+
+/* =========================================================
+   MODEL ICON
+   ========================================================= */
+
+.model-icon {
+    flex: 0 0 52px;
+    width: 52px;
+    height: 52px;
+    min-width: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eaf7f0;
+    color: #198754;
+    border-radius: 14px;
+    font-size: 21px;
+}
+
+
+/* =========================================================
+   MODEL TEXT
+   ========================================================= */
+
+.model-label {
+    margin-bottom: 3px;
+    color: #7b8794;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+.model-value {
+    color: #17212b;
+    font-size: 25px;
+    font-weight: 750;
+    line-height: 1.2;
+}
+
+.model-card small {
+    display: block;
+    margin-top: 5px;
+    color: #8a969f;
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   ACTIVE MODEL STATUS
+   ========================================================= */
+
+.status-active {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.status-dot {
+    width: 9px;
+    height: 9px;
+    display: inline-block;
+    border-radius: 50%;
+    background: #198754;
+    box-shadow: 0 0 0 4px rgba(25, 135, 84, .12);
+}
+
+
+/* =========================================================
+   CHART ROW
+   ========================================================= */
+
+.chart-row {
+    margin-top: 18px;
+}
+
 
 /* =========================================================
    ANALYTICS PANELS
@@ -1161,12 +1315,18 @@ side-bar logout part
 
 .analytics-panel {
     width: 100%;
-    height: 430px;
+    height: 100%;
+    min-height: 430px;
     background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 7px;
+    border: 1px solid #e5e8ea;
+    border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, .04);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, .05);
+    transition: box-shadow .25s ease;
+}
+
+.analytics-panel:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .07);
 }
 
 
@@ -1175,18 +1335,19 @@ side-bar logout part
    ========================================================= */
 
 .panel-title {
-    height: 60px;
+    min-height: 60px;
     display: flex;
     align-items: center;
-    padding: 0 18px;
+    padding: 16px 20px;
     background: #fff;
-    border-bottom: 1px solid #ddd;
-    color: #17212b;
-    font-size: 16px;
-    font-weight: 600;
+    border-bottom: 1px solid #edf0f2;
+    color: #263238;
+    font-size: 15px;
+    font-weight: 700;
 }
 
 .panel-title i {
+    color: #198754;
     font-size: 15px;
 }
 
@@ -1197,8 +1358,7 @@ side-bar logout part
 
 .panel-body {
     width: 100%;
-
-    padding: 15px;
+    padding: 20px;
 }
 
 
@@ -1208,7 +1368,6 @@ side-bar logout part
 
 .chart-container {
     position: relative;
-
     width: 100%;
     height: 340px;
 
@@ -1218,12 +1377,13 @@ side-bar logout part
 }
 
 
-/* IMPORTANT FOR DONUT CHART */
+/* =========================================================
+   CHART CANVAS
+   ========================================================= */
 
 .chart-container canvas {
     width: 100% !important;
     height: 100% !important;
-
     max-width: 100%;
     max-height: 100%;
 }
@@ -1248,23 +1408,47 @@ side-bar logout part
     margin-top: 20px;
 }
 
+
+/* =========================================================
+   RECOMMENDATION PANEL
+   ========================================================= */
+
+.recommendation-panel {
+    min-height: auto;
+    height: auto;
+}
+
+
 /* =========================================================
    RECOMMENDATION HEADER
    ========================================================= */
-.recommendation-heading {
+
+.recommendation-heading,
+.recommendation-title {
     width: 100%;
     min-height: 60px;
     display: flex;
     align-items: center;
-    padding: 0 18px;
-    background: #20a44a;
-    color: #fff;
-    border-radius: 7px 7px 0 0;
-    font-size: 16px;
+    padding: 16px 20px;
+
+    background: linear-gradient(
+        135deg,
+        #198754,
+        #157347
+    ) !important;
+
+    color: #fff !important;
+    border-radius: 0;
+    border-bottom: none;
+
+    font-size: 15px;
     font-weight: 700;
 }
-.recommendation-heading i {
+
+.recommendation-heading i,
+.recommendation-title i {
     margin-right: 8px;
+    color: #fff;
 }
 
 
@@ -1278,7 +1462,7 @@ side-bar logout part
     background: #fff;
     border: 1px solid #ddd;
     border-top: none;
-    border-radius: 0 0 7px 7px;
+    border-radius: 0 0 16px 16px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, .04);
 }
 
@@ -1302,12 +1486,13 @@ side-bar logout part
 
 .recommendation-table th {
     padding: 14px 15px;
-    background: #f1f3f4 !important;
-    color: #26323d !important;
-    border: 1px solid #ddd;
+    background: #f8faf9 !important;
+    color: #52606d !important;
+    border: 1px solid #e5e9e7;
     font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: .35px;
     white-space: nowrap;
 }
 
@@ -1315,44 +1500,63 @@ side-bar logout part
 /* =========================================================
    TABLE BODY
    ========================================================= */
+
 .recommendation-table td {
-    padding: 14px 15px;
+    padding: 15px;
     background: #fff;
-    color: #333;
-    border: 1px solid #e5e5e5;
+    color: #4a5560;
+    border: 1px solid #edf0ef;
     vertical-align: middle;
 }
 
-/* =========================================================
-   TABLE HOVER
-   ========================================================= */
-.recommendation-table tbody tr:hover td {
-    background: #f8faf9;
+.recommendation-table tbody tr {
+    transition: background .2s ease;
 }
+
+.recommendation-table tbody tr:hover td {
+    background: #f8fbf9;
+}
+
+
 /* =========================================================
    PROGRAM
    ========================================================= */
+
 .recommendation-table td:first-child {
     font-weight: 600;
 }
 
+.program-name {
+    color: #263238;
+    font-weight: 700;
+}
+
+
 /* =========================================================
    CONFIDENCE
    ========================================================= */
+
 .recommendation-table td:nth-child(3) {
     color: #198754;
     font-weight: 700;
     white-space: nowrap;
 }
 
+.confidence-value {
+    color: #198754;
+    font-size: 14px;
+    font-weight: 700;
+}
+
 
 /* =========================================================
-   PREDICTION
+   PREDICTION BADGES
    ========================================================= */
 
 .prediction-effective {
-    display: inline-block;
-    padding: 5px 10px;
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
     background: #dff5e8;
     color: #147a45;
     border-radius: 20px;
@@ -1361,8 +1565,9 @@ side-bar logout part
 }
 
 .prediction-moderate {
-    display: inline-block;
-    padding: 5px 10px;
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
     background: #fff3cd;
     color: #9a6b00;
     border-radius: 20px;
@@ -1371,13 +1576,67 @@ side-bar logout part
 }
 
 .prediction-not {
-    display: inline-block;
-    padding: 5px 10px;
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
     background: #f8d7da;
     color: #b02a37;
     border-radius: 20px;
     font-weight: 700;
     white-space: nowrap;
+}
+
+.prediction-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    background: #eef7f2;
+    color: #198754;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   TREND BADGES
+   ========================================================= */
+
+.trend-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.trend-improving {
+    background: #dff5e8;
+    color: #157347;
+}
+
+.trend-declining {
+    background: #fde2e2;
+    color: #b02a37;
+}
+
+.trend-stable {
+    background: #e9ecef;
+    color: #59636e;
+}
+
+
+/* =========================================================
+   ACTION
+   ========================================================= */
+
+.action-text {
+    color: #59636e;
+    line-height: 1.5;
 }
 
 
@@ -1386,15 +1645,22 @@ side-bar logout part
    ========================================================= */
 
 .analytics-empty {
-    padding: 30px;
+    padding: 45px 20px;
     text-align: center;
-    color: #777;
+    color: #8a969f;
 }
 
 .analytics-empty i {
     display: block;
-    margin-bottom: 8px;
-    font-size: 25px;
+    margin-bottom: 10px;
+    color: #adb5bd;
+    font-size: 28px;
+}
+
+.analytics-empty strong {
+    display: block;
+    margin-bottom: 5px;
+    color: #6c757d;
 }
 
 
@@ -1431,11 +1697,11 @@ side-bar logout part
     }
 
     .model-card {
-        height: 115px;
+        min-height: 115px;
     }
 
     .analytics-panel {
-        height: 400px;
+        min-height: 400px;
         margin-top: 18px;
     }
 
@@ -1461,8 +1727,14 @@ side-bar logout part
         font-size: 20px;
     }
 
+    .analytics-title i {
+        width: 40px;
+        height: 40px;
+        font-size: 17px;
+    }
+
     .model-card {
-        height: 105px;
+        min-height: 105px;
         padding: 14px;
     }
 
@@ -1470,35 +1742,41 @@ side-bar logout part
         width: 44px;
         height: 44px;
         min-width: 44px;
+        flex-basis: 44px;
         font-size: 20px;
     }
 
     .model-value {
-        font-size: 19px;
+        font-size: 20px;
     }
 
     .analytics-panel {
-        height: 370px;
+        min-height: 370px;
     }
 
     .panel-title {
-        height: 55px;
-        padding: 0 14px;
+        min-height: 55px;
+        padding: 14px;
         font-size: 14px;
+    }
+
+    .panel-body {
+        padding: 15px;
     }
 
     .chart-container {
         height: 285px;
     }
 
-    .recommendation-heading {
+    .recommendation-heading,
+    .recommendation-title {
         min-height: 55px;
-        padding: 0 14px;
+        padding: 14px;
         font-size: 14px;
     }
 
     .recommendation-table {
-        min-width: 700px;
+        min-width: 850px;
     }
 
     .recommendation-table th,
@@ -1524,8 +1802,14 @@ side-bar logout part
         font-size: 18px;
     }
 
+    .analytics-title i {
+        width: 38px;
+        height: 38px;
+        font-size: 16px;
+    }
+
     .model-card {
-        height: 100px;
+        min-height: 100px;
         padding: 12px;
     }
 
@@ -1533,11 +1817,12 @@ side-bar logout part
         width: 40px;
         height: 40px;
         min-width: 40px;
+        flex-basis: 40px;
         font-size: 17px;
     }
 
     .model-label {
-        font-size: 11px
+        font-size: 11px;
     }
 
     .model-value {
@@ -1549,7 +1834,7 @@ side-bar logout part
     }
 
     .analytics-panel {
-        height: 340px;
+        min-height: 340px;
     }
 
     .chart-container {

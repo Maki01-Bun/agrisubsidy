@@ -1,8 +1,6 @@
 <?php
 declare(strict_types=1);
-
 namespace App\Controller;
-
 /**
  * AuditLogs Controller
  *
@@ -22,10 +20,8 @@ class AuditLogsController extends AppController
             'contain' => ['Users'],
         ];
         $auditLogs = $this->paginate($this->AuditLogs);
-
         $this->set(compact('auditLogs'));
     }
-
     /**
      * View method
      *
@@ -38,10 +34,8 @@ class AuditLogsController extends AppController
         $auditLog = $this->AuditLogs->get($id, [
             'contain' => ['Users'],
         ]);
-
         $this->set(compact('auditLog'));
     }
-
     /**
      * Add method
      *
@@ -54,7 +48,6 @@ class AuditLogsController extends AppController
             $auditLog = $this->AuditLogs->patchEntity($auditLog, $this->request->getData());
             if ($this->AuditLogs->save($auditLog)) {
                 $this->Flash->success(__('The audit log has been saved.'));
-
                 return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('The audit log could not be saved. Please, try again.'));
