@@ -643,4 +643,131 @@ class RecordsController extends AppController
             'message' => $e->getMessage()]));
         }
     }
+    public function getFarmerRecords($farmerId = null)
+    {
+        $this->request->allowMethod(['get']);
+    
+        try {
+    
+            if ($farmerId === null || !is_numeric($farmerId)) {
+    
+                return $this->response
+                    ->withStatus(400)
+                    ->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'success' => false,
+                        'message' => 'Invalid farmer ID.'
+                    ]));
+            }
+    
+            $farmerId = (int)$farmerId;
+    
+            $this->loadModel('Farmers');
+    
+            $farmer = $this->Farmers->find()
+                ->select([
+                    'id',
+                    'first_name',
+                    'last_name'
+                ])
+                ->where([
+                    'Farmers.id' => $farmerId
+                ])
+                ->first();
+    
+            if (!$farmer) {
+    
+                return $this->response
+                    ->withStatus(404)
+                    ->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'success' => false,
+                        'message' => 'Farmer not found.'
+                    ]));
+            }
+    
+            $records = $this->Records->find()
+                ->select([
+                    'record_id' => 'Records.id',
+                    'farmer_id' => 'Records.farmer_id',
+                    'schedule_id' => 'Records.schedule_id',
+    
+                    'subsidy_item' => 'Records.subsidy_item',
+                    'quantity' => 'Records.quantity',
+                    'received_date' => 'Records.received_date',
+                    'status' => 'Records.status',
+    
+                    // Schedule information
+                    'program_name' => 'Schedules.program_name',
+                    'distribution_date' => 'Schedules.start_date'
+                ])
+                ->innerJoin(
+                    ['Schedules' => 'schedules'],
+                    [
+                        'Schedules.id = Records.schedule_id'
+                    ]
+                )
+                ->where([
+                    'Records.farmer_id' => $farmerId
+                ])
+                ->order([
+                    'Schedules.start_date' => 'DESC',
+                    'Records.id' => 'DESC'
+                ])
+                ->enableHydration(false)
+                ->toArray();
+    
+            foreach ($records as &$record) {
+    
+                if (
+                    isset($record['distribution_date']) &&
+                    $record['distribution_date'] instanceof \DateTimeInterface
+                ) {
+                    $record['distribution_date'] =
+                        $record['distribution_date']->format('Y-m-d');
+                }
+    
+                if (
+                    isset($record['received_date']) &&
+                    $record['received_date'] instanceof \DateTimeInterface
+                ) {
+                    $record['received_date'] =
+                        $record['received_date']->format('Y-m-d');
+                }
+            }
+    
+            unset($record);
+    
+            $farmerData = [
+                'id' => $farmer->id,
+                'first_name' => $farmer->first_name ?? '',
+                'last_name' => $farmer->last_name ?? ''
+            ];
+    
+            return $this->response
+                ->withStatus(200)
+                ->withType('application/json')
+                ->withStringBody(json_encode([
+                    'success' => true,
+                    'farmer' => $farmerData,
+                    'records' => $records
+                ], JSON_UNESCAPED_UNICODE));
+    
+    
+        } catch (\Throwable $e) {
+            \Cake\Log\Log::error(
+                'RecordsController::getFarmerRecords(): ' .
+                $e->getMessage() .
+                "\n" .
+                $e->getTraceAsString()
+            );
+            return $this->response
+                ->withStatus(500)
+                ->withType('application/json')
+                ->withStringBody(json_encode([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ]));
+        }
+    }
 }
