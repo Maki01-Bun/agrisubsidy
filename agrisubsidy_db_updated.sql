@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 08, 2026 at 05:16 AM
+-- Generation Time: Sep 08, 2026 at 09:03 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -45,12 +45,21 @@ CREATE TABLE `evaluations` (
   `subsidy_type` varchar(255) NOT NULL,
   `farm_id` int(11) NOT NULL,
   `crop_yield_after` decimal(10,2) NOT NULL,
+  `selling_price` decimal(10,2) NOT NULL,
   `effectiveness_label` varchar(100) NOT NULL,
   `feedback_id` int(11) NOT NULL,
   `farmer_id` int(11) NOT NULL,
+  `schedule_id` int(11) DEFAULT NULL,
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `evaluations`
+--
+
+INSERT INTO `evaluations` (`id`, `subsidy_type`, `farm_id`, `crop_yield_after`, `selling_price`, `effectiveness_label`, `feedback_id`, `farmer_id`, `schedule_id`, `created`, `modified`) VALUES
+(1, 'Seed Subsidy', 2, 7.50, 22.20, 'Effective', 1, 208, 24, '2026-09-08 08:08:07', '2026-09-08 08:08:07');
 
 -- --------------------------------------------------------
 
@@ -140,6 +149,13 @@ CREATE TABLE `feedbacks` (
   `comment` text NOT NULL,
   `feedback_date` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `feedbacks`
+--
+
+INSERT INTO `feedbacks` (`id`, `farmer_id`, `rating`, `comment`, `feedback_date`) VALUES
+(1, 2, 5.0, '', '2026-09-08 08:40:17');
 
 -- --------------------------------------------------------
 
@@ -275,7 +291,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `password`, `role`, `created`, `modified`, `status`, `failed_attempts`, `locked_until`) VALUES
-(1, 'admin', '$2y$10$mOsQfa7o.YJXIKkzMQa/iOCMpMay0vaZWOmXDE2Z2oT.r7Yl8kRP2', 'admin', '2026-06-17 05:17:00', '2026-09-08 02:50:20', 'pending', 0, NULL),
+(1, 'admin', '$2y$10$mOsQfa7o.YJXIKkzMQa/iOCMpMay0vaZWOmXDE2Z2oT.r7Yl8kRP2', 'admin', '2026-06-17 05:17:00', '2026-09-08 05:28:05', 'pending', 0, NULL),
 (10, 'Maki', '$2y$10$sH3pyTnexvxspeuivmd5dujFsFqb6NKASs2QLaUCAlfXlIAVMu2fK', 'farmer', '2026-06-19 06:48:48', '2026-07-15 02:26:14', 'pending', 0, NULL),
 (17, 'superadmin', '$2y$10$6LlYegtiDE46XLuhzPnJoe8ii32u7yYbHyf1GSkjY3kK.3eHf8tOK', 'staff', '2026-06-30 01:07:50', '2026-09-07 01:23:45', 'pending', 0, NULL),
 (26, 'Jayson', '$2y$10$vqHrBjft1A3bcmaUiWM4TOz23sna4xw1Coh3iVYjXouKWMycF/FpK', 'farmer', '2026-07-15 13:10:21', '2026-09-08 03:05:36', 'pending', 0, NULL),
@@ -303,7 +319,8 @@ ALTER TABLE `evaluations`
   ADD PRIMARY KEY (`id`),
   ADD KEY `farmer_id` (`farmer_id`),
   ADD KEY `feedback_id` (`feedback_id`),
-  ADD KEY `farm_id` (`farm_id`);
+  ADD KEY `farm_id` (`farm_id`),
+  ADD KEY `schedule_id` (`schedule_id`);
 
 --
 -- Indexes for table `farmers`
@@ -431,7 +448,8 @@ ALTER TABLE `audit_logs`
 -- Constraints for table `evaluations`
 --
 ALTER TABLE `evaluations`
-  ADD CONSTRAINT `evaluations_ibfk_1` FOREIGN KEY (`farmer_id`) REFERENCES `farmers` (`id`);
+  ADD CONSTRAINT `evaluations_ibfk_1` FOREIGN KEY (`farmer_id`) REFERENCES `farmers` (`id`),
+  ADD CONSTRAINT `evaluations_ibfk_2` FOREIGN KEY (`schedule_id`) REFERENCES `schedules` (`id`);
 
 --
 -- Constraints for table `farmers`
