@@ -66,12 +66,11 @@ class FeedbacksController extends AppController
 
     public function survey()
     {
-        // =========================================================
-        // ONLY ALLOW POST
-        // =========================================================
 
         if (!$this->request->is('post')) {
-            return $this->redirect(['action' => 'index']);
+            return $this->redirect([
+                'action' => 'index'
+            ]);
         }
 
         // =========================================================
@@ -87,13 +86,22 @@ class FeedbacksController extends AppController
         // GET LOGGED-IN USER
         // =========================================================
 
-        $user = $this->request->getSession()->read('Auth.User');
+        $user = $this->request
+            ->getSession()
+            ->read('Auth.User');
 
-        if (empty($user) || empty($user['id'])) {
+        if (
+            empty($user) ||
+            empty($user['id'])
+        ) {
 
-            $this->Flash->error('User session not found.');
+            $this->Flash->error(
+                'User session not found.'
+            );
 
-            return $this->redirect(['action' => 'index']);
+            return $this->redirect([
+                'action' => 'index'
+            ]);
         }
 
         // =========================================================
@@ -108,27 +116,49 @@ class FeedbacksController extends AppController
 
         if (!$farmer) {
 
-            $this->Flash->error('Farmer record not found.');
+            $this->Flash->error(
+                'Farmer record not found.'
+            );
 
-            return $this->redirect(['action' => 'index']);
+            return $this->redirect([
+                'action' => 'index'
+            ]);
         }
 
         // =========================================================
         // GET FORM DATA
         // =========================================================
 
-        $evaluationData = $this->request->getData();
+        $evaluationData =
+            $this->request->getData();
 
         // =========================================================
         // FEEDBACK SCORE
         // =========================================================
 
-        $q1 = (int)($evaluationData['q1'] ?? 0);
-        $q2 = (int)($evaluationData['q2'] ?? 0);
-        $q3 = (int)($evaluationData['q3'] ?? 0);
-        $q4 = (int)($evaluationData['q4'] ?? 0);
-        $q5 = (int)($evaluationData['q5'] ?? 0);
-        $q6 = (int)($evaluationData['q6'] ?? 0);
+        $q1 = (int)(
+            $evaluationData['q1'] ?? 0
+        );
+
+        $q2 = (int)(
+            $evaluationData['q2'] ?? 0
+        );
+
+        $q3 = (int)(
+            $evaluationData['q3'] ?? 0
+        );
+
+        $q4 = (int)(
+            $evaluationData['q4'] ?? 0
+        );
+
+        $q5 = (int)(
+            $evaluationData['q5'] ?? 0
+        );
+
+        $q6 = (int)(
+            $evaluationData['q6'] ?? 0
+        );
 
         $feedbackScore = (
             $q1 +
@@ -139,19 +169,53 @@ class FeedbacksController extends AppController
             $q6
         ) / 6;
 
+        // =========================================================
+        // SELLING PRICE
+        // =========================================================
+        //
+        // IMPORTANT:
+        //
+        // selling_price is now one of the ML parameters.
+        //
+        // It comes from the survey form:
+        //
+        // name="selling_price"
+        //
+        // Example:
+        //
+        // <input
+        //     type="number"
+        //     name="selling_price"
+        // >
+        //
+        // =========================================================
+
+        $sellingPrice = (float)(
+            $evaluationData['selling_price'] ?? 0
+        );
 
         // =========================================================
         // FARM
         // =========================================================
 
-        $farmId = $evaluationData['farm_id'] ?? null;
+        $farmId =
+            $evaluationData['farm_id']
+            ?? null;
 
         if (empty($farmId)) {
 
-            $this->Flash->error('Please select a farm.');
+            $this->Flash->error(
+                'Please select a farm.'
+            );
 
-            return $this->redirect($this->referer());
+            return $this->redirect(
+                $this->referer()
+            );
         }
+
+        // =========================================================
+        // FIND FARM
+        // =========================================================
 
         $farm = $this->Farms->find()
             ->where([
@@ -161,24 +225,35 @@ class FeedbacksController extends AppController
 
         if (!$farm) {
 
-            $this->Flash->error('Selected farm not found.');
+            $this->Flash->error(
+                'Selected farm not found.'
+            );
 
-            return $this->redirect($this->referer());
+            return $this->redirect(
+                $this->referer()
+            );
         }
-
 
         // =========================================================
         // FARM VALUES
         // =========================================================
 
-        $farmSize = (float)$farm->farm_size;
-
-        $averageYield = (float)$farm->average_yield;
-
-        $cropYieldAfter = (float)(
-            $evaluationData['crop_yield_after'] ?? 0
+        $farmSize = (float)(
+            $farm->farm_size ?? 0
         );
 
+        $averageYield = (float)(
+            $farm->average_yield ?? 0
+        );
+
+        // =========================================================
+        // CROP YIELD AFTER
+        // =========================================================
+
+        $cropYieldAfter = (float)(
+            $evaluationData['crop_yield_after']
+            ?? 0
+        );
 
         // =========================================================
         // FASTAPI PREDICTION
@@ -186,19 +261,59 @@ class FeedbacksController extends AppController
 
         $http = new \Cake\Http\Client();
 
+        /*
+        * =========================================================
+        * MACHINE LEARNING PAYLOAD
+        * =========================================================
+        *
+        * These values must match the parameters expected by
+        * your FastAPI /predict endpoint and ML model.
+        */
         $payload = [
 
-            'subsidy_type' => $evaluationData['subsidy_type'] ?? '',
+            /*
+            * Subsidy type
+            */
+            'subsidy_type' =>
+                $evaluationData['subsidy_type']
+                ?? '',
 
-            'farm_size' => $farmSize,
+            /*
+            * Farm size
+            */
+            'farm_size' =>
+                $farmSize,
 
-            'average_yield' => $averageYield,
+            /*
+            * Average yield BEFORE subsidy
+            */
+            'average_yield' =>
+                $averageYield,
 
-            'crop_yield_after' => $cropYieldAfter,
+            /*
+            * Crop yield AFTER subsidy
+            */
+            'crop_yield_after' =>
+                $cropYieldAfter,
 
-            'feedback_score' => $feedbackScore,
+            /*
+            * SELLING PRICE
+            *
+            * This is the newly added ML parameter.
+            */
+            'selling_price' =>
+                $sellingPrice,
+
+            /*
+            * Feedback score
+            */
+            'feedback_score' =>
+                $feedbackScore,
         ];
 
+        // =========================================================
+        // SEND TO FASTAPI
+        // =========================================================
 
         try {
 
@@ -207,12 +322,14 @@ class FeedbacksController extends AppController
                 json_encode($payload),
                 [
                     'headers' => [
-                        'Content-Type' => 'application/json'
+                        'Content-Type' =>
+                            'application/json'
                     ]
                 ]
             );
 
-            $result = $response->getJson();
+            $result =
+                $response->getJson();
 
             if (!is_array($result)) {
 
@@ -222,81 +339,130 @@ class FeedbacksController extends AppController
         } catch (\Exception $e) {
 
             $this->Flash->error(
-                'Prediction server error: ' . $e->getMessage()
+                'Prediction server error: ' .
+                $e->getMessage()
             );
 
-            return $this->redirect($this->referer());
+            return $this->redirect(
+                $this->referer()
+            );
         }
-
 
         // =========================================================
         // PREPARE EVALUATION DATA
         // =========================================================
 
-        $evaluationData['farmer_id'] = $farmer->id;
+        $evaluationData['farmer_id'] =
+            $farmer->id;
 
-        $evaluationData['farm_id'] = $farm->id;
+        $evaluationData['farm_id'] =
+            $farm->id;
 
-        $evaluationData['farm_size'] = $farmSize;
+        $evaluationData['farm_size'] =
+            $farmSize;
 
-        $evaluationData['average_yield'] = $averageYield;
+        $evaluationData['average_yield'] =
+            $averageYield;
 
         /*
-        * Remove pest[] because the database field
-        * is pest_id, not pest.
+        * SAVE SELLING PRICE
         */
-        unset($evaluationData['pest']);
+        $evaluationData['selling_price'] =
+            $sellingPrice;
 
+        /*
+        * SAVE FEEDBACK SCORE
+        */
+        $evaluationData['feedback_score'] =
+            $feedbackScore;
+
+        /*
+        * Remove pest[]
+        *
+        * The database field is pest_id,
+        * not pest.
+        */
+        unset(
+            $evaluationData['pest']
+        );
 
         // =========================================================
         // CREATE EVALUATION
         // =========================================================
 
-        $evaluation = $this->Evaluations->newEmptyEntity();
+        $evaluation =
+            $this->Evaluations->newEmptyEntity();
 
-        $evaluation = $this->Evaluations->patchEntity(
-            $evaluation,
-            $evaluationData
-        );
-
+        $evaluation =
+            $this->Evaluations->patchEntity(
+                $evaluation,
+                $evaluationData
+            );
 
         // =========================================================
         // SET EVALUATION VALUES
         // =========================================================
 
-        $evaluation->farmer_id = $farmer->id;
+        $evaluation->farmer_id =
+            $farmer->id;
 
-        $evaluation->farm_id = $farm->id;
+        $evaluation->farm_id =
+            $farm->id;
 
-        $evaluation->farm_size = $farmSize;
+        $evaluation->farm_size =
+            $farmSize;
 
-        $evaluation->average_yield = $averageYield;
+        $evaluation->average_yield =
+            $averageYield;
 
-        $evaluation->feedback_score = $feedbackScore;
+        /*
+        * NEW:
+        *
+        * Save selling price to Evaluations.
+        */
+        $evaluation->selling_price =
+            $sellingPrice;
 
+        /*
+        * Save feedback score.
+        */
+        $evaluation->feedback_score =
+            $feedbackScore;
+
+        /*
+        * Save ML prediction.
+        */
         $evaluation->effectiveness_label =
-            $result['effectiveness'] ?? 'Not Predicted';
-
+            $result['effectiveness']
+            ?? 'Not Predicted';
 
         // =========================================================
         // SAVE EVALUATION
         // =========================================================
 
-        if (!$this->Evaluations->save($evaluation)) {
+        if (
+            !$this->Evaluations->save(
+                $evaluation
+            )
+        ) {
 
-            debug($evaluation->getErrors());
+            debug(
+                $evaluation->getErrors()
+            );
+
             debug($evaluation);
 
-            die('Evaluation could not be saved.');
+            die(
+                'Evaluation could not be saved.'
+            );
         }
-
 
         // =========================================================
         // CREATE FEEDBACK
         // =========================================================
 
-        $feedback = $this->Feedbacks->newEmptyEntity();
-
+        $feedback =
+            $this->Feedbacks->newEmptyEntity();
 
         // =========================================================
         // FEEDBACK DATA
@@ -305,21 +471,20 @@ class FeedbacksController extends AppController
         $feedbackData = [
 
             /*
-            * IMPORTANT FIX:
-            *
-            * feedbacks.farmer_id
-            * references
-            * farmers.id
-            *
-            * Therefore use:
+            * Farmer
             */
-            'farmer_id' => $farmer->id,
+            'farmer_id' =>
+                $farmer->id,
 
             /*
-            * Link feedback to the evaluation.
+            * Evaluation
             */
-            'evaluation_id' => $evaluation->id,
+            'evaluation_id' =>
+                $evaluation->id,
 
+            /*
+            * Survey questions
+            */
             'q1' => $q1,
 
             'q2' => $q2,
@@ -332,103 +497,114 @@ class FeedbacksController extends AppController
 
             'q6' => $q6,
 
-            'rating' => $feedbackScore,
+            /*
+            * Average feedback rating
+            */
+            'rating' =>
+                $feedbackScore,
 
-            'comment' => $evaluationData['comment'] ?? null,
+            /*
+            * Comment
+            */
+            'comment' =>
+                $evaluationData['comment']
+                ?? null,
 
-            'feedback_date' => date('Y-m-d H:i:s')
+            /*
+            * Feedback date
+            */
+            'feedback_date' =>
+                date('Y-m-d H:i:s')
         ];
-
 
         // =========================================================
         // PATCH FEEDBACK
         // =========================================================
 
-        $feedback = $this->Feedbacks->patchEntity(
-            $feedback,
-            $feedbackData
+        $feedback =
+            $this->Feedbacks->patchEntity(
+                $feedback,
+                $feedbackData
+            );
+
+        // =========================================================
+        // SAVE FEEDBACK
+        // =========================================================
+
+        if (
+            !$this->Feedbacks->save(
+                $feedback
+            )
+        ) {
+
+            debug(
+                $feedback->getErrors()
+            );
+
+            debug($feedback);
+
+            die(
+                'Feedback could not be saved.'
+            );
+        }
+
+        // =========================================================
+        // GET NEW FEEDBACK ID
+        // =========================================================
+
+        $feedbackId =
+            $feedback->id;
+
+        if (empty($feedbackId)) {
+
+            die(
+                'Feedback was saved but no feedback ID was generated.'
+            );
+        }
+
+        // =========================================================
+        // UPDATE EVALUATION WITH FEEDBACK ID
+        // =========================================================
+
+        $evaluation =
+            $this->Evaluations->get(
+                $evaluation->id
+            );
+
+        $evaluation->feedback_id =
+            (int)$feedbackId;
+
+        if (
+            !$this->Evaluations->save(
+                $evaluation
+            )
+        ) {
+
+            debug(
+                $evaluation->getErrors()
+            );
+
+            debug($evaluation);
+
+            die(
+                'Evaluation could not be updated with feedback_id.'
+            );
+        }
+
+        // =========================================================
+        // SUCCESS
+        // =========================================================
+
+        $this->Flash->success(
+            'Evaluation and feedback submitted successfully.'
         );
 
-
-    // =========================================================
-    // SAVE FEEDBACK
-    // =========================================================
-
-    $feedback = $this->Feedbacks->newEmptyEntity();
-
-    $feedbackData = [
-        'farmer_id' => $farmer->id,
-        'evaluation_id' => $evaluation->id,
-
-        'q1' => $q1,
-        'q2' => $q2,
-        'q3' => $q3,
-        'q4' => $q4,
-        'q5' => $q5,
-        'q6' => $q6,
-
-        'rating' => $feedbackScore,
-        'comment' => $evaluationData['comment'] ?? null,
-        'feedback_date' => date('Y-m-d H:i:s')
-    ];
-
-    $feedback = $this->Feedbacks->patchEntity(
-        $feedback,
-        $feedbackData
-    );
-
-    if (!$this->Feedbacks->save($feedback)) {
-
-        debug($feedback->getErrors());
-        debug($feedback);
-
-        die('Feedback could not be saved.');
-    }
-
-
-    // =========================================================
-    // GET NEW FEEDBACK ID
-    // =========================================================
-
-    $feedbackId = $feedback->id;
-
-    if (empty($feedbackId)) {
-
-        die('Feedback was saved but no feedback ID was generated.');
-    }
-
-
-    // =========================================================
-    // UPDATE EVALUATION WITH FEEDBACK ID
-    // =========================================================
-
-    $evaluation = $this->Evaluations->get($evaluation->id);
-
-    $evaluation->feedback_id = (int)$feedbackId;
-
-    if (!$this->Evaluations->save($evaluation)) {
-
-        debug($evaluation->getErrors());
-        debug($evaluation);
-
-        die('Evaluation could not be updated with feedback_id.');
-    }
-
-
-    // =========================================================
-    // SUCCESS
-    // =========================================================
-
-    $this->Flash->success(
-        'Evaluation and feedback submitted successfully.'
-    );
-
-    return $this->redirect([
-        'action' => 'index',
-        '?' => [
-            'submitted' => 1
-        ]
-    ]);
+        return $this->redirect([
+            'action' => 'index',
+            '?' => [
+                'submitted' => 1
+            ]
+        ]);
     }
 
 }

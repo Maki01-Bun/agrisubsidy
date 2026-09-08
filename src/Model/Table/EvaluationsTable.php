@@ -52,6 +52,9 @@ class EvaluationsTable extends Table
         $this->belongsTo('Farms', [
             'foreignKey' => 'farm_id',
         ]);
+        $this->belongsTo('Schedules', [
+            'foreignKey' => 'schedule_id',
+        ]);
 
         $this->addBehavior('Timestamp');
     }
@@ -73,6 +76,10 @@ class EvaluationsTable extends Table
         $validator
             ->integer('farm_id')
             ->allowEmptyString('farm_id');
+
+        $validator
+            ->integer('schedule_id')
+            ->allowEmptyString('schedule_id');
     
         $validator
             ->decimal('crop_yield_after')

@@ -18,9 +18,11 @@ $(function(){
             .done(function(data){
                 if(data!=''){
                     $('#farmer_name').val(data.farmer_name);
+                    $('#program_name').val(data.program_name);
                     $('#subsidy_type').val(data.subsidy_type);
                 	$('#farm_size').val(data.farm_size);
                 	$('#crop_yield_after').val(data.crop_yield_after);
+                	$('#selling_price').val(data.selling_price);
                     $('#feedback_rating').val(data.feedback_rating);
                 	$('#effectiveness_label').val(data.effectiveness_label);
                 	$('#id').val(data.id);
@@ -114,6 +116,7 @@ function getEvaluations()
         },
         "columns": [
             {data:"farmer_name"},
+            {data:"program_name"},
             {data:"subsidy_type"},
 			{data:"farm_size"},
             {data:"crop_yield_after"},
@@ -217,6 +220,7 @@ function viewFeedback(evaluationId)
 
     $('#farmer_name').text('Loading...');
     $('#crop_yield_after').text('Loading...');
+    $('selling_price').text('Loading...');
     $('#feedback_rating').text('Loading...');
     $('#feedback_comments').text('Loading...');
 
@@ -247,6 +251,11 @@ function viewFeedback(evaluationId)
 
                 $('#farmer_name').text(
                     response.data.farmer_name ||
+                    'N/A'
+                );
+
+                $('#selling_price').text(
+                    response.data.selling_price ||
                     'N/A'
                 );
 
@@ -296,6 +305,7 @@ function viewFeedback(evaluationId)
             else {
                 $('#farmer_name').text('N/A');
                 $('#crop_yield_after').text('N/A');
+                $('#selling_price').text('N/A');
                 $('#feedback_rating').text('N/A');
                 $('#feedback_comments').text(
                     response.message ||
@@ -317,6 +327,9 @@ function viewFeedback(evaluationId)
                 'Unable to load'
             );
             $('#crop_yield_after').text(
+                'Unable to load'
+            );
+            $('#selling_price').text(
                 'Unable to load'
             );
             $('#feedback_rating').text(

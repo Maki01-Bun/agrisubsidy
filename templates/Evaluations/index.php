@@ -71,6 +71,7 @@
                 <thead>
                     <tr>
                         <th>Farmer Name</th>
+                        <th>Program Name</th>
                         <th>Subsidy Type</th>
                         <th>Farm Size</th> 
                         <th>Yield After</th> 
@@ -106,6 +107,10 @@
                     <tr>
                         <th width="30%">Yield After (bags/ha)</th>
                         <td id="crop_yield_after">N/A</td>
+                    </tr>
+                    <tr>
+                        <th>Selling Price (₱/bags)</th>
+                        <td id="selling_price"></td>
                     </tr>
                     <tr>
                         <th>Rating</th>

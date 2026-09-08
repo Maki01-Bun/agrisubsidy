@@ -17,328 +17,429 @@ class AnalyticsController extends AppController
      */
      public function index()
     {
+        // =========================================================
+        // LOAD MODELS
+        // =========================================================
+
         $this->loadModel('Evaluations');
         $this->loadModel('Farms');
         $this->loadModel('Feedbacks');
-    
-        // ============================================================
-        // TOTAL EVALUATION DATA
-        // ============================================================
-    
-        $totalEvaluations = $this->Evaluations->find()
+
+        // =========================================================
+        // TOTAL EVALUATIONS
+        // =========================================================
+
+        $totalEvaluations = $this->Evaluations
+            ->find()
             ->count();
-    
-    
-        // ============================================================
+
+        // =========================================================
         // EFFECTIVENESS COUNTS
-        // ============================================================
-    
-        $effective = $this->Evaluations->find()
+        // =========================================================
+
+        $effective = $this->Evaluations
+            ->find()
             ->where([
                 'Evaluations.effectiveness_label' => 'Effective'
             ])
             ->count();
-    
-        $moderatelyEffective = $this->Evaluations->find()
+
+        $moderatelyEffective = $this->Evaluations
+            ->find()
             ->where([
-                'Evaluations.effectiveness_label' => 'Moderately Effective'
+                'Evaluations.effectiveness_label' =>
+                    'Moderately Effective'
             ])
             ->count();
-    
-        $notEffective = $this->Evaluations->find()
+
+        $notEffective = $this->Evaluations
+            ->find()
             ->where([
-                'Evaluations.effectiveness_label' => 'Not Effective'
+                'Evaluations.effectiveness_label' =>
+                    'Not Effective'
             ])
             ->count();
-    
-    
-        // ============================================================
+
+        // =========================================================
         // SUBSIDY PROGRAM COUNTS
-        // ============================================================
-    
-        $programs = $this->Evaluations->find()
+        // =========================================================
+
+        $programs = $this->Evaluations
+            ->find()
             ->select([
-                'subsidy_type' => 'Evaluations.subsidy_type',
-    
-                'total' => $this->Evaluations
-                    ->find()
-                    ->func()
-                    ->count('Evaluations.id')
+                'subsidy_type' =>
+                    'Evaluations.subsidy_type',
+
+                'total' =>
+                    $this->Evaluations
+                        ->find()
+                        ->func()
+                        ->count('Evaluations.id')
             ])
             ->group([
                 'Evaluations.subsidy_type'
             ])
             ->enableHydration(false)
             ->toArray();
-    
-    
-        // ============================================================
+
+        // =========================================================
         // AVERAGE FEEDBACK
-        // ============================================================
-    
-        $feedbackData = $this->Feedbacks->find()
+        // =========================================================
+
+        $feedbackData = $this->Feedbacks
+            ->find()
             ->select([
-                'average_rating' => $this->Feedbacks
-                    ->find()
-                    ->func()
-                    ->avg('Feedbacks.rating')
+                'average_rating' =>
+                    $this->Feedbacks
+                        ->find()
+                        ->func()
+                        ->avg('Feedbacks.rating')
             ])
             ->first();
-    
+
         $feedbackAverage = 0;
-    
+
         if ($feedbackData) {
             $feedbackAverage = (float)(
                 $feedbackData->average_rating ?? 0
             );
         }
-    
-    
-        // ============================================================
+
+        // =========================================================
         // AVERAGE CROP YIELD
-        // ============================================================
-    
-        $yieldData = $this->Evaluations->find()
+        // =========================================================
+        //
+        // IMPORTANT:
+        //
+        // Farms does NOT have crop_yield.
+        //
+        // Correct field:
+        // Farms.average_yield
+        //
+        // =========================================================
+
+        $yieldData = $this->Evaluations
+            ->find()
             ->select([
                 'avg_yield_before' =>
                     $this->Evaluations
                         ->find()
                         ->func()
                         ->avg('Farms.average_yield'),
-    
+
                 'avg_yield_after' =>
                     $this->Evaluations
                         ->find()
                         ->func()
-                        ->avg('Evaluations.crop_yield_after')
+                        ->avg(
+                            'Evaluations.crop_yield_after'
+                        )
             ])
             ->innerJoinWith('Farms')
             ->first();
-    
+
         $yieldBefore = 0;
         $yieldAfter = 0;
-    
+
         if ($yieldData) {
-    
+
             $yieldBefore = (float)(
                 $yieldData->avg_yield_before ?? 0
             );
-    
+
             $yieldAfter = (float)(
                 $yieldData->avg_yield_after ?? 0
             );
         }
-    
-    
-        // ============================================================
-        // CALCULATE OVERALL IMPROVEMENT
-        // ============================================================
-    
+
+        // =========================================================
+        // YIELD IMPROVEMENT
+        // =========================================================
+
         $yieldImprovement = 0;
-    
+
         if ($yieldBefore > 0) {
-    
+
             $yieldImprovement =
-                (($yieldAfter - $yieldBefore) / $yieldBefore) * 100;
+                (
+                    (
+                        $yieldAfter -
+                        $yieldBefore
+                    )
+                    /
+                    $yieldBefore
+                ) * 100;
         }
-    
-    
-        // ============================================================
+
+        // =========================================================
         // MACHINE LEARNING MODEL INFORMATION
-        // ============================================================
-    
+        // =========================================================
+
         $modelStatus = 'Active';
-    
-        $modelName = 'Random Forest Classifier';
-    
+
+        $modelName =
+            'Random Forest Classifier';
+
         $modelAccuracy = 93.5;
-    
-        $lastTrained = 'July 22, 2026 11:30 PM';
-    
-    
-        // ============================================================
+
+        $lastTrained =
+            'July 22, 2026 11:30 PM';
+
+        // =========================================================
         // FEATURE IMPORTANCE
-        // ============================================================
-    
+        // =========================================================
+
         $featureImportance = [
-    
+
             'Crop Yield Increase' =>
-                round(abs($yieldImprovement), 2),
-    
+                round(
+                    abs($yieldImprovement),
+                    2
+                ),
+
             'Subsidy Utilization' =>
                 42,
-    
+
             'Distribution Timeliness' =>
                 34,
-    
+
             'Farmer Feedback' =>
-                20
+                20,
+
+            /*
+             * Selling price is now included as a
+             * dataset/model parameter.
+             */
+            'Selling Price' =>
+                25
         ];
-    
-    
-        // ============================================================
+
+        // =========================================================
         // PROGRAM EFFECTIVENESS RECOMMENDATIONS
-        // ============================================================
-    
+        // =========================================================
+
         $recommendations = [];
-    
-    
+
         foreach ($programs as $program) {
-    
+
+            // =====================================================
+            // PROGRAM NAME
+            // =====================================================
+
             $programName =
-                $program['subsidy_type'] ?? 'Unknown';
-    
-    
-            // ========================================================
-            // GET ALL EVALUATIONS FOR THIS SUBSIDY PROGRAM
-            // ========================================================
-    
-            $programEvaluations = $this->Evaluations->find()
-                ->where([
-                    'Evaluations.subsidy_type' => $programName
-                ])
-                ->enableHydration(false)
-                ->toArray();
-    
-    
-            $programTotal = count($programEvaluations);
-    
-    
+                $program['subsidy_type']
+                ?? 'Unknown';
+
+            // =====================================================
+            // GET PROGRAM EVALUATIONS
+            // =====================================================
+
+            $programEvaluations =
+                $this->Evaluations
+                    ->find()
+                    ->where([
+                        'Evaluations.subsidy_type' =>
+                            $programName
+                    ])
+                    ->enableHydration(false)
+                    ->toArray();
+
+            $programTotal =
+                count($programEvaluations);
+
             if ($programTotal === 0) {
                 continue;
             }
-    
-    
-            // ========================================================
+
+            // =====================================================
             // EFFECTIVENESS COUNTS
-            // ========================================================
-    
+            // =====================================================
+
             $effectiveCount = 0;
+
             $moderateCount = 0;
+
             $notEffectiveCount = 0;
-    
-    
-            foreach ($programEvaluations as $evaluation) {
-    
+
+            foreach (
+                $programEvaluations
+                as $evaluation
+            ) {
+
                 $label = trim(
-                    $evaluation['effectiveness_label'] ?? ''
+                    $evaluation[
+                        'effectiveness_label'
+                    ] ?? ''
                 );
-    
-    
-                if ($label === 'Effective') {
-    
+
+                if (
+                    $label === 'Effective'
+                ) {
+
                     $effectiveCount++;
-    
-                } elseif ($label === 'Moderately Effective') {
-    
+
+                } elseif (
+                    $label === 'Moderately Effective'
+                ) {
+
                     $moderateCount++;
-    
-                } elseif ($label === 'Not Effective') {
-    
+
+                } elseif (
+                    $label === 'Not Effective'
+                ) {
+
                     $notEffectiveCount++;
                 }
             }
-    
-    
-            // ========================================================
+
+            // =====================================================
             // DETERMINE PROGRAM PREDICTION
-            // ========================================================
-    
+            // =====================================================
+
             $effectivenessCounts = [
-    
+
                 'Effective' =>
                     $effectiveCount,
-    
+
                 'Moderately Effective' =>
                     $moderateCount,
-    
+
                 'Not Effective' =>
                     $notEffectiveCount
             ];
-    
-    
-            arsort($effectivenessCounts);
-    
-    
+
+            arsort(
+                $effectivenessCounts
+            );
+
             $prediction =
-                array_key_first($effectivenessCounts);
-    
-    
+                array_key_first(
+                    $effectivenessCounts
+                );
+
             $predictionCount =
-                $effectivenessCounts[$prediction] ?? 0;
-    
-    
-            // ========================================================
+                $effectivenessCounts[
+                    $prediction
+                ] ?? 0;
+
+            // =====================================================
             // CONFIDENCE
-            // ========================================================
-    
+            // =====================================================
+
             $confidence = 0;
-    
+
             if ($programTotal > 0) {
-    
+
                 $confidence =
                     round(
-                        ($predictionCount / $programTotal) * 100
+                        (
+                            $predictionCount /
+                            $programTotal
+                        ) * 100
                     );
             }
-    
-    
-            // ========================================================
-            // PROGRAM YIELD AND INCOME
-            // ========================================================
-    
-            $programPerformance = $this->Evaluations->find()
-                ->select([
-    
-                    'avg_yield_before' =>
-                        $this->Evaluations
-                            ->find()
-                            ->func()
-                            ->avg('Farms.crop_yield'),
-    
-                    'avg_yield_after' =>
-                        $this->Evaluations
-                            ->find()
-                            ->func()
-                            ->avg('Evaluations.crop_yield_after'),
-    
-                ])
-                ->where([
-                    'Evaluations.subsidy_type' => $programName
-                ])
-                ->innerJoinWith('Farms')
-                ->first();
-    
-    
+
+            // =====================================================
+            // PROGRAM YIELD
+            // =====================================================
+            //
+            // BEFORE:
+            // Farms.average_yield
+            //
+            // AFTER:
+            // Evaluations.crop_yield_after
+            //
+            // =====================================================
+
+            $programPerformance =
+                $this->Evaluations
+                    ->find()
+                    ->select([
+
+                        'avg_yield_before' =>
+                            $this->Evaluations
+                                ->find()
+                                ->func()
+                                ->avg(
+                                    'Farms.average_yield'
+                                ),
+
+                        'avg_yield_after' =>
+                            $this->Evaluations
+                                ->find()
+                                ->func()
+                                ->avg(
+                                    'Evaluations.crop_yield_after'
+                                ),
+
+                        /*
+                         * AVERAGE SELLING PRICE
+                         *
+                         * This comes from Evaluations.
+                         */
+                        'avg_selling_price' =>
+                            $this->Evaluations
+                                ->find()
+                                ->func()
+                                ->avg(
+                                    'Evaluations.selling_price'
+                                )
+                    ])
+                    ->where([
+                        'Evaluations.subsidy_type' =>
+                            $programName
+                    ])
+                    ->innerJoinWith('Farms')
+                    ->first();
+
+            // =====================================================
+            // DEFAULT VALUES
+            // =====================================================
+
             $programYieldBefore = 0;
+
             $programYieldAfter = 0;
-    
-            $programIncomeBefore = 0;
-            $programIncomeAfter = 0;
-    
-    
+
+            $programSellingPrice = 0;
+
+            // =====================================================
+            // GET PERFORMANCE DATA
+            // =====================================================
+
             if ($programPerformance) {
-    
+
                 $programYieldBefore =
                     (float)(
-                        $programPerformance->avg_yield_before ?? 0
+                        $programPerformance
+                            ->avg_yield_before
+                        ?? 0
                     );
-    
+
                 $programYieldAfter =
                     (float)(
-                        $programPerformance->avg_yield_after ?? 0
+                        $programPerformance
+                            ->avg_yield_after
+                        ?? 0
+                    );
+
+                $programSellingPrice =
+                    (float)(
+                        $programPerformance
+                            ->avg_selling_price
+                        ?? 0
                     );
             }
-    
-    
-            // ========================================================
+
+            // =====================================================
             // YIELD IMPROVEMENT
-            // ========================================================
-    
+            // =====================================================
+
             $programYieldImprovement = 0;
-    
-            if ($programYieldBefore > 0) {
-    
+
+            if (
+                $programYieldBefore > 0
+            ) {
+
                 $programYieldImprovement =
                     (
                         (
@@ -349,16 +450,63 @@ class AnalyticsController extends AppController
                         $programYieldBefore
                     ) * 100;
             }
-    
-    
-            // ========================================================
+
+            // =====================================================
+            // SELLING PRICE ANALYSIS
+            // =====================================================
+            //
+            // There is only one selling price field currently.
+            //
+            // Therefore we treat the average selling price
+            // as the current program selling-price indicator.
+            //
+            // We DO NOT calculate before/after price because
+            // there is no selling_price_before field.
+            //
+            // =====================================================
+
+            $programIncomeBefore = 0;
+
+            $programIncomeAfter = 0;
+
+            /*
+             * Calculate estimated production value:
+             *
+             * Yield × Selling Price
+             *
+             * This provides a useful income/value indicator.
+             */
+
+            if (
+                $programYieldBefore > 0 &&
+                $programSellingPrice > 0
+            ) {
+
+                $programIncomeBefore =
+                    $programYieldBefore *
+                    $programSellingPrice;
+            }
+
+            if (
+                $programYieldAfter > 0 &&
+                $programSellingPrice > 0
+            ) {
+
+                $programIncomeAfter =
+                    $programYieldAfter *
+                    $programSellingPrice;
+            }
+
+            // =====================================================
             // INCOME IMPROVEMENT
-            // ========================================================
-    
+            // =====================================================
+
             $programIncomeImprovement = 0;
-    
-            if ($programIncomeBefore > 0) {
-    
+
+            if (
+                $programIncomeBefore > 0
+            ) {
+
                 $programIncomeImprovement =
                     (
                         (
@@ -369,146 +517,140 @@ class AnalyticsController extends AppController
                         $programIncomeBefore
                     ) * 100;
             }
-    
-    
-            // ========================================================
+
+            // =====================================================
             // DETERMINE PROGRAM TREND
-            // ========================================================
-    
+            // =====================================================
+
             if (
-                $programYieldImprovement >= 10 ||
+                $programYieldImprovement >= 10
+                ||
                 $programIncomeImprovement >= 10
             ) {
-    
-                $trend = 'Improving';
-    
+
+                $trend =
+                    'Improving';
+
             } elseif (
-                $programYieldImprovement <= -10 ||
+                $programYieldImprovement <= -10
+                ||
                 $programIncomeImprovement <= -10
             ) {
-    
-                $trend = 'Declining';
-    
+
+                $trend =
+                    'Declining';
+
             } else {
-    
-                $trend = 'Stable';
+
+                $trend =
+                    'Stable';
             }
-    
-    
-            // ========================================================
+
+            // =====================================================
             // PROBLEM COUNTERS
-            // ========================================================
-    
+            // =====================================================
+
             $delayedCount = 0;
-    
+
             $partialCount = 0;
-    
+
             $notDistributedCount = 0;
-    
+
             $subsidyIssueCount = 0;
-    
-            $pestCount = 0;
-    
-            $calamityCount = 0;
-    
-            $pestCalamityCount = 0;
-    
-    
-            // ========================================================
+
+            // =====================================================
             // CROP COUNTERS
-            // ========================================================
-    
+            // =====================================================
+
             $riceCount = 0;
-    
+
             $cornCount = 0;
-    
-    
-            // ========================================================
+
+            // =====================================================
             // ANALYZE PROGRAM EVALUATIONS
-            // ========================================================
-    
-            foreach ($programEvaluations as $evaluation) {
-    
-                // ----------------------------------------------------
+            // =====================================================
+
+            foreach (
+                $programEvaluations
+                as $evaluation
+            ) {
+
+                // =================================================
                 // CROP
-                // ----------------------------------------------------
-    
-                $cropType = strtolower(
-                    trim(
-                        $evaluation['crop_type'] ?? ''
-                    )
-                );
-    
-    
+                // =================================================
+
+                $cropType =
+                    strtolower(
+                        trim(
+                            $evaluation[
+                                'crop_type'
+                            ] ?? ''
+                        )
+                    );
+
                 if (
-                    strpos($cropType, 'rice') !== false
+                    strpos(
+                        $cropType,
+                        'rice'
+                    ) !== false
                 ) {
-    
+
                     $riceCount++;
                 }
-    
-    
+
                 if (
-                    strpos($cropType, 'corn') !== false
+                    strpos(
+                        $cropType,
+                        'corn'
+                    ) !== false
                 ) {
-    
+
                     $cornCount++;
                 }
-    
-    
-                // ----------------------------------------------------
-                // DISTRIBUTION
-                // ----------------------------------------------------
-    
+
+                // =================================================
+                // DISTRIBUTION STATUS
+                // =================================================
+
                 $distributionStatus =
                     strtolower(
                         trim(
-                            $evaluation['distribution_status']
-                            ?? ''
+                            $evaluation[
+                                'distribution_status'
+                            ] ?? ''
                         )
                     );
-    
-    
+
+                // =================================================
+                // DISTRIBUTION TIMELINESS
+                // =================================================
+
                 $distributionTimeliness =
                     strtolower(
                         trim(
-                            $evaluation['distribution_timeliness']
-                            ?? ''
+                            $evaluation[
+                                'distribution_timeliness'
+                            ] ?? ''
                         )
                     );
-    
-    
+
+                // =================================================
+                // OUTCOME CAUSE
+                // =================================================
+
                 $outcomeCause =
                     strtolower(
                         trim(
-                            $evaluation['outcome_cause']
-                            ?? ''
+                            $evaluation[
+                                'outcome_cause'
+                            ] ?? ''
                         )
                     );
-    
-    
-                $pest =
-                    strtolower(
-                        trim(
-                            $evaluation['pest']
-                            ?? ''
-                        )
-                    );
-    
-    
-                $calamity =
-                    strtolower(
-                        trim(
-                            $evaluation['calamity']
-                            ?? ''
-                        )
-                    );
-    
-    
-                // ----------------------------------------------------
+
+                // =================================================
                 // DELAY
-                // ----------------------------------------------------
-    
+                // =================================================
+
                 if (
                     strpos(
                         $distributionTimeliness,
@@ -520,30 +662,28 @@ class AnalyticsController extends AppController
                         'late'
                     ) !== false
                 ) {
-    
+
                     $delayedCount++;
                 }
-    
-    
-                // ----------------------------------------------------
+
+                // =================================================
                 // PARTIAL
-                // ----------------------------------------------------
-    
+                // =================================================
+
                 if (
                     strpos(
                         $distributionStatus,
                         'partial'
                     ) !== false
                 ) {
-    
+
                     $partialCount++;
                 }
-    
-    
-                // ----------------------------------------------------
+
+                // =================================================
                 // NOT DISTRIBUTED
-                // ----------------------------------------------------
-    
+                // =================================================
+
                 if (
                     strpos(
                         $distributionStatus,
@@ -555,15 +695,14 @@ class AnalyticsController extends AppController
                         'undistributed'
                     ) !== false
                 ) {
-    
+
                     $notDistributedCount++;
                 }
-    
-    
-                // ----------------------------------------------------
+
+                // =================================================
                 // SUBSIDY ISSUE
-                // ----------------------------------------------------
-    
+                // =================================================
+
                 if (
                     strpos(
                         $outcomeCause,
@@ -575,66 +714,65 @@ class AnalyticsController extends AppController
                         'distribution issue'
                     ) !== false
                 ) {
-    
+
                     $subsidyIssueCount++;
                 }
             }
-    
-    
-            // ========================================================
+
+            // =====================================================
             // DETERMINE MAIN PROBLEM
-            // ========================================================
-    
+            // =====================================================
+
             $problems = [
-    
+
                 'Delayed Distribution' =>
                     $delayedCount,
-    
+
                 'Partial Distribution' =>
                     $partialCount,
-    
+
                 'Not Distributed' =>
                     $notDistributedCount,
-    
+
                 'Subsidy Issue' =>
                     $subsidyIssueCount
             ];
-    
-    
-            $problems = array_filter(
-                $problems,
-                function ($count) {
-                    return $count > 0;
-                }
-            );
-    
-    
+
+            $problems =
+                array_filter(
+                    $problems,
+                    function ($count) {
+                        return $count > 0;
+                    }
+                );
+
             arsort($problems);
-    
-    
+
             $mainProblem = 'None';
-    
+
             $mainProblemCount = 0;
-    
-    
+
             if (!empty($problems)) {
-    
+
                 $mainProblem =
-                    array_key_first($problems);
-    
+                    array_key_first(
+                        $problems
+                    );
+
                 $mainProblemCount =
-                    $problems[$mainProblem];
+                    $problems[
+                        $mainProblem
+                    ];
             }
-    
-    
-            // ========================================================
+
+            // =====================================================
             // PROBLEM RATE
-            // ========================================================
-    
+            // =====================================================
+
             $problemRate = 0;
-    
+
             if ($programTotal > 0) {
-    
+
                 $problemRate =
                     round(
                         (
@@ -643,286 +781,337 @@ class AnalyticsController extends AppController
                         ) * 100
                     );
             }
-    
-    
-            // ========================================================
+
+            // =====================================================
             // DETERMINE MAIN CROP
-            // ========================================================
-    
-            if ($riceCount > $cornCount) {
-    
-                $mainCrop = 'Rice';
-    
-            } elseif ($cornCount > $riceCount) {
-    
-                $mainCrop = 'Corn';
-    
+            // =====================================================
+
+            if (
+                $riceCount > $cornCount
+            ) {
+
+                $mainCrop =
+                    'Rice';
+
+            } elseif (
+                $cornCount > $riceCount
+            ) {
+
+                $mainCrop =
+                    'Corn';
+
             } elseif (
                 $riceCount === 0 &&
                 $cornCount === 0
             ) {
-    
-                $mainCrop = 'General';
-    
+
+                $mainCrop =
+                    'General';
+
             } else {
-    
-                $mainCrop = 'Rice and Corn';
+
+                $mainCrop =
+                    'Rice and Corn';
             }
-    
-    
-            // ========================================================
-            // GENERATE DYNAMIC ACTION
-            // ========================================================
-    
-            // --------------------------------------------------------
-            // EFFECTIVE
-            // --------------------------------------------------------
-    
-            if ($prediction === 'Effective') {
-    
-                if ($trend === 'Improving') {
-    
+
+            // =====================================================
+            // GENERATE ACTION
+            // =====================================================
+
+            if (
+                $prediction === 'Effective'
+            ) {
+
+                if (
+                    $trend === 'Improving'
+                ) {
+
                     $action =
-                        'Maintain the current Seed Subsidy strategy for ' .
-                        $mainCrop . '. Continue timely and complete seed ' .
-                        'and sustain the practices contributing to the ' .
-                        'program improvement.';
-    
-                } elseif ($trend === 'Declining') {
-    
+                        'Maintain the current subsidy strategy for ' .
+                        $mainCrop .
+                        '. Continue timely and complete ' .
+                        'distribution and sustain the practices ' .
+                        'contributing to program improvement.';
+
+                } elseif (
+                    $trend === 'Declining'
+                ) {
+
                     $action =
                         'Investigate the decline in ' .
-                        $mainCrop . ' outcomes despite the effective Seed ' .
-                        'Subsidy classification. Review seed quality, ' .
-                        'distribution performance, farmer feedback, and ' .
-                        'production results, then implement corrective measures.';
-    
+                        $mainCrop .
+                        ' outcomes despite the effective ' .
+                        'classification. Review subsidy quality, ' .
+                        'distribution performance, farmer feedback, ' .
+                        'selling price, and production results, ' .
+                        'then implement corrective measures.';
+
                 } else {
-    
+
                     $action =
-                        'Maintain timely and complete Seed Subsidy distribution ' .
-                        'for ' . $mainCrop . ', continue monitoring seed ' .
-                        'utilization, crop yield, and feedback.';
+                        'Maintain timely and complete subsidy ' .
+                        'distribution for ' .
+                        $mainCrop .
+                        ', while monitoring yield, selling price, ' .
+                        'and farmer feedback.';
                 }
-            }
-    
-    
-            // --------------------------------------------------------
-            // MODERATELY EFFECTIVE
-            // --------------------------------------------------------
-    
-            elseif ($prediction === 'Moderately Effective') {
-    
-                if ($mainProblem === 'Delayed Distribution') {
-    
-                    if ($trend === 'Improving') {
-    
+
+            } elseif (
+                $prediction ===
+                'Moderately Effective'
+            ) {
+
+                if (
+                    $mainProblem ===
+                    'Delayed Distribution'
+                ) {
+
+                    if (
+                        $trend === 'Improving'
+                    ) {
+
                         $action =
-                            'Continue improving Seed Subsidy distribution for ' .
-                            $mainCrop . ' by reducing remaining delivery delays, ' .
-                            'resolving distribution bottlenecks, and prioritizing ' .
-                            'delayed beneficiaries while monitoring the positive ' .
-                            'yield trend.';
-    
+                            'Continue improving subsidy distribution ' .
+                            'for ' .
+                            $mainCrop .
+                            ' by reducing remaining delivery delays ' .
+                            'and monitoring the positive yield trend.';
+
                     } else {
-    
+
                         $action =
-                            'Resolve delayed Seed Subsidy distribution for ' .
-                            $mainCrop . ' by reviewing delivery schedules, ' .
-                            'identifying bottlenecks, prioritizing delayed ' .
-                            'beneficiaries, and conducting follow-up monitoring.';
+                            'Resolve delayed subsidy distribution for ' .
+                            $mainCrop .
+                            ' by reviewing delivery schedules, ' .
+                            'identifying bottlenecks, and prioritizing ' .
+                            'delayed beneficiaries.';
                     }
-                }
-    
-    
-                elseif ($mainProblem === 'Partial Distribution') {
-    
+
+                } elseif (
+                    $mainProblem ===
+                    'Partial Distribution'
+                ) {
+
                     $action =
-                        'Complete the remaining Seed Subsidy allocation for ' .
-                        'partially served ' . $mainCrop . ' farmers, verify ' .
-                        'the quantity and quality of seeds received, and ' .
-                        'monitor crop performance after distribution.';
-                }
-    
-    
-                elseif ($mainProblem === 'Not Distributed') {
-    
+                        'Complete the remaining subsidy allocation ' .
+                        'for partially served ' .
+                        $mainCrop .
+                        ' farmers, verify quantities received, and ' .
+                        'monitor crop performance.';
+
+                } elseif (
+                    $mainProblem ===
+                    'Not Distributed'
+                ) {
+
                     $action =
-                        'Prioritize ' . $mainCrop . ' beneficiaries who have ' .
-                        'not received their Seed Subsidy, coordinate immediate ' .
-                        'release and delivery, and verify successful receipt ' .
-                        'of the seed allocation.';
-                }
-    
-    
-                elseif ($mainProblem === 'Subsidy Issue') {
-    
+                        'Prioritize ' .
+                        $mainCrop .
+                        ' beneficiaries who have not received ' .
+                        'their subsidy and verify successful delivery.';
+
+                } elseif (
+                    $mainProblem ===
+                    'Subsidy Issue'
+                ) {
+
                     $action =
-                        'Review the Seed Subsidy allocation and distribution ' .
-                        'records for ' . $mainCrop . ', correct affected ' .
-                        'beneficiary allocations, resolve the identified ' .
-                        'subsidy issue, and verify successful seed delivery.';
-                }
-    
-    
-                elseif ($trend === 'Improving') {
-    
+                        'Review subsidy allocation and distribution ' .
+                        'records for ' .
+                        $mainCrop .
+                        ', correct affected allocations, and verify ' .
+                        'successful delivery.';
+
+                } elseif (
+                    $trend === 'Improving'
+                ) {
+
                     $action =
-                        'Maintain the current Seed Subsidy implementation ' .
-                        'for ' . $mainCrop . ' while continuing to monitor ' .
-                        'the increasing crop yield. Identify the ' .
-                        'practices contributing to improvement and sustain them.';
-                }
-    
-    
-                else {
-    
+                        'Maintain the current subsidy implementation ' .
+                        'for ' .
+                        $mainCrop .
+                        ' while monitoring increasing crop yield and ' .
+                        'selling-price performance.';
+
+                } else {
+
                     $action =
-                        'Conduct a program-level review of the Seed Subsidy ' .
-                        'for ' . $mainCrop . ', identify the factors limiting ' .
-                        'effectiveness, apply corrective measures, and continue ' .
+                        'Conduct a program-level review for ' .
+                        $mainCrop .
+                        ', identify factors limiting effectiveness, ' .
+                        'apply corrective measures, and continue ' .
                         'monitoring farmer outcomes.';
                 }
-            }
-    
-    
-            // --------------------------------------------------------
-            // NOT EFFECTIVE
-            // --------------------------------------------------------
-    
-            elseif ($prediction === 'Not Effective') {
-    
-                if ($mainProblem === 'Delayed Distribution') {
-    
+
+            } elseif (
+                $prediction ===
+                'Not Effective'
+            ) {
+
+                if (
+                    $mainProblem ===
+                    'Delayed Distribution'
+                ) {
+
                     $action =
-                        'Immediately review the Seed Subsidy distribution ' .
-                        'process for ' . $mainCrop . ', identify the cause ' .
-                        'of recurring delays, revise delivery schedules, ' .
-                        'prioritize affected beneficiaries, and monitor ' .
-                        'future distributions for timely completion.';
-                }
-    
-    
-                elseif ($mainProblem === 'Partial Distribution') {
-    
+                        'Immediately review the subsidy distribution ' .
+                        'process for ' .
+                        $mainCrop .
+                        ', identify recurring delays, revise delivery ' .
+                        'schedules, and monitor future distributions.';
+
+                } elseif (
+                    $mainProblem ===
+                    'Partial Distribution'
+                ) {
+
                     $action =
-                        'Complete all outstanding Seed Subsidy allocations ' .
-                        'for ' . $mainCrop . ', verify beneficiary coverage ' .
-                        'and seed quantities, investigate the cause of ' .
-                        'incomplete distribution, and implement corrective ' .
-                        'controls for the next distribution cycle.';
-                }
-    
-    
-                elseif ($mainProblem === 'Not Distributed') {
-    
+                        'Complete all outstanding subsidy allocations ' .
+                        'for ' .
+                        $mainCrop .
+                        ', verify beneficiary coverage and quantities, ' .
+                        'and implement corrective controls.';
+
+                } elseif (
+                    $mainProblem ===
+                    'Not Distributed'
+                ) {
+
                     $action =
-                        'Conduct an immediate review of undistributed Seed ' .
-                        'Subsidy allocations for ' . $mainCrop . ', release ' .
-                        'pending seeds, identify the cause of non-distribution, ' .
-                        'and verify receipt by affected farmers.';
-                }
-    
-    
-                elseif ($mainProblem === 'Subsidy Issue') {
-    
+                        'Conduct an immediate review of undistributed ' .
+                        'subsidy allocations for ' .
+                        $mainCrop .
+                        ', release pending subsidies, and verify ' .
+                        'receipt by affected farmers.';
+
+                } elseif (
+                    $mainProblem ===
+                    'Subsidy Issue'
+                ) {
+
                     $action =
-                        'Conduct a comprehensive review of the Seed Subsidy ' .
-                        'allocation and distribution process for ' .
-                        $mainCrop . ', correct affected beneficiary records ' .
-                        'and allocations, resolve the identified issue, and ' .
-                        'verify successful seed delivery.';
-                }
-    
-    
-                elseif ($trend === 'Declining') {
-    
+                        'Conduct a comprehensive review of subsidy ' .
+                        'allocation and distribution for ' .
+                        $mainCrop .
+                        ', correct affected records, and verify ' .
+                        'successful delivery.';
+
+                } elseif (
+                    $trend === 'Declining'
+                ) {
+
                     $action =
                         'Conduct a comprehensive review of declining ' .
-                        $mainCrop . ' crop yield, assess seed ' .
-                        'quality and utilization, identify the causes of poor ' .
-                        'performance, implement corrective measures, and ' .
-                        'perform follow-up monitoring.';
-                }
-    
-    
-                else {
-    
+                        $mainCrop .
+                        ' crop yield, assess subsidy utilization, ' .
+                        'selling price, and farmer feedback, identify ' .
+                        'the causes of poor performance, and implement ' .
+                        'corrective measures.';
+
+                } else {
+
                     $action =
-                        'Conduct a comprehensive review of the Seed Subsidy ' .
-                        'program for ' . $mainCrop . ', identify the primary ' .
-                        'causes of poor performance, implement corrective ' .
-                        'measures, and perform follow-up monitoring.';
+                        'Conduct a comprehensive review of the subsidy ' .
+                        'program for ' .
+                        $mainCrop .
+                        ', identify the primary causes of poor ' .
+                        'performance, implement corrective measures, ' .
+                        'and perform follow-up monitoring.';
                 }
-            }
-    
-    
-            // --------------------------------------------------------
-            // NO DATA
-            // --------------------------------------------------------
-    
-            else {
-    
+
+            } else {
+
                 $action =
-                    'Collect additional Seed Subsidy evaluation data for ' .
-                    $mainCrop . ' to determine program performance and ' .
-                    'identify the appropriate corrective action.';
+                    'Collect additional subsidy evaluation data for ' .
+                    $mainCrop .
+                    ' to determine program performance and identify ' .
+                    'the appropriate corrective action.';
             }
-    
-    
-            // ========================================================
+
+            // =====================================================
             // ADD RECOMMENDATION
-            // ========================================================
-    
+            // =====================================================
+
             $recommendations[] = [
-    
+
                 'program' =>
                     $programName,
-    
+
                 'crop' =>
                     $mainCrop,
-    
+
                 'prediction' =>
                     $prediction,
-    
+
                 'confidence' =>
                     $confidence,
-    
+
                 'trend' =>
                     $trend,
-    
+
                 'yield_improvement' =>
                     round(
                         $programYieldImprovement,
                         2
                     ),
-    
+
+                'selling_price' =>
+                    round(
+                        $programSellingPrice,
+                        2
+                    ),
+
+                'income_improvement' =>
+                    round(
+                        $programIncomeImprovement,
+                        2
+                    ),
+
                 'main_problem' =>
                     $mainProblem,
-    
+
                 'problem_rate' =>
                     $problemRate,
-    
+
                 'action' =>
                     $action
             ];
         }
-        // SET DATA TO VIEW
+
+        // =========================================================
+        // SEND DATA TO VIEW
+        // =========================================================
+
         $this->set(compact(
+
             'totalEvaluations',
+
             'effective',
+
             'moderatelyEffective',
+
             'notEffective',
+
             'programs',
+
             'feedbackAverage',
+
             'yieldBefore',
+
             'yieldAfter',
+
             'yieldImprovement',
+
             'modelStatus',
+
             'modelName',
+
             'modelAccuracy',
+
             'lastTrained',
+
             'featureImportance',
+
             'recommendations'
         ));
     }

@@ -12,6 +12,7 @@ use Cake\ORM\Entity;
  * @property int $id
  * @property int|null $farmer_id
  * @property int|null $feedback_id
+ * @property int|null $schedule_id
  * @property string $subsidy_type
  * @property float $farm_id
  * @property float $crop_yield_after
@@ -33,6 +34,7 @@ class Evaluation extends Entity
     protected $_accessible = [
         'subsidy_type' => true,
         'farm_id' => true,
+        'schedule_id' => true,
         'crop_yield_after' => true,
         'effectiveness_label' => true,
         'farmer_id' => true,
