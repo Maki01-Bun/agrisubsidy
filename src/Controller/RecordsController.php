@@ -646,11 +646,11 @@ class RecordsController extends AppController
     public function getFarmerRecords($farmerId = null)
     {
         $this->request->allowMethod(['get']);
-    
+
         try {
-    
+
             if ($farmerId === null || !is_numeric($farmerId)) {
-    
+
                 return $this->response
                     ->withStatus(400)
                     ->withType('application/json')
@@ -659,11 +659,11 @@ class RecordsController extends AppController
                         'message' => 'Invalid farmer ID.'
                     ]));
             }
-    
+
             $farmerId = (int)$farmerId;
-    
+
             $this->loadModel('Farmers');
-    
+
             $farmer = $this->Farmers->find()
                 ->select([
                     'id',
@@ -674,9 +674,9 @@ class RecordsController extends AppController
                     'Farmers.id' => $farmerId
                 ])
                 ->first();
-    
+
             if (!$farmer) {
-    
+
                 return $this->response
                     ->withStatus(404)
                     ->withType('application/json')
@@ -685,18 +685,18 @@ class RecordsController extends AppController
                         'message' => 'Farmer not found.'
                     ]));
             }
-    
+
             $records = $this->Records->find()
                 ->select([
                     'record_id' => 'Records.id',
                     'farmer_id' => 'Records.farmer_id',
                     'schedule_id' => 'Records.schedule_id',
-    
+
                     'subsidy_item' => 'Records.subsidy_item',
                     'quantity' => 'Records.quantity',
                     'received_date' => 'Records.received_date',
                     'status' => 'Records.status',
-    
+
                     // Schedule information
                     'program_name' => 'Schedules.program_name',
                     'distribution_date' => 'Schedules.start_date'
@@ -716,9 +716,9 @@ class RecordsController extends AppController
                 ])
                 ->enableHydration(false)
                 ->toArray();
-    
+
             foreach ($records as &$record) {
-    
+
                 if (
                     isset($record['distribution_date']) &&
                     $record['distribution_date'] instanceof \DateTimeInterface
@@ -726,7 +726,7 @@ class RecordsController extends AppController
                     $record['distribution_date'] =
                         $record['distribution_date']->format('Y-m-d');
                 }
-    
+
                 if (
                     isset($record['received_date']) &&
                     $record['received_date'] instanceof \DateTimeInterface
@@ -735,25 +735,23 @@ class RecordsController extends AppController
                         $record['received_date']->format('Y-m-d');
                 }
             }
-    
+
             unset($record);
-    
+
             $farmerData = [
                 'id' => $farmer->id,
                 'first_name' => $farmer->first_name ?? '',
                 'last_name' => $farmer->last_name ?? ''
             ];
-    
-            return $this->response
-                ->withStatus(200)
-                ->withType('application/json')
-                ->withStringBody(json_encode([
+
+            return $this->response->withStatus(200)->withType('application/json')
+            ->withStringBody(json_encode([
                     'success' => true,
                     'farmer' => $farmerData,
                     'records' => $records
                 ], JSON_UNESCAPED_UNICODE));
-    
-    
+
+
         } catch (\Throwable $e) {
             \Cake\Log\Log::error(
                 'RecordsController::getFarmerRecords(): ' .
