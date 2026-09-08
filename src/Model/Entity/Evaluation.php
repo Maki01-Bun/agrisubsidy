@@ -12,11 +12,9 @@ use Cake\ORM\Entity;
  * @property int $id
  * @property int|null $farmer_id
  * @property int|null $feedback_id
- * @property int|null $pest_id
  * @property string $subsidy_type
  * @property float $farm_id
  * @property float $crop_yield_after
- * @property string $calamity
  * @property string $effectiveness_label
  * @property \Cake\I18n\FrozenTime $created
  * @property \Cake\I18n\FrozenTime $modified
@@ -36,8 +34,6 @@ class Evaluation extends Entity
         'subsidy_type' => true,
         'farm_id' => true,
         'crop_yield_after' => true,
-        'pest_id' => true,
-        'calamity' => true,
         'effectiveness_label' => true,
         'farmer_id' => true,
         'feedback_id' => true,

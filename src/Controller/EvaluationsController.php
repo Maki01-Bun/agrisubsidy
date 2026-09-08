@@ -116,8 +116,7 @@ public function downloadSummary()
             ->contain([
                 'Farmers',
                 'Farms',
-                'Feedbacks',
-                'Pests'
+                'Feedbacks'
             ])
             ->order([
                 'Evaluations.id' => 'ASC'
@@ -150,8 +149,6 @@ public function downloadSummary()
             'C3' => 'Program',
             'D3' => 'Farm Size (ha)',
             'E3' => 'Crop Yield After',
-            'F3' => 'Pest',
-            'G3' => 'Calamity',
             'H3' => 'Feedback Score',
             'I3' => 'Effectiveness',
         ];
@@ -208,16 +205,6 @@ public function downloadSummary()
 
                 $program = $evaluation->subsidy_type;
             }
-
-            $pest = 'None';
-
-            if (!empty($evaluation->pest)) {
-
-                $pest = $evaluation->pest->name
-                    ?? $evaluation->pest->pest_name
-                    ?? $evaluation->pest->pest
-                    ?? 'None';
-            }
             $feedbackScore = '';
 
             if (!empty($evaluation->feedback)) {
@@ -272,16 +259,6 @@ public function downloadSummary()
             $sheet->setCellValue(
                 "E{$row}",
                 $evaluation->crop_yield_after ?? ''
-            );
-
-            $sheet->setCellValue(
-                'F' . $row,
-                $pest
-            );
-
-            $sheet->setCellValue(
-                "G{$row}",
-                $evaluation->calamity ?? ''
             );
 
             $sheet->setCellValue(
@@ -387,8 +364,7 @@ public function downloadSummary()
                 'contain' => [
                     'Farmers',
                     'Farms',
-                    'Feedbacks',
-                    'Pests'
+                    'Feedbacks'
                 ]
             ]);
 
@@ -556,46 +532,6 @@ public function downloadSummary()
 
             /*
             * =====================================================
-            * PEST INFORMATION
-            * =====================================================
-            *
-            * Your pests table uses:
-            *
-            * id
-            * pest_name
-            *
-            * NOT "name".
-            */
-
-            $pest = 'None';
-
-            if (!empty($evaluation->pest)) {
-
-                $pest = !empty($evaluation->pest->pest_name)
-                    ? $evaluation->pest->pest_name
-                    : 'None';
-            }
-
-
-            /*
-            * =====================================================
-            * CALAMITY
-            * =====================================================
-            */
-
-            $calamity = 'None';
-
-            if (
-                isset($evaluation->calamity) &&
-                $evaluation->calamity !== null &&
-                trim((string)$evaluation->calamity) !== ''
-            ) {
-                $calamity = (string)$evaluation->calamity;
-            }
-
-
-            /*
-            * =====================================================
             * CROP YIELD AFTER
             * =====================================================
             */
@@ -638,12 +574,6 @@ public function downloadSummary()
 
                         'feedback_date' =>
                             $feedbackDate,
-
-                        'pest' =>
-                            $pest,
-
-                        'calamity' =>
-                            $calamity,
 
                         'crop_yield_after' =>
                             $cropYieldAfter

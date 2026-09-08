@@ -149,17 +149,6 @@ return function (RouteBuilder $routes): void {
                 'pass' => ['id']
             ]);
         });
-        $builder->scope('/Pests', function (RouteBuilder $builder) {
-            $builder->connect('/', ['controller' => 'Pests', 'action' => 'index']);
-            $builder->connect('/getPests', ['controller' => 'Pests', 'action' => 'getPests']);
-            $builder->connect('/add', ['controller' => 'Pests', 'action' => 'add']);
-            $builder->connect('/edit/{id}', ['controller' => 'Pests', 'action' => 'edit'], [
-                'pass' => ['id']
-            ]);
-            $builder->connect('/delete/{id}', ['controller' => 'Pests', 'action' => 'delete'], [
-                'pass' => ['id']
-            ]);
-        });
         $builder->scope('/Analytics', function (RouteBuilder $builder) {
             $builder->connect('/', ['controller' => 'Analytics', 'action' => 'index']);
         });

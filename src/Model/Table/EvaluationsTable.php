@@ -49,9 +49,6 @@ class EvaluationsTable extends Table
         $this->belongsTo('Feedbacks', [
             'foreignKey' => 'feedback_id',
         ]);
-        $this->belongsTo('Pests', [
-            'foreignKey' => 'pest_id',
-        ]);
         $this->belongsTo('Farms', [
             'foreignKey' => 'farm_id',
         ]);
@@ -81,16 +78,6 @@ class EvaluationsTable extends Table
             ->decimal('crop_yield_after')
             ->requirePresence('crop_yield_after', 'create')
             ->notEmptyString('crop_yield_after');
-            
-        $validator
-            ->integer('pest_id')
-            ->allowEmptyString('pest_id');
-    
-        $validator
-            ->scalar('calamity')
-            ->maxLength('calamity', 100)
-            ->requirePresence('calamity', 'create')
-            ->notEmptyString('calamity');
     
         $validator
             ->scalar('effectiveness_label')

@@ -16,7 +16,7 @@
                 <i class="fas fa-user me-2"></i>Basic Information
             </h5>
             <div class="row">
-                <div class="col-md-6 mb-3">
+                <div class="col-md-4 mb-3">
                     <label>Farmer Name</label>
                     <?= $this->Form->control('farmerName', [
                         'value' => $farmerName ?? '',
@@ -25,13 +25,24 @@
                         'readonly' => true
                     ]) ?>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label for="subsidy_type">Subsidy Type</label>
+                <div class="col-md-4 mb-3">
+                    <label for="schedule_id">Schedule</label>
+                        <?= $this->Form->control('schedule_id', [
+                            'type' => 'select',
+                            'options' => $schedules,
+                            'empty' => '-- Select Schedule --',
+                            'class' => 'form-control',
+                            'label' => false,
+                            'id' => 'schedule_id'
+                        ]) ?>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="subsidy_type">Seed Subsidy Type</label>
                     <?= $this->Form->control('subsidy_type', [
                         'class' => 'form-control',
                         'label' => false,
                         'options' => $this->Option->subsidy(),
-                        'empty' => '-- Enter Subsidy Type --'
+                        'empty' => '-- Enter Seed Subsidy Type --'
                     ]) ?>
                 </div>
             </div>
@@ -47,117 +58,31 @@
                     ]) ?>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label>Crop Yield After (tons/ha)</label>
+                    <label>Crop Yield After (bags/ha)</label>
                     <?= $this->Form->control('crop_yield_after', [
                         'class' => 'form-control',
                         'label' => false
                     ]) ?>
                 </div>
-                <!-- <div class="col-md-3 mb-3">
+                <div class="col-md-6 mb-3">
                     <label>Subsidy Received</label>
                     <?= $this->Form->control('subsidy_received', [
                         'type' => 'select',
                         'options' => [
                             'Yes' => 'Yes',
                             'No' => 'No'
-                        ],
+                        ],  
                         'empty' => 'Select Yes or No',
                         'class' => 'form-control',
                         'label' => false
                     ]) ?>
-                </div> -->
-                <!-- <div class="col-md-3 mb-3">
-                    <label>Average Selling Price (₱/kg)</label>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Selling Price (₱/kg)</label>
                     <?= $this->Form->control('average_selling_price', [
                         'class' => 'form-control',
                         'label' => false
                     ]) ?>
-                </div> -->
-            </div>
-            <hr>
-            <!-- FARM CONDITIONS -->
-            <h5 class="text-success mb-3">
-                <i class="fas fa-seedling me-2"></i>Farm Conditions
-            </h5>
-            <div class="row">
-                <div class="col-md-12 mb-3">
-                    <label class="form-label fw-bold">
-                        Pest Experienced
-                    </label>
-
-                    <div class="selection-box border rounded-3 p-3">
-                        <?php if (!empty($pests)): ?>
-                            <div class="row">
-                                <?php foreach ($pests as $id => $name): ?>
-                                    <div class="col-12 col-sm-6 mb-2">
-                                        <div class="form-check selection-item">
-                                            <?= $this->Form->checkbox("pest[]", [
-                                                'value' => $id,
-                                                'id' => 'pest-' . $id,
-                                                'class' => 'form-check-input',
-                                            ]) ?>
-
-                                            <label
-                                                class="form-check-label"
-                                                for="pest-<?= h($id) ?>"
-                                            >
-                                                <?= h($name) ?>
-                                            </label>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        <?php else: ?>
-                            <div class="text-muted small">
-                                <i class="fas fa-info-circle mr-1"></i>
-                                No pests available.
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                </div>                
-                <div class="col-md-12 mb-3">
-                    <label for="role">Calamity Experienced</label>
-                    <?= $this->Form->control('calamity',['class'=>'form-control',
-                    'options'=>$this->Option->calamity(),'label'=>false]) ?>
-                    <!-- <label class="form-label fw-bold">
-                        Calamity Experienced
-                    </label>
-
-                    <div class="selection-box border rounded-3 p-3">
-                        <?php
-                        $calamities = $this->Option->calamity();
-                        ?>
-
-                        <?php if (!empty($calamities)): ?>
-                            <div class="row">
-                                <?php foreach ($calamities as $value => $label): ?>
-                                    <div class="col-12 col-sm-6 mb-2">
-                                        <div class="form-check selection-item">
-
-                                            <?= $this->Form->checkbox('calamity', [
-                                                'value' => $value,
-                                                'id' => 'calamity_' . $value,
-                                                'class' => 'form-check-input'
-                                            ]) ?>
-
-                                            <label
-                                                class="form-check-label"
-                                                for="calamity_<?= h($value) ?>"
-                                            >
-                                                <?= h($label) ?>
-                                            </label>
-
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        <?php else: ?>
-                            <div class="text-muted small">
-                                <i class="fas fa-info-circle mr-1"></i>
-                                No calamities available.
-                            </div>
-                        <?php endif; ?>
-                    </div> -->
                 </div>
             </div>
             <hr>

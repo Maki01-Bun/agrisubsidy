@@ -46,12 +46,6 @@
             </li>
             <li class="nav-item">
                 <?= $this->Html->link(
-                    '<i class="nav-icon fas fa-bug"></i><p>Pests</p>',
-                    '/Pests',
-                    ['class' => 'nav-link '.($title == 'Pests' ? 'active' : ''),'escape' => false])?>
-            </li>
-            <li class="nav-item">
-                <?= $this->Html->link(
                     '<i class="nav-icon fas fa-seedling"></i><p>Distribution Records</p>',
                     '/Records',
                     ['class' => 'nav-link '.($title == 'Records' ? 'active' : ''),'escape' => false])?>

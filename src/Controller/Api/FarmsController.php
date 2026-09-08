@@ -104,7 +104,7 @@ class FarmsController extends AppController
             'farm_name' => $farm->farm_name,
             'farm_size' => $farm->farm_size,
             'location' => $farm->location,
-            'crop_yield' => $farm->crop_yield,
+            'average_yield' => $farm->average_yield,
             'income' => $farm->income,
         ];
     }

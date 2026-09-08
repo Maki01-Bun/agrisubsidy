@@ -104,7 +104,7 @@ class AnalyticsController extends AppController
                     $this->Evaluations
                         ->find()
                         ->func()
-                        ->avg('Farms.crop_yield'),
+                        ->avg('Farms.average_yield'),
     
                 'avg_yield_after' =>
                     $this->Evaluations
@@ -561,55 +561,6 @@ class AnalyticsController extends AppController
     
     
                 // ----------------------------------------------------
-                // PEST
-                // ----------------------------------------------------
-    
-                $hasPest = (
-    
-                    $pest !== '' &&
-                    $pest !== 'none' &&
-                    $pest !== 'no' &&
-                    $pest !== 'null' &&
-                    $pest !== 'nan'
-                );
-    
-    
-                // ----------------------------------------------------
-                // CALAMITY
-                // ----------------------------------------------------
-    
-                $hasCalamity = (
-    
-                    $calamity !== '' &&
-                    $calamity !== 'none' &&
-                    $calamity !== 'no' &&
-                    $calamity !== 'null' &&
-                    $calamity !== 'nan'
-                );
-    
-    
-                if ($hasPest) {
-    
-                    $pestCount++;
-                }
-    
-    
-                if ($hasCalamity) {
-    
-                    $calamityCount++;
-                }
-    
-    
-                if (
-                    $hasPest &&
-                    $hasCalamity
-                ) {
-    
-                    $pestCalamityCount++;
-                }
-    
-    
-                // ----------------------------------------------------
                 // SUBSIDY ISSUE
                 // ----------------------------------------------------
     
@@ -636,9 +587,6 @@ class AnalyticsController extends AppController
     
             $problems = [
     
-                'Pest + Calamity' =>
-                    $pestCalamityCount,
-    
                 'Delayed Distribution' =>
                     $delayedCount,
     
@@ -647,12 +595,6 @@ class AnalyticsController extends AppController
     
                 'Not Distributed' =>
                     $notDistributedCount,
-    
-                'Pest' =>
-                    $pestCount,
-    
-                'Calamity' =>
-                    $calamityCount,
     
                 'Subsidy Issue' =>
                     $subsidyIssueCount
@@ -813,36 +755,6 @@ class AnalyticsController extends AppController
                 }
     
     
-                elseif ($mainProblem === 'Pest + Calamity') {
-    
-                    $action =
-                        'Conduct a field assessment of affected ' .
-                        $mainCrop . ' farms, provide appropriate pest-management ' .
-                        'and recovery assistance, replace damaged planting ' .
-                        'materials when necessary, and monitor crop recovery.';
-                }
-    
-    
-                elseif ($mainProblem === 'Pest') {
-    
-                    $action =
-                        'Conduct field inspection of pest-affected ' .
-                        $mainCrop . ' farms, provide pest-management inputs ' .
-                        'and technical assistance, and monitor crop recovery ' .
-                        'after intervention.';
-                }
-    
-    
-                elseif ($mainProblem === 'Calamity') {
-    
-                    $action =
-                        'Prioritize calamity-affected ' .
-                        $mainCrop . ' farmers for replacement seeds and ' .
-                        'recovery assistance, conduct a farm assessment, ' .
-                        'and monitor production recovery.';
-                }
-    
-    
                 elseif ($mainProblem === 'Subsidy Issue') {
     
                     $action =
@@ -909,37 +821,6 @@ class AnalyticsController extends AppController
                         'Subsidy allocations for ' . $mainCrop . ', release ' .
                         'pending seeds, identify the cause of non-distribution, ' .
                         'and verify receipt by affected farmers.';
-                }
-    
-    
-                elseif ($mainProblem === 'Pest + Calamity') {
-    
-                    $action =
-                        'Conduct an immediate assessment of pest- and ' .
-                        'calamity-affected ' . $mainCrop . ' farms, provide ' .
-                        'appropriate recovery assistance and replacement ' .
-                        'seeds, implement pest-management measures, and ' .
-                        'monitor production recovery.';
-                }
-    
-    
-                elseif ($mainProblem === 'Pest') {
-    
-                    $action =
-                        'Deploy agricultural technicians to assess pest damage ' .
-                        'in ' . $mainCrop . ' farms, provide appropriate ' .
-                        'pest-control assistance and technical guidance, and ' .
-                        'conduct follow-up monitoring of crop recovery.';
-                }
-    
-    
-                elseif ($mainProblem === 'Calamity') {
-    
-                    $action =
-                        'Conduct a post-calamity assessment of ' .
-                        $mainCrop . ' farms, prioritize severely affected ' .
-                        'beneficiaries for replacement seeds and recovery ' .
-                        'assistance, and monitor production recovery.';
                 }
     
     

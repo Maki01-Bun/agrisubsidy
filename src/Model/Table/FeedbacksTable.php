@@ -43,6 +43,16 @@ class FeedbacksTable extends Table
         $this->setDisplayField('rating');
         $this->setPrimaryKey('id');
 
+        $this->belongsTo('Farmers', [
+            'foreignKey' => 'farmer_id',
+        ]);
+        $this->belongsTo('Farms', [
+            'foreignKey' => 'farm_id',
+        ]);
+        $this->belongsTo('Schedules', [
+            'foreignKey' => 'schedule_id',
+        ]);
+
         $this->addBehavior('Timestamp');
     }
 

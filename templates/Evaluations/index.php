@@ -104,16 +104,8 @@
                         <td id="farmer_name"></td>
                     </tr>
                     <tr>
-                        <th width="30%">Pest</th>
-                        <td id="feedback_pest">N/A</td>
-                    </tr>
-                    <tr>
-                        <th width="30%">Yield After</th>
+                        <th width="30%">Yield After (bags/ha)</th>
                         <td id="crop_yield_after">N/A</td>
-                    </tr>
-                    <tr>
-                        <th>Calamity</th>
-                        <td id="feedback_calamity">N/A</td>
                     </tr>
                     <tr>
                         <th>Rating</th>

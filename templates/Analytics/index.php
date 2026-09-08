@@ -90,7 +90,7 @@
             <div class="analytics-panel">
                 <div class="panel-title">
                     <i class="fas fa-chart-pie me-2"></i>
-                    Most Effective Subsidy Program
+                    Most Effective Seed Subsidy Program
                 </div>
                 <div class="panel-body">
                     <div class="chart-container">
@@ -129,7 +129,7 @@
 
                             <thead>
                                 <tr>
-                                    <th>Subsidy Program</th>
+                                    <th>Seed Subsidy Program</th>
                                     <th>Prediction</th>
                                     <th>Confidence</th>
                                     <th>Trend</th>

@@ -76,8 +76,8 @@ class FarmsTable extends Table
             ->notEmptyString('location');
 
         $validator
-            ->decimal('crop_yield')
-            ->allowEmptyString('crop_yield');
+            ->decimal('average_yield')
+            ->allowEmptyString('average_yield');
 
         $validator
             ->dateTime('created')

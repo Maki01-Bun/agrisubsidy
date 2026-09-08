@@ -21,8 +21,6 @@ $(function(){
                     $('#subsidy_type').val(data.subsidy_type);
                 	$('#farm_size').val(data.farm_size);
                 	$('#crop_yield_after').val(data.crop_yield_after);
-                	$('#pest_name').val(data.pest_name);
-                	$('#calamity').val(data.calamity);
                     $('#feedback_rating').val(data.feedback_rating);
                 	$('#effectiveness_label').val(data.effectiveness_label);
                 	$('#id').val(data.id);
@@ -218,9 +216,7 @@ function viewFeedback(evaluationId)
      */
 
     $('#farmer_name').text('Loading...');
-    $('#feedback_pest').text('Loading...');
     $('#crop_yield_after').text('Loading...');
-    $('#feedback_calamity').text('Loading...');
     $('#feedback_rating').text('Loading...');
     $('#feedback_comments').text('Loading...');
 
@@ -255,15 +251,6 @@ function viewFeedback(evaluationId)
                 );
 
                 /*
-                 * Pest
-                 */
-
-                $('#feedback_pest').text(
-                    response.data.pest ||
-                    'None'
-                );
-
-                /*
                  * Yield After
                  */
 
@@ -271,16 +258,6 @@ function viewFeedback(evaluationId)
                     response.data.crop_yield_after ||
                     'N/A'
                 );
-
-                /*
-                 * Calamity
-                 */
-
-                $('#feedback_calamity').text(
-                    response.data.calamity ||
-                    'None'
-                );
-
                 /*
                  * Rating
                  */
@@ -318,9 +295,7 @@ function viewFeedback(evaluationId)
 
             else {
                 $('#farmer_name').text('N/A');
-                $('#feedback_pest').text('N/A');
                 $('#crop_yield_after').text('N/A');
-                $('#feedback_calamity').text('N/A');
                 $('#feedback_rating').text('N/A');
                 $('#feedback_comments').text(
                     response.message ||
@@ -341,13 +316,7 @@ function viewFeedback(evaluationId)
             $('#farmer_name').text(
                 'Unable to load'
             );
-            $('#feedback_pest').text(
-                'Unable to load'
-            );
             $('#crop_yield_after').text(
-                'Unable to load'
-            );
-            $('#feedback_calamity').text(
                 'Unable to load'
             );
             $('#feedback_rating').text(

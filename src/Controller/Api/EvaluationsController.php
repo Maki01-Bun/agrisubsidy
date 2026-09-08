@@ -39,7 +39,6 @@ class EvaluationsController extends AppController
             'contain' => [
                 'Farmers',
                 'Feedbacks',
-                'Pests',
                 'Farms',
                 'Records'
             ],
@@ -53,7 +52,7 @@ class EvaluationsController extends AppController
     public function getEvaluations()
     {
         try {
-            $evaluations = $this->Evaluations->find()->contain(['Farmers', 'Feedbacks', 'Pests','Farms'])->all();
+            $evaluations = $this->Evaluations->find()->contain(['Farmers', 'Feedbacks','Farms'])->all();
     
             $data = [];
     
@@ -81,8 +80,6 @@ class EvaluationsController extends AppController
                     'farm_size'           => $evaluation->farm?$evaluation->farm->farm_size:'N/A',
                     'crop_yield_before'   => $evaluation->record?$evaluation->record->crop_yield:'N/A',
                     'crop_yield_after'    => $evaluation->crop_yield_after,
-                    'pest_name'           => $evaluation->pest?$evaluation->pest->pest_name:'N/A',
-                    'calamity'            => $evaluation->calamity,
                     'feedback_rating'     => $feedbackRating,
                     'effectiveness_label' => $evaluation->effectiveness_label
                 ];

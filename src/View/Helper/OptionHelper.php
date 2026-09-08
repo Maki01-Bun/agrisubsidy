@@ -49,32 +49,11 @@ class OptionHelper extends Helper
 
         return $array;
     }
-
-    public function calamity()
-    {
-        $array = [
-            'None' => 'None',
-            'Typhoon' => 'Typhoon',
-            'Flood' => 'Flood',
-            'Drought' => 'Drought',
-            'Earthquake' => 'Earthquake',
-            'Landslide' => 'Landslide',
-            'El Niño' => 'El Niño',
-            'La Niña' => 'La Niña',
-            'Storm Surge' => 'Storm Surge',
-            'Volcanic Eruption' => 'Volcanic Eruption',
-            'Strong Winds' => 'Strong Winds',
-            'Hailstorm' => 'Hailstorm',
-            'Others' => 'Others',
-        ];
-    
-        return $array;
-    }
     public function subsidy()
     {
         $array =[
-            'Seed Subsidy'=>'Seed Subsidy',
-            'Fertilizer Subsidy'=>'Fertilizer Subsidy',
+            'Corn Seeds'=>'Corn Seeds',
+            'Rice Seeds'=>'Rice Seeds',
         ];
 
         return $array;

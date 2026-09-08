@@ -18,17 +18,11 @@ class FeedbacksController extends AppController
     public function index()
 {
     $this->loadModel('Farmers');
-    $this->loadModel('Pests');
     $this->loadModel('Farms');
+    $this->loadModel('Feedbacks');
 
     // Logged-in user
     $user = $this->request->getSession()->read('Auth.User');
-
-    // Load pests
-    $pests = $this->Pests->find('list', [
-        'keyField' => 'id',
-        'valueField' => 'pest_name'
-    ])->toArray();
 
     // Default values
     $farms = [];
@@ -58,10 +52,15 @@ class FeedbacksController extends AppController
         ->toArray();
     }
 
+     $schedules = $this->Feedbacks->Schedules
+        ->find()
+        ->all();
+
+
     $this->set(compact(
-        'pests',
         'farms',
-        'farmerName'
+        'farmerName',
+        'schedules'
     ));
 }
 
@@ -82,7 +81,6 @@ class FeedbacksController extends AppController
         $this->loadModel('Evaluations');
         $this->loadModel('Feedbacks');
         $this->loadModel('Farmers');
-        $this->loadModel('Pests');
         $this->loadModel('Farms');
 
         // =========================================================
@@ -120,96 +118,6 @@ class FeedbacksController extends AppController
         // =========================================================
 
         $evaluationData = $this->request->getData();
-
-
-        // =========================================================
-        // PEST
-        // =========================================================
-
-        $pestIds = $evaluationData['pest'] ?? [];
-
-        // Convert single value into array
-        if (!is_array($pestIds)) {
-            $pestIds = [$pestIds];
-        }
-
-        // Remove invalid / empty values
-        $pestIds = array_filter($pestIds, function ($id) {
-
-            return $id !== null
-                && $id !== ''
-                && is_numeric($id)
-                && (int)$id > 0;
-        });
-
-        // Convert IDs to integers
-        $pestIds = array_map('intval', $pestIds);
-
-        // Remove duplicates and reset indexes
-        $pestIds = array_values(array_unique($pestIds));
-
-        $pestNames = [];
-
-        // This will be the ONE pest_id saved in evaluations
-        $pestId = null;
-
-
-        // =========================================================
-        // VALIDATE PEST IDS AGAINST DATABASE
-        // =========================================================
-
-        if (!empty($pestIds)) {
-
-            $pests = $this->Pests->find()
-                ->where([
-                    'Pests.id IN' => $pestIds
-                ])
-                ->all();
-
-            foreach ($pests as $pest) {
-
-                $pestNames[] = $pest->pest_name;
-            }
-
-            // Get valid database IDs
-            $validPestIds = [];
-
-            foreach ($pests as $pest) {
-
-                $validPestIds[] = (int)$pest->id;
-            }
-
-            /*
-            * evaluations.pest_id is only ONE foreign key.
-            *
-            * Therefore we save the first valid pest ID.
-            */
-            if (!empty($validPestIds)) {
-
-                $pestId = $validPestIds[0];
-            }
-        }
-
-        // String sent to FastAPI
-        $pestString = !empty($pestNames)
-            ? implode(', ', $pestNames)
-            : 'None';
-
-
-        $calamity = $evaluationData['calamity'] ?? [];
-
-if (is_array($calamity)) {
-    $calamity = array_filter($calamity, function ($value) {
-        return $value !== null && $value !== '';
-    });
-
-    $calamity = implode(', ', $calamity);
-}
-
-if (empty($calamity)) {
-    $calamity = 'None';
-}
-
 
         // =========================================================
         // FEEDBACK SCORE
@@ -265,7 +173,7 @@ if (empty($calamity)) {
 
         $farmSize = (float)$farm->farm_size;
 
-        $cropYieldBefore = (float)$farm->crop_yield;
+        $averageYield = (float)$farm->average_yield;
 
         $cropYieldAfter = (float)(
             $evaluationData['crop_yield_after'] ?? 0
@@ -284,15 +192,11 @@ if (empty($calamity)) {
 
             'farm_size' => $farmSize,
 
-            'crop_yield_before' => $cropYieldBefore,
+            'average_yield' => $averageYield,
 
             'crop_yield_after' => $cropYieldAfter,
 
             'feedback_score' => $feedbackScore,
-
-            'pest' => $pestString,
-
-            'calamity' => $calamity
         ];
 
 
@@ -333,18 +237,9 @@ if (empty($calamity)) {
 
         $evaluationData['farm_id'] = $farm->id;
 
-        /*
-        * IMPORTANT:
-        *
-        * This is a VALID ID from pests.id.
-        */
-        $evaluationData['pest_id'] = $pestId;
-
         $evaluationData['farm_size'] = $farmSize;
 
-        $evaluationData['crop_yield_before'] = $cropYieldBefore;
-
-        $evaluationData['calamity'] = $calamity;
+        $evaluationData['average_yield'] = $averageYield;
 
         /*
         * Remove pest[] because the database field
@@ -373,11 +268,9 @@ if (empty($calamity)) {
 
         $evaluation->farm_id = $farm->id;
 
-        $evaluation->pest_id = $pestId;
-
         $evaluation->farm_size = $farmSize;
 
-        $evaluation->crop_yield_before = $cropYieldBefore;
+        $evaluation->average_yield = $averageYield;
 
         $evaluation->feedback_score = $feedbackScore;
 
