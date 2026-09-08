@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 08, 2026 at 09:03 AM
+-- Generation Time: Sep 08, 2026 at 03:10 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -45,11 +45,12 @@ CREATE TABLE `evaluations` (
   `subsidy_type` varchar(255) NOT NULL,
   `farm_id` int(11) NOT NULL,
   `crop_yield_after` decimal(10,2) NOT NULL,
+  `subsidy_received` enum('Yes','No','','') NOT NULL,
   `selling_price` decimal(10,2) NOT NULL,
   `effectiveness_label` varchar(100) NOT NULL,
   `feedback_id` int(11) NOT NULL,
   `farmer_id` int(11) NOT NULL,
-  `schedule_id` int(11) DEFAULT NULL,
+  `schedule_id` int(11) NOT NULL,
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -58,8 +59,10 @@ CREATE TABLE `evaluations` (
 -- Dumping data for table `evaluations`
 --
 
-INSERT INTO `evaluations` (`id`, `subsidy_type`, `farm_id`, `crop_yield_after`, `selling_price`, `effectiveness_label`, `feedback_id`, `farmer_id`, `schedule_id`, `created`, `modified`) VALUES
-(1, 'Seed Subsidy', 2, 7.50, 22.20, 'Effective', 1, 208, 24, '2026-09-08 08:08:07', '2026-09-08 08:08:07');
+INSERT INTO `evaluations` (`id`, `subsidy_type`, `farm_id`, `crop_yield_after`, `subsidy_received`, `selling_price`, `effectiveness_label`, `feedback_id`, `farmer_id`, `schedule_id`, `created`, `modified`) VALUES
+(158, 'Corn Seeds', 2, 6.00, 'Yes', 33.30, 'Not Effective', 120, 153, 24, '2026-09-08 12:46:01', '2026-09-08 12:46:02'),
+(159, 'Corn Seeds', 2, 700.00, 'Yes', 33.30, 'Effective', 121, 153, 28, '2026-09-08 12:48:14', '2026-09-08 12:48:14'),
+(160, 'Rice Seeds', 9, 120.50, 'Yes', 22.20, 'Moderately Effective', 122, 162, 24, '2026-09-08 12:50:12', '2026-09-08 12:50:12');
 
 -- --------------------------------------------------------
 
@@ -155,7 +158,14 @@ CREATE TABLE `feedbacks` (
 --
 
 INSERT INTO `feedbacks` (`id`, `farmer_id`, `rating`, `comment`, `feedback_date`) VALUES
-(1, 2, 5.0, '', '2026-09-08 08:40:17');
+(115, 153, 4.5, '', '2026-09-08 12:21:42'),
+(116, 153, 4.2, '', '2026-09-08 12:27:19'),
+(117, 153, 3.5, '', '2026-09-08 12:30:11'),
+(118, 153, 4.3, '', '2026-09-08 12:35:46'),
+(119, 153, 4.0, '', '2026-09-08 12:42:16'),
+(120, 153, 4.2, '', '2026-09-08 12:46:02'),
+(121, 153, 4.3, '', '2026-09-08 12:48:14'),
+(122, 162, 4.3, '', '2026-09-08 12:50:12');
 
 -- --------------------------------------------------------
 
@@ -291,12 +301,12 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `password`, `role`, `created`, `modified`, `status`, `failed_attempts`, `locked_until`) VALUES
-(1, 'admin', '$2y$10$mOsQfa7o.YJXIKkzMQa/iOCMpMay0vaZWOmXDE2Z2oT.r7Yl8kRP2', 'admin', '2026-06-17 05:17:00', '2026-09-08 05:28:05', 'pending', 0, NULL),
+(1, 'admin', '$2y$10$mOsQfa7o.YJXIKkzMQa/iOCMpMay0vaZWOmXDE2Z2oT.r7Yl8kRP2', 'admin', '2026-06-17 05:17:00', '2026-09-08 12:50:29', 'pending', 0, NULL),
 (10, 'Maki', '$2y$10$sH3pyTnexvxspeuivmd5dujFsFqb6NKASs2QLaUCAlfXlIAVMu2fK', 'farmer', '2026-06-19 06:48:48', '2026-07-15 02:26:14', 'pending', 0, NULL),
 (17, 'superadmin', '$2y$10$6LlYegtiDE46XLuhzPnJoe8ii32u7yYbHyf1GSkjY3kK.3eHf8tOK', 'staff', '2026-06-30 01:07:50', '2026-09-07 01:23:45', 'pending', 0, NULL),
-(26, 'Jayson', '$2y$10$vqHrBjft1A3bcmaUiWM4TOz23sna4xw1Coh3iVYjXouKWMycF/FpK', 'farmer', '2026-07-15 13:10:21', '2026-09-08 03:05:36', 'pending', 0, NULL),
+(26, 'Jayson', '$2y$10$vqHrBjft1A3bcmaUiWM4TOz23sna4xw1Coh3iVYjXouKWMycF/FpK', 'farmer', '2026-07-15 13:10:21', '2026-09-08 12:40:46', 'pending', 0, NULL),
 (29, 'Lxi', '$2y$10$96pJIUC6Z9/AkPKQKHpRi.zys0cVS5T0n0.5MT7eLe3n7TluPMR8K', 'farmer', '2026-07-15 13:47:03', '2026-07-15 13:47:03', 'pending', 0, NULL),
-(30, 'Jha', '$2y$10$DaDUC5VjD0bvq7EQ/nVwbuNuabd6I3vPkCgu4gdbxK0KQN/MXSsIi', 'farmer', '2026-07-16 03:01:05', '2026-08-04 12:56:28', 'pending', 0, NULL),
+(30, 'Jha', '$2y$10$DaDUC5VjD0bvq7EQ/nVwbuNuabd6I3vPkCgu4gdbxK0KQN/MXSsIi', 'farmer', '2026-07-16 03:01:05', '2026-09-08 12:49:18', 'pending', 0, NULL),
 (36, 'Marlon L. Castro', '$2y$10$ZkqyY3JOeD2anhrKF.o78.MugtjnMrrdIZ63LB1aklo0gn7kdi/2C', 'farmer', '2026-07-23 07:33:54', '2026-07-23 07:33:54', 'pending', 0, NULL),
 (37, 'Emma T', '$2y$10$CET5WzN0Mfe8lFcKYQIWzOcqzEgi4Ps/bug3h6ef2Juril7r4cW4e', 'farmer', '2026-07-31 07:37:17', '2026-09-06 07:12:41', 'pending', 0, NULL),
 (38, 'Marck', '$2y$10$BYWj6REijUN844Wx929RAeSYpHzuUCT9zfwcSvp9CHPho83M1oedW', 'farmer', '2026-08-29 13:12:04', '2026-08-29 13:12:04', 'pending', 0, NULL);
@@ -320,7 +330,8 @@ ALTER TABLE `evaluations`
   ADD KEY `farmer_id` (`farmer_id`),
   ADD KEY `feedback_id` (`feedback_id`),
   ADD KEY `farm_id` (`farm_id`),
-  ADD KEY `schedule_id` (`schedule_id`);
+  ADD KEY `schedule_id` (`schedule_id`),
+  ADD KEY `schedule_id_2` (`schedule_id`);
 
 --
 -- Indexes for table `farmers`
@@ -390,7 +401,7 @@ ALTER TABLE `audit_logs`
 -- AUTO_INCREMENT for table `evaluations`
 --
 ALTER TABLE `evaluations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=149;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=161;
 
 --
 -- AUTO_INCREMENT for table `farmers`
@@ -408,7 +419,7 @@ ALTER TABLE `farms`
 -- AUTO_INCREMENT for table `feedbacks`
 --
 ALTER TABLE `feedbacks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=114;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=123;
 
 --
 -- AUTO_INCREMENT for table `notifications`
