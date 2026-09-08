@@ -19,43 +19,106 @@ class FeedbacksController extends AppController
 {
     $this->loadModel('Farmers');
     $this->loadModel('Farms');
-    $this->loadModel('Feedbacks');
+    $this->loadModel('Schedules');
 
-    // Logged-in user
-    $user = $this->request->getSession()->read('Auth.User');
+    // =========================================================
+    // GET LOGGED-IN USER
+    // =========================================================
+
+    $user = $this->request
+        ->getSession()
+        ->read('Auth.User');
 
     // Default values
     $farms = [];
+    $schedules = [];
     $farmerName = '';
 
-    // Get logged-in farmer
+    // =========================================================
+    // CHECK USER
+    // =========================================================
+
+    if (
+        empty($user) ||
+        empty($user['id'])
+    ) {
+        $this->Flash->error(
+            'User session not found.'
+        );
+
+        return $this->redirect([
+            'action' => 'index'
+        ]);
+    }
+
+    // =========================================================
+    // FIND FARMER
+    // =========================================================
+
     $farmer = $this->Farmers->find()
-        ->where(['user_id' => $user['id']])
+        ->where([
+            'Farmers.user_id' => $user['id']
+        ])
         ->first();
 
     if ($farmer) {
 
+        // =====================================================
+        // FARMER NAME
+        // =====================================================
+
         $farmerName = trim(
-            $farmer->first_name . ' ' .
-            $farmer->middle_name . ' ' .
-            $farmer->last_name
+            ($farmer->first_name ?? '') . ' ' .
+            ($farmer->middle_name ?? '') . ' ' .
+            ($farmer->last_name ?? '')
         );
 
-        // Only this farmer's farms
+        // =====================================================
+        // FARM LIST
+        // =====================================================
+
         $farms = $this->Farms->find('list', [
             'keyField' => 'id',
             'valueField' => 'farm_name'
         ])
         ->where([
-            'farmer_id' => $farmer->id
+            'Farms.farmer_id' => $farmer->id
         ])
         ->toArray();
     }
 
-     $schedules = $this->Feedbacks->Schedules
-        ->find()
-        ->all();
+    // =========================================================
+    // SCHEDULE LIST
+    // =========================================================
+    //
+    // IMPORTANT:
+    // The array must be:
+    //
+    // [
+    //     24 => 'Subsidy Distribution',
+    //     26 => 'Subsidy Distribution',
+    //     27 => 'Subsidy Meeting',
+    // ]
+    //
+    // NOT the entire Schedule entity.
+    //
+    // =========================================================
 
+    $schedules = $this->Schedules->find(
+        'list',
+        [
+            'keyField' => 'id',
+            'valueField' => 'program_name'
+        ]
+    )
+    ->order([
+        'Schedules.start_date' => 'ASC'
+    ])
+    ->toArray();
+
+    // =========================================================
+    // SEND TO VIEW
+    // =========================================================
 
     $this->set(compact(
         'farms',
@@ -270,45 +333,14 @@ class FeedbacksController extends AppController
         * your FastAPI /predict endpoint and ML model.
         */
         $payload = [
+            'farm_size' => $farmSize,
+            'average_yield' => $averageYield,
+            'crop_yield_after' => $cropYieldAfter,
+            'selling_price' => $sellingPrice,
+            'subsidy_received' =>
+                $evaluationData['subsidy_received'] ?? '',
 
-            /*
-            * Subsidy type
-            */
-            'subsidy_type' =>
-                $evaluationData['subsidy_type']
-                ?? '',
-
-            /*
-            * Farm size
-            */
-            'farm_size' =>
-                $farmSize,
-
-            /*
-            * Average yield BEFORE subsidy
-            */
-            'average_yield' =>
-                $averageYield,
-
-            /*
-            * Crop yield AFTER subsidy
-            */
-            'crop_yield_after' =>
-                $cropYieldAfter,
-
-            /*
-            * SELLING PRICE
-            *
-            * This is the newly added ML parameter.
-            */
-            'selling_price' =>
-                $sellingPrice,
-
-            /*
-            * Feedback score
-            */
-            'feedback_score' =>
-                $feedbackScore,
+            'feedback_score' => $feedbackScore,
         ];
 
         // =========================================================

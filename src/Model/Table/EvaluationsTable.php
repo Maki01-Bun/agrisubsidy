@@ -85,7 +85,12 @@ class EvaluationsTable extends Table
             ->decimal('crop_yield_after')
             ->requirePresence('crop_yield_after', 'create')
             ->notEmptyString('crop_yield_after');
-    
+        
+        $validator
+            ->numeric('selling_price')
+            ->requirePresence('selling_price', 'create')
+            ->notEmptyString('selling_price');
+
         $validator
             ->scalar('effectiveness_label')
             ->maxLength('effectiveness_label', 100)

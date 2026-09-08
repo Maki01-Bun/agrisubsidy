@@ -27,14 +27,14 @@
                 </div>
                 <div class="col-md-4 mb-3">
                     <label for="schedule_id">Schedule</label>
-                        <?= $this->Form->control('schedule_id', [
-                            'type' => 'select',
-                            'options' => $schedules,
-                            'empty' => '-- Select Schedule --',
-                            'class' => 'form-control',
-                            'label' => false,
-                            'id' => 'schedule_id'
-                        ]) ?>
+                    <?= $this->Form->control('schedule_id', [
+                        'type' => 'select',
+                        'options' => $schedules,
+                        'empty' => '-- Select Schedule --',
+                        'class' => 'form-control',
+                        'label' => false,
+                        'id' => 'schedule_id'
+                    ]) ?>
                 </div>
                 <div class="col-md-4 mb-3">
                     <label for="subsidy_type">Seed Subsidy Type</label>
@@ -79,7 +79,7 @@
                 </div>
                 <div class="col-md-6 mb-3">
                     <label>Selling Price (₱/kg)</label>
-                    <?= $this->Form->control('average_selling_price', [
+                    <?= $this->Form->control('selling_price', [
                         'class' => 'form-control',
                         'label' => false
                     ]) ?>

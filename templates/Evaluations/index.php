@@ -113,6 +113,10 @@
                         <td id="selling_price"></td>
                     </tr>
                     <tr>
+                        <th>Subsidy Received</th>
+                        <td id="subsidy_received"></td>
+                    </tr>
+                    <tr>
                         <th>Rating</th>
                         <td id="feedback_rating"></td>
                     </tr>

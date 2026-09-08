@@ -16,6 +16,7 @@ use Cake\ORM\Entity;
  * @property string $subsidy_type
  * @property float $farm_id
  * @property float $crop_yield_after
+ * @property float $selling_price
  * @property string $effectiveness_label
  * @property \Cake\I18n\FrozenTime $created
  * @property \Cake\I18n\FrozenTime $modified
@@ -37,6 +38,7 @@ class Evaluation extends Entity
         'schedule_id' => true,
         'crop_yield_after' => true,
         'effectiveness_label' => true,
+        'selling_price' => true,
         'farmer_id' => true,
         'feedback_id' => true,
         'created' => true,
