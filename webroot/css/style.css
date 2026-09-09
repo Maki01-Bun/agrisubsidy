@@ -2882,10 +2882,10 @@ side-bar logout part
 
 
 /* =========================================================
-   EFFECTIVENESS DROPDOWN
+   SUBSIDY TYPE DROPDOWN
    ========================================================= */
 
-.evaluation-card-tools .effectiveness-dropdown {
+.evaluation-card-tools .subsidy-type-dropdown {
     position: relative !important;
     display: inline-flex !important;
     align-items: center !important;
@@ -2896,28 +2896,36 @@ side-bar logout part
 
 
 /* =========================================================
-   EFFECTIVENESS BUTTON
+   SUBSIDY TYPE BUTTON
    ========================================================= */
 
-.evaluation-card-tools .effectiveness-btn {
+.evaluation-card-tools .subsidy-type-btn {
     width: auto !important;
     min-width: 0 !important;
     height: 40px !important;
     min-height: 40px !important;
     padding: 0 14px !important;
+
     border-radius: 8px !important;
+
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
+
     gap: 8px !important;
+
     position: static !important;
+
     font-size: 13px !important;
     font-weight: 600 !important;
     line-height: 1 !important;
+
     white-space: nowrap !important;
+
     transform: none !important;
     rotate: none !important;
     animation: none !important;
+
     transition:
         background-color 0.15s ease,
         border-color 0.15s ease,
@@ -2925,73 +2933,103 @@ side-bar logout part
 }
 
 
-/* Filter icon */
+/* =========================================================
+   FILTER ICON
+   ========================================================= */
 
-.evaluation-card-tools .effectiveness-btn i {
+.evaluation-card-tools .subsidy-type-btn i {
     display: inline-block !important;
+
     width: auto !important;
     height: auto !important;
+
     margin: 0 !important;
+
     font-size: 13px !important;
-    transform: none !important;
-}
 
-
-/* Button hover */
-
-.evaluation-card-tools .effectiveness-btn:hover {
-    transform: none !important;
-    box-shadow:
-        0 4px 10px rgba(0, 123, 255, 0.15) !important;
-}
-
-
-/* Button when dropdown is open */
-.evaluation-card-tools
-.effectiveness-btn[aria-expanded="true"] {
-    background-color: #007bff !important;
-    border-color: #007bff !important;
-    color: #ffffff !important;
-    box-shadow:
-        0 4px 12px rgba(0, 123, 255, 0.20) !important;
     transform: none !important;
 }
 
 
 /* =========================================================
-   EFFECTIVENESS DROPDOWN MENU
+   BUTTON HOVER
    ========================================================= */
 
-.evaluation-card-tools .effectiveness-menu {
-    /* IMPORTANT:
-       Anchor dropdown directly to the filter button */
+.evaluation-card-tools .subsidy-type-btn:hover {
+    transform: none !important;
+
+    box-shadow:
+        0 4px 10px rgba(0, 123, 255, 0.15) !important;
+}
+
+
+/* =========================================================
+   BUTTON WHEN DROPDOWN IS OPEN
+   ========================================================= */
+
+.evaluation-card-tools
+.subsidy-type-btn[aria-expanded="true"] {
+
+    background-color: #007bff !important;
+    border-color: #007bff !important;
+    color: #ffffff !important;
+
+    box-shadow:
+        0 4px 12px rgba(0, 123, 255, 0.20) !important;
+
+    transform: none !important;
+}
+
+
+/* =========================================================
+   SUBSIDY TYPE DROPDOWN MENU
+   ========================================================= */
+
+.evaluation-card-tools .subsidy-type-menu {
+
     position: absolute !important;
+
     top: calc(100% + 8px) !important;
+
     right: 0 !important;
     left: auto !important;
     bottom: auto !important;
-    /* Modal size */
-    width: 360px !important;
-    min-width: 360px !important;
-    max-width: 360px !important;
+
+    width: 260px !important;
+    min-width: 260px !important;
+    max-width: 260px !important;
+
     padding: 8px !important;
     margin: 0 !important;
+
     box-sizing: border-box !important;
+
     /* Appearance */
+
     border: 1px solid #e5e7eb !important;
+
     border-radius: 14px !important;
+
     background: #ffffff !important;
+
     box-shadow:
         0 20px 45px rgba(0, 0, 0, 0.12),
         0 6px 16px rgba(0, 0, 0, 0.06) !important;
-    /* Keep above table/card */
+
+    /* Keep above table */
+
     z-index: 9999 !important;
+
     overflow: hidden !important;
-    /* Remove unwanted positioning/rotation */
+
+    /* Prevent rotation */
+
     transform: none !important;
     rotate: none !important;
     animation: none !important;
+
     writing-mode: horizontal-tb !important;
+
     text-align: left !important;
 }
 
@@ -3000,23 +3038,40 @@ side-bar logout part
    DROPDOWN HEADER
    ========================================================= */
 
-.evaluation-card-tools .effectiveness-header {
+.evaluation-card-tools .subsidy-type-header {
+
     display: flex !important;
+
     flex-direction: row !important;
+
     align-items: center !important;
+
     gap: 10px !important;
+
     width: 100% !important;
+
     min-height: 46px !important;
+
     padding: 8px 10px !important;
+
     margin: 0 !important;
+
     box-sizing: border-box !important;
+
     color: #141516 !important;
+
     font-size: 11px !important;
+
     font-weight: 700 !important;
+
     letter-spacing: 0.5px !important;
+
     text-transform: uppercase !important;
+
     white-space: nowrap !important;
+
     writing-mode: horizontal-tb !important;
+
     transform: none !important;
 }
 
@@ -3025,17 +3080,26 @@ side-bar logout part
    HEADER ICON
    ========================================================= */
 
-.evaluation-card-tools .effectiveness-header-icon {
+.evaluation-card-tools .subsidy-type-header-icon {
+
     display: inline-flex !important;
+
     align-items: center !important;
     justify-content: center !important;
+
     flex: 0 0 30px !important;
+
     width: 30px !important;
     height: 30px !important;
+
     border-radius: 8px !important;
+
     background: #eef5ff !important;
+
     color: #007bff !important;
+
     font-size: 13px !important;
+
     transform: none !important;
 }
 
@@ -3045,45 +3109,73 @@ side-bar logout part
    ========================================================= */
 
 .evaluation-card-tools
-.effectiveness-menu
+.subsidy-type-menu
 .dropdown-divider {
+
     width: calc(100% - 12px) !important;
+
     height: 1px !important;
+
     margin: 6px 6px !important;
+
     padding: 0 !important;
+
     border: 0 !important;
+
     border-top: 1px solid #edf0f2 !important;
+
     background: transparent !important;
 }
 
 
 /* =========================================================
-   DROPDOWN ITEMS
+   SUBSIDY TYPE ITEMS
    ========================================================= */
 
 .evaluation-card-tools
-.effectiveness-menu
-.effectiveness-filter {
+.subsidy-type-menu
+.subsidy-type-filter {
+
     display: flex !important;
+
     flex-direction: row !important;
+
     align-items: center !important;
+
     justify-content: flex-start !important;
+
     width: 100% !important;
+
     min-width: 0 !important;
+
     min-height: 52px !important;
+
     height: 52px !important;
+
     padding: 6px 10px !important;
+
     margin: 2px 0 !important;
+
     box-sizing: border-box !important;
+
     border-radius: 9px !important;
+
     color: #343a40 !important;
+
     background: transparent !important;
+
     text-decoration: none !important;
+
     white-space: nowrap !important;
+
     writing-mode: horizontal-tb !important;
+
     transform: none !important;
+
     rotate: none !important;
+
     animation: none !important;
+
     transition:
         background-color 0.15s ease,
         color 0.15s ease !important;
@@ -3095,68 +3187,77 @@ side-bar logout part
    ========================================================= */
 
 .evaluation-card-tools
-.effectiveness-menu
-.effectiveness-filter:hover {
+.subsidy-type-menu
+.subsidy-type-filter:hover {
+
     background: #f6f8fa !important;
+
     color: #212529 !important;
+
     text-decoration: none !important;
+
     transform: none !important;
 }
 
 
 /* =========================================================
-   EFFECTIVENESS ICON
+   SUBSIDY TYPE ICON
    ========================================================= */
 
-.evaluation-card-tools .effectiveness-icon {
+.evaluation-card-tools .subsidy-type-icon {
+
     display: inline-flex !important;
+
     align-items: center !important;
     justify-content: center !important;
+
     flex: 0 0 36px !important;
+
     width: 36px !important;
     min-width: 36px !important;
+
     height: 36px !important;
     min-height: 36px !important;
+
     margin: 0 12px 0 0 !important;
+
     padding: 0 !important;
+
     border-radius: 9px !important;
+
     font-size: 15px !important;
+
     line-height: 1 !important;
+
     transform: none !important;
+
     rotate: none !important;
 }
 
 
 /* =========================================================
-   EFFECTIVE
+   CORN SEEDS
    ========================================================= */
 
 .evaluation-card-tools
-.effectiveness-icon.effective {
+.subsidy-type-icon.corn-seed {
+
     background: #e9f8ef !important;
+
     color: #28a745 !important;
 }
 
 
 /* =========================================================
-   MODERATELY EFFECTIVE
+   RICE
    ========================================================= */
 
 .evaluation-card-tools
-.effectiveness-icon.moderate {
+.subsidy-type-icon.rice {
+
     background: #fff6df !important;
+
     color: #e0a000 !important;
-}
-
-
-/* =========================================================
-   NOT EFFECTIVE
-   ========================================================= */
-
-.evaluation-card-tools
-.effectiveness-icon.not-effective {
-    background: #fdecec !important;
-    color: #dc3545 !important;
 }
 
 
@@ -3165,9 +3266,11 @@ side-bar logout part
    ========================================================= */
 
 .evaluation-card-tools
-.effectiveness-icon.clear-icon {
+.subsidy-type-icon.clear {
+
     background: #f1f3f5 !important;
-    color: #ff3d3d !important;
+
+    color: #dc3545 !important;
 }
 
 
@@ -3175,13 +3278,19 @@ side-bar logout part
    ICONS
    ========================================================= */
 
-.evaluation-card-tools .effectiveness-icon i {
+.evaluation-card-tools .subsidy-type-icon i {
+
     display: inline-block !important;
+
     width: auto !important;
     height: auto !important;
+
     margin: 0 !important;
+
     padding: 0 !important;
+
     transform: none !important;
+
     rotate: none !important;
 }
 
@@ -3191,22 +3300,37 @@ side-bar logout part
    ========================================================= */
 
 .evaluation-card-tools
-.effectiveness-menu
-.effectiveness-text {
+.subsidy-type-menu
+.subsidy-type-text {
+
     display: block !important;
+
     flex: 1 1 auto !important;
+
     min-width: 0 !important;
+
     width: auto !important;
+
     margin: 0 !important;
+
     padding: 0 !important;
+
     color: inherit !important;
+
     font-size: 13px !important;
+
     font-weight: 500 !important;
+
     line-height: 1.3 !important;
+
     text-align: left !important;
+
     white-space: nowrap !important;
+
     writing-mode: horizontal-tb !important;
+
     transform: none !important;
+
     rotate: none !important;
 }
 
@@ -3216,25 +3340,30 @@ side-bar logout part
    ========================================================= */
 
 .evaluation-card-tools
-.effectiveness-menu
-.clear-effectiveness {
+.subsidy-type-menu
+.clear-subsidy-type {
+
     color: #6c757d !important;
 }
 
 
 .evaluation-card-tools
-.effectiveness-menu
-.clear-effectiveness:hover {
+.subsidy-type-menu
+.clear-subsidy-type:hover {
+
     background: #fff5f5 !important;
+
     color: #dc3545 !important;
 }
 
 
 .evaluation-card-tools
-.effectiveness-menu
-.clear-effectiveness:hover
-.clear-icon {
+.subsidy-type-menu
+.clear-subsidy-type:hover
+.clear {
+
     background: #fdeaea !important;
+
     color: #dc3545 !important;
 }
 
@@ -3244,25 +3373,45 @@ side-bar logout part
    ========================================================= */
 
 .evaluation-card-tools .evaluation-download-btn {
+
     width: auto !important;
+
     height: 40px !important;
+
     min-width: 0 !important;
+
     min-height: 40px !important;
+
     border-radius: 8px !important;
+
     overflow: visible !important;
+
     white-space: nowrap !important;
+
     padding: 0 16px !important;
+
     display: inline-flex !important;
+
     align-items: center !important;
+
     justify-content: center !important;
+
     gap: 8px !important;
+
     position: static !important;
+
     font-size: 13px !important;
+
     font-weight: 600 !important;
+
     line-height: 1 !important;
+
     transform: none !important;
+
     rotate: none !important;
+
     animation: none !important;
+
     transition:
         background-color 0.15s ease,
         border-color 0.15s ease,
@@ -3276,11 +3425,16 @@ side-bar logout part
 
 .evaluation-card-tools
 .evaluation-download-btn i {
+
     display: inline-block !important;
+
     width: auto !important;
     height: auto !important;
+
     margin: 0 !important;
+
     font-size: 14px !important;
+
     transform: none !important;
 }
 
@@ -3291,7 +3445,9 @@ side-bar logout part
 
 .evaluation-card-tools
 .evaluation-download-btn:hover {
+
     transform: none !important;
+
     box-shadow:
         0 5px 12px rgba(40, 167, 69, 0.20) !important;
 }
@@ -3303,11 +3459,16 @@ side-bar logout part
 
 .evaluation-card-tools
 .evaluation-download-btn:focus,
+
 .evaluation-card-tools
 .evaluation-download-btn:active {
+
     transform: none !important;
+
     rotate: none !important;
+
     animation: none !important;
+
     outline: none !important;
 }
 
@@ -3320,7 +3481,9 @@ side-bar logout part
 .evaluation-card-tools *,
 .evaluation-card-tools *::before,
 .evaluation-card-tools *::after {
+
     writing-mode: horizontal-tb !important;
+
     rotate: none !important;
 }
 
@@ -3331,18 +3494,26 @@ side-bar logout part
 
 .evaluation-card-tools
 .evaluation-download-btn:hover,
+
 .evaluation-card-tools
 .evaluation-download-btn:focus,
+
 .evaluation-card-tools
 .evaluation-download-btn:active,
+
 .evaluation-card-tools
-.effectiveness-btn:hover,
+.subsidy-type-btn:hover,
+
 .evaluation-card-tools
-.effectiveness-btn:focus,
+.subsidy-type-btn:focus,
+
 .evaluation-card-tools
-.effectiveness-btn:active {
+.subsidy-type-btn:active {
+
     transform: none !important;
+
     rotate: none !important;
+
     animation: none !important;
 }
 
@@ -3363,11 +3534,17 @@ side-bar logout part
     }
 
 
-    .evaluation-card-tools .effectiveness-menu {
-        width: 320px !important;
-        min-width: 320px !important;
+    .evaluation-card-tools
+    .subsidy-type-menu {
+
+        width: 280px !important;
+
+        min-width: 280px !important;
+
         max-width: calc(100vw - 24px) !important;
+
         right: 0 !important;
+
         left: auto !important;
     }
 }
@@ -3380,18 +3557,24 @@ side-bar logout part
 @media (max-width: 480px) {
 
     /* Filter becomes icon-only */
+
     .evaluation-card-tools
-    .effectiveness-btn {
+    .subsidy-type-btn {
+
         width: 40px !important;
+
         min-width: 40px !important;
+
         padding: 0 !important;
+
         gap: 0 !important;
     }
 
 
     .evaluation-card-tools
-    .effectiveness-btn
-    #effectivenessLabel {
+    .subsidy-type-btn
+    #subsidyTypeLabel {
+
         display: none !important;
     }
 
@@ -3400,34 +3583,48 @@ side-bar logout part
 
     .evaluation-card-tools
     .evaluation-download-btn {
+
         width: 40px !important;
+
         min-width: 40px !important;
+
         padding: 0 !important;
+
         gap: 0 !important;
     }
 
 
     .evaluation-card-tools
-    .evaluation-download-btn span{
+    .evaluation-download-btn span {
+
         display: none !important;
     }
 
 
     /* Mobile dropdown */
 
-    .evaluation-card-tools .effectiveness-menu {
+    .evaluation-card-tools
+    .subsidy-type-menu {
+
         position: fixed !important;
+
         top: 70px !important;
+
         right: 12px !important;
+
         left: 12px !important;
+
         bottom: auto !important;
+
         width: auto !important;
+
         min-width: 0 !important;
+
         max-width: none !important;
+
         z-index: 99999 !important;
     }
 }
-
 /* =========================================================
    RECORDS CARD TOOLS
    ========================================================= */
@@ -4068,4 +4265,232 @@ side-bar logout part
 
         z-index: 99999 !important;
     }
+}
+
+/* =========================================================
+   IMPORT RESULT MODAL
+========================================================= */
+
+.import-result-modal {
+    border: none !important;
+
+    border-radius: 20px !important;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.20);
+}
+
+
+/* Header */
+
+.import-result-header {
+    position: relative;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    min-height: 110px;
+
+    border: none !important;
+
+    background: #ffffff !important;
+
+    padding: 25px;
+}
+
+
+/* Icon */
+
+.import-result-icon {
+    width: 70px;
+    height: 70px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #e9f8ed;
+
+    color: #087f23;
+
+    font-size: 30px;
+
+    box-shadow:
+        0 5px 15px rgba(8, 127, 35, 0.12);
+}
+
+
+/* Close */
+
+.import-result-header .close {
+    position: absolute;
+
+    top: 12px;
+    right: 18px;
+
+    color: #555;
+
+    opacity: .7;
+
+    font-size: 25px;
+
+    transition: .2s;
+}
+
+.import-result-header .close:hover {
+    color: #087f23;
+
+    opacity: 1;
+}
+
+
+/* Body */
+
+.import-result-modal .modal-body {
+    padding: 5px 30px 20px;
+
+    background: #ffffff;
+}
+
+
+/* Title */
+
+.import-result-title {
+    margin-bottom: 12px;
+
+    color: #222;
+
+    font-size: 23px;
+
+    font-weight: 700;
+}
+
+
+/* Message */
+
+.import-result-message {
+    margin: 0 auto;
+
+    max-width: 420px;
+
+    color: #666;
+
+    font-size: 15px;
+
+    line-height: 1.7;
+}
+
+
+/* Footer */
+
+.import-result-modal .modal-footer {
+    border-top: 1px solid #eeeeee;
+
+    background: #fafafa;
+
+    padding: 15px;
+}
+
+
+/* OK button */
+
+.import-ok-btn {
+    min-width: 110px;
+
+    padding: 9px 25px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: #087f23 !important;
+
+    font-weight: 600;
+
+    transition: .25s;
+}
+
+.import-ok-btn:hover {
+    background: #066a1d !important;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 5px 12px rgba(8, 127, 35, .20);
+}
+
+
+/* =========================================================
+   WARNING STATE
+========================================================= */
+
+.import-result-modal.warning .import-result-icon {
+    background: #fff7df;
+
+    color: #d99a00;
+}
+
+.import-result-modal.warning .import-ok-btn {
+    background: #d99a00 !important;
+}
+
+
+/* =========================================================
+   ERROR STATE
+========================================================= */
+
+.import-result-modal.error .import-result-icon {
+    background: #fdecec;
+
+    color: #dc3545;
+}
+
+.import-result-modal.error .import-ok-btn {
+    background: #dc3545 !important;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 576px) {
+
+    .import-result-modal {
+        margin: 15px;
+    }
+
+    .import-result-header {
+        min-height: 95px;
+
+        padding: 20px;
+    }
+
+    .import-result-icon {
+        width: 60px;
+        height: 60px;
+
+        font-size: 25px;
+    }
+
+    .import-result-modal .modal-body {
+        padding: 5px 20px 20px;
+    }
+
+    .import-result-title {
+        font-size: 20px;
+    }
+
+    .import-result-message {
+        font-size: 14px;
+    }
+
 }

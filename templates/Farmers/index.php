@@ -116,60 +116,65 @@
         </div>
     </div>
 </div>
-
-<div class="modal fade" id="excelUploadModal" tabindex="-1">
-    <div class="modal-dialog">
+<div class="modal fade"
+     id="excelUploadModal"
+     tabindex="-1"
+     role="dialog"
+     aria-labelledby="excelUploadModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"
+         role="document">
         <div class="modal-content">
-
             <?= $this->Form->create(null, [
                 'url' => ['action' => 'uploadExcel'],
-                'type' => 'file'
+                'type' => 'file',
+                'id' => 'excelUploadForm'
             ]) ?>
-
+            <!-- HEADER -->
             <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="fas fa-file-excel text-success"></i>
-                    Upload Beneficiaries Informations
+                <h5 class="modal-title"
+                    id="excelUploadModalLabel">
+                    <i class="fas fa-file-excel mr-2"></i>
+                    Upload Beneficiaries
                 </h5>
-
                 <button type="button"
                         class="close"
-                        data-dismiss="modal">
-                    <span>&times;</span>
+                        data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-
+            <!-- BODY -->
             <div class="modal-body">
-
                 <div class="form-group">
-                    <label>Select Excel File</label>
-
+                    <label for="excel_file">
+                        Select Excel File
+                    </label>
                     <?= $this->Form->control('excel_file', [
                         'type' => 'file',
-                        'label' => false,
                         'class' => 'form-control',
+                        'label' => false,
+                        'required' => true,
                         'accept' => '.xlsx,.xls'
                     ]) ?>
+
+                    <small class="form-text text-muted">
+
+                        Accepted files:
+                        <strong>.xlsx</strong> and
+                        <strong>.xls</strong>
+                    </small>
                 </div>
-
-                <small class="text-muted">
-                    Accepted files: .xlsx and .xls
-                </small>
-
             </div>
-
+            <!-- FOOTER -->
             <div class="modal-footer">
-
                 <button type="submit"
                         class="btn btn-success">
-                    <i class="fas fa-upload"></i>
+                    <i class="fas fa-upload mr-1"></i>
                     Upload & Import
                 </button>
-
             </div>
-
             <?= $this->Form->end() ?>
-
         </div>
     </div>
 </div>
@@ -186,7 +191,6 @@
                 <h5 class="modal-title"
                     id="viewRecordModalLabel">
                     <i class="fas fa-user mr-2"></i>
-
                     Farmer Distribution Records
                 </h5>
                 <button type="button"
@@ -246,3 +250,187 @@
         </div>
     </div>
 </div>
+<div class="modal fade"
+     id="importResultModal"
+     tabindex="-1"
+     role="dialog"
+     aria-labelledby="importResultModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered" role="document">
+
+        <div class="modal-content import-result-modal">
+
+            <div class="modal-header import-result-header">
+
+                <div class="import-result-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+
+                <button type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-label="Close">
+
+                    <span aria-hidden="true">&times;</span>
+
+                </button>
+
+            </div>
+
+            <div class="modal-body text-center">
+
+                <h4 id="importResultModalLabel"
+                    class="import-result-title">
+                    Import Completed
+                </h4>
+
+                <p id="importResultMessage"
+                   class="import-result-message">
+                </p>
+
+            </div>
+
+            <div class="modal-footer justify-content-center">
+
+                <button type="button"
+                        class="btn btn-success import-ok-btn"
+                        data-dismiss="modal">
+
+                    <i class="fas fa-check mr-1"></i>
+                    OK
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<script>
+$(document).ready(function () {
+
+    /*
+     * =====================================================
+     * GET CAKEPHP FLASH MESSAGE
+     * =====================================================
+     */
+
+    var flashMessage = $('.message');
+
+    /*
+     * If CakePHP generated a success message
+     */
+
+    if (flashMessage.length) {
+
+        var messageText = flashMessage.text().trim();
+
+        /*
+         * Determine message type
+         */
+
+        var isWarning =
+            flashMessage.hasClass('warning') ||
+            flashMessage.hasClass('alert-warning') ||
+            flashMessage.find('.alert-warning').length > 0;
+
+        var isError =
+            flashMessage.hasClass('error') ||
+            flashMessage.hasClass('alert-danger') ||
+            flashMessage.find('.alert-danger').length > 0;
+
+
+        /*
+         * =================================================
+         * SET MODAL CONTENT
+         * =================================================
+         */
+
+        $('#importResultMessage').text(messageText);
+
+
+        /*
+         * =================================================
+         * SUCCESS
+         * =================================================
+         */
+
+        if (!isWarning && !isError) {
+
+            $('#importResultModal')
+                .removeClass('warning error');
+
+            $('#importResultModal .import-result-icon')
+                .html('<i class="fas fa-check"></i>');
+
+            $('#importResultModalLabel')
+                .text('Import Completed');
+        }
+
+
+        /*
+         * =================================================
+         * WARNING
+         * =================================================
+         */
+
+        else if (isWarning) {
+
+            $('#importResultModal')
+                .removeClass('error')
+                .addClass('warning');
+
+            $('#importResultModal .import-result-icon')
+                .html('<i class="fas fa-exclamation"></i>');
+
+            $('#importResultModalLabel')
+                .text('Data Already Uploaded');
+        }
+
+
+        /*
+         * =================================================
+         * ERROR
+         * =================================================
+         */
+
+        else if (isError) {
+
+            $('#importResultModal')
+                .removeClass('warning')
+                .addClass('error');
+
+            $('#importResultModal .import-result-icon')
+                .html('<i class="fas fa-times"></i>');
+
+            $('#importResultModalLabel')
+                .text('Import Failed');
+        }
+
+
+        /*
+         * =================================================
+         * SHOW MODAL
+         * =================================================
+         */
+
+        $('#importResultModal').modal({
+            backdrop: 'static',
+            keyboard: false
+        });
+
+
+        /*
+         * =================================================
+         * HIDE ORIGINAL FLASH MESSAGE
+         * =================================================
+         */
+
+        flashMessage.hide();
+    }
+
+});
+</script>

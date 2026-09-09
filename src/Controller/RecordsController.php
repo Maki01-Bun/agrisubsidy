@@ -215,7 +215,6 @@ class RecordsController extends AppController
             'action' => 'index'
         ]);
     }
-
     public function uploadExcel()
     {
         if (!$this->request->is('post')) {

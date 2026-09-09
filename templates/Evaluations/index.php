@@ -8,51 +8,45 @@
                     aria-haspopup="true" aria-expanded="false">
                         <i class="fas fa-filter"></i>
                         <span id="effectivenessLabel">
-                            Filter Effectiveness
+                            Filter Subsidy Type
                         </span>
                     </button>
-                    <div class="dropdown-menu dropdown-menu-right effectiveness-menu" aria-labelledby="effectivenessDropdown">
-                        <!-- Header -->
-                        <div class="dropdown-header effectiveness-header">
-                            <span class="effectiveness-header-icon">
-                                <i class="fas fa-chart-line"></i>
+                    <div class="dropdown-menu dropdown-menu-right subsidy-type-menu"
+                        aria-labelledby="subsidyTypeDropdown">
+                        <div class="dropdown-header subsidy-type-header">
+                            <span class="subsidy-type-header-icon">
+                                <i class="fas fa-seedling"></i>
                             </span>
 
                             <span>
-                                Filter by Effectiveness
+                                Filter by Subsidy Type
                             </span>
                         </div>
                         <div class="dropdown-divider"></div>
-                        <!-- Effectiveness Options -->
-                        <?php foreach ($this->Option->filterEffectiveness() as $value => $label): ?>
-                            <a
-                                href="#"
-                                class="dropdown-item effectiveness-filter"
-                                data-value="<?= h($value) ?>">
-                                <?php if ($value === 'Effective'): ?>
-                                    <span class="effectiveness-icon effective">
-                                        <i class="fas fa-check"></i>
-                                    </span>
-                                <?php elseif ($value === 'Moderately Effective'): ?>
-                                    <span class="effectiveness-icon moderate">
-                                        <i class="fas fa-minus"></i>
-                                    </span>
-                                <?php else: ?>
-                                    <span class="effectiveness-icon not-effective">
-                                        <i class="fas fa-times"></i>
-                                    </span>
-                                <?php endif; ?>
-                                <span class="effectiveness-text">
-                                    <?= h($label) ?>
-                                </span>
-                            </a>
-                        <?php endforeach; ?>
+                        <!-- Corn Seeds -->
+                        <a href="#"
+                        class="dropdown-item subsidy-type-filter"
+                        data-value="Corn Seeds">
+                            <span class="subsidy-type-text">
+                                Corn Seeds
+                            </span>
+                        </a>
+                        <!-- Rice -->
+                        <a href="#"
+                        class="dropdown-item subsidy-type-filter"
+                        data-value="Rice Seeds">
+                            <span class="subsidy-type-text">
+                                Rice Seeds
+                            </span>
+                        </a>
                         <div class="dropdown-divider"></div>
                         <!-- Clear -->
-                        <a
-                            href="#"
-                            class="dropdown-item effectiveness-filter clear-effectiveness">
-                            <span class="effectiveness-text">
+                        <a href="#"
+                        class="dropdown-item subsidy-type-filter clear-subsidy-type">
+                            <span class="subsidy-type-icon">
+                                <i class="fas fa-times"></i>
+                            </span>
+                            <span class="subsidy-type-text">
                                 Clear Filter
                             </span>
                         </a>

@@ -132,79 +132,69 @@ function getEvaluations()
         ]
 	});
 }
-
-$(function () {
+   $(function () {
 
     if (!$.fn.DataTable.isDataTable('#evaluations-table')) {
-        console.error(
-            'evaluations-table has not been initialized yet.'
-        );
+        console.error('evaluations-table has not been initialized yet.');
         return;
     }
 
-
     var evaluationTable = $('#evaluations-table').DataTable();
-    $(document).on(
-        'click',
-        '.effectiveness-filter',
-        function (e) {
-            e.preventDefault();
-            var $item = $(this);
 
-            if ($item.hasClass('clear-effectiveness')) {
+    $(document).on('click', '.subsidy-type-filter', function (e) {
 
-                $('#effectivenessLabel').text(
-                    'Filter Effectiveness'
-                );
-                $('.effectiveness-filter')
-                    .removeClass('active');
-                evaluationTable.column(4).search('').draw();
+        e.preventDefault();
 
-                console.log(
-                    'Effectiveness filter cleared'
-                );
-                return;
-            }
+        var $item = $(this);
 
-            var value = $item.attr('data-value');
-            if (!value) {
+        // Clear filter
+        if ($item.hasClass('clear-subsidy-type')) {
 
-                return;
+            $('#subsidyTypeLabel').text('Filter Subsidy Type');
 
-            }
-
-            $('#effectivenessLabel').text(
-                value
-            );
-            $('.effectiveness-filter')
-                .removeClass('active');
-
-            $item.addClass('active');
+            $('.subsidy-type-filter').removeClass('active');
 
             evaluationTable
-                .column(4)
-                .search(
-                    '^' +
-                    $.fn.dataTable.util.escapeRegex(value) +
-                    '$',
-                    true,
-                    false
-                )
+                .column(2)
+                .search('')
                 .draw();
 
-
-            console.log(
-                'Filtering Effectiveness:',
-                value
-            );
-
+            return;
         }
-    );
+
+        // Get subsidy_type value
+        var subsidyType = $item.data('value');
+
+        if (!subsidyType) {
+            return;
+        }
+
+        // Update button label
+        $('#subsidyTypeLabel').text(subsidyType);
+
+        // Remove active state
+        $('.subsidy-type-filter').removeClass('active');
+
+        // Add active state
+        $item.addClass('active');
+
+        // Filter subsidy_type column
+        evaluationTable
+            .column(2)
+            .search(
+                '^' +
+                $.fn.dataTable.util.escapeRegex(subsidyType) +
+                '$',
+                true,
+                false,
+                true
+            )
+            .draw();
+
+        console.log('Filtering subsidy_type:', subsidyType);
+    });
 
 });
-
-
-
 function viewFeedback(evaluationId)
 {
 

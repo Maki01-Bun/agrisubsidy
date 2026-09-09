@@ -84,24 +84,8 @@
 
     <!-- CHART ROW -->
     <div class="row g-3 mt-3">
-
-        <!-- EFFECTIVENESS -->
-        <div class="col-lg-5">
-            <div class="analytics-panel">
-                <div class="panel-title">
-                    <i class="fas fa-chart-pie me-2"></i>
-                    Most Effective Seed Subsidy Program
-                </div>
-                <div class="panel-body">
-                    <div class="chart-container">
-                        <canvas id="programEffectivenessChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- FEATURES -->
-        <div class="col-lg-7">
+        <div class="col-lg-12">
             <div class="analytics-panel">
                 <div class="panel-title">
                     Features That Most Affect Effectiveness
