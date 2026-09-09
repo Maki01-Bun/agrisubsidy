@@ -666,57 +666,59 @@ class EvaluationsController extends AppController
             ]);
         }
     }
-        public function viewFeedback($id = null)
-        {
-            if (!$id) {
+    public function viewFeedback($id = null)
+    {
+        if (!$id) {
 
-                $this->Flash->error(
-                    'Invalid evaluation ID.'
-                );
+            $this->Flash->error(
+                'Invalid evaluation ID.'
+            );
 
-                return $this->redirect([
-                    'action' => 'index'
-                ]);
-            }
-
-            try {
-
-                $evaluation = $this->Evaluations->get(
-                    $id,
-                    [
-                        'contain' => [
-                            'Farmers',
-                            'Farms',
-                            'Feedbacks',
-                            'Schedules'
-                        ]
-                    ]
-                );
-
-                $this->set([
-                    'evaluation' => $evaluation
-                ]);
-
-            } catch (\Exception $e) {
-
-                $this->Flash->error(
-                    'Evaluation record not found.'
-                );
-
-                return $this->redirect([
-                    'action' => 'index'
-                ]);
-            }
+            return $this->redirect([
+                'action' => 'index'
+            ]);
         }
 
-        /**
-         * Get Feedback
-         *
-         * Returns evaluation feedback as JSON.
-         *
-         * program_name is retrieved from Schedules.
-         */
-        public function getFeedback($evaluationId = null)
+        try {
+
+            $evaluation = $this->Evaluations->get(
+                $id,
+                [
+                    'contain' => [
+                        'Farmers',
+                        'Farms',
+                        'Feedbacks',
+                        'Schedules'
+                    ]
+                ]
+            );
+
+            $this->set([
+                'evaluation' => $evaluation
+            ]);
+
+        } catch (\Exception $e) {
+
+            $this->Flash->error(
+                'Evaluation record not found.'
+            );
+
+            return $this->redirect([
+                'action' => 'index'
+            ]);
+        }
+    }
+
+
+    /**
+     * Get Feedback
+     *
+     * Returns evaluation feedback as JSON.
+     *
+     * program_name is retrieved from Schedules.
+     * subsidy_received is retrieved from Evaluations.
+     */
+    public function getFeedback($evaluationId = null)
     {
         $this->request->allowMethod([
             'get'
@@ -753,6 +755,8 @@ class EvaluationsController extends AppController
             * $evaluation->schedule->program_name
             *
             * can be accessed.
+            *
+            * subsidy_received is a field directly from Evaluations.
             */
             $evaluation = $this->Evaluations->get(
                 $evaluationId,
@@ -815,6 +819,32 @@ class EvaluationsController extends AppController
                 $programName =
                     $evaluation->schedule->program_name
                     ?? '';
+            }
+
+            /*
+            * ==========================================================
+            * SUBSIDY RECEIVED
+            * ==========================================================
+            *
+            * subsidy_received comes directly from Evaluations.
+            *
+            * Example:
+            *
+            * Yes
+            * No
+            */
+            $subsidyReceived = 'N/A';
+
+            if (
+                isset($evaluation->subsidy_received)
+                &&
+                $evaluation->subsidy_received !== null
+                &&
+                $evaluation->subsidy_received !== ''
+            ) {
+
+                $subsidyReceived =
+                    $evaluation->subsidy_received;
             }
 
             /*
@@ -1018,6 +1048,85 @@ class EvaluationsController extends AppController
 
             /*
             * ==========================================================
+            * AVERAGE YIELD
+            * ==========================================================
+            */
+            $averageYield = 'None';
+
+            if (
+                isset($evaluation->average_yield)
+                &&
+                $evaluation->average_yield !== null
+                &&
+                $evaluation->average_yield !== ''
+            ) {
+
+                $averageYield =
+                    $evaluation->average_yield;
+            }
+
+            /*
+            * ==========================================================
+            * FARM SIZE
+            * ==========================================================
+            */
+            $farmSize = 'None';
+
+            if (
+                isset($evaluation->farm_size)
+                &&
+                $evaluation->farm_size !== null
+                &&
+                $evaluation->farm_size !== ''
+            ) {
+
+                $farmSize =
+                    $evaluation->farm_size;
+            }
+
+            /*
+            * ==========================================================
+            * EFFECTIVENESS LABEL
+            * ==========================================================
+            *
+            * This also protects the UI if an old record still
+            * contains 0, 1, or 2.
+            */
+            $effectivenessLabel = 'Not Predicted';
+
+            if (
+                isset($evaluation->effectiveness_label)
+                &&
+                $evaluation->effectiveness_label !== null
+                &&
+                $evaluation->effectiveness_label !== ''
+            ) {
+
+                $effectivenessLabel =
+                    $evaluation->effectiveness_label;
+
+                /*
+                * Convert old numerical values to readable labels.
+                */
+                $labelMap = [
+                    0 => 'Not Effective',
+                    1 => 'Moderately Effective',
+                    2 => 'Effective'
+                ];
+
+                if (is_numeric($effectivenessLabel)) {
+
+                    $numericLabel =
+                        (int)$effectivenessLabel;
+
+                    $effectivenessLabel =
+                        $labelMap[$numericLabel]
+                        ?? 'Not Predicted';
+                }
+            }
+
+            /*
+            * ==========================================================
             * JSON RESPONSE
             * ==========================================================
             */
@@ -1059,7 +1168,30 @@ class EvaluationsController extends AppController
                                 $programName,
 
                             /*
-                            * Selling price comes from Evaluations
+                            * Subsidy Received
+                            *
+                            * Comes from Evaluations
+                            */
+                            'subsidy_received' =>
+                                $subsidyReceived,
+
+                            /*
+                            * Farm Information
+                            */
+                            'farm_size' =>
+                                $farmSize,
+
+                            'average_yield' =>
+                                $averageYield,
+
+                            /*
+                            * Crop Yield After
+                            */
+                            'crop_yield_after' =>
+                                $cropYieldAfter,
+
+                            /*
+                            * Selling Price
                             */
                             'selling_price' =>
                                 $sellingPrice,
@@ -1077,10 +1209,10 @@ class EvaluationsController extends AppController
                                 $feedbackDate,
 
                             /*
-                            * Crop yield after
+                            * Effectiveness
                             */
-                            'crop_yield_after' =>
-                                $cropYieldAfter
+                            'effectiveness_label' =>
+                                $effectivenessLabel
                         ]
                     ])
                 );

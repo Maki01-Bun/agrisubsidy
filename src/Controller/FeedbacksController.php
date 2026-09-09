@@ -90,19 +90,6 @@ class FeedbacksController extends AppController
         // =========================================================
         // SCHEDULE LIST
         // =========================================================
-        //
-        // IMPORTANT:
-        // The array must be:
-        //
-        // [
-        //     24 => 'Subsidy Distribution',
-        //     26 => 'Subsidy Distribution',
-        //     27 => 'Subsidy Meeting',
-        // ]
-        //
-        // NOT the entire Schedule entity.
-        //
-        // =========================================================
 
         $schedules = $this->Schedules->find(
             'list',

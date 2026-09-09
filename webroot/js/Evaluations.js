@@ -221,6 +221,7 @@ function viewFeedback(evaluationId)
     $('#farmer_name').text('Loading...');
     $('#crop_yield_after').text('Loading...');
     $('selling_price').text('Loading...');
+    $('#subsidy_received').text('Loading...');
     $('#feedback_rating').text('Loading...');
     $('#feedback_comments').text('Loading...');
 
@@ -256,6 +257,11 @@ function viewFeedback(evaluationId)
 
                 $('#selling_price').text(
                     response.data.selling_price ||
+                    'N/A'
+                );
+
+                $('#subsidy_received').text(
+                    response.data.subsidy_received ||
                     'N/A'
                 );
 
@@ -306,6 +312,7 @@ function viewFeedback(evaluationId)
                 $('#farmer_name').text('N/A');
                 $('#crop_yield_after').text('N/A');
                 $('#selling_price').text('N/A');
+                $('#subsidy_received').text('N/A');
                 $('#feedback_rating').text('N/A');
                 $('#feedback_comments').text(
                     response.message ||
@@ -330,6 +337,9 @@ function viewFeedback(evaluationId)
                 'Unable to load'
             );
             $('#selling_price').text(
+                'Unable to load'
+            );
+            $('#subsidy_received').text(
                 'Unable to load'
             );
             $('#feedback_rating').text(
