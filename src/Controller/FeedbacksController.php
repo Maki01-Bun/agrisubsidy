@@ -16,120 +16,119 @@ class FeedbacksController extends AppController
      * @return \Cake\Http\Response|null|void Renders view
      */
     public function index()
-{
-    $this->loadModel('Farmers');
-    $this->loadModel('Farms');
-    $this->loadModel('Schedules');
+    {
+        $this->loadModel('Farmers');
+        $this->loadModel('Farms');
+        $this->loadModel('Schedules');
 
-    // =========================================================
-    // GET LOGGED-IN USER
-    // =========================================================
+        // =========================================================
+        // GET LOGGED-IN USER
+        // =========================================================
 
-    $user = $this->request
-        ->getSession()
-        ->read('Auth.User');
+        $user = $this->request
+            ->getSession()
+            ->read('Auth.User');
 
-    // Default values
-    $farms = [];
-    $schedules = [];
-    $farmerName = '';
+        // Default values
+        $farms = [];
+        $schedules = [];
+        $farmerName = '';
 
-    // =========================================================
-    // CHECK USER
-    // =========================================================
+        // =========================================================
+        // CHECK USER
+        // =========================================================
 
-    if (
-        empty($user) ||
-        empty($user['id'])
-    ) {
-        $this->Flash->error(
-            'User session not found.'
-        );
+        if (
+            empty($user) ||
+            empty($user['id'])
+        ) {
+            $this->Flash->error(
+                'User session not found.'
+            );
 
-        return $this->redirect([
-            'action' => 'index'
-        ]);
-    }
+            return $this->redirect([
+                'action' => 'index'
+            ]);
+        }
 
-    // =========================================================
-    // FIND FARMER
-    // =========================================================
+        // =========================================================
+        // FIND FARMER
+        // =========================================================
 
-    $farmer = $this->Farmers->find()
-        ->where([
-            'Farmers.user_id' => $user['id']
-        ])
-        ->first();
+        $farmer = $this->Farmers->find()
+            ->where([
+                'Farmers.user_id' => $user['id']
+            ])
+            ->first();
 
-    if ($farmer) {
+        if ($farmer) {
 
-        // =====================================================
-        // FARMER NAME
-        // =====================================================
+            // =====================================================
+            // FARMER NAME
+            // =====================================================
 
-        $farmerName = trim(
-            ($farmer->first_name ?? '') . ' ' .
-            ($farmer->middle_name ?? '') . ' ' .
-            ($farmer->last_name ?? '')
-        );
+            $farmerName = trim(
+                ($farmer->first_name ?? '') . ' ' .
+                ($farmer->middle_name ?? '') . ' ' .
+                ($farmer->last_name ?? '')
+            );
 
-        // =====================================================
-        // FARM LIST
-        // =====================================================
+            // =====================================================
+            // FARM LIST
+            // =====================================================
 
-        $farms = $this->Farms->find('list', [
-            'keyField' => 'id',
-            'valueField' => 'farm_name'
-        ])
-        ->where([
-            'Farms.farmer_id' => $farmer->id
+            $farms = $this->Farms->find('list', [
+                'keyField' => 'id',
+                'valueField' => 'farm_name'
+            ])
+            ->where([
+                'Farms.farmer_id' => $farmer->id
+            ])
+            ->toArray();
+        }
+
+        // =========================================================
+        // SCHEDULE LIST
+        // =========================================================
+        //
+        // IMPORTANT:
+        // The array must be:
+        //
+        // [
+        //     24 => 'Subsidy Distribution',
+        //     26 => 'Subsidy Distribution',
+        //     27 => 'Subsidy Meeting',
+        // ]
+        //
+        // NOT the entire Schedule entity.
+        //
+        // =========================================================
+
+        $schedules = $this->Schedules->find(
+            'list',
+            [
+                'keyField' => 'id',
+                'valueField' => 'program_name'
+            ]
+        )
+        ->order([
+            'Schedules.start_date' => 'ASC'
         ])
         ->toArray();
+
+        // =========================================================
+        // SEND TO VIEW
+        // =========================================================
+
+        $this->set(compact(
+            'farms',
+            'farmerName',
+            'schedules'
+        ));
     }
-
-    // =========================================================
-    // SCHEDULE LIST
-    // =========================================================
-    //
-    // IMPORTANT:
-    // The array must be:
-    //
-    // [
-    //     24 => 'Subsidy Distribution',
-    //     26 => 'Subsidy Distribution',
-    //     27 => 'Subsidy Meeting',
-    // ]
-    //
-    // NOT the entire Schedule entity.
-    //
-    // =========================================================
-
-    $schedules = $this->Schedules->find(
-        'list',
-        [
-            'keyField' => 'id',
-            'valueField' => 'program_name'
-        ]
-    )
-    ->order([
-        'Schedules.start_date' => 'ASC'
-    ])
-    ->toArray();
-
-    // =========================================================
-    // SEND TO VIEW
-    // =========================================================
-
-    $this->set(compact(
-        'farms',
-        'farmerName',
-        'schedules'
-    ));
-}
 
     public function survey()
     {
-
         if (!$this->request->is('post')) {
             return $this->redirect([
                 'action' => 'index'
@@ -157,7 +156,6 @@ class FeedbacksController extends AppController
             empty($user) ||
             empty($user['id'])
         ) {
-
             $this->Flash->error(
                 'User session not found.'
             );
@@ -178,7 +176,6 @@ class FeedbacksController extends AppController
             ->first();
 
         if (!$farmer) {
-
             $this->Flash->error(
                 'Farmer record not found.'
             );
@@ -235,23 +232,6 @@ class FeedbacksController extends AppController
         // =========================================================
         // SELLING PRICE
         // =========================================================
-        //
-        // IMPORTANT:
-        //
-        // selling_price is now one of the ML parameters.
-        //
-        // It comes from the survey form:
-        //
-        // name="selling_price"
-        //
-        // Example:
-        //
-        // <input
-        //     type="number"
-        //     name="selling_price"
-        // >
-        //
-        // =========================================================
 
         $sellingPrice = (float)(
             $evaluationData['selling_price'] ?? 0
@@ -266,7 +246,6 @@ class FeedbacksController extends AppController
             ?? null;
 
         if (empty($farmId)) {
-
             $this->Flash->error(
                 'Please select a farm.'
             );
@@ -287,7 +266,6 @@ class FeedbacksController extends AppController
             ->first();
 
         if (!$farm) {
-
             $this->Flash->error(
                 'Selected farm not found.'
             );
@@ -319,28 +297,41 @@ class FeedbacksController extends AppController
         );
 
         // =========================================================
+        // SUBSIDY RECEIVED
+        // =========================================================
+
+        $subsidyReceived =
+            $evaluationData['subsidy_received']
+            ?? '';
+
+        // =========================================================
         // FASTAPI PREDICTION
         // =========================================================
 
         $http = new \Cake\Http\Client();
 
-        /*
-        * =========================================================
-        * MACHINE LEARNING PAYLOAD
-        * =========================================================
-        *
-        * These values must match the parameters expected by
-        * your FastAPI /predict endpoint and ML model.
-        */
-        $payload = [
-            'farm_size' => $farmSize,
-            'average_yield' => $averageYield,
-            'crop_yield_after' => $cropYieldAfter,
-            'selling_price' => $sellingPrice,
-            'subsidy_received' =>
-                $evaluationData['subsidy_received'] ?? '',
+        // =========================================================
+        // MACHINE LEARNING PAYLOAD
+        // =========================================================
 
-            'feedback_score' => $feedbackScore,
+        $payload = [
+            'farm_size' =>
+                $farmSize,
+
+            'average_yield' =>
+                $averageYield,
+
+            'crop_yield_after' =>
+                $cropYieldAfter,
+
+            'selling_price' =>
+                $sellingPrice,
+
+            'subsidy_received' =>
+                $subsidyReceived,
+
+            'feedback_score' =>
+                $feedbackScore,
         ];
 
         // =========================================================
@@ -360,12 +351,38 @@ class FeedbacksController extends AppController
                 ]
             );
 
+            // -----------------------------------------------------
+            // CHECK HTTP STATUS
+            // -----------------------------------------------------
+
+            if (!$response->isOk()) {
+
+                $this->Flash->error(
+                    'Prediction server returned HTTP status ' .
+                    $response->getStatusCode()
+                );
+
+                return $this->redirect(
+                    $this->referer()
+                );
+            }
+
+            // -----------------------------------------------------
+            // GET JSON RESULT
+            // -----------------------------------------------------
+
             $result =
                 $response->getJson();
 
             if (!is_array($result)) {
 
-                $result = [];
+                $this->Flash->error(
+                    'Invalid prediction response from ML server.'
+                );
+
+                return $this->redirect(
+                    $this->referer()
+                );
             }
 
         } catch (\Exception $e) {
@@ -378,6 +395,96 @@ class FeedbacksController extends AppController
             return $this->redirect(
                 $this->referer()
             );
+        }
+
+        // =========================================================
+        // GET ML PREDICTION
+        // =========================================================
+
+        $prediction =
+            $result['effectiveness']
+            ?? null;
+
+        // =========================================================
+        // CONVERT NUMERICAL ML LABEL TO TEXT
+        // =========================================================
+        //
+        // ML MODEL:
+        //
+        // 0 = Not Effective
+        // 1 = Moderately Effective
+        // 2 = Effective
+        //
+        // The database/UI will store the readable label.
+        //
+        // =========================================================
+
+        $labelMap = [
+            0 => 'Not Effective',
+            1 => 'Moderately Effective',
+            2 => 'Effective',
+        ];
+
+        if ($prediction === null) {
+
+            $effectivenessLabel =
+                'Not Predicted';
+
+        } elseif (is_numeric($prediction)) {
+
+            $prediction =
+                (int)$prediction;
+
+            $effectivenessLabel =
+                $labelMap[$prediction]
+                ?? 'Not Predicted';
+
+        } else {
+
+            // -----------------------------------------------------
+            // IF FASTAPI ALREADY RETURNS TEXT
+            // -----------------------------------------------------
+
+            $predictionText =
+                trim((string)$prediction);
+
+            // Normalize possible text responses
+            $normalizedPrediction =
+                strtolower($predictionText);
+
+            switch ($normalizedPrediction) {
+
+                case '0':
+                case 'not effective':
+
+                    $effectivenessLabel =
+                        'Not Effective';
+
+                    break;
+
+                case '1':
+                case 'moderately effective':
+
+                    $effectivenessLabel =
+                        'Moderately Effective';
+
+                    break;
+
+                case '2':
+                case 'effective':
+
+                    $effectivenessLabel =
+                        'Effective';
+
+                    break;
+
+                default:
+
+                    $effectivenessLabel =
+                        'Not Predicted';
+
+                    break;
+            }
         }
 
         // =========================================================
@@ -396,24 +503,30 @@ class FeedbacksController extends AppController
         $evaluationData['average_yield'] =
             $averageYield;
 
-        /*
-        * SAVE SELLING PRICE
-        */
+        $evaluationData['crop_yield_after'] =
+            $cropYieldAfter;
+
         $evaluationData['selling_price'] =
             $sellingPrice;
 
-        /*
-        * SAVE FEEDBACK SCORE
-        */
         $evaluationData['feedback_score'] =
             $feedbackScore;
 
         /*
-        * Remove pest[]
-        *
-        * The database field is pest_id,
-        * not pest.
+        * Save the readable effectiveness label.
         */
+        $evaluationData['effectiveness_label'] =
+            $effectivenessLabel;
+
+        // =========================================================
+        // REMOVE PEST ARRAY
+        // =========================================================
+        //
+        // The database field is pest_id,
+        // not pest.
+        //
+        // =========================================================
+
         unset(
             $evaluationData['pest']
         );
@@ -447,26 +560,21 @@ class FeedbacksController extends AppController
         $evaluation->average_yield =
             $averageYield;
 
-        /*
-        * NEW:
-        *
-        * Save selling price to Evaluations.
-        */
+        $evaluation->crop_yield_after =
+            $cropYieldAfter;
+
         $evaluation->selling_price =
             $sellingPrice;
 
-        /*
-        * Save feedback score.
-        */
         $evaluation->feedback_score =
             $feedbackScore;
 
-        /*
-        * Save ML prediction.
-        */
+        // =========================================================
+        // SAVE READABLE ML PREDICTION
+        // =========================================================
+
         $evaluation->effectiveness_label =
-            $result['effectiveness']
-            ?? 'Not Predicted';
+            $effectivenessLabel;
 
         // =========================================================
         // SAVE EVALUATION
@@ -502,49 +610,61 @@ class FeedbacksController extends AppController
 
         $feedbackData = [
 
-            /*
-            * Farmer
-            */
+            // -----------------------------------------------------
+            // Farmer
+            // -----------------------------------------------------
+
             'farmer_id' =>
                 $farmer->id,
 
-            /*
-            * Evaluation
-            */
+            // -----------------------------------------------------
+            // Evaluation
+            // -----------------------------------------------------
+
             'evaluation_id' =>
                 $evaluation->id,
 
-            /*
-            * Survey questions
-            */
-            'q1' => $q1,
+            // -----------------------------------------------------
+            // Survey Questions
+            // -----------------------------------------------------
 
-            'q2' => $q2,
+            'q1' =>
+                $q1,
 
-            'q3' => $q3,
+            'q2' =>
+                $q2,
 
-            'q4' => $q4,
+            'q3' =>
+                $q3,
 
-            'q5' => $q5,
+            'q4' =>
+                $q4,
 
-            'q6' => $q6,
+            'q5' =>
+                $q5,
 
-            /*
-            * Average feedback rating
-            */
+            'q6' =>
+                $q6,
+
+            // -----------------------------------------------------
+            // Average Feedback Rating
+            // -----------------------------------------------------
+
             'rating' =>
                 $feedbackScore,
 
-            /*
-            * Comment
-            */
+            // -----------------------------------------------------
+            // Comment
+            // -----------------------------------------------------
+
             'comment' =>
                 $evaluationData['comment']
                 ?? null,
 
-            /*
-            * Feedback date
-            */
+            // -----------------------------------------------------
+            // Feedback Date
+            // -----------------------------------------------------
+
             'feedback_date' =>
                 date('Y-m-d H:i:s')
         ];
@@ -638,6 +758,5 @@ class FeedbacksController extends AppController
             ]
         ]);
     }
-
 }
 
