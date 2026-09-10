@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 08, 2026 at 03:10 PM
+-- Generation Time: Sep 10, 2026 at 04:33 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -42,7 +42,6 @@ CREATE TABLE `audit_logs` (
 
 CREATE TABLE `evaluations` (
   `id` int(11) NOT NULL,
-  `subsidy_type` varchar(255) NOT NULL,
   `farm_id` int(11) NOT NULL,
   `crop_yield_after` decimal(10,2) NOT NULL,
   `subsidy_received` enum('Yes','No','','') NOT NULL,
@@ -59,10 +58,8 @@ CREATE TABLE `evaluations` (
 -- Dumping data for table `evaluations`
 --
 
-INSERT INTO `evaluations` (`id`, `subsidy_type`, `farm_id`, `crop_yield_after`, `subsidy_received`, `selling_price`, `effectiveness_label`, `feedback_id`, `farmer_id`, `schedule_id`, `created`, `modified`) VALUES
-(158, 'Corn Seeds', 2, 6.00, 'Yes', 33.30, 'Not Effective', 120, 153, 24, '2026-09-08 12:46:01', '2026-09-08 12:46:02'),
-(159, 'Corn Seeds', 2, 700.00, 'Yes', 33.30, 'Effective', 121, 153, 28, '2026-09-08 12:48:14', '2026-09-08 12:48:14'),
-(160, 'Rice Seeds', 9, 120.50, 'Yes', 22.20, 'Moderately Effective', 122, 162, 24, '2026-09-08 12:50:12', '2026-09-08 12:50:12');
+INSERT INTO `evaluations` (`id`, `farm_id`, `crop_yield_after`, `subsidy_received`, `selling_price`, `effectiveness_label`, `feedback_id`, `farmer_id`, `schedule_id`, `created`, `modified`) VALUES
+(163, 162, 600.00, 'Yes', 22.20, 'Effective', 125, 153, 30, '2026-09-10 01:56:32', '2026-09-10 01:56:32');
 
 -- --------------------------------------------------------
 
@@ -134,10 +131,7 @@ CREATE TABLE `farms` (
 --
 
 INSERT INTO `farms` (`id`, `farmer_id`, `farm_name`, `farm_size`, `location`, `average_yield`, `created`, `modified`) VALUES
-(2, 153, 'South Farm', 1.75, 'Fortune, Aurora, Alicia, Isabela', 4.50, '2026-08-02 15:59:40', '2026-08-02 15:59:40'),
-(8, 164, 'Emma Tan Farm', 2.50, 'Alicia, Isabela', 3200.00, '2026-09-03 06:36:12', '2026-09-03 06:36:12'),
-(9, 162, 'Caezar Abalos Farm', 1.75, 'Santiago City, Isabela', 2500.00, '2026-09-03 06:36:12', '2026-09-03 06:36:12'),
-(10, 166, 'Marc Nudo Farm', 3.20, 'Echague, Isabela', 4100.00, '2026-09-03 06:36:12', '2026-09-03 06:36:12');
+(162, 153, 'Farm 1', 1.30, 'Rizal, Santiago City', 500.00, '2026-09-10 03:54:42', '2026-09-10 03:54:42');
 
 -- --------------------------------------------------------
 
@@ -158,14 +152,7 @@ CREATE TABLE `feedbacks` (
 --
 
 INSERT INTO `feedbacks` (`id`, `farmer_id`, `rating`, `comment`, `feedback_date`) VALUES
-(115, 153, 4.5, '', '2026-09-08 12:21:42'),
-(116, 153, 4.2, '', '2026-09-08 12:27:19'),
-(117, 153, 3.5, '', '2026-09-08 12:30:11'),
-(118, 153, 4.3, '', '2026-09-08 12:35:46'),
-(119, 153, 4.0, '', '2026-09-08 12:42:16'),
-(120, 153, 4.2, '', '2026-09-08 12:46:02'),
-(121, 153, 4.3, '', '2026-09-08 12:48:14'),
-(122, 162, 4.3, '', '2026-09-08 12:50:12');
+(125, 153, 4.3, '', '2026-09-10 01:56:32');
 
 -- --------------------------------------------------------
 
@@ -238,17 +225,7 @@ CREATE TABLE `records` (
 --
 
 INSERT INTO `records` (`id`, `farmer_id`, `subsidy_item`, `quantity`, `received_date`, `status`, `schedule_id`, `confirmed_at`, `created_at`, `modified_at`) VALUES
-(186, 152, 'Seed Subsidy', 10.00, '2026-08-20 09:00:00', 'Received', 26, '2026-08-20 08:30:00', '2026-08-25 19:21:53', '2026-08-25 19:21:53'),
-(187, 2, 'Seed Subsidy', 15.00, '2026-08-21 10:00:00', 'Received', 26, '2026-08-21 09:30:00', '2026-08-25 19:21:53', '2026-08-25 19:21:53'),
-(188, 153, 'Seed Subsidy', 20.00, '2026-08-21 09:30:00', 'Re-Scheduled', 27, '2026-08-21 09:30:00', '2026-08-25 19:21:53', '2026-08-25 19:21:53'),
-(189, 156, 'Seed Subsidy', 10.00, '2026-08-21 09:30:00', 'Cancelled', 26, '2026-08-21 09:30:00', '2026-08-25 19:21:53', '2026-08-25 19:21:53'),
-(191, 152, 'Seed Subsidy', 5.50, '2026-08-20 16:41:56', 'Received', 26, '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(192, 164, 'Seed Subsidy', 10.00, '2026-08-20 15:05:17', 'Cancelled', 26, '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(193, 153, 'Seed Subsidy', 20.00, '2026-08-21 00:00:00', 'Not Received', 28, '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(194, 163, 'Seed Subsidy', 15.00, '2026-08-21 00:00:00', 'Received', 28, '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(195, 159, 'Seed Subsidy', 10.00, '2026-08-21 00:00:00', 'Cancelled', 28, '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(196, 153, 'Seed Subsidy', 5.50, '2026-09-20 14:04:20', 'Received', 26, '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(197, 210, 'Fertilizer Subsidy', 5.60, '2026-09-24 15:11:19', 'Not Received', 28, '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00');
+(198, 153, 'Corn Seeds', 100.00, '2026-09-10 15:22:35', 'Received', 30, '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -258,8 +235,8 @@ INSERT INTO `records` (`id`, `farmer_id`, `subsidy_item`, `quantity`, `received_
 
 CREATE TABLE `schedules` (
   `id` int(11) NOT NULL,
+  `program_code` varchar(100) NOT NULL,
   `program_name` varchar(255) NOT NULL,
-  `subsidy_type` varchar(150) NOT NULL,
   `description` text NOT NULL,
   `start_date` date NOT NULL,
   `end_date` date NOT NULL,
@@ -271,12 +248,8 @@ CREATE TABLE `schedules` (
 -- Dumping data for table `schedules`
 --
 
-INSERT INTO `schedules` (`id`, `program_name`, `subsidy_type`, `description`, `start_date`, `end_date`, `start_time`, `end_time`) VALUES
-(24, 'Subsidy distribution', 'Rice and Corn', 'haloooo', '2026-08-13', '2026-08-13', '06:26:32', '23:26:37'),
-(26, 'Subsidy Distribution', 'Seed Subsidy', 'A subsidy distribution', '2026-08-20', '2026-08-20', '07:00:00', '17:00:00'),
-(27, 'Subsidy Meeting', 'Fertilizer Subsidy', 'We Have a meeting for the changes of the Subsidy Programs', '2026-08-25', '2026-08-25', '08:00:00', '12:00:00'),
-(28, 'Subsidy Distribution', 'Seed Subsidy', 'Ito na ang pinakahihintay nyo', '2026-08-24', '2026-08-24', '09:00:00', '16:00:00'),
-(29, 'Subsidy distribution', 'Seed Subsidy', 'Rice seed subsidy', '2026-08-23', '2026-08-23', '08:00:00', '16:00:00');
+INSERT INTO `schedules` (`id`, `program_code`, `program_name`, `description`, `start_date`, `end_date`, `start_time`, `end_time`) VALUES
+(30, 'SD-1', 'Seed Subsidy Distribution', 'See you', '2026-09-10', '2026-09-10', '07:00:00', '16:00:00');
 
 -- --------------------------------------------------------
 
@@ -301,10 +274,10 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `password`, `role`, `created`, `modified`, `status`, `failed_attempts`, `locked_until`) VALUES
-(1, 'admin', '$2y$10$mOsQfa7o.YJXIKkzMQa/iOCMpMay0vaZWOmXDE2Z2oT.r7Yl8kRP2', 'admin', '2026-06-17 05:17:00', '2026-09-08 12:50:29', 'pending', 0, NULL),
+(1, 'admin', '$2y$10$mOsQfa7o.YJXIKkzMQa/iOCMpMay0vaZWOmXDE2Z2oT.r7Yl8kRP2', 'admin', '2026-06-17 05:17:00', '2026-09-10 02:25:06', 'pending', 0, NULL),
 (10, 'Maki', '$2y$10$sH3pyTnexvxspeuivmd5dujFsFqb6NKASs2QLaUCAlfXlIAVMu2fK', 'farmer', '2026-06-19 06:48:48', '2026-07-15 02:26:14', 'pending', 0, NULL),
-(17, 'superadmin', '$2y$10$6LlYegtiDE46XLuhzPnJoe8ii32u7yYbHyf1GSkjY3kK.3eHf8tOK', 'staff', '2026-06-30 01:07:50', '2026-09-07 01:23:45', 'pending', 0, NULL),
-(26, 'Jayson', '$2y$10$vqHrBjft1A3bcmaUiWM4TOz23sna4xw1Coh3iVYjXouKWMycF/FpK', 'farmer', '2026-07-15 13:10:21', '2026-09-08 12:40:46', 'pending', 0, NULL),
+(17, 'superadmin', '$2y$10$6LlYegtiDE46XLuhzPnJoe8ii32u7yYbHyf1GSkjY3kK.3eHf8tOK', 'staff', '2026-06-30 01:07:50', '2026-09-10 02:32:40', 'pending', 0, NULL),
+(26, 'Jayson', '$2y$10$vqHrBjft1A3bcmaUiWM4TOz23sna4xw1Coh3iVYjXouKWMycF/FpK', 'farmer', '2026-07-15 13:10:21', '2026-09-10 02:32:32', 'pending', 0, NULL),
 (29, 'Lxi', '$2y$10$96pJIUC6Z9/AkPKQKHpRi.zys0cVS5T0n0.5MT7eLe3n7TluPMR8K', 'farmer', '2026-07-15 13:47:03', '2026-07-15 13:47:03', 'pending', 0, NULL),
 (30, 'Jha', '$2y$10$DaDUC5VjD0bvq7EQ/nVwbuNuabd6I3vPkCgu4gdbxK0KQN/MXSsIi', 'farmer', '2026-07-16 03:01:05', '2026-09-08 12:49:18', 'pending', 0, NULL),
 (36, 'Marlon L. Castro', '$2y$10$ZkqyY3JOeD2anhrKF.o78.MugtjnMrrdIZ63LB1aklo0gn7kdi/2C', 'farmer', '2026-07-23 07:33:54', '2026-07-23 07:33:54', 'pending', 0, NULL),
@@ -401,7 +374,7 @@ ALTER TABLE `audit_logs`
 -- AUTO_INCREMENT for table `evaluations`
 --
 ALTER TABLE `evaluations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=161;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=164;
 
 --
 -- AUTO_INCREMENT for table `farmers`
@@ -413,13 +386,13 @@ ALTER TABLE `farmers`
 -- AUTO_INCREMENT for table `farms`
 --
 ALTER TABLE `farms`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=166;
 
 --
 -- AUTO_INCREMENT for table `feedbacks`
 --
 ALTER TABLE `feedbacks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=123;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=126;
 
 --
 -- AUTO_INCREMENT for table `notifications`
@@ -431,13 +404,13 @@ ALTER TABLE `notifications`
 -- AUTO_INCREMENT for table `records`
 --
 ALTER TABLE `records`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=198;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=199;
 
 --
 -- AUTO_INCREMENT for table `schedules`
 --
 ALTER TABLE `schedules`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT for table `users`
