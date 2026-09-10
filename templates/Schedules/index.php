@@ -11,8 +11,8 @@
             <table id="schedules-table" class="table table-bordered table-hover">
                 <thead>
                     <tr>
+                        <th>Program Code</th>
                         <th>Program Name</th>
-                        <th>Subsidy Type</th>
                         <th>Description</th>
                         <th>Start Date</th>
                         <th>End Date</th>
@@ -37,11 +37,10 @@
             <?= $this->Form->create($schedule,['id'=>'schedules-form']) ?>
             <div class="modal-body">
                 <div class="form-group">
+                    <label for="program_code">Program Code</label>
+                    <?= $this->Form->control('program_code',['class'=>'form-control','label'=>false]) ?>
                     <label for="program_name">Program Name</label>
                     <?= $this->Form->control('program_name',['class'=>'form-control','label'=>false]) ?>
-                   <label for="subsidy_type">Subsidy Type</label>
-                    <?= $this->Form->control('subsidy_type', ['class' => 'form-control','label' => false,
-                    'options' => $this->Option->subsidy(),'empty' => '-- Enter Subsidy Type --']) ?>
                     <label for="description">Description</label>
                     <?= $this->Form->control('description',['class'=>'form-control','label'=>false]) ?>
                     <label for="start_date">Start Date</label>

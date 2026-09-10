@@ -66,9 +66,8 @@
                     <tr>
                         <th>Farmer Name</th>
                         <th>Program Name</th>
-                        <th>Subsidy Type</th>
-                        <th>Farm Size</th> 
-                        <th>Yield After</th> 
+                        <th>Farm Size (ha)</th> 
+                        <th>Yield After (bags/ha)</th> 
                         <th>Effectiveness Label</th> 
                         <th>Action</th>
                     </tr>

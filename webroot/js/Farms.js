@@ -21,7 +21,7 @@ $(function(){
                 	$('#farm-name').val(data.farm_name);
                 	$('#farm-size').val(data.farm_size);
                     $('#location').val(data.location);
-                    $('#average_yield').val(data.average_yield);
+                    $('#average-yield').val(data.average_yield);
                 	$('#id').val(data.id);
                     $('#farms-modal').modal('show');
                 }

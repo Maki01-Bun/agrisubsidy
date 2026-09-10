@@ -249,7 +249,7 @@
                         <td id="view_subsidy_item"></td>
                     </tr>
                     <tr>
-                        <th>Quantity</th>
+                        <th>Quantity (kg)</th>
                         <td id="view_quantity">N/A</td>
                     </tr>
                     <tr>

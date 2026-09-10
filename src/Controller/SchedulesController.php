@@ -109,8 +109,8 @@ class SchedulesController extends AppController
         $schedules = $this->Schedules->find()
             ->select([
                 'id',
+                'program_code',
                 'program_name',
-                'subsidy_type',
                 'description',
                 'start_date',
                 'end_date',

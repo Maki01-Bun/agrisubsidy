@@ -9,8 +9,8 @@ use Cake\ORM\Entity;
  * Schedule Entity
  *
  * @property int $id
+ * @property string $program_code
  * @property string $program_name
- * @property string $subsidy_type
  * @property string $description
  * @property \Cake\I18n\FrozenDate $start_date
  * @property \Cake\I18n\FrozenDate $end_date
@@ -30,8 +30,8 @@ class Schedule extends Entity
      * @var array<string, bool>
      */
     protected $_accessible = [
+        'program_code' => true,
         'program_name' => true,
-        'subsidy_type' => true,
         'description' => true,
         'start_date' => true,
         'end_date' => true,

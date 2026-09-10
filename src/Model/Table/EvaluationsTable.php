@@ -68,12 +68,6 @@ class EvaluationsTable extends Table
     public function validationDefault(Validator $validator): Validator
     {
         $validator
-            ->scalar('subsidy_type')
-            ->maxLength('subsidy_type', 255)
-            ->requirePresence('subsidy_type', 'create')
-            ->notEmptyString('subsidy_type');
-
-        $validator
             ->integer('farm_id')
             ->allowEmptyString('farm_id');
 

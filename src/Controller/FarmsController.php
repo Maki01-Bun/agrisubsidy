@@ -103,24 +103,54 @@ class FarmsController extends AppController
         return $this->redirect(['action' => 'index']);
     }
 
-public function uploadExcel()
+    public function uploadExcel()
 {
+    /*
+     * =========================================================
+     * ONLY ALLOW POST REQUEST
+     * =========================================================
+     */
     if (!$this->request->is('post')) {
-        return $this->redirect(['action' => 'index']);
+        return $this->redirect([
+            'action' => 'index'
+        ]);
     }
 
+    /*
+     * =========================================================
+     * GET UPLOADED FILE
+     * =========================================================
+     */
     $file = $this->request->getData('excel_file');
 
     /*
-     * Validate uploaded file
+     * =========================================================
+     * VALIDATE UPLOADED FILE
+     * =========================================================
      */
     if (!$file || $file->getError() !== UPLOAD_ERR_OK) {
-        $this->Flash->error('Please select a valid Excel file.');
-        return $this->redirect(['action' => 'index']);
+
+        $this->request->getSession()->write(
+            'ExcelImportResult',
+            [
+                'type' => 'error',
+                'success' => 0,
+                'failed' => 0,
+                'errors' => [
+                    'Please select a valid Excel file.'
+                ]
+            ]
+        );
+
+        return $this->redirect([
+            'action' => 'index'
+        ]);
     }
 
     /*
-     * Validate extension
+     * =========================================================
+     * VALIDATE FILE EXTENSION
+     * =========================================================
      */
     $extension = strtolower(
         pathinfo(
@@ -130,32 +160,50 @@ public function uploadExcel()
     );
 
     if (!in_array($extension, ['xlsx', 'xls'])) {
-        $this->Flash->error(
-            'Only Excel files (.xlsx or .xls) are allowed.'
+
+        $this->request->getSession()->write(
+            'ExcelImportResult',
+            [
+                'type' => 'error',
+                'success' => 0,
+                'failed' => 0,
+                'errors' => [
+                    'Only Excel files (.xlsx or .xls) are allowed.'
+                ]
+            ]
         );
 
-        return $this->redirect(['action' => 'index']);
+        return $this->redirect([
+            'action' => 'index'
+        ]);
     }
 
     try {
 
         /*
-         * Load required tables
+         * =====================================================
+         * LOAD TABLES
+         * =====================================================
          */
         $this->loadModel('Farms');
         $this->loadModel('Farmers');
 
         /*
-         * Load Excel
+         * =====================================================
+         * LOAD EXCEL FILE
+         * =====================================================
          */
-        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load(
-            $file->getStream()->getMetadata('uri')
-        );
+        $spreadsheet =
+            \PhpOffice\PhpSpreadsheet\IOFactory::load(
+                $file->getStream()->getMetadata('uri')
+            );
 
         $sheet = $spreadsheet->getActiveSheet();
 
         /*
-         * Convert Excel to array
+         * =====================================================
+         * CONVERT EXCEL TO ARRAY
+         * =====================================================
          */
         $rows = $sheet->toArray(
             null,
@@ -164,24 +212,45 @@ public function uploadExcel()
             true
         );
 
+        /*
+         * =====================================================
+         * INITIALIZE COUNTERS
+         * =====================================================
+         */
         $success = 0;
         $failed = 0;
         $errors = [];
 
         /*
-         * Process rows
+         * =====================================================
+         * TRACK DUPLICATES INSIDE CURRENT EXCEL FILE
+         *
+         * Key:
+         * farmer_id + farm_name
+         * =====================================================
+         */
+        $uploadedRows = [];
+
+        /*
+         * =====================================================
+         * PROCESS EACH ROW
+         * =====================================================
          */
         foreach ($rows as $index => $row) {
 
             /*
-             * Skip header
+             * -------------------------------------------------
+             * SKIP HEADER
+             * -------------------------------------------------
              */
             if ($index == 1) {
                 continue;
             }
 
             /*
-             * Skip empty rows
+             * -------------------------------------------------
+             * SKIP COMPLETELY EMPTY ROWS
+             * -------------------------------------------------
              */
             if (
                 empty($row['A']) &&
@@ -194,23 +263,41 @@ public function uploadExcel()
             }
 
             /*
-             * Excel columns:
+             * -------------------------------------------------
+             * EXCEL COLUMNS
              *
              * A = Farmer Name
              * B = Farm Name
              * C = Farm Size
              * D = Location
              * E = Crop Yield
+             * -------------------------------------------------
              */
 
-            $farmerName = trim((string)($row['A'] ?? ''));
-            $farmName   = trim((string)($row['B'] ?? ''));
-            $farmSize   = trim((string)($row['C'] ?? ''));
-            $location   = trim((string)($row['D'] ?? ''));
-            $cropYield  = trim((string)($row['E'] ?? ''));
+            $farmerName = trim(
+                (string)($row['A'] ?? '')
+            );
+
+            $farmName = trim(
+                (string)($row['B'] ?? '')
+            );
+
+            $farmSize = trim(
+                (string)($row['C'] ?? '')
+            );
+
+            $location = trim(
+                (string)($row['D'] ?? '')
+            );
+
+            $cropYield = trim(
+                (string)($row['E'] ?? '')
+            );
 
             /*
-             * Validate Farmer Name
+             * =================================================
+             * VALIDATE FARMER NAME
+             * =================================================
              */
             if ($farmerName === '') {
 
@@ -223,7 +310,9 @@ public function uploadExcel()
             }
 
             /*
-             * Validate Farm Name
+             * =================================================
+             * VALIDATE FARM NAME
+             * =================================================
              */
             if ($farmName === '') {
 
@@ -236,7 +325,9 @@ public function uploadExcel()
             }
 
             /*
-             * Validate Farm Size
+             * =================================================
+             * VALIDATE FARM SIZE
+             * =================================================
              */
             if ($farmSize === '') {
 
@@ -248,7 +339,10 @@ public function uploadExcel()
                 continue;
             }
 
-            if (!is_numeric($farmSize) || (float)$farmSize <= 0) {
+            if (
+                !is_numeric($farmSize) ||
+                (float)$farmSize <= 0
+            ) {
 
                 $failed++;
 
@@ -259,7 +353,9 @@ public function uploadExcel()
             }
 
             /*
-             * Validate Location
+             * =================================================
+             * VALIDATE LOCATION
+             * =================================================
              */
             if ($location === '') {
 
@@ -272,7 +368,9 @@ public function uploadExcel()
             }
 
             /*
-             * Validate Crop Yield
+             * =================================================
+             * VALIDATE CROP YIELD
+             * =================================================
              */
             if ($cropYield === '') {
 
@@ -284,7 +382,10 @@ public function uploadExcel()
                 continue;
             }
 
-            if (!is_numeric($cropYield) || (float)$cropYield < 0) {
+            if (
+                !is_numeric($cropYield) ||
+                (float)$cropYield < 0
+            ) {
 
                 $failed++;
 
@@ -295,20 +396,24 @@ public function uploadExcel()
             }
 
             /*
-             * Find farmer by full name
+             * =================================================
+             * SPLIT FARMER FULL NAME
              *
              * Example:
+             *
              * Emma Tan
-             * Caezar Abalos
-             * Marc Nudo
+             *
+             * First Name = Emma
+             * Last Name  = Tan
+             * =================================================
              */
-
             $nameParts = preg_split(
                 '/\s+/',
                 $farmerName
             );
 
             $firstName = $nameParts[0] ?? '';
+
             $lastName = '';
 
             if (count($nameParts) > 1) {
@@ -316,7 +421,9 @@ public function uploadExcel()
             }
 
             /*
-             * Find farmer
+             * =================================================
+             * FIND FARMER
+             * =================================================
              */
             $farmer = $this->Farmers->find()
                 ->where([
@@ -326,7 +433,9 @@ public function uploadExcel()
                 ->first();
 
             /*
-             * Farmer not found
+             * =================================================
+             * FARMER NOT FOUND
+             * =================================================
              */
             if (!$farmer) {
 
@@ -340,8 +449,47 @@ public function uploadExcel()
             }
 
             /*
-             * Check if farm already exists
-             * for this farmer
+             * =================================================
+             * CREATE UNIQUE DUPLICATE KEY
+             *
+             * Same farmer + same farm name
+             * =================================================
+             */
+            $duplicateKey =
+                strtolower(
+                    trim((string)$farmer->id)
+                )
+                . '|'
+                .
+                strtolower(
+                    trim($farmName)
+                );
+
+            /*
+             * =================================================
+             * CHECK DUPLICATE INSIDE EXCEL
+             * =================================================
+             */
+            if (isset($uploadedRows[$duplicateKey])) {
+
+                $previousRow =
+                    $uploadedRows[$duplicateKey];
+
+                $failed++;
+
+                $errors[] =
+                    "Row {$index}: Duplicate data in Excel. " .
+                    "The farm '{$farmName}' for farmer " .
+                    "'{$farmerName}' was already listed " .
+                    "in row {$previousRow}.";
+
+                continue;
+            }
+
+            /*
+             * =================================================
+             * CHECK DUPLICATE IN DATABASE
+             * =================================================
              */
             $existingFarm = $this->Farms->find()
                 ->where([
@@ -355,16 +503,32 @@ public function uploadExcel()
                 $failed++;
 
                 $errors[] =
-                    "Row {$index}: Farm already exists: " .
-                    $farmName .
-                    " for farmer " .
-                    $farmerName;
+                    "Row {$index}: Duplicate data. " .
+                    "Farm '{$farmName}' already exists " .
+                    "for farmer '{$farmerName}'.";
+
+                /*
+                 * Mark as encountered too.
+                 *
+                 * This prevents another identical row
+                 * later in the same Excel file.
+                 */
+                $uploadedRows[$duplicateKey] = $index;
 
                 continue;
             }
 
             /*
-             * Create Farm
+             * =================================================
+             * MARK THIS ROW AS PROCESSED
+             * =================================================
+             */
+            $uploadedRows[$duplicateKey] = $index;
+
+            /*
+             * =================================================
+             * CREATE FARM ENTITY
+             * =================================================
              */
             $farm = $this->Farms->newEmptyEntity();
 
@@ -376,13 +540,22 @@ public function uploadExcel()
             /*
              * Farm information
              */
-            $farm->farm_name = $farmName;
-            $farm->farm_size = (float)$farmSize;
-            $farm->location = $location;
-            $farm->crop_yield = (float)$cropYield;
+            $farm->farm_name =
+                $farmName;
+
+            $farm->farm_size =
+                (float)$farmSize;
+
+            $farm->location =
+                $location;
+
+            $farm->crop_yield =
+                (float)$cropYield;
 
             /*
-             * Save
+             * =================================================
+             * SAVE FARM
+             * =================================================
              */
             if ($this->Farms->save($farm)) {
 
@@ -401,37 +574,63 @@ public function uploadExcel()
         }
 
         /*
-         * Success message
+         * =====================================================
+         * ALL SUCCESSFUL
+         * =====================================================
          */
-        if ($success > 0) {
+        if ($success > 0 && $failed === 0) {
 
             $this->Flash->success(
-                "Excel import completed. " .
-                "{$success} farm(s) imported successfully."
+                "Excel import completed successfully. " .
+                "{$success} farm(s) imported."
             );
         }
 
         /*
-         * Failed rows
+         * =====================================================
+         * PARTIAL SUCCESS
+         *
+         * Some records imported,
+         * some records failed/duplicated.
+         * =====================================================
          */
-        if ($failed > 0) {
+        elseif ($success > 0 && $failed > 0) {
 
-            $message =
-                "{$failed} row(s) could not be imported.";
-
-            if (!empty($errors)) {
-
-                $message .= '<br>' .
-                    implode('<br>', $errors);
-            }
-
-            $this->Flash->warning($message);
+            $this->request->getSession()->write(
+                'ExcelImportResult',
+                [
+                    'type' => 'partial',
+                    'success' => $success,
+                    'failed' => $failed,
+                    'errors' => $errors
+                ]
+            );
         }
 
         /*
-         * No data
+         * =====================================================
+         * ALL FAILED
+         * =====================================================
          */
-        if ($success === 0 && $failed === 0) {
+        elseif ($success === 0 && $failed > 0) {
+
+            $this->request->getSession()->write(
+                'ExcelImportResult',
+                [
+                    'type' => 'failed',
+                    'success' => 0,
+                    'failed' => $failed,
+                    'errors' => $errors
+                ]
+            );
+        }
+
+        /*
+         * =====================================================
+         * NO DATA
+         * =====================================================
+         */
+        else {
 
             $this->Flash->warning(
                 'No farm records were found in the Excel file.'
@@ -440,15 +639,32 @@ public function uploadExcel()
 
     } catch (\Exception $e) {
 
-        $this->Flash->error(
-            'Unable to read the Excel file: ' .
-            $e->getMessage()
+        /*
+         * =====================================================
+         * EXCEL PROCESSING ERROR
+         * =====================================================
+         */
+        $this->request->getSession()->write(
+            'ExcelImportResult',
+            [
+                'type' => 'error',
+                'success' => 0,
+                'failed' => 0,
+                'errors' => [
+                    'Unable to read the Excel file: ' .
+                    $e->getMessage()
+                ]
+            ]
         );
     }
 
+    /*
+     * =========================================================
+     * RETURN TO FARM INDEX
+     * =========================================================
+     */
     return $this->redirect([
         'action' => 'index'
     ]);
 }
-
 }

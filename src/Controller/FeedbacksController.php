@@ -95,7 +95,7 @@ class FeedbacksController extends AppController
             'list',
             [
                 'keyField' => 'id',
-                'valueField' => 'program_name'
+                'valueField' => 'program_code'
             ]
         )
         ->order([

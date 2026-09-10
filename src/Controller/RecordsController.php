@@ -215,242 +215,672 @@ class RecordsController extends AppController
             'action' => 'index'
         ]);
     }
-    public function uploadExcel()
+     public function uploadExcel()
     {
-        if (!$this->request->is('post')) {
-            return $this->redirect(['action' => 'index']);
-        }
+        $this->request->allowMethod(['post']);
+
+        $session = $this->request->getSession();
+
+        $success = 0;
+        $failed = 0;
+        $errors = [];
+
+        /*
+         * ============================================================
+         * 1. GET UPLOADED FILE
+         * ============================================================
+         */
+
         $file = $this->request->getData('excel_file');
-        // Validate uploaded file
-        if (!$file || $file->getError() !== UPLOAD_ERR_OK) {
-            $this->Flash->error('Please select a valid Excel file.');
-            return $this->redirect(['action' => 'index']);
+
+        if (!$file || !is_object($file)) {
+
+            $session->write(
+                'ExcelImportResult',
+                [
+                    'type' => 'error',
+                    'success' => 0,
+                    'failed' => 0,
+                    'errors' => [
+                        'No Excel file was uploaded.'
+                    ]
+                ]
+            );
+
+            return $this->redirect([
+                'action' => 'index'
+            ]);
         }
-        // Validate extension
+
+        /*
+         * ============================================================
+         * 2. CHECK UPLOAD ERROR
+         * ============================================================
+         */
+
+        if ($file->getError() !== UPLOAD_ERR_OK) {
+
+            $session->write(
+                'ExcelImportResult',
+                [
+                    'type' => 'error',
+                    'success' => 0,
+                    'failed' => 0,
+                    'errors' => [
+                        'The Excel file could not be uploaded.'
+                    ]
+                ]
+            );
+
+            return $this->redirect([
+                'action' => 'index'
+            ]);
+        }
+
+        /*
+         * ============================================================
+         * 3. CHECK FILE EXTENSION
+         * ============================================================
+         */
+
         $extension = strtolower(
             pathinfo(
                 $file->getClientFilename(),
                 PATHINFO_EXTENSION
             )
         );
-        if (!in_array($extension, ['xlsx', 'xls'])) {
-            $this->Flash->error(
-                'Only Excel files (.xlsx or .xls) are allowed.'
+
+        if (!in_array($extension, ['xlsx', 'xls'], true)) {
+
+            $session->write(
+                'ExcelImportResult',
+                [
+                    'type' => 'error',
+                    'success' => 0,
+                    'failed' => 0,
+                    'errors' => [
+                        'Invalid file format. Please upload an XLS or XLSX file.'
+                    ]
+                ]
             );
-            return $this->redirect(['action' => 'index']);
+
+            return $this->redirect([
+                'action' => 'index'
+            ]);
         }
+
+        /*
+         * ============================================================
+         * 4. LOAD REQUIRED TABLES
+         * ============================================================
+         */
+
+        $this->loadModel('Farmers');
+        $this->loadModel('Schedules');
+
+        /*
+         * ============================================================
+         * 5. FIND THE SCHEDULE
+         *
+         * IMPORTANT:
+         *
+         * We DO NOT use:
+         *
+         * Schedules.subsidy_type
+         *
+         * because that field has already been removed.
+         *
+         * We only use program_name.
+         * ============================================================
+         */
+
+        $schedule = $this->Schedules
+            ->find()
+            ->where([
+                'Schedules.program_name' => 'Seed Subsidy'
+            ])
+            ->order([
+                'Schedules.start_date' => 'DESC'
+            ])
+            ->first();
+
+        if (!$schedule) {
+
+            $session->write(
+                'ExcelImportResult',
+                [
+                    'type' => 'error',
+                    'success' => 0,
+                    'failed' => 0,
+                    'errors' => [
+                        'No Seed Subsidy schedule was found.'
+                    ]
+                ]
+            );
+
+            return $this->redirect([
+                'action' => 'index'
+            ]);
+        }
+
+        /*
+         * ============================================================
+         * 6. LOAD EXCEL
+         * ============================================================
+         */
+
         try {
 
-            $this->loadModel('Farmers');
-            $this->loadModel('Schedules');
-            // Load Excel
             $spreadsheet = IOFactory::load(
                 $file->getStream()->getMetadata('uri')
             );
-            $sheet = $spreadsheet->getActiveSheet();
-            $rows = $sheet->toArray(
-                null,
-                true,
-                true,
-                true
+
+        } catch (\Throwable $e) {
+
+            $session->write(
+                'ExcelImportResult',
+                [
+                    'type' => 'error',
+                    'success' => 0,
+                    'failed' => 0,
+                    'errors' => [
+                        'Unable to read the Excel file: ' . $e->getMessage()
+                    ]
+                ]
             );
 
-            $success = 0;
-            $failed = 0;
-            $errors = [];
+            return $this->redirect([
+                'action' => 'index'
+            ]);
+        }
 
-            foreach ($rows as $index => $row) {
+        /*
+         * ============================================================
+         * 7. GET ACTIVE SHEET
+         * ============================================================
+         */
 
-                // Skip header
-                if ($index == 1) {
-                    continue;
-                }
+        $sheet = $spreadsheet->getActiveSheet();
 
-                // Skip empty rows
-                if (
-                    empty($row['A']) &&
-                    empty($row['B']) &&
-                    empty($row['C']) &&
-                    empty($row['D']) &&
-                    empty($row['E'])
-                ) {
-                    continue;
-                }
+        $highestRow = $sheet->getHighestRow();
 
-                $farmerName = trim((string)($row['A'] ?? ''));
-                $subsidyItem = trim((string)($row['B'] ?? ''));
-                $quantity = (float)($row['C'] ?? 0);
-                $receivedDate = trim((string)($row['D'] ?? ''));
-                $status = trim((string)($row['E'] ?? ''));
+        /*
+         * ============================================================
+         * 8. DISTRIBUTION DATE
+         *
+         * Get the date from the SCHEDULE.
+         *
+         * We do NOT get subsidy type from schedule.
+         * ============================================================
+         */
 
+        $distributionDate = null;
 
-                // Validate farmer
-                if ($farmerName === '') {
-                    $failed++;
-                    $errors[] =
-                        "Row {$index}: Farmer name is required.";
-                    continue;
-                }
+        if (!empty($schedule->distribution_date)) {
 
-                // Validate subsidy item
-                if ($subsidyItem === '') {
-                    $failed++;
-                    $errors[] =
-                        "Row {$index}: Subsidy item is required.";
+            $distributionDate = $schedule->distribution_date;
 
-                    continue;
-                }
+        } elseif (!empty($schedule->start_date)) {
 
-                // Validate quantity
-                if ($quantity <= 0) {
-                    $failed++;
-                    $errors[] =
-                        "Row {$index}: Quantity must be greater than 0.";
+            $distributionDate = $schedule->start_date;
+        }
 
-                    continue;
-                }
+        /*
+         * ============================================================
+         * 9. PROCESS EACH EXCEL ROW
+         * ============================================================
+         */
 
-                /*
-                 * Find farmer
-                 */
+        for ($row = 2; $row <= $highestRow; $row++) {
 
-                $nameParts = preg_split(
-                    '/\s+/',
-                    $farmerName
+            /*
+             * --------------------------------------------------------
+             * GET EXCEL VALUES
+             * --------------------------------------------------------
+             */
+
+            $farmerName = trim(
+                (string)$sheet->getCell("A{$row}")->getValue()
+            );
+
+            $quantityValue = $sheet
+                ->getCell("B{$row}")
+                ->getValue();
+
+            $receivedDateValue = $sheet
+                ->getCell("C{$row}")
+                ->getValue();
+
+            $statusValue = trim(
+                (string)$sheet->getCell("D{$row}")->getValue()
+            );
+
+            /*
+             * --------------------------------------------------------
+             * SKIP COMPLETELY EMPTY ROW
+             * --------------------------------------------------------
+             */
+
+            if (
+                $farmerName === '' &&
+                ($quantityValue === null || $quantityValue === '') &&
+                ($receivedDateValue === null || $receivedDateValue === '') &&
+                $statusValue === ''
+            ) {
+                continue;
+            }
+
+            /*
+             * --------------------------------------------------------
+             * VALIDATE FARMER NAME
+             * --------------------------------------------------------
+             */
+
+            if ($farmerName === '') {
+
+                $failed++;
+
+                $errors[] =
+                    "Row {$row}: Farmer name is required.";
+
+                continue;
+            }
+
+            /*
+             * --------------------------------------------------------
+             * VALIDATE QUANTITY
+             * --------------------------------------------------------
+             */
+
+            if (
+                $quantityValue === null ||
+                $quantityValue === '' ||
+                !is_numeric($quantityValue)
+            ) {
+
+                $failed++;
+
+                $errors[] =
+                    "Row {$row}: Quantity must be a valid number.";
+
+                continue;
+            }
+
+            $quantity = (float)$quantityValue;
+
+            if ($quantity <= 0) {
+
+                $failed++;
+
+                $errors[] =
+                    "Row {$row}: Quantity must be greater than zero.";
+
+                continue;
+            }
+
+            /*
+             * --------------------------------------------------------
+             * SPLIT FARMER NAME
+             *
+             * Example:
+             *
+             * Juan Dela Cruz
+             *
+             * first_name = Juan
+             * last_name  = Dela Cruz
+             * --------------------------------------------------------
+             */
+
+            $nameParts = preg_split(
+                '/\s+/',
+                $farmerName
+            );
+
+            $firstName = $nameParts[0] ?? '';
+
+            $lastName = '';
+
+            if (count($nameParts) > 1) {
+
+                $lastName = implode(
+                    ' ',
+                    array_slice($nameParts, 1)
                 );
-                $firstName = $nameParts[0] ?? '';
-                $lastName = '';
-                if (count($nameParts) > 1) {
-                    $lastName = end($nameParts);
-                }
-                $farmer = $this->Farmers->find()
-                    ->where([
-                        'Farmers.first_name' => $firstName,
-                        'Farmers.last_name' => $lastName
-                    ])
-                    ->first();
+            }
 
+            /*
+             * --------------------------------------------------------
+             * FIND FARMER
+             * --------------------------------------------------------
+             */
 
-                if (!$farmer) {
+            $farmer = $this->Farmers
+                ->find()
+                ->where([
+                    'LOWER(Farmers.first_name)' =>
+                        strtolower($firstName),
+                    'LOWER(Farmers.last_name)' =>
+                        strtolower($lastName)
+                ])
+                ->first();
+
+            if (!$farmer) {
+
+                $failed++;
+
+                $errors[] =
+                    "Row {$row}: Farmer '{$farmerName}' was not found.";
+
+                continue;
+            }
+
+            /*
+             * ========================================================
+             * RECEIVED DATE
+             * ========================================================
+             */
+
+            $receivedDate = null;
+
+            if (
+                $receivedDateValue !== null &&
+                $receivedDateValue !== ''
+            ) {
+
+                try {
+
+                    /*
+                     * Excel numeric date
+                     */
+
+                    if (is_numeric($receivedDateValue)) {
+
+                        $unixTimestamp =
+                            \PhpOffice\PhpSpreadsheet\Shared\Date::excelToTimestamp(
+                                (float)$receivedDateValue
+                            );
+
+                        $receivedDate = new FrozenDate(
+                            date(
+                                'Y-m-d',
+                                $unixTimestamp
+                            )
+                        );
+
+                    } else {
+
+                        /*
+                         * Normal date string
+                         */
+
+                        $receivedDate = new FrozenDate(
+                            date(
+                                'Y-m-d',
+                                strtotime((string)$receivedDateValue)
+                            )
+                        );
+                    }
+
+                } catch (\Throwable $e) {
+
                     $failed++;
+
                     $errors[] =
-                        "Row {$index}: Farmer not found: " .
-                        $farmerName;
+                        "Row {$row}: Invalid received date.";
+
                     continue;
                 }
+            }
 
+            /*
+             * ========================================================
+             * STATUS
+             * ========================================================
+             */
+
+            $status = $statusValue;
+
+            /*
+             * Normalize status
+             */
+
+            $statusLower = strtolower(
+                trim($statusValue)
+            );
+
+            switch ($statusLower) {
+
+                case 'received':
+                    $status = 'Received';
+                    break;
+
+                case 'not received':
+                case 'not_received':
+                case 'notreceived':
+                    $status = 'Not Received';
+                    break;
+
+                case 're-scheduled':
+                case 'rescheduled':
+                case 're scheduled':
+                    $status = 'Re-Scheduled';
+                    break;
+
+                case 'cancelled':
+                case 'canceled':
+                    $status = 'Cancelled';
+                    break;
+
+                default:
+
+                    if ($status === '') {
+                        $status = 'Not Received';
+                    }
+
+                    break;
+            }
+
+            /*
+             * ========================================================
+             * DUPLICATE CHECK
+             * ========================================================
+             *
+             * IMPORTANT:
+             *
+             * We use:
+             *
+             * farmer_id
+             * schedule_id
+             *
+             * We DO NOT use:
+             *
+             * subsidy_type
+             *
+             * ========================================================
+             */
+
+            $existingRecord = $this->Records
+                ->find()
+                ->where([
+                    'Records.farmer_id' => $farmer->id,
+                    'Records.schedule_id' => $schedule->id
+                ])
+                ->first();
+
+            /*
+             * --------------------------------------------------------
+             * IF RECORD ALREADY EXISTS
+             * --------------------------------------------------------
+             *
+             * If you want Excel uploads to UPDATE existing records,
+             * this is the section to modify.
+             *
+             * For now, existing records are skipped to prevent
+             * duplicates.
+             * --------------------------------------------------------
+             */
+
+            if ($existingRecord) {
+
+                $failed++;
+
+                $errors[] =
+                    "Row {$row}: Distribution record for '{$farmerName}' already exists.";
+
+                continue;
+            }
+
+            /*
+             * ========================================================
+             * CREATE NEW RECORD
+             * ========================================================
+             *
+             * subsidy_item is completely independent.
+             *
+             * It is NOT:
+             *
+             * Schedules.subsidy_type
+             *
+             * ========================================================
+             */
+
+            $record = $this->Records->newEntity([
+                'farmer_id' => $farmer->id,
 
                 /*
-                 * Find schedule
+                 * Schedule relationship
+                 */
+                'schedule_id' => $schedule->id,
+
+                /*
+                 * Program information
                  *
-                 * We are no longer comparing
-                 * program_name with farmer name.
+                 * Comes from Schedules.
+                 */
+                'program_name' => $schedule->program_name,
+
+                /*
+                 * subsidy_item is an independent field.
                  *
-                 * We use subsidy_type.
+                 * It is NOT connected to subsidy_type.
+                 *
+                 * Change this value if your item has another name.
                  */
-                $schedule = $this->Schedules->find()
-                    ->where([
-                        'Schedules.subsidy_type' => $subsidyItem
-                    ])
-                    ->order([
-                        'Schedules.start_date' => 'DESC'
-                    ])
-                    ->first();
-                if (!$schedule) {
-                    $failed++;
-                    $errors[] =
-                        "Row {$index}: Schedule not found for " .
-                        "subsidy item: {$subsidyItem}";
-
-                    continue;
-                }
+                'subsidy_item' => 'Seed Subsidy',
 
                 /*
-                 * Distribution date comes from schedule
+                 * Quantity from Excel
                  */
-                $distributionDate = $schedule->start_date;
+                'quantity' => $quantity,
 
                 /*
-                 * Convert received date
+                 * Distribution date comes from Schedule
                  */
-                $formattedReceivedDate = null;
-                if ($receivedDate !== '') {
-                    try {
-                        if (is_numeric($receivedDate)) {
-                            $formattedReceivedDate =
-                                \PhpOffice\PhpSpreadsheet\Shared\Date
-                                    ::excelToDateTimeObject(
-                                        $receivedDate
-                                    )
-                                    ->format('Y-m-d');
-                        } else {
-                            $formattedReceivedDate =
-                                (new \DateTime($receivedDate))
-                                    ->format('Y-m-d');
+                'distribution_date' => $distributionDate,
+
+                /*
+                 * Received date comes from Excel
+                 */
+                'received_date' => $receivedDate,
+
+                /*
+                 * Status comes from Excel
+                 */
+                'status' => $status
+            ]);
+
+            /*
+             * ========================================================
+             * SAVE RECORD
+             * ========================================================
+             */
+
+            if ($this->Records->save($record)) {
+
+                $success++;
+
+            } else {
+
+                $failed++;
+
+                $validationErrors =
+                    $record->getErrors();
+
+                $errorMessage =
+                    "Row {$row}: Unable to save record.";
+
+                if (!empty($validationErrors)) {
+
+                    $messages = [];
+
+                    foreach (
+                        $validationErrors as $field => $fieldErrors
+                    ) {
+
+                        if (is_array($fieldErrors)) {
+
+                            foreach ($fieldErrors as $message) {
+
+                                $messages[] =
+                                    "{$field}: {$message}";
+                            }
                         }
-                    } catch (\Exception $e) {
-                        $failed++;
-                        $errors[] =
-                            "Row {$index}: Invalid received date: " .
-                            $receivedDate;
+                    }
 
-                        continue;
+                    if (!empty($messages)) {
+
+                        $errorMessage .=
+                            ' ' .
+                            implode(
+                                ' ',
+                                $messages
+                            );
                     }
                 }
 
-                /*
-                 * Create record
-                 */
-                $record = $this->Records->newEmptyEntity();
-                $record->farmer_id = $farmer->id;
-                $record->schedule_id = $schedule->id;
-                // Get program name from schedule
-                $record->program_name = $schedule->program_name;
-                // Get subsidy item from Excel
-                $record->subsidy_item = $subsidyItem;
-                $record->quantity = $quantity;
-                // Get distribution date from schedule
-                $record->distribution_date = $distributionDate;
-                // Get received date from Excel
-                $record->received_date = $formattedReceivedDate;
-                $record->status = $status;
-
-                /*
-                 * Save
-                 */
-                if ($this->Records->save($record)) {
-                    $success++;
-                } else {
-                    $failed++;
-                    $errors[] =
-                        "Row {$index}: Failed to save record: " .
-                        json_encode(
-                            $record->getErrors()
-                        );
-                }
+                $errors[] = $errorMessage;
             }
-
-            if ($success > 0) {
-                $this->Flash->success(
-                    "Excel import completed. " .
-                    "{$success} record(s) imported."
-                );
-            }
-            if ($failed > 0) {
-                $message =
-                    "{$failed} row(s) could not be imported.";
-                if (!empty($errors)) {
-                $message .= '<br>' . implode( '<br>', $errors );
-                }
-                $this->Flash->warning($message);
-            }
-        } catch (\Exception $e) {
-            $this->Flash->error('Unable to read the Excel file: ' . $e->getMessage()
-            );
         }
-        return $this->redirect(['action' => 'index']);
-    }
 
+        /*
+         * ============================================================
+         * 10. STORE RESULT IN SESSION
+         * ============================================================
+         */
+
+        if ($success > 0 && $failed === 0) {
+
+            $type = 'success';
+
+        } elseif ($success > 0 && $failed > 0) {
+
+            $type = 'partial';
+
+        } else {
+
+            $type = 'failed';
+        }
+
+        $session->write(
+            'ExcelImportResult',
+            [
+                'type' => $type,
+                'success' => $success,
+                'failed' => $failed,
+                'errors' => $errors
+            ]
+        );
+
+        /*
+         * ============================================================
+         * 11. REDIRECT
+         * ============================================================
+         */
+
+        return $this->redirect([
+            'action' => 'index'
+        ]);
+    }
     public function viewRecord($id = null)
     {
         if (!$id) {

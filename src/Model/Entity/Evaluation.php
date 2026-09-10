@@ -12,8 +12,7 @@ use Cake\ORM\Entity;
  * @property int $id
  * @property int|null $farmer_id
  * @property int|null $feedback_id
- * @property int|null $schedule_id
- * @property string $subsidy_type
+ * @property int|null $schedule_ids
  * @property float $farm_id
  * @property float $crop_yield_after
  * @property float $selling_price

@@ -17,8 +17,8 @@ $(function(){
         })
             .done(function(data){
                 if(data!=''){
-                	$('#program-name').val(data.program_name);
-                    $('#subsidy-type').val(data.subsidy_type);
+                	$('#program-code').val(data.program_code);
+                    $('#program-name').val(data.program_name);
                 	$('#description').val(data.description);
                     $('#start-date').val(data.start_date);
                 	$('#end-date').val(data.end_date);
@@ -114,8 +114,8 @@ function getSchedules()
             "url": BASE_URL + '/api/Schedules/getSchedules'
         },
         "columns": [
+            {data:"program_code"},
 			{data:"program_name"},
-            {data:"subsidy_type"},
             {data:"description"},
             {data:"start_date"},
             {data:"end_date"},

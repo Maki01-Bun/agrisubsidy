@@ -59,16 +59,16 @@ class SchedulesTable extends Table
     public function validationDefault(Validator $validator): Validator
     {
         $validator
+            ->scalar('program_code')
+            ->maxLength('program_code', 50)
+            ->requirePresence('program_code', 'create')
+            ->notEmptyString('program_code');
+
+        $validator
             ->scalar('program_name')
             ->maxLength('program_name', 255)
             ->requirePresence('program_name', 'create')
             ->notEmptyString('program_name');
-
-        $validator
-            ->scalar('subsidy_type')
-            ->maxLength('subsidy_type', 150)
-            ->requirePresence('subsidy_type', 'create')
-            ->notEmptyString('subsidy_type');
 
         $validator
             ->scalar('description')

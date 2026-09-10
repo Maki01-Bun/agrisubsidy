@@ -4,11 +4,10 @@
         <i class="fas fa-chart-line"></i>
         AgriSubsidy Data Analytics
     </div>
-
     <!-- MODEL SUMMARY -->
     <div class="row g-3">
         <!-- STATUS -->
-        <div class="col-lg-3 col-md-6">
+        <div class="col-lg-6 col-md-6">
             <div class="model-card">
                 <div class="model-icon">
                     <i class="fas fa-brain"></i>
@@ -26,43 +25,8 @@
                 </div>
             </div>
         </div>
-
-        <!-- ACCURACY -->
-        <div class="col-lg-3 col-md-6">
-            <div class="model-card">
-                <div class="model-icon">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <div>
-                    <div class="model-label">
-                        Accuracy
-                    </div>
-                    <div class="model-value">
-                        <?= number_format($modelAccuracy, 1) ?>%
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- LAST TRAINED -->
-        <div class="col-lg-3 col-md-6">
-            <div class="model-card">
-                <div class="model-icon">
-                    <i class="fas fa-calendar-alt"></i>
-                </div>
-                <div>
-                    <div class="model-label">
-                        Last Trained
-                    </div>
-                    <div class="model-value" style="font-size:15px;">
-                        <?= h($lastTrained) ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- DATA USED -->
-        <div class="col-lg-3 col-md-6">
+        <div class="col-lg-6 col-md-6">
             <div class="model-card">
                 <div class="model-icon">
                     <i class="fas fa-database"></i>
@@ -81,7 +45,6 @@
             </div>
         </div>
     </div>
-
     <!-- CHART ROW -->
     <div class="row g-3 mt-3">
         <!-- FEATURES -->
@@ -94,159 +57,168 @@
                     <div class="chart-container">
                         <canvas id="featureChart"></canvas>
                     </div>
-
                 </div>
             </div>
         </div>
     </div>
-
-   <!--PROGRAM EFFECTIVENESS RECOMMENDATION-->
     <div class="row g-3 mt-3">
-        <div class="col-12">
-            <div class="analytics-panel recommendation-panel">
-                <div class="panel-title recommendation-title bg-success">
-                    Program Effectiveness Recommendation
-                </div>
-                <div class="panel-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-bordered mb-0 recommendation-table">
-
-                            <thead>
-                                <tr>
-                                    <th>Seed Subsidy Program</th>
-                                    <th>Prediction</th>
-                                    <th>Confidence</th>
-                                    <th>Trend</th>
-                                    <th>Suggested Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            <?php if (!empty($recommendations)): ?>
-                                <?php foreach ($recommendations as $recommendation): ?>
-                                <tr>
-                                    <td>
-                                        <strong>
-                                            <?= h($recommendation['program']) ?>
-                                        </strong>
-                                    </td>
-                                    <td>
-                                        <?= h($recommendation['prediction']) ?>
-                                    </td>
-                                    <td>
-                                        <strong>
-                                            <?= h($recommendation['confidence']) ?>%
-                                        </strong>
-                                    </td>
-                                    <td>
-                                        <?php if ($recommendation['trend'] === 'Improving'): ?>
-                                            <span class="badge bg-success">
-                                                ↑ Improving
-                                            </span>
-                                        <?php elseif ($recommendation['trend'] === 'Declining'): ?>
-                                            <span class="badge bg-danger">
-                                                ↓ Declining
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="badge bg-secondary">
-                                                → Stable
-                                            </span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <?= h($recommendation['action']) ?>
-                                    </td>  
-                                </tr> 
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <tr>
-                                    <td colspan="4">
-                                        <div class="analytics-empty">
-                                            <i class="fas fa-info-circle"></i>
-                                            No program recommendations available.
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php endif; ?>
-                            </tbody>
-                        </table>
+        <div class="col-lg-12">
+            <div class="analytics-panel">
+                <div class="panel-title d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="fas fa-seedling mr-2"></i>
+                        Seed Subsidy Effectiveness
                     </div>
+                    <span class="badge badge-success">
+                        Overall Program Performance
+                    </span>
+                </div>
+                <div class="panel-body">
+                    <?php if (!empty($seedSubsidyEffectiveness)): ?>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Program Code</th>
+                                        <th>
+                                            Program Name
+                                        </th>
+                                        <th class="text-center">
+                                            Total Evaluations
+                                        </th>
+                                        <th class="text-center">
+                                            Effective
+                                        </th>
+                                        <th class="text-center">
+                                            Moderately Effective
+                                        </th>
+                                        <th class="text-center">
+                                            Not Effective
+                                        </th>
+                                        <th class="text-center">
+                                            Effectiveness Rate
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach (
+                                        $seedSubsidyEffectiveness
+                                        as $seed
+                                    ): ?>
+                                        <?php
+                                        $rate = (float)(
+                                            $seed['effectiveness_rate'] ?? 0
+                                        );
+                                        if ($rate >= 75) {
+                                            $badgeClass = 'badge-success';
+                                            $statusText = 'Highly Effective';
+                                        } elseif ($rate >= 50) {
+                                            $badgeClass = 'badge-warning';
+                                            $statusText = 'Moderately Effective';
+                                        } else {
+                                            $badgeClass = 'badge-danger';
+                                            $statusText = 'Needs Improvement';
+                                        }
+                                        ?>
+                                        <tr>
+                                            <!-- PROGRAM -->
+                                            <td>
+                                                <strong>
+                                                    <?= h(
+                                                        $seed['program_name']
+                                                        ?? 'Seed Subsidy'
+                                                    ) ?>
+                                                </strong>
+                                            </td>
+                                            <!-- TOTAL -->
+                                            <td class="text-center">
+                                                <?= number_format(
+                                                    (int)(
+                                                        $seed[
+                                                            'total_evaluations'
+                                                        ] ?? 0
+                                                    )
+                                                ) ?>
+                                            </td>
+                                            <!-- EFFECTIVE -->
+                                            <td class="text-center">
+                                                <span class="badge badge-success">
+                                                    <?= number_format(
+                                                        (int)(
+                                                            $seed[
+                                                                'effective_count'
+                                                            ] ?? 0
+                                                        )
+                                                    ) ?>
+                                                </span>
+                                            </td>
+                                            <!-- MODERATELY EFFECTIVE -->
+                                            <td class="text-center">
+                                                <span class="badge badge-warning">
+                                                    <?= number_format(
+                                                        (int)(
+                                                            $seed[
+                                                                'moderately_effective_count'
+                                                            ] ?? 0
+                                                        )
+                                                    ) ?>
+                                                </span>
+                                            </td>
+                                            <!-- NOT EFFECTIVE -->
+                                            <td class="text-center">
+                                                <span class="badge badge-danger">
+                                                    <?= number_format(
+                                                        (int)(
+                                                            $seed[
+                                                                'not_effective_count'
+                                                            ] ?? 0
+                                                        )
+                                                    ) ?>
+                                                </span>
+                                            </td>
+                                            <!-- RATE -->
+                                            <td class="text-center">
+                                                <strong>
+                                                    <?= number_format(
+                                                        $rate,
+                                                        1
+                                                    ) ?>%
+                                                </strong>
+                                                <br>
+                                                <span class="badge <?= $badgeClass ?> mt-1">
+
+                                                    <?= h($statusText) ?>
+
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php else: ?>
+                        <div class="text-center py-5">
+                            <i
+                                class="fas fa-seedling text-muted"
+                                style="font-size:42px;"
+                            ></i>
+                            <h5 class="mt-3">
+                                No Seed Subsidy Evaluation Data
+                            </h5>
+                            <p class="text-muted mb-0">
+                                No evaluations are currently connected
+                                to Seed Subsidy schedules.
+                            </p>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
-    </div>
+    </div>  
 </div>
 
 <?= $this->Html->script('https://cdn.jsdelivr.net/npm/chart.js') ?>
 <script>
-const programEffectivenessChart =
-    document.getElementById('programEffectivenessChart');
-if (programEffectivenessChart) {
-    const recommendations =
-        <?= json_encode($recommendations ?? []) ?>;
-    if (recommendations.length > 0) {
-        // Sort by confidence, highest first
-        recommendations.sort(function (a, b) {
-            return parseFloat(b.confidence) -
-            parseFloat(a.confidence);
-        });
-        const programs = recommendations.map(function (item) {
-            return item.program;
-        });
-        const confidence = recommendations.map(function (item) {
-            return parseFloat(item.confidence);
-        });
-        const predictions = recommendations.map(function (item) {
-            return item.prediction;
-        });
-        new Chart(programEffectivenessChart, {
-            type: 'doughnut',
-            data: {
-                labels: programs,
-                datasets: [{
-                    data: confidence,
-                    backgroundColor: [
-                        '#28a745',
-                        '#ffb13b',
-                        '#ff6384',
-                        '#36a2eb',
-                        '#9966ff'
-                    ],
-                    borderColor: '#ffffff',
-                    borderWidth: 3,
-                    hoverOffset: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '62%',
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 15,
-                            usePointStyle: true,
-
-                            font: {
-                                size: 12
-                            }
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function (context) {
-                                const index =
-                                    context.dataIndex;
-                                return (' ' + predictions [index] + ' — ' + confidence[index] + '% confidence');
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-}
-
 const featureChart =
     document.getElementById('featureChart');
 new Chart(featureChart, {

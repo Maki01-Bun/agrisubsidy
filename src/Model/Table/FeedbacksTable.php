@@ -49,9 +49,6 @@ class FeedbacksTable extends Table
         $this->belongsTo('Farms', [
             'foreignKey' => 'farm_id',
         ]);
-        $this->belongsTo('Schedules', [
-            'foreignKey' => 'schedule_id',
-        ]);
 
         $this->addBehavior('Timestamp');
     }

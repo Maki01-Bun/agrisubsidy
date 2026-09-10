@@ -17,7 +17,7 @@
                         <th>Farm Name</th>
                         <th>Farm Size</th>
                         <th>Location</th>
-                        <th>Average Yield</th>
+                        <th>Average Yield (bags/ha)</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -118,3 +118,150 @@
         </div>
     </div>
 </div>
+<?php
+$excelImportResult = $this->request
+    ->getSession()
+    ->consume('ExcelImportResult');
+?>
+
+<?php if (!empty($excelImportResult)): ?>
+
+<div class="modal fade"
+     id="excelImportResultModal"
+     tabindex="-1"
+     role="dialog"
+     aria-labelledby="excelImportResultModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered"
+         role="document">
+
+        <div class="modal-content">
+
+            <?php
+            /*
+             * Determine modal type
+             */
+            $resultType =
+                $excelImportResult['type'] ?? 'error';
+
+            if ($resultType === 'partial') {
+
+                $headerClass = 'bg-warning';
+                $headerIcon = 'fa-exclamation-triangle';
+                $headerTitle =
+                    'Excel Import Completed with Issues';
+
+            } else {
+
+                $headerClass = 'bg-danger';
+                $headerIcon = 'fa-times-circle';
+                $headerTitle =
+                    'Excel Import Failed';
+            }
+            ?>
+
+            <div class="modal-header <?= $headerClass ?>">
+
+                <h5 class="modal-title text-white"
+                    id="excelImportResultModalLabel">
+
+                    <i class="fas <?= $headerIcon ?> mr-2"></i>
+
+                    <?= h($headerTitle) ?>
+
+                </h5>
+
+                <button type="button"
+                        class="close text-white"
+                        data-dismiss="modal"
+                        aria-label="Close">
+
+                    <span aria-hidden="true">
+                        &times;
+                    </span>
+
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-4">
+                    <!-- SUCCESS -->
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <div class="card border-success h-100 mb-0">
+                            <div class="card-body text-center">
+                                <div class="mb-2">
+                                    <i class="fas fa-check-circle
+                                              text-success"
+                                       style="font-size: 35px;">
+                                    </i>
+                                </div>
+                                <h2 class="text-success mb-1">
+                                    <?= h(
+                                        $excelImportResult['success']
+                                        ?? 0
+                                    ) ?>
+                                </h2>
+                                <p class="text-muted mb-0">
+
+                                    Successfully Imported
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- FAILED -->
+                    <div class="col-md-6">
+                        <div class="card border-danger
+                                    h-100 mb-0">
+                            <div class="card-body text-center">
+                                <div class="mb-2">
+                                    <i class="fas fa-times-circle
+                                              text-danger"
+                                       style="font-size: 35px;">
+                                    </i>
+                                </div>
+                                <h2 class="text-danger mb-1">
+                                    <?= h(
+                                        $excelImportResult['failed']
+                                        ?? 0
+                                    ) ?>
+                                </h2>
+                                <p class="text-muted mb-0">
+
+                                    Failed / Duplicate Rows
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <?php if ($resultType === 'partial'): ?>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        Some records were imported successfully,
+                        but some rows could not be uploaded because
+                        they contain duplicate or invalid data.
+                    </div>
+                <?php else: ?>
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        No records were imported because the uploaded
+                        Excel file contains duplicate or invalid data.
+                    </div>
+                <?php endif; ?>
+            </div>
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal">
+                    <i class="fas fa-times mr-1"></i>
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+$(document).ready(function () {
+
+    $('#excelImportResultModal').modal('show');
+});
+</script>
+<?php endif; ?>
