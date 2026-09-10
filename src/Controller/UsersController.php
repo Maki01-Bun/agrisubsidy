@@ -160,7 +160,7 @@ class UsersController extends AppController
     
                 } elseif ($user['role'] == 'staff') {
                     return $this->redirect([
-                        'controller'=>'Dashboard',
+                        'controller'=>'AuditLogs',
                         'action'=>'index'
                     ]);
                 } else {

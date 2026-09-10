@@ -40,7 +40,7 @@
             </li>
             <li class="nav-item">
                 <?= $this->Html->link(
-                    '<i class="nav-icon fas fa-calendar-alt"></i><p>Program Schedules</p>',
+                    '<i class="nav-icon fas fa-calendar-alt"></i><p>Subsidy Distribution Schedules</p>',
                     '/Schedules',
                     ['class' => 'nav-link '.($title == 'Schedules' ? 'active' : ''),'escape' => false])?>
             </li>
@@ -49,12 +49,6 @@
                     '<i class="nav-icon fas fa-seedling"></i><p>Distribution Records</p>',
                     '/Records',
                     ['class' => 'nav-link '.($title == 'Records' ? 'active' : ''),'escape' => false])?>
-            </li>
-            <li class="nav-item">
-                <?= $this->Html->link(
-                    '<i class="nav-icon fas fa-user-cog"></i><p>Users</p>',
-                    '/Users',
-                    ['class' => 'nav-link '.($title == 'Users' ? 'active' : ''),'escape' => false])?>
             </li>
             <li class="nav-item">
                 <?= $this->Html->link(

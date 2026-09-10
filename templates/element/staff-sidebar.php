@@ -21,18 +21,7 @@
                     '/Profile',
                     ['class' => 'nav-link '.($title == 'Profile' ? 'active' : ''),'escape' => false])?>
             </li>
-            <li class="nav-item">
-                <?= $this->Html->link(
-                    '<i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p>',
-                    '/Dashboard',
-                    ['class' => 'nav-link '.($title == 'Dashboard' ? 'active' : ''),'escape' => false])?>
-            </li>
-            <li class="nav-item">
-                <?= $this->Html->link(
-                    '<i class="nav-icon fas fa-users"></i><p>Beneficiaries</p>',
-                    '/Farmers',
-                    ['class' => 'nav-link '.($title == 'Farmers' ? 'active' : ''),'escape' => false])?>
-            </li>
+    
             <li class="nav-item">
                 <?= $this->Html->link(
                     '<i class="nav-icon fas fa-calendar-alt"></i><p>Audit Logs</p>',
@@ -45,12 +34,6 @@
                     '<i class="nav-icon fas fa-user-cog"></i><p>Users</p>',
                     '/Users',
                     ['class' => 'nav-link '.($title == 'Users' ? 'active' : ''),'escape' => false])?>
-            </li>
-            <li class="nav-item">
-                <?= $this->Html->link(
-                    '<i class="nav-icon fas fa-chart-line"></i><p>Data Analytics</p>',
-                    '/Analytics',
-                    ['class' => 'nav-link '.($title == 'Analytics' ? 'active' : ''),'escape' => false])?>
             </li>
         </ul>
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview">
