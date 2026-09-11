@@ -76,6 +76,12 @@ class SchedulesTable extends Table
             ->notEmptyString('description');
 
         $validator
+            ->scalar('baranggay')
+            ->maxLength('baranggay', 150)
+            ->requirePresence('baranggay', 'create')
+            ->notEmptyString('baranggay');
+
+        $validator
             ->date('start_date')
             ->requirePresence('start_date', 'create')
             ->notEmptyDate('start_date');

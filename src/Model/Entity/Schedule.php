@@ -12,6 +12,7 @@ use Cake\ORM\Entity;
  * @property string $program_code
  * @property string $program_name
  * @property string $description
+ * @property string $baranggay
  * @property \Cake\I18n\FrozenDate $start_date
  * @property \Cake\I18n\FrozenDate $end_date
  * @property \Cake\I18n\Time $start_time
@@ -33,6 +34,7 @@ class Schedule extends Entity
         'program_code' => true,
         'program_name' => true,
         'description' => true,
+        'baranggay' => true,
         'start_date' => true,
         'end_date' => true,
         'start_time' => true,

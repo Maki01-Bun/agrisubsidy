@@ -141,6 +141,20 @@ $today = date('Y-m-d');
                                     ?>
                                 </p>
                             </div>
+                            <div class="announcement-description">
+                                <div class="description-title">
+                                    <i class="fas fa-info-circle mr-2"></i>
+                                    Baranggay
+                                </div>
+                                <p>
+                                    <?= !empty($schedule->baranggay)
+                                        ? nl2br(
+                                            h($schedule->baranggay)
+                                        )
+                                        : 'No additional details available.'
+                                    ?>
+                                </p>
+                            </div>
                             <!-- =====================================
                                  SCHEDULE INFORMATION
                             ====================================== -->

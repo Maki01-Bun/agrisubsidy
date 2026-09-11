@@ -3,7 +3,7 @@
         <div class="card-header">
             <h3 class="card-title text-dark">Evaluations</h3>
             <div class="card-tools evaluation-card-tools">
-                <div class="dropdown effectiveness-dropdown">
+                <!-- <div class="dropdown effectiveness-dropdown">
                     <button class="btn btn-outline-primary dropdown-toggle effectiveness-btn" type="button" id="effectivenessDropdown" data-toggle="dropdown"
                     aria-haspopup="true" aria-expanded="false">
                         <i class="fas fa-filter"></i>
@@ -23,7 +23,6 @@
                             </span>
                         </div>
                         <div class="dropdown-divider"></div>
-                        <!-- Corn Seeds -->
                         <a href="#"
                         class="dropdown-item subsidy-type-filter"
                         data-value="Corn Seeds">
@@ -31,7 +30,6 @@
                                 Corn Seeds
                             </span>
                         </a>
-                        <!-- Rice -->
                         <a href="#"
                         class="dropdown-item subsidy-type-filter"
                         data-value="Rice Seeds">
@@ -40,7 +38,6 @@
                             </span>
                         </a>
                         <div class="dropdown-divider"></div>
-                        <!-- Clear -->
                         <a href="#"
                         class="dropdown-item subsidy-type-filter clear-subsidy-type">
                             <span class="subsidy-type-icon">
@@ -51,7 +48,7 @@
                             </span>
                         </a>
                     </div>
-                </div>
+                </div> -->
                 <!-- Download Button -->
                 <a href="<?= $this->Url->build([ 'controller' => 'Evaluations', 'action' => 'downloadSummary' ]) ?>"
                 class="btn btn-success evaluation-download-btn" title="Download Evaluation Summary">

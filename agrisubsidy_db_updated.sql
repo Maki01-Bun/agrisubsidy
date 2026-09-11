@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 10, 2026 at 04:33 AM
+-- Generation Time: Sep 11, 2026 at 04:26 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -53,13 +53,6 @@ CREATE TABLE `evaluations` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `evaluations`
---
-
-INSERT INTO `evaluations` (`id`, `farm_id`, `crop_yield_after`, `subsidy_received`, `selling_price`, `effectiveness_label`, `feedback_id`, `farmer_id`, `schedule_id`, `created`, `modified`) VALUES
-(163, 162, 600.00, 'Yes', 22.20, 'Effective', 125, 153, 30, '2026-09-10 01:56:32', '2026-09-10 01:56:32');
 
 -- --------------------------------------------------------
 
@@ -220,13 +213,6 @@ CREATE TABLE `records` (
   `modified_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `records`
---
-
-INSERT INTO `records` (`id`, `farmer_id`, `subsidy_item`, `quantity`, `received_date`, `status`, `schedule_id`, `confirmed_at`, `created_at`, `modified_at`) VALUES
-(198, 153, 'Corn Seeds', 100.00, '2026-09-10 15:22:35', 'Received', 30, '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00');
-
 -- --------------------------------------------------------
 
 --
@@ -238,6 +224,7 @@ CREATE TABLE `schedules` (
   `program_code` varchar(100) NOT NULL,
   `program_name` varchar(255) NOT NULL,
   `description` text NOT NULL,
+  `baranggay` varchar(150) NOT NULL,
   `start_date` date NOT NULL,
   `end_date` date NOT NULL,
   `start_time` time NOT NULL,
@@ -248,8 +235,8 @@ CREATE TABLE `schedules` (
 -- Dumping data for table `schedules`
 --
 
-INSERT INTO `schedules` (`id`, `program_code`, `program_name`, `description`, `start_date`, `end_date`, `start_time`, `end_time`) VALUES
-(30, 'SD-1', 'Seed Subsidy Distribution', 'See you', '2026-09-10', '2026-09-10', '07:00:00', '16:00:00');
+INSERT INTO `schedules` (`id`, `program_code`, `program_name`, `description`, `baranggay`, `start_date`, `end_date`, `start_time`, `end_time`) VALUES
+(31, 'SD-1', 'Seed Subsidy Distribution', 'G-5', 'Rizal', '2026-09-11', '2026-09-11', '10:20:24', '16:30:00');
 
 -- --------------------------------------------------------
 
@@ -274,10 +261,10 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `password`, `role`, `created`, `modified`, `status`, `failed_attempts`, `locked_until`) VALUES
-(1, 'admin', '$2y$10$mOsQfa7o.YJXIKkzMQa/iOCMpMay0vaZWOmXDE2Z2oT.r7Yl8kRP2', 'admin', '2026-06-17 05:17:00', '2026-09-10 02:25:06', 'pending', 0, NULL),
+(1, 'admin', '$2y$10$mOsQfa7o.YJXIKkzMQa/iOCMpMay0vaZWOmXDE2Z2oT.r7Yl8kRP2', 'admin', '2026-06-17 05:17:00', '2026-09-11 02:09:27', 'pending', 0, NULL),
 (10, 'Maki', '$2y$10$sH3pyTnexvxspeuivmd5dujFsFqb6NKASs2QLaUCAlfXlIAVMu2fK', 'farmer', '2026-06-19 06:48:48', '2026-07-15 02:26:14', 'pending', 0, NULL),
-(17, 'superadmin', '$2y$10$6LlYegtiDE46XLuhzPnJoe8ii32u7yYbHyf1GSkjY3kK.3eHf8tOK', 'staff', '2026-06-30 01:07:50', '2026-09-10 02:32:40', 'pending', 0, NULL),
-(26, 'Jayson', '$2y$10$vqHrBjft1A3bcmaUiWM4TOz23sna4xw1Coh3iVYjXouKWMycF/FpK', 'farmer', '2026-07-15 13:10:21', '2026-09-10 02:32:32', 'pending', 0, NULL),
+(17, 'superadmin', '$2y$10$6LlYegtiDE46XLuhzPnJoe8ii32u7yYbHyf1GSkjY3kK.3eHf8tOK', 'staff', '2026-06-30 01:07:50', '2026-09-10 11:17:20', 'pending', 0, NULL),
+(26, 'Jayson', '$2y$10$vqHrBjft1A3bcmaUiWM4TOz23sna4xw1Coh3iVYjXouKWMycF/FpK', 'farmer', '2026-07-15 13:10:21', '2026-09-11 02:22:12', 'pending', 0, NULL),
 (29, 'Lxi', '$2y$10$96pJIUC6Z9/AkPKQKHpRi.zys0cVS5T0n0.5MT7eLe3n7TluPMR8K', 'farmer', '2026-07-15 13:47:03', '2026-07-15 13:47:03', 'pending', 0, NULL),
 (30, 'Jha', '$2y$10$DaDUC5VjD0bvq7EQ/nVwbuNuabd6I3vPkCgu4gdbxK0KQN/MXSsIi', 'farmer', '2026-07-16 03:01:05', '2026-09-08 12:49:18', 'pending', 0, NULL),
 (36, 'Marlon L. Castro', '$2y$10$ZkqyY3JOeD2anhrKF.o78.MugtjnMrrdIZ63LB1aklo0gn7kdi/2C', 'farmer', '2026-07-23 07:33:54', '2026-07-23 07:33:54', 'pending', 0, NULL),
@@ -410,7 +397,7 @@ ALTER TABLE `records`
 -- AUTO_INCREMENT for table `schedules`
 --
 ALTER TABLE `schedules`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT for table `users`

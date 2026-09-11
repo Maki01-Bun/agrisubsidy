@@ -20,6 +20,7 @@ $(function(){
                 	$('#program-code').val(data.program_code);
                     $('#program-name').val(data.program_name);
                 	$('#description').val(data.description);
+                    $('#baranggay').val(data.baranggay);
                     $('#start-date').val(data.start_date);
                 	$('#end-date').val(data.end_date);
                     $('#start-time').val(data.start_time);
@@ -117,6 +118,7 @@ function getSchedules()
             {data:"program_code"},
 			{data:"program_name"},
             {data:"description"},
+            {data:"baranggay"},
             {data:"start_date"},
             {data:"end_date"},
             {data:"start_time"},
