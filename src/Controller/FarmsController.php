@@ -19,9 +19,66 @@ class FarmsController extends AppController
      * @return \Cake\Http\Response|null|void Renders view
      */
     public function index()
-    {
+{
+    $this->loadModel('Farmers');
 
+    $user = $this->request->getSession()->read('Auth.User');
+
+    $farms = [];
+    $farmers = [];
+
+    if ($user['role'] === 'admin') {
+
+        // Admin sees all farms
+        $farms = $this->Farms->find()
+            ->contain(['Farmers'])
+            ->all();
+
+        // Admin can select any farmer
+        $farmers = $this->Farmers->find('list', [
+            'keyField' => 'id',
+            'valueField' => function ($farmer) {
+                return $farmer->first_name . ' ' . $farmer->last_name;
+            }
+        ])
+        ->order([
+            'Farmers.last_name' => 'ASC',
+            'Farmers.first_name' => 'ASC'
+        ])
+        ->toArray();
+
+    } else {
+
+        // Get farmer associated with logged-in user
+        $farmer = $this->Farmers->find()
+            ->where([
+                'user_id' => $user['id']
+            ])
+            ->first();
+
+        if ($farmer) {
+
+            // Farmer sees only their own farms
+            $farms = $this->Farms->find()
+                ->where([
+                    'farmer_id' => $farmer->id
+                ])
+                ->contain(['Farmers'])
+                ->all();
+
+            // Only show the logged-in farmer
+            $farmers = [
+                $farmer->id => $farmer->first_name . ' ' . $farmer->last_name
+            ];
+        }
     }
+
+    // Send both variables to the view
+    $this->set(compact(
+        'farms',
+        'farmers'
+    ));
+}
 
     /**
      * View method
@@ -290,7 +347,7 @@ class FarmsController extends AppController
                 (string)($row['D'] ?? '')
             );
 
-            $cropYield = trim(
+            $averageYield = trim(
                 (string)($row['E'] ?? '')
             );
 
@@ -372,7 +429,7 @@ class FarmsController extends AppController
              * VALIDATE CROP YIELD
              * =================================================
              */
-            if ($cropYield === '') {
+            if ($averageYield === '') {
 
                 $failed++;
 
@@ -383,8 +440,8 @@ class FarmsController extends AppController
             }
 
             if (
-                !is_numeric($cropYield) ||
-                (float)$cropYield < 0
+                !is_numeric($averageYield) ||
+                (float)$averageYield < 0
             ) {
 
                 $failed++;
@@ -549,8 +606,8 @@ class FarmsController extends AppController
             $farm->location =
                 $location;
 
-            $farm->crop_yield =
-                (float)$cropYield;
+            $farm->average_yield =
+                (float)$averageYield;
 
             /*
              * =================================================

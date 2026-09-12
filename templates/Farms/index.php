@@ -7,6 +7,8 @@
                     <i class="fas fa-file-excel mr-1"></i>
                     Upload Farms
                 </button>
+                 <?= $this->Html->link('<i class="fas fa-plus"></i>',['action' => 'add'],
+                [ 'id' => 'add', 'class' => 'btn btn-primary', 'data-toggle' => 'tooltip', 'data-placement' => 'bottom', 'title' => 'Add Farm', 'escape' => false ])?>
             </div>
         </div>
         <div class="card-body">
@@ -37,20 +39,25 @@
             <?= $this->Form->create(null,['id'=>'farms-form']) ?>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="farm_name">Farm Name</label>
-                    <?= $this->Form->control('farm_name',['class'=>'form-control','label'=>false]) ?>
+                    <label for="farmer-id">Farmer</label>
+                    <?= $this->Form->control('farmer_id', ['type' => 'select', 'options' => $farmers,
+                        'empty' => '-- Select Farmer --','class' => 'form-control','label' => false])?>
+                </div>
+                <div class="form-group">
+                    <label for="farm-name">Farm Name</label>
+                    <?= $this->Form->control('farm_name',['class'=>'form-control','label'=>false])?>
                 </div>
                 <div class="form-group">
                     <label for="farm_size">Farm Size</label>
-                    <?= $this->Form->control('farm_size',['class'=>'form-control','label'=>false]) ?>
+                    <?= $this->Form->control('farm_size',['class'=>'form-control','label'=>false])?>
                 </div>
                 <div class="form-group">
                     <label for="location">Location</label>
-                    <?= $this->Form->control('location',['class'=>'form-control','label'=>false]) ?>
+                    <?= $this->Form->control('location',['class'=>'form-control','label'=>false])?>
                 </div>
                 <div class="form-group">
-                    <label for="crop_yield">Crop Yield</label>
-                    <?= $this->Form->control('crop_yield',['class'=>'form-control','label'=>false]) ?>
+                    <label for="average_yield">Average Yield (bags/ha)</label>
+                    <?= $this->Form->control('average_yield',['class'=>'form-control','label'=>false])?>
                 </div>
             </div>
             <div class="modal-footer">

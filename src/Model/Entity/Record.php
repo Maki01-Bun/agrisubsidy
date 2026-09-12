@@ -12,14 +12,14 @@ use Cake\ORM\Entity;
  * @property int $farmer_id
  * @property string $subsidy_item
  * @property float $quantity
- * @property \Cake\I18n\FrozenTime|null $received_date
+ * @property \Cake\I18n\FrozenTime $received_date
  * @property string $status
- * @property int|null $schedule_id
- * @property \Cake\I18n\FrozenTime|null $confirmed_at
+ * @property int $schedule_id
+ * @property \Cake\I18n\FrozenTime $confirmed_at
  * @property \Cake\I18n\FrozenTime $created
  * @property \Cake\I18n\FrozenTime $modified
  * @property \App\Model\Entity\Farmer $farmer
- * @property \App\Model\Entity\Schedule|null $schedule
+ * @property \App\Model\Entity\Schedule $schedule
  */
 class Record extends Entity
 {

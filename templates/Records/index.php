@@ -135,11 +135,11 @@
                     <?= $this->Form->control('farmer_id', ['type' => 'select','options' => $farmers,
                     'empty' => '-- Select Farmer --','class' => 'form-control','label' => false]) ?>
                     <label for="subsidy_item">Subsidy Item</label>
-                    <?= $this->Form->control('subsidy_item', ['class' => 'form-control', 'label' => false,
-                    'options' => $this->Option->subsidy(), 'empty' => '-- Enter Subsidy Item --'])?>
-                    <label for="quantity">Quantity</label>
+                    <?= $this->Form->control('subsidy_item', ['type' => 'text', 'value' => 'Seed Subsidy',
+                    'class' => 'form-control', 'label' => false, 'readonly' => true])?>
+                    <label for="quantity">Quantity (bags)</label>
                     <?= $this->Form->control('quantity',['class'=>'form-control','label'=>false]) ?>
-                    <label for="schedule_id">Schedule</label>
+                    <label for="schedule-id">Schedule</label>
                     <?= $this->Form->control('schedule_id', [
                         'type' => 'select',
                         'options' => $schedules,
@@ -148,7 +148,7 @@
                         'label' => false,
                         'id' => 'schedule_id'
                     ]) ?>
-                    <label for="distribution_date">Distribution Date</label>
+                    <label for="distribution-date">Distribution Date</label>
                     <?= $this->Form->control('distribution_date', [
                         'type' => 'text',
                         'class' => 'form-control',
@@ -156,7 +156,7 @@
                         'id' => 'distribution_date',
                         'readonly' => true
                     ]) ?>
-                    <label for="received_date">Received Date</label>
+                    <label for="received-date">Received Date</label>
                     <?= $this->Form->control('received_date',['class'=>'form-control','label'=>false]) ?>
                     <label for="status">Status</label>
                     <?= $this->Form->control('status',['class'=>'form-control',
@@ -175,48 +175,69 @@
 <div class="modal fade" id="excelUploadModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
+
             <?= $this->Form->create(null, [
                 'url' => ['action' => 'uploadExcel'],
                 'type' => 'file'
             ]) ?>
+
             <div class="modal-header">
                 <h5 class="modal-title">
                     <i class="fas fa-file-excel text-success"></i>
                     Upload Distribution Records
                 </h5>
+
                 <button type="button"
                         class="close"
                         data-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
+
             <div class="modal-body">
+
                 <div class="form-group">
+
                     <label>Select Excel File</label>
+
                     <?= $this->Form->control('excel_file', [
                         'type' => 'file',
                         'label' => false,
                         'class' => 'form-control',
-                        'accept' => '.xlsx,.xls'
+                        'accept' => '.xlsx,.xls',
+                        'required' => true
                     ]) ?>
+
                 </div>
+
                 <small class="text-muted">
                     Accepted files: .xlsx and .xls
                 </small>
+
             </div>
+
             <div class="modal-footer">
+
                 <button type="button"
                         class="btn btn-secondary"
                         data-dismiss="modal">
+
                     Cancel
+
                 </button>
+
                 <button type="submit"
                         class="btn btn-success">
+
                     <i class="fas fa-upload"></i>
                     Upload & Import
+
                 </button>
+
             </div>
+
             <?= $this->Form->end() ?>
+
         </div>
     </div>
 </div>
@@ -249,7 +270,7 @@
                         <td id="view_subsidy_item"></td>
                     </tr>
                     <tr>
-                        <th>Quantity (kg)</th>
+                        <th>Quantity (bags)</th>
                         <td id="view_quantity">N/A</td>
                     </tr>
                     <tr>

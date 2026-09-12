@@ -18,7 +18,7 @@ $(function(){
             .done(function(data){
                 if(data!=''){
                 	$('#farmer-id').val(data.farmer_id);
-                    $('#program_name').val(data.program_name);
+                    $('#program-name').val(data.program_name);
                 	$('#subsidy-item').val(data.subsidy_item);
                 	$('#quantity').val(data.quantity);
                     $('#schedule-id').val(data.schedule_id);

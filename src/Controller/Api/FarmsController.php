@@ -121,19 +121,47 @@ class FarmsController extends AppController
      * @return \Cake\Http\Response|null|void Redirects on successful add, renders view otherwise.
      */
     public function add()
-    {
-        $farm = $this->Farms->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $farm = $this->Farms->patchEntity($farm, $this->request->getData());
-            if ($this->Farms->save($farm)) {
-                $result = ['status' => 'success', 'message' => 'The farm has been saved.'];
-            }else {
-                $result = ['status'=>'error','message'=>'The farm could not be saved. Please, try again.'];
-            }
-            return $this->response->withType('application/json')
-                ->withStringBody(json_encode($result));
+{
+    $farm = $this->Farms->newEmptyEntity();
+
+    if ($this->request->is('post')) {
+
+        $data = $this->request->getData();
+
+        $farm = $this->Farms->patchEntity($farm, $data);
+
+        if ($this->Farms->save($farm)) {
+
+            return $this->response
+                ->withType('application/json')
+                ->withStatus(200)
+                ->withStringBody(json_encode([
+                    'status' => 'success',
+                    'message' => 'The farm has been saved successfully.',
+                    'data' => $farm->toArray()
+                ]));
         }
+
+        // IMPORTANT: show the actual reason why save failed
+        return $this->response
+            ->withType('application/json')
+            ->withStatus(400)
+            ->withStringBody(json_encode([
+                'status' => 'error',
+                'message' => 'The farm could not be saved.',
+                'validation_errors' => $farm->getErrors(),
+                'submitted_data' => $data
+            ]));
     }
+
+    return $this->response
+        ->withType('application/json')
+        ->withStatus(400)
+        ->withStringBody(json_encode([
+            'status' => 'error',
+            'message' => 'Invalid request.'
+        ]));
+}
 
     /**
      * Edit method

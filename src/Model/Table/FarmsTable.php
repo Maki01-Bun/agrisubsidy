@@ -60,13 +60,13 @@ class FarmsTable extends Table
     public function validationDefault(Validator $validator): Validator
     {
         $validator
-            ->scalar('farmer_name')
-            ->maxLength('farmer_name', 255)
-            ->requirePresence('farmer_name', 'create')
-            ->notEmptyString('farmer_name');
+            ->scalar('farm_name')
+            ->maxLength('farm_name', 255)
+            ->requirePresence('farm_name', 'create')
+            ->notEmptyString('farm_name');
 
         $validator
-            ->decimal('farm_size', 10, 2)
+            ->decimal('farm_size')
             ->requirePresence('farm_size', 'create')
             ->notEmptyString('farm_size');
 
@@ -78,15 +78,6 @@ class FarmsTable extends Table
         $validator
             ->decimal('average_yield')
             ->allowEmptyString('average_yield');
-
-        $validator
-            ->dateTime('created')
-            ->requirePresence('created', 'create')
-            ->notEmptyDateTime('created');
-            $validator
-            ->dateTime('modified')
-            ->requirePresence('modified', 'create')
-            ->notEmptyDateTime('modified');
 
         $validator
             ->integer('farmer_id')
