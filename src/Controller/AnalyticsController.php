@@ -33,10 +33,6 @@ class AnalyticsController extends AppController
          * ============================================================
          * OVERALL EVALUATION COUNTS
          * ============================================================
-         *
-         * These counts come from ALL evaluations that have an
-         * effectiveness label.
-         * ============================================================
          */
 
         $totalEvaluations = $this->Evaluations
@@ -129,56 +125,6 @@ class AnalyticsController extends AppController
          * ============================================================
          * PROGRAM EFFECTIVENESS
          * ============================================================
-         *
-         * IMPORTANT:
-         *
-         * ALL evaluation records are checked.
-         *
-         * Program:
-         *
-         * Evaluations.schedule_id
-         *          ↓
-         * Schedules.id
-         *          ↓
-         * program_code
-         * program_name
-         *
-         * Feedback:
-         *
-         * Evaluations.feedback_id
-         *          ↓
-         * Feedbacks.id
-         *          ↓
-         * Feedbacks.rating
-         *
-         * ============================================================
-         *
-         * RANKING RULE:
-         *
-         * 1. Highest average Feedbacks.rating
-         * 2. If tied: highest Effective count
-         * 3. If tied: highest Effective percentage
-         * 4. If tied: lowest Not Effective count
-         * 5. If tied: highest Feedback response count
-         * 6. If tied: highest total evaluation count
-         *
-         * ============================================================
-         *
-         * LEFT JOIN is used for Feedbacks.
-         *
-         * This is important because an evaluation can exist even
-         * when there is no feedback response.
-         *
-         * Such an evaluation is still counted in:
-         *
-         * - Total evaluations
-         * - Effective
-         * - Moderately Effective
-         * - Not Effective
-         *
-         * It simply does not contribute to the average feedback
-         * rating.
-         * ============================================================
          */
 
         $programFeedbackQuery =
@@ -227,9 +173,6 @@ class AnalyticsController extends AppController
                  * ====================================================
                  * JOIN FEEDBACK
                  * ====================================================
-                 *
-                 * LEFT JOIN means evaluations without feedback
-                 * are still retrieved.
                  */
 
                 ->leftJoin(
@@ -244,8 +187,6 @@ class AnalyticsController extends AppController
                  * ====================================================
                  * JOIN SCHEDULE
                  * ====================================================
-                 *
-                 * The schedule determines the program.
                  */
 
                 ->innerJoin(
@@ -260,16 +201,6 @@ class AnalyticsController extends AppController
                  * ====================================================
                  * NO FEEDBACK FILTER HERE
                  * ====================================================
-                 *
-                 * Do not filter:
-                 *
-                 * feedback_id IS NOT NULL
-                 *
-                 * or:
-                 *
-                 * Feedbacks.rating IS NOT NULL
-                 *
-                 * because ALL evaluations need to be checked.
                  */
 
                 ->enableHydration(false)
@@ -340,8 +271,6 @@ class AnalyticsController extends AppController
              * --------------------------------------------------------
              * PROGRAM KEY
              * --------------------------------------------------------
-             *
-             * Program code is used as the unique program identifier.
              */
 
             $programKey =
@@ -409,8 +338,6 @@ class AnalyticsController extends AppController
              * ========================================================
              * COUNT ALL EVALUATIONS
              * ========================================================
-             *
-             * Every evaluation is counted here.
              */
 
             $programGroups[
@@ -422,8 +349,6 @@ class AnalyticsController extends AppController
              * ========================================================
              * EFFECTIVENESS LABEL
              * ========================================================
-             *
-             * This checks ALL evaluation records.
              */
 
             $label =
@@ -481,14 +406,6 @@ class AnalyticsController extends AppController
              * ========================================================
              * FEEDBACK RATING
              * ========================================================
-             *
-             * Feedback rating is only counted when a valid rating
-             * exists.
-             *
-             * IMPORTANT:
-             *
-             * Missing feedback does NOT remove the evaluation
-             * from the total evaluation count.
              */
 
             $ratingValue =
@@ -664,8 +581,6 @@ class AnalyticsController extends AppController
              * --------------------------------------------------------
              * EFFECTIVE PERCENTAGE
              * --------------------------------------------------------
-             *
-             * This is based on ALL evaluations.
              */
 
             $effectivePercentage = 0;
@@ -750,14 +665,6 @@ class AnalyticsController extends AppController
         /*
          * ============================================================
          * SORT PROGRAMS
-         * ============================================================
-         *
-         * MOST IMPORTANT:
-         *
-         * Highest average Feedbacks.rating.
-         *
-         * If two programs have the same rating, the complete
-         * evaluation data is checked.
          * ============================================================
          */
 
@@ -998,14 +905,6 @@ class AnalyticsController extends AppController
         /*
          * ============================================================
          * FIND SEED SUBSIDY PROGRAM
-         * ============================================================
-         *
-         * Seed Subsidy is identified dynamically from:
-         *
-         * - Program name
-         * - Program code
-         *
-         * No schedule ID is hard-coded.
          * ============================================================
          */
 
