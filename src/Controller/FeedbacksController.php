@@ -176,11 +176,10 @@ class FeedbacksController extends AppController
         // GET FORM DATA
         // =========================================================
 
-        $evaluationData =
-            $this->request->getData();
+        $evaluationData = $this->request->getData();
 
         // =========================================================
-        // FEEDBACK SCORE
+        // FEEDBACK QUESTIONS
         // =========================================================
 
         $q1 = (int)(
@@ -206,6 +205,10 @@ class FeedbacksController extends AppController
         $q6 = (int)(
             $evaluationData['q6'] ?? 0
         );
+
+        // =========================================================
+        // FEEDBACK SCORE
+        // =========================================================
 
         $feedbackScore = (
             $q1 +
@@ -286,10 +289,43 @@ class FeedbacksController extends AppController
         // =========================================================
         // SUBSIDY RECEIVED
         // =========================================================
+        //
+        // YES = 1
+        // NO  = 0
+        //
+        // This numeric value is what the ML model receives.
+        //
+        // =========================================================
 
-        $subsidyReceived =
+        $subsidyInput =
             $evaluationData['subsidy_received']
-            ?? '';
+            ?? 'No';
+
+        if (is_string($subsidyInput)) {
+
+            $normalizedSubsidy =
+                strtolower(trim($subsidyInput));
+
+            if ($normalizedSubsidy === 'yes') {
+
+                $subsidyReceived = 1;
+
+            } elseif ($normalizedSubsidy === '1') {
+
+                $subsidyReceived = 1;
+
+            } else {
+
+                $subsidyReceived = 0;
+            }
+
+        } else {
+
+            $subsidyReceived =
+                ((int)$subsidyInput === 1)
+                ? 1
+                : 0;
+        }
 
         // =========================================================
         // FASTAPI PREDICTION
@@ -302,6 +338,7 @@ class FeedbacksController extends AppController
         // =========================================================
 
         $payload = [
+
             'farm_size' =>
                 $farmSize,
 
@@ -372,6 +409,25 @@ class FeedbacksController extends AppController
                 );
             }
 
+            // -----------------------------------------------------
+            // CHECK FASTAPI SUCCESS
+            // -----------------------------------------------------
+
+            if (
+                isset($result['success']) &&
+                $result['success'] === false
+            ) {
+
+                $this->Flash->error(
+                    'ML prediction failed: ' .
+                    ($result['error'] ?? 'Unknown error.')
+                );
+
+                return $this->redirect(
+                    $this->referer()
+                );
+            }
+
         } catch (\Exception $e) {
 
             $this->Flash->error(
@@ -385,31 +441,31 @@ class FeedbacksController extends AppController
         }
 
         // =========================================================
-        // GET ML PREDICTION
+        // GET ML PREDICTION CODE
         // =========================================================
-
-        $prediction =
-            $result['effectiveness']
-            ?? null;
-
-        // =========================================================
-        // CONVERT NUMERICAL ML LABEL TO TEXT
-        // =========================================================
-        //
-        // ML MODEL:
         //
         // 0 = Not Effective
         // 1 = Moderately Effective
         // 2 = Effective
         //
-        // The database/UI will store the readable label.
-        //
+        // =========================================================
+
+        $prediction =
+            $result['effectiveness_code']
+            ?? null;
+
+        // =========================================================
+        // CONVERT ML CODE TO READABLE LABEL
         // =========================================================
 
         $labelMap = [
+
             0 => 'Not Effective',
+
             1 => 'Moderately Effective',
+
             2 => 'Effective',
+
         ];
 
         if ($prediction === null) {
@@ -417,7 +473,7 @@ class FeedbacksController extends AppController
             $effectivenessLabel =
                 'Not Predicted';
 
-        } elseif (is_numeric($prediction)) {
+        } else {
 
             $prediction =
                 (int)$prediction;
@@ -425,53 +481,6 @@ class FeedbacksController extends AppController
             $effectivenessLabel =
                 $labelMap[$prediction]
                 ?? 'Not Predicted';
-
-        } else {
-
-            // -----------------------------------------------------
-            // IF FASTAPI ALREADY RETURNS TEXT
-            // -----------------------------------------------------
-
-            $predictionText =
-                trim((string)$prediction);
-
-            // Normalize possible text responses
-            $normalizedPrediction =
-                strtolower($predictionText);
-
-            switch ($normalizedPrediction) {
-
-                case '0':
-                case 'not effective':
-
-                    $effectivenessLabel =
-                        'Not Effective';
-
-                    break;
-
-                case '1':
-                case 'moderately effective':
-
-                    $effectivenessLabel =
-                        'Moderately Effective';
-
-                    break;
-
-                case '2':
-                case 'effective':
-
-                    $effectivenessLabel =
-                        'Effective';
-
-                    break;
-
-                default:
-
-                    $effectivenessLabel =
-                        'Not Predicted';
-
-                    break;
-            }
         }
 
         // =========================================================
@@ -496,12 +505,18 @@ class FeedbacksController extends AppController
         $evaluationData['selling_price'] =
             $sellingPrice;
 
+        // IMPORTANT:
+        // Store numeric 1/0 in database
+
+        $evaluationData['subsidy_received'] =
+            $subsidyReceived;
+
         $evaluationData['feedback_score'] =
             $feedbackScore;
 
-        /*
-        * Save the readable effectiveness label.
-        */
+        // IMPORTANT:
+        // Store readable word in database
+
         $evaluationData['effectiveness_label'] =
             $effectivenessLabel;
 
@@ -553,12 +568,15 @@ class FeedbacksController extends AppController
         $evaluation->selling_price =
             $sellingPrice;
 
+        // Store 1 or 0
+
+        $evaluation->subsidy_received =
+            $subsidyReceived;
+
         $evaluation->feedback_score =
             $feedbackScore;
 
-        // =========================================================
-        // SAVE READABLE ML PREDICTION
-        // =========================================================
+        // Store readable label
 
         $evaluation->effectiveness_label =
             $effectivenessLabel;
