@@ -61,493 +61,203 @@
             </div>
         </div>
     </div>
-    <div class="row g-3 mt-3">
-        <div class="col-lg-12">
+    <!-- PROGRAM EFFECTIVENESS TABLE -->
+<div class="table-responsive mt-3">
+    <table class="table table-hover mb-0">
+        <thead style="background:#07851f; color:white;">
+            <tr>
+                <th class="text-center">Rank</th>
+                <th class="text-center">Program Code</th>
+                <th class="text-center">Program Name</th>
+                <th class="text-center">Feedback<br>Responses</th>
+                <th class="text-center">Average Feedback<br>Rating</th>
+                <th class="text-center">Performance</th>
+                <th class="text-center">Evaluation Results</th>
+            </tr>
+        </thead>
 
-            <div class="analytics-panel">
+        <tbody>
+            <?php if (!empty($programEffectiveness)): ?>
 
-                <!-- PANEL HEADER -->
-                <div class="panel-title d-flex justify-content-between align-items-center">
+                <?php foreach ($programEffectiveness as $index => $program): ?>
 
-                    <div>
-                        <i class="fas fa-seedling mr-2"></i>
-                        Seed Subsidy Effectiveness
-                    </div>
+                    <?php
+                    $rank = $index + 1;
 
-                    <span class="badge badge-success">
-                        Overall Program Performance
-                    </span>
+                    $programCode = $program['program_code'] ?? 'N/A';
+                    $programName = $program['program_name'] ?? 'N/A';
 
-                </div>
+                    $totalFeedbacks = (int)($program['total_feedbacks'] ?? 0);
+                    $averageRating = (float)($program['effectiveness_rating'] ?? 0);
 
+                    $effectiveCount =
+                        (int)($program['effective_count'] ?? 0);
 
-                <!-- PANEL BODY -->
-                <div class="panel-body">
+                    $moderatelyEffectiveCount =
+                        (int)($program['moderately_effective_count'] ?? 0);
 
-                    <?php if (!empty($seedSubsidyEffectiveness)): ?>
+                    $notEffectiveCount =
+                        (int)($program['not_effective_count'] ?? 0);
 
-                        <?php
-                        /*
-                        * Since this dashboard focuses only on the
-                        * general Seed Subsidy program, we use the
-                        * evaluation data returned by the controller.
-                        */
+                    $isMostEffective =
+                        !empty($mostEffectiveProgram) &&
+                        ($mostEffectiveProgram['program_code'] ?? '') === $programCode;
 
-                        $seed = $seedSubsidyEffectiveness[0];
+                    $ratingPercent = ($averageRating / 5) * 100;
+                    ?>
 
-                        $totalEvaluations = (int)(
-                            $seed['total_evaluations'] ?? 0
-                        );
+                    <tr>
 
-                        $effectiveCount = (int)(
-                            $seed['effective_count'] ?? 0
-                        );
+                        <!-- RANK -->
+                        <td class="text-center align-middle">
+                            <?php if ($isMostEffective): ?>
 
-                        $moderatelyEffectiveCount = (int)(
-                            $seed['moderately_effective_count'] ?? 0
-                        );
+                                <span class="badge badge-success"
+                                      style="font-size:14px; padding:7px 10px;">
+                                    <i class="fas fa-trophy"></i>
+                                    #<?= $rank ?>
+                                </span>
 
-                        $notEffectiveCount = (int)(
-                            $seed['not_effective_count'] ?? 0
-                        );
+                            <?php else: ?>
 
+                                <strong>#<?= $rank ?></strong>
 
-                        /*
-                        * Calculate the effectiveness rate.
-                        *
-                        * Effectiveness Rate =
-                        * Effective Evaluations / Total Evaluations × 100
-                        */
+                            <?php endif; ?>
+                        </td>
 
-                        if ($totalEvaluations > 0) {
+                        <!-- PROGRAM CODE -->
+                        <td class="align-middle">
+                            <strong>
+                                <?= h($programCode) ?>
+                            </strong>
+                        </td>
 
-                            $rate = (
-                                $effectiveCount /
-                                $totalEvaluations
-                            ) * 100;
+                        <!-- PROGRAM NAME -->
+                        <td class="align-middle">
+                            <strong>
+                                <?= h($programName) ?>
+                            </strong>
+                        </td>
 
-                        } else {
+                        <!-- FEEDBACK RESPONSES -->
+                        <td class="text-center align-middle">
+                            <?= $totalFeedbacks ?>
+                        </td>
 
-                            $rate = 0;
+                        <!-- AVERAGE FEEDBACK RATING -->
+                        <td class="text-center align-middle">
 
-                        }
+                            <div style="font-size:20px; font-weight:bold;">
+                                <?= number_format($averageRating, 2) ?>
+                                / 5.00
+                            </div>
 
+                            <div style="margin-top:5px; font-size:20px;">
 
-                        /*
-                        * Determine overall program status.
-                        */
+                                <?php
+                                $fullStars = floor($averageRating);
+                                $hasHalfStar = ($averageRating - $fullStars) >= 0.5;
+                                $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
+                                ?>
 
-                        if ($rate >= 75) {
+                                <?php for ($i = 0; $i < $fullStars; $i++): ?>
+                                    <i class="fas fa-star"></i>
+                                <?php endfor; ?>
 
-                            $badgeClass = 'badge-success';
-                            $statusText = 'Highly Effective';
+                                <?php if ($hasHalfStar): ?>
+                                    <i class="fas fa-star-half-alt"></i>
+                                <?php endif; ?>
 
-                        } elseif ($rate >= 50) {
-
-                            $badgeClass = 'badge-warning';
-                            $statusText = 'Moderately Effective';
-
-                        } else {
-
-                            $badgeClass = 'badge-danger';
-                            $statusText = 'Needs Improvement';
-
-                        }
-                        ?>
-
-
-                        <!-- OVERALL SUMMARY -->
-                        <div class="row mb-4">
-
-                            <!-- PROGRAM -->
-                            <div class="col-lg-4 col-md-6 mb-3">
-
-                                <div class="analytics-summary-card">
-
-                                    <div class="d-flex align-items-center">
-
-                                        <div class="mr-3">
-                                            <i
-                                                class="fas fa-seedling"
-                                                style="font-size:32px;"
-                                            ></i>
-                                        </div>
-
-                                        <div>
-
-                                            <small class="text-muted">
-                                                PROGRAM
-                                            </small>
-
-                                            <h5 class="mb-0">
-                                                <strong>
-                                                    Seed Subsidy
-                                                </strong>
-                                            </h5>
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
+                                <?php for ($i = 0; $i < $emptyStars; $i++): ?>
+                                    <i class="far fa-star"></i>
+                                <?php endfor; ?>
 
                             </div>
 
+                        </td>
 
-                            <!-- TOTAL EVALUATIONS -->
-                            <div class="col-lg-4 col-md-6 mb-3">
+                        <!-- PERFORMANCE -->
+                        <td class="text-center align-middle">
 
-                                <div class="analytics-summary-card">
+                            <?php if ($isMostEffective): ?>
 
-                                    <div class="d-flex align-items-center">
+                                <span class="badge badge-success"
+                                      style="font-size:13px; padding:7px 10px;">
+                                    <i class="fas fa-trophy"></i>
+                                    Most Effective
+                                </span>
 
-                                        <div class="mr-3">
-                                            <i
-                                                class="fas fa-clipboard-check"
-                                                style="font-size:32px;"
-                                            ></i>
-                                        </div>
+                            <?php elseif ($averageRating >= 4.00): ?>
 
-                                        <div>
+                                <span class="badge badge-success">
+                                    Highly Rated
+                                </span>
 
-                                            <small class="text-muted">
-                                                TOTAL EVALUATIONS
-                                            </small>
+                            <?php elseif ($averageRating >= 3.00): ?>
 
-                                            <h5 class="mb-0">
-                                                <strong>
-                                                    <?= number_format(
-                                                        $totalEvaluations
-                                                    ) ?>
-                                                </strong>
-                                            </h5>
+                                <span class="badge badge-warning">
+                                    Moderately Rated
+                                </span>
 
-                                        </div>
+                            <?php else: ?>
 
-                                    </div>
+                                <span class="badge badge-danger">
+                                    Low Rated
+                                </span>
 
-                                </div>
+                            <?php endif; ?>
 
-                            </div>
+                        </td>
 
+                        <!-- EVALUATION RESULTS -->
+                        <td class="text-center align-middle">
 
-                            <!-- EFFECTIVENESS RATE -->
-                            <div class="col-lg-4 col-md-12 mb-3">
+                            <div class="mb-1">
 
-                                <div class="analytics-summary-card">
+                                <span class="badge badge-success">
+                                    Effective:
+                                    <?= $effectiveCount ?>
+                                </span>
 
-                                    <div class="d-flex align-items-center">
-
-                                        <div class="mr-3">
-                                            <i
-                                                class="fas fa-chart-line"
-                                                style="font-size:32px;"
-                                            ></i>
-                                        </div>
-
-                                        <div>
-
-                                            <small class="text-muted">
-                                                EFFECTIVENESS RATE
-                                            </small>
-
-                                            <h5 class="mb-0">
-
-                                                <strong>
-                                                    <?= number_format(
-                                                        $rate,
-                                                        1
-                                                    ) ?>%
-                                                </strong>
-
-                                                <span
-                                                    class="badge <?= $badgeClass ?> ml-2"
-                                                >
-                                                    <?= h($statusText) ?>
-                                                </span>
-
-                                            </h5>
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
+                                <span class="badge badge-warning">
+                                    Moderate:
+                                    <?= $moderatelyEffectiveCount ?>
+                                </span>
 
                             </div>
 
-                        </div>
-
-
-                        <!-- EFFECTIVENESS TABLE -->
-                        <div class="table-responsive">
-
-                            <table
-                                class="table table-bordered table-hover mb-0"
-                            >
-
-                                <thead>
-
-                                    <tr>
-
-                                        <th>
-                                            Program Code
-                                        </th>
-
-                                        <th>
-                                            Program Name
-                                        </th>
-
-                                        <th class="text-center">
-                                            Total Evaluations
-                                        </th>
-
-                                        <th class="text-center">
-                                            Effective
-                                        </th>
-
-                                        <th class="text-center">
-                                            Moderately Effective
-                                        </th>
-
-                                        <th class="text-center">
-                                            Not Effective
-                                        </th>
-
-                                        <th class="text-center">
-                                            Effectiveness Rate
-                                        </th>
-
-                                    </tr>
-
-                                </thead>
-
-
-                                <tbody>
-
-                                    <tr>
-
-                                        <!-- PROGRAM CODE -->
-                                        <td>
-
-                                            <strong>
-                                                SEED
-                                            </strong>
-
-                                        </td>
-
-
-                                        <!-- PROGRAM NAME -->
-                                        <td>
-
-                                            <strong>
-                                                Seed Subsidy
-                                            </strong>
-
-                                        </td>
-
-
-                                        <!-- TOTAL EVALUATIONS -->
-                                        <td class="text-center">
-
-                                            <?= number_format(
-                                                $totalEvaluations
-                                            ) ?>
-
-                                        </td>
-
-
-                                        <!-- EFFECTIVE -->
-                                        <td class="text-center">
-
-                                            <span
-                                                class="badge badge-success"
-                                                style="font-size:14px;"
-                                            >
-
-                                                <?= number_format(
-                                                    $effectiveCount
-                                                ) ?>
-
-                                            </span>
-
-                                        </td>
-
-
-                                        <!-- MODERATELY EFFECTIVE -->
-                                        <td class="text-center">
-
-                                            <span
-                                                class="badge badge-warning"
-                                                style="font-size:14px;"
-                                            >
-
-                                                <?= number_format(
-                                                    $moderatelyEffectiveCount
-                                                ) ?>
-
-                                            </span>
-
-                                        </td>
-
-
-                                        <!-- NOT EFFECTIVE -->
-                                        <td class="text-center">
-
-                                            <span
-                                                class="badge badge-danger"
-                                                style="font-size:14px;"
-                                            >
-
-                                                <?= number_format(
-                                                    $notEffectiveCount
-                                                ) ?>
-
-                                            </span>
-
-                                        </td>
-
-
-                                        <!-- EFFECTIVENESS RATE -->
-                                        <td class="text-center">
-
-                                            <strong
-                                                style="font-size:17px;"
-                                            >
-
-                                                <?= number_format(
-                                                    $rate,
-                                                    1
-                                                ) ?>%
-
-                                            </strong>
-
-                                            <br>
-
-                                            <span
-                                                class="badge <?= $badgeClass ?> mt-1"
-                                            >
-
-                                                <?= h($statusText) ?>
-
-                                            </span>
-
-                                        </td>
-
-                                    </tr>
-
-                                </tbody>
-
-                            </table>
-
-                        </div>
-
-
-                        <!-- INTERPRETATION -->
-                        <div class="mt-4">
-
-                            <div class="alert <?= $rate >= 75
-                                ? 'alert-success'
-                                : ($rate >= 50
-                                    ? 'alert-warning'
-                                    : 'alert-danger') ?> mb-0">
-
-                                <div class="d-flex">
-
-                                    <div class="mr-3">
-
-                                        <i
-                                            class="fas fa-info-circle"
-                                            style="font-size:22px;"
-                                        ></i>
-
-                                    </div>
-
-                                    <div>
-
-                                        <strong>
-                                            Seed Subsidy Performance:
-                                        </strong>
-
-                                        <?php if ($totalEvaluations > 0): ?>
-
-                                            Out of
-                                            <strong>
-                                                <?= number_format(
-                                                    $totalEvaluations
-                                                ) ?>
-                                            </strong>
-                                            evaluations,
-                                            <strong>
-                                                <?= number_format(
-                                                    $effectiveCount
-                                                ) ?>
-                                            </strong>
-                                            were classified as
-                                            <strong>Effective</strong>.
-
-                                            This resulted in an overall
-                                            effectiveness rate of
-                                            <strong>
-                                                <?= number_format(
-                                                    $rate,
-                                                    1
-                                                ) ?>%
-                                            </strong>,
-
-                                            which is classified as
-                                            <strong>
-                                                <?= h($statusText) ?>
-                                            </strong>.
-
-                                        <?php else: ?>
-
-                                            There are currently no
-                                            evaluation results available
-                                            for the Seed Subsidy program.
-
-                                        <?php endif; ?>
-
-                                    </div>
-
-                                </div>
+                            <div>
+
+                                <span class="badge badge-danger">
+                                    Not Effective:
+                                    <?= $notEffectiveCount ?>
+                                </span>
 
                             </div>
 
-                        </div>
+                        </td>
 
+                    </tr>
 
-                    <?php else: ?>
+                <?php endforeach; ?>
 
-                        <!-- NO DATA -->
-                        <div class="text-center py-5">
+            <?php else: ?>
 
-                            <i
-                                class="fas fa-seedling text-muted"
-                                style="font-size:48px;"
-                            ></i>
+                <tr>
+                    <td colspan="7"
+                        class="text-center text-muted py-4">
 
-                            <h5 class="mt-3">
-                                No Seed Subsidy Evaluation Data
-                            </h5>
+                        <i class="fas fa-info-circle"></i>
+                        No program evaluation data available.
 
-                            <p class="text-muted mb-0">
+                    </td>
+                </tr>
 
-                                No evaluations are currently connected
-                                to the Seed Subsidy program.
+            <?php endif; ?>
 
-                            </p>
-
-                        </div>
-
-                    <?php endif; ?>
-
-                </div>
-
-            </div>
-
-        </div>
-    </div>
+        </tbody>
+    </table>
+</div>
 </div>
 
 <?= $this->Html->script('https://cdn.jsdelivr.net/npm/chart.js') ?>

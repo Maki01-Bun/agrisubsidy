@@ -13,9 +13,9 @@ class AnalyticsController extends AppController
     /**
      * Index method
      *
-     * @return \Cake\Http\Response|null|void Renders view
+     * @return \Cake\Http\Response|null|void
      */
-     public function index()
+    public function index()
     {
         /*
          * ============================================================
@@ -33,12 +33,25 @@ class AnalyticsController extends AppController
          * ============================================================
          * OVERALL EVALUATION COUNTS
          * ============================================================
+         *
+         * These counts come from ALL evaluations that have an
+         * effectiveness label.
+         * ============================================================
          */
 
         $totalEvaluations = $this->Evaluations
             ->find()
+            ->where([
+                'Evaluations.effectiveness_label IS NOT' => null
+            ])
             ->count();
 
+
+        /*
+         * ============================================================
+         * EFFECTIVENESS LABEL COUNTS
+         * ============================================================
+         */
 
         $effective = $this->Evaluations
             ->find()
@@ -68,30 +81,47 @@ class AnalyticsController extends AppController
 
         /*
          * ============================================================
-         * EFFECTIVENESS RATES
+         * OVERALL EFFECTIVENESS RATES
          * ============================================================
          */
 
         $effectiveRate = 0;
+
         $moderatelyEffectiveRate = 0;
+
         $notEffectiveRate = 0;
+
 
         if ($totalEvaluations > 0) {
 
-            $effectiveRate = round(
-                ($effective / $totalEvaluations) * 100,
-                2
-            );
+            $effectiveRate =
+                round(
+                    (
+                        $effective /
+                        $totalEvaluations
+                    ) * 100,
+                    2
+                );
 
-            $moderatelyEffectiveRate = round(
-                ($moderatelyEffective / $totalEvaluations) * 100,
-                2
-            );
 
-            $notEffectiveRate = round(
-                ($notEffective / $totalEvaluations) * 100,
-                2
-            );
+            $moderatelyEffectiveRate =
+                round(
+                    (
+                        $moderatelyEffective /
+                        $totalEvaluations
+                    ) * 100,
+                    2
+                );
+
+
+            $notEffectiveRate =
+                round(
+                    (
+                        $notEffective /
+                        $totalEvaluations
+                    ) * 100,
+                    2
+                );
         }
 
 
@@ -100,129 +130,241 @@ class AnalyticsController extends AppController
          * PROGRAM EFFECTIVENESS
          * ============================================================
          *
-         * CORRECT RELATIONSHIP:
+         * IMPORTANT:
          *
-         * Evaluations.feedback_id
-         *          ↓
-         * Feedbacks.id
+         * ALL evaluation records are checked.
+         *
+         * Program:
          *
          * Evaluations.schedule_id
          *          ↓
          * Schedules.id
+         *          ↓
+         * program_code
+         * program_name
          *
-         * NO subsidy_type is used.
-         * NO subsidy_item is connected to schedule_id.
+         * Feedback:
          *
+         * Evaluations.feedback_id
+         *          ↓
+         * Feedbacks.id
+         *          ↓
+         * Feedbacks.rating
+         *
+         * ============================================================
+         *
+         * RANKING RULE:
+         *
+         * 1. Highest average Feedbacks.rating
+         * 2. If tied: highest Effective count
+         * 3. If tied: highest Effective percentage
+         * 4. If tied: lowest Not Effective count
+         * 5. If tied: highest Feedback response count
+         * 6. If tied: highest total evaluation count
+         *
+         * ============================================================
+         *
+         * LEFT JOIN is used for Feedbacks.
+         *
+         * This is important because an evaluation can exist even
+         * when there is no feedback response.
+         *
+         * Such an evaluation is still counted in:
+         *
+         * - Total evaluations
+         * - Effective
+         * - Moderately Effective
+         * - Not Effective
+         *
+         * It simply does not contribute to the average feedback
+         * rating.
          * ============================================================
          */
 
-        $programFeedbackQuery = $this->Evaluations
-            ->find();
+        $programFeedbackQuery =
+            $this->Evaluations->find();
 
-        $programFeedbacks = $programFeedbackQuery
-            ->select([
-                'evaluation_id' =>
-                    'Evaluations.id',
 
-                'feedback_id' =>
-                    'Evaluations.feedback_id',
+        $programFeedbacks =
+            $programFeedbackQuery
+                ->select([
 
-                'schedule_id' =>
-                    'Evaluations.schedule_id',
+                    /*
+                     * Evaluation
+                     */
+                    'evaluation_id' =>
+                        'Evaluations.id',
 
-                'program_code' =>
-                    'Schedules.program_code',
+                    'feedback_id' =>
+                        'Evaluations.feedback_id',
 
-                'program_name' =>
-                    'Schedules.program_name',
+                    'schedule_id' =>
+                        'Evaluations.schedule_id',
 
-                'feedback_rating' =>
-                    'Feedbacks.rating'
-            ])
-            ->innerJoin(
-                ['Feedbacks' => 'feedbacks'],
-                [
-                    'Feedbacks.id = Evaluations.feedback_id'
-                ]
-            )
-            ->innerJoin(
-                ['Schedules' => 'schedules'],
-                [
-                    'Schedules.id = Evaluations.schedule_id'
-                ]
-            )
-            ->where([
-                'Feedbacks.rating IS NOT' => null,
-                'Evaluations.feedback_id IS NOT' => null,
-                'Evaluations.schedule_id IS NOT' => null
-            ])
-            ->enableHydration(false)
-            ->toArray();
+                    'effectiveness_label' =>
+                        'Evaluations.effectiveness_label',
+
+
+                    /*
+                     * Program
+                     */
+                    'program_code' =>
+                        'Schedules.program_code',
+
+                    'program_name' =>
+                        'Schedules.program_name',
+
+
+                    /*
+                     * Feedback
+                     */
+                    'feedback_rating' =>
+                        'Feedbacks.rating'
+                ])
+
+
+                /*
+                 * ====================================================
+                 * JOIN FEEDBACK
+                 * ====================================================
+                 *
+                 * LEFT JOIN means evaluations without feedback
+                 * are still retrieved.
+                 */
+
+                ->leftJoin(
+                    ['Feedbacks' => 'feedbacks'],
+                    [
+                        'Feedbacks.id = Evaluations.feedback_id'
+                    ]
+                )
+
+
+                /*
+                 * ====================================================
+                 * JOIN SCHEDULE
+                 * ====================================================
+                 *
+                 * The schedule determines the program.
+                 */
+
+                ->innerJoin(
+                    ['Schedules' => 'schedules'],
+                    [
+                        'Schedules.id = Evaluations.schedule_id'
+                    ]
+                )
+
+
+                /*
+                 * ====================================================
+                 * NO FEEDBACK FILTER HERE
+                 * ====================================================
+                 *
+                 * Do not filter:
+                 *
+                 * feedback_id IS NOT NULL
+                 *
+                 * or:
+                 *
+                 * Feedbacks.rating IS NOT NULL
+                 *
+                 * because ALL evaluations need to be checked.
+                 */
+
+                ->enableHydration(false)
+
+                ->toArray();
 
 
         /*
          * ============================================================
-         * GROUP BY PROGRAM
+         * GROUP EVALUATIONS BY PROGRAM
          * ============================================================
          */
 
-        $programEffectiveness = [];
+        $programGroups = [];
 
-        foreach ($programFeedbacks as $feedback) {
 
-            $programCode = trim(
-                (string)($feedback['program_code'] ?? '')
-            );
-
-            $programName = trim(
-                (string)($feedback['program_name'] ?? '')
-            );
-
-            $ratingValue = $feedback['feedback_rating'] ?? null;
+        foreach (
+            $programFeedbacks as $evaluation
+        ) {
 
             /*
-             * Ignore missing ratings
+             * --------------------------------------------------------
+             * PROGRAM CODE
+             * --------------------------------------------------------
              */
-            if (
-                $ratingValue === null ||
-                $ratingValue === ''
-            ) {
-                continue;
-            }
 
-            $rating = (float)$ratingValue;
+            $programCode =
+                trim(
+                    (string)(
+                        $evaluation['program_code']
+                        ?? ''
+                    )
+                );
 
-            /*
-             * Ignore invalid ratings
-             */
-            if ($rating < 1 || $rating > 5) {
-                continue;
-            }
 
             /*
-             * Default program values
+             * --------------------------------------------------------
+             * PROGRAM NAME
+             * --------------------------------------------------------
              */
+
+            $programName =
+                trim(
+                    (string)(
+                        $evaluation['program_name']
+                        ?? ''
+                    )
+                );
+
+
+            /*
+             * --------------------------------------------------------
+             * IGNORE EVALUATION IF PROGRAM IS UNKNOWN
+             * --------------------------------------------------------
+             */
+
             if ($programCode === '') {
-                $programCode = 'N/A';
+                continue;
             }
+
 
             if ($programName === '') {
                 $programName = 'N/A';
             }
 
+
             /*
-             * Unique program
+             * --------------------------------------------------------
+             * PROGRAM KEY
+             * --------------------------------------------------------
+             *
+             * Program code is used as the unique program identifier.
              */
+
             $programKey =
-                $programCode . '|' . $programName;
+                $programCode;
 
 
             /*
-             * Initialize
+             * --------------------------------------------------------
+             * INITIALIZE PROGRAM
+             * --------------------------------------------------------
              */
-            if (!isset($programEffectiveness[$programKey])) {
 
-                $programEffectiveness[$programKey] = [
+            if (
+                !isset(
+                    $programGroups[
+                        $programKey
+                    ]
+                )
+            ) {
+
+                $programGroups[
+                    $programKey
+                ] = [
 
                     'program_code' =>
                         $programCode,
@@ -230,15 +372,27 @@ class AnalyticsController extends AppController
                     'program_name' =>
                         $programName,
 
+
+                    /*
+                     * ALL EVALUATIONS
+                     */
+                    'total_evaluations' =>
+                        0,
+
+
+                    /*
+                     * FEEDBACK
+                     */
                     'total_feedbacks' =>
                         0,
 
                     'total_rating' =>
                         0,
 
-                    'effectiveness_rating' =>
-                        0,
 
+                    /*
+                     * EFFECTIVENESS LABELS
+                     */
                     'effective_count' =>
                         0,
 
@@ -252,107 +406,577 @@ class AnalyticsController extends AppController
 
 
             /*
-             * Count feedback
-             */
-            $programEffectiveness[$programKey]
-                ['total_feedbacks']++;
-
-
-            /*
-             * Add rating
-             */
-            $programEffectiveness[$programKey]
-                ['total_rating'] += $rating;
-
-
-            /*
              * ========================================================
-             * RATING CLASSIFICATION
+             * COUNT ALL EVALUATIONS
              * ========================================================
              *
-             * 4.00 - 5.00 = Effective
-             * 3.00 - 3.99 = Moderately Effective
-             * Below 3.00  = Not Effective
-             * ========================================================
+             * Every evaluation is counted here.
              */
 
-            if ($rating >= 4.00) {
+            $programGroups[
+                $programKey
+            ]['total_evaluations']++;
 
-                $programEffectiveness[$programKey]
-                    ['effective_count']++;
 
-            } elseif ($rating >= 3.00) {
+            /*
+             * ========================================================
+             * EFFECTIVENESS LABEL
+             * ========================================================
+             *
+             * This checks ALL evaluation records.
+             */
 
-                $programEffectiveness[$programKey]
-                    ['moderately_effective_count']++;
+            $label =
+                strtolower(
+                    trim(
+                        (string)(
+                            $evaluation[
+                                'effectiveness_label'
+                            ]
+                            ?? ''
+                        )
+                    )
+                );
 
-            } else {
 
-                $programEffectiveness[$programKey]
-                    ['not_effective_count']++;
+            /*
+             * Normalize possible variations.
+             */
+
+            $label =
+                preg_replace(
+                    '/\s+/',
+                    ' ',
+                    $label
+                );
+
+
+            if (
+                $label === 'effective'
+            ) {
+
+                $programGroups[
+                    $programKey
+                ]['effective_count']++;
+
+            } elseif (
+                $label === 'moderately effective'
+            ) {
+
+                $programGroups[
+                    $programKey
+                ]['moderately_effective_count']++;
+
+            } elseif (
+                $label === 'not effective'
+            ) {
+
+                $programGroups[
+                    $programKey
+                ]['not_effective_count']++;
             }
+
+
+            /*
+             * ========================================================
+             * FEEDBACK RATING
+             * ========================================================
+             *
+             * Feedback rating is only counted when a valid rating
+             * exists.
+             *
+             * IMPORTANT:
+             *
+             * Missing feedback does NOT remove the evaluation
+             * from the total evaluation count.
+             */
+
+            $ratingValue =
+                $evaluation[
+                    'feedback_rating'
+                ]
+                ?? null;
+
+
+            if (
+                $ratingValue === null ||
+                $ratingValue === ''
+            ) {
+                continue;
+            }
+
+
+            $rating =
+                (float)$ratingValue;
+
+
+            /*
+             * Only accept valid 1-5 ratings.
+             */
+
+            if (
+                $rating < 1 ||
+                $rating > 5
+            ) {
+                continue;
+            }
+
+
+            /*
+             * Count feedback response.
+             */
+
+            $programGroups[
+                $programKey
+            ]['total_feedbacks']++;
+
+
+            /*
+             * Add feedback rating.
+             */
+
+            $programGroups[
+                $programKey
+            ]['total_rating'] += $rating;
         }
 
 
         /*
          * ============================================================
-         * CALCULATE AVERAGE RATING
+         * BUILD PROGRAM EFFECTIVENESS ARRAY
          * ============================================================
          */
 
+        $programEffectiveness = [];
+
+
         foreach (
-            $programEffectiveness as &$program
+            $programGroups as $program
         ) {
 
-            if ($program['total_feedbacks'] > 0) {
+            /*
+             * --------------------------------------------------------
+             * TOTAL EVALUATIONS
+             * --------------------------------------------------------
+             */
 
-                $program['effectiveness_rating'] =
+            $totalProgramEvaluations =
+                (int)(
+                    $program[
+                        'total_evaluations'
+                    ]
+                );
+
+
+            /*
+             * --------------------------------------------------------
+             * TOTAL FEEDBACK
+             * --------------------------------------------------------
+             */
+
+            $totalFeedbacks =
+                (int)(
+                    $program[
+                        'total_feedbacks'
+                    ]
+                );
+
+
+            /*
+             * --------------------------------------------------------
+             * TOTAL RATING
+             * --------------------------------------------------------
+             */
+
+            $totalRating =
+                (float)(
+                    $program[
+                        'total_rating'
+                    ]
+                );
+
+
+            /*
+             * --------------------------------------------------------
+             * AVERAGE FEEDBACK RATING
+             * --------------------------------------------------------
+             */
+
+            $averageRating = 0;
+
+
+            if (
+                $totalFeedbacks > 0
+            ) {
+
+                $averageRating =
                     round(
-                        $program['total_rating'] /
-                        $program['total_feedbacks'],
+                        $totalRating /
+                        $totalFeedbacks,
                         2
                     );
             }
+
+
+            /*
+             * --------------------------------------------------------
+             * EFFECTIVE COUNT
+             * --------------------------------------------------------
+             */
+
+            $effectiveCount =
+                (int)(
+                    $program[
+                        'effective_count'
+                    ]
+                );
+
+
+            /*
+             * --------------------------------------------------------
+             * MODERATELY EFFECTIVE COUNT
+             * --------------------------------------------------------
+             */
+
+            $moderatelyEffectiveCount =
+                (int)(
+                    $program[
+                        'moderately_effective_count'
+                    ]
+                );
+
+
+            /*
+             * --------------------------------------------------------
+             * NOT EFFECTIVE COUNT
+             * --------------------------------------------------------
+             */
+
+            $notEffectiveCount =
+                (int)(
+                    $program[
+                        'not_effective_count'
+                    ]
+                );
+
+
+            /*
+             * --------------------------------------------------------
+             * EFFECTIVE PERCENTAGE
+             * --------------------------------------------------------
+             *
+             * This is based on ALL evaluations.
+             */
+
+            $effectivePercentage = 0;
+
+
+            if (
+                $totalProgramEvaluations > 0
+            ) {
+
+                $effectivePercentage =
+                    round(
+                        (
+                            $effectiveCount /
+                            $totalProgramEvaluations
+                        ) * 100,
+                        2
+                    );
+            }
+
+
+            /*
+             * --------------------------------------------------------
+             * STORE PROGRAM
+             * --------------------------------------------------------
+             */
+
+            $programEffectiveness[] = [
+
+                'program_code' =>
+                    $program[
+                        'program_code'
+                    ],
+
+                'program_name' =>
+                    $program[
+                        'program_name'
+                    ],
+
+
+                /*
+                 * ALL EVALUATIONS
+                 */
+                'total_evaluations' =>
+                    $totalProgramEvaluations,
+
+
+                /*
+                 * FEEDBACK
+                 */
+                'total_feedbacks' =>
+                    $totalFeedbacks,
+
+                'total_rating' =>
+                    $totalRating,
+
+                'effectiveness_rating' =>
+                    $averageRating,
+
+
+                /*
+                 * EFFECTIVENESS RESULTS
+                 */
+                'effective_count' =>
+                    $effectiveCount,
+
+                'moderately_effective_count' =>
+                    $moderatelyEffectiveCount,
+
+                'not_effective_count' =>
+                    $notEffectiveCount,
+
+
+                /*
+                 * EFFECTIVE %
+                 */
+                'effective_percentage' =>
+                    $effectivePercentage
+            ];
         }
 
-        unset($program);
-
 
         /*
          * ============================================================
-         * CONVERT TO ARRAY
+         * SORT PROGRAMS
          * ============================================================
-         */
-
-        $programEffectiveness =
-            array_values($programEffectiveness);
-
-
-        /*
-         * ============================================================
-         * SORT BY HIGHEST AVERAGE RATING
+         *
+         * MOST IMPORTANT:
+         *
+         * Highest average Feedbacks.rating.
+         *
+         * If two programs have the same rating, the complete
+         * evaluation data is checked.
          * ============================================================
          */
 
         usort(
             $programEffectiveness,
-            function ($a, $b) {
+            function (
+                $a,
+                $b
+            ) {
+
+                /*
+                 * ====================================================
+                 * 1. HIGHEST AVERAGE FEEDBACK RATING
+                 * ====================================================
+                 */
+
+                $ratingA =
+                    (float)(
+                        $a[
+                            'effectiveness_rating'
+                        ]
+                        ?? 0
+                    );
+
+
+                $ratingB =
+                    (float)(
+                        $b[
+                            'effectiveness_rating'
+                        ]
+                        ?? 0
+                    );
+
 
                 if (
-                    $a['effectiveness_rating'] ===
-                    $b['effectiveness_rating']
+                    $ratingA != $ratingB
                 ) {
 
                     return
-                        $b['effective_count']
+                        $ratingB
                         <=>
-                        $a['effective_count'];
+                        $ratingA;
                 }
 
+
+                /*
+                 * ====================================================
+                 * 2. MORE EFFECTIVE EVALUATIONS
+                 * ====================================================
+                 */
+
+                $effectiveA =
+                    (int)(
+                        $a[
+                            'effective_count'
+                        ]
+                        ?? 0
+                    );
+
+
+                $effectiveB =
+                    (int)(
+                        $b[
+                            'effective_count'
+                        ]
+                        ?? 0
+                    );
+
+
+                if (
+                    $effectiveA != $effectiveB
+                ) {
+
+                    return
+                        $effectiveB
+                        <=>
+                        $effectiveA;
+                }
+
+
+                /*
+                 * ====================================================
+                 * 3. HIGHER EFFECTIVE PERCENTAGE
+                 * ====================================================
+                 */
+
+                $effectivePercentageA =
+                    (float)(
+                        $a[
+                            'effective_percentage'
+                        ]
+                        ?? 0
+                    );
+
+
+                $effectivePercentageB =
+                    (float)(
+                        $b[
+                            'effective_percentage'
+                        ]
+                        ?? 0
+                    );
+
+
+                if (
+                    $effectivePercentageA
+                    !=
+                    $effectivePercentageB
+                ) {
+
+                    return
+                        $effectivePercentageB
+                        <=>
+                        $effectivePercentageA;
+                }
+
+
+                /*
+                 * ====================================================
+                 * 4. FEWER NOT EFFECTIVE EVALUATIONS
+                 * ====================================================
+                 */
+
+                $notEffectiveA =
+                    (int)(
+                        $a[
+                            'not_effective_count'
+                        ]
+                        ?? 0
+                    );
+
+
+                $notEffectiveB =
+                    (int)(
+                        $b[
+                            'not_effective_count'
+                        ]
+                        ?? 0
+                    );
+
+
+                if (
+                    $notEffectiveA
+                    !=
+                    $notEffectiveB
+                ) {
+
+                    return
+                        $notEffectiveA
+                        <=>
+                        $notEffectiveB;
+                }
+
+
+                /*
+                 * ====================================================
+                 * 5. MORE FEEDBACK RESPONSES
+                 * ====================================================
+                 */
+
+                $feedbackA =
+                    (int)(
+                        $a[
+                            'total_feedbacks'
+                        ]
+                        ?? 0
+                    );
+
+
+                $feedbackB =
+                    (int)(
+                        $b[
+                            'total_feedbacks'
+                        ]
+                        ?? 0
+                    );
+
+
+                if (
+                    $feedbackA
+                    !=
+                    $feedbackB
+                ) {
+
+                    return
+                        $feedbackB
+                        <=>
+                        $feedbackA;
+                }
+
+
+                /*
+                 * ====================================================
+                 * 6. MORE TOTAL EVALUATIONS
+                 * ====================================================
+                 */
+
+                $evaluationsA =
+                    (int)(
+                        $a[
+                            'total_evaluations'
+                        ]
+                        ?? 0
+                    );
+
+
+                $evaluationsB =
+                    (int)(
+                        $b[
+                            'total_evaluations'
+                        ]
+                        ?? 0
+                    );
+
+
                 return
-                    $b['effectiveness_rating']
+                    $evaluationsB
                     <=>
-                    $a['effectiveness_rating'];
+                    $evaluationsA;
             }
         );
 
@@ -364,9 +988,223 @@ class AnalyticsController extends AppController
          */
 
         $mostEffectiveProgram =
-            !empty($programEffectiveness)
+            !empty(
+                $programEffectiveness
+            )
                 ? $programEffectiveness[0]
                 : null;
+
+
+        /*
+         * ============================================================
+         * FIND SEED SUBSIDY PROGRAM
+         * ============================================================
+         *
+         * Seed Subsidy is identified dynamically from:
+         *
+         * - Program name
+         * - Program code
+         *
+         * No schedule ID is hard-coded.
+         * ============================================================
+         */
+
+        $seedProgram = null;
+
+
+        foreach (
+            $programEffectiveness as $program
+        ) {
+
+            $programName =
+                strtolower(
+                    trim(
+                        (string)(
+                            $program[
+                                'program_name'
+                            ]
+                            ?? ''
+                        )
+                    )
+                );
+
+
+            $programCode =
+                strtolower(
+                    trim(
+                        (string)(
+                            $program[
+                                'program_code'
+                            ]
+                            ?? ''
+                        )
+                    )
+                );
+
+
+            /*
+             * Check program name.
+             */
+
+            if (
+                str_contains(
+                    $programName,
+                    'seed subsidy'
+                )
+                ||
+                str_contains(
+                    $programName,
+                    'seed'
+                )
+            ) {
+
+                $seedProgram =
+                    $program;
+
+                break;
+            }
+
+
+            /*
+             * Check program code.
+             */
+
+            if (
+                str_contains(
+                    $programCode,
+                    'seed'
+                )
+            ) {
+
+                $seedProgram =
+                    $program;
+
+                break;
+            }
+        }
+
+
+        /*
+         * ============================================================
+         * SEED SUBSIDY STATISTICS
+         * ============================================================
+         */
+
+        $seedTotalEvaluations = 0;
+
+        $seedTotalFeedbacks = 0;
+
+        $seedFeedbackRating = 0;
+
+        $seedEffective = 0;
+
+        $seedModeratelyEffective = 0;
+
+        $seedNotEffective = 0;
+
+        $seedEffectivenessRate = 0;
+
+
+        if (
+            $seedProgram !== null
+        ) {
+
+            /*
+             * Total evaluations
+             */
+
+            $seedTotalEvaluations =
+                (int)(
+                    $seedProgram[
+                        'total_evaluations'
+                    ]
+                    ?? 0
+                );
+
+
+            /*
+             * Feedback responses
+             */
+
+            $seedTotalFeedbacks =
+                (int)(
+                    $seedProgram[
+                        'total_feedbacks'
+                    ]
+                    ?? 0
+                );
+
+
+            /*
+             * Average feedback rating
+             */
+
+            $seedFeedbackRating =
+                (float)(
+                    $seedProgram[
+                        'effectiveness_rating'
+                    ]
+                    ?? 0
+                );
+
+
+            /*
+             * Effective
+             */
+
+            $seedEffective =
+                (int)(
+                    $seedProgram[
+                        'effective_count'
+                    ]
+                    ?? 0
+                );
+
+
+            /*
+             * Moderately Effective
+             */
+
+            $seedModeratelyEffective =
+                (int)(
+                    $seedProgram[
+                        'moderately_effective_count'
+                    ]
+                    ?? 0
+                );
+
+
+            /*
+             * Not Effective
+             */
+
+            $seedNotEffective =
+                (int)(
+                    $seedProgram[
+                        'not_effective_count'
+                    ]
+                    ?? 0
+                );
+
+
+            /*
+             * Effectiveness rate is based on ALL evaluations.
+             */
+
+            if (
+                $seedTotalEvaluations > 0
+            ) {
+
+                $seedEffectivenessRate =
+                    round(
+                        (
+                            $seedEffective /
+                            $seedTotalEvaluations
+                        ) * 100,
+                        2
+                    );
+            }
+        }
 
 
         /*
@@ -377,6 +1215,7 @@ class AnalyticsController extends AppController
 
         $feedbackQuery =
             $this->Feedbacks->find();
+
 
         $feedbackAverageResult =
             $feedbackQuery
@@ -396,7 +1235,10 @@ class AnalyticsController extends AppController
 
         $feedbackAverage = 0;
 
-        if ($feedbackAverageResult) {
+
+        if (
+            $feedbackAverageResult
+        ) {
 
             $feedbackAverage =
                 round(
@@ -417,6 +1259,7 @@ class AnalyticsController extends AppController
 
         $yieldQuery =
             $this->Evaluations->find();
+
 
         $yieldData =
             $yieldQuery
@@ -446,18 +1289,27 @@ class AnalyticsController extends AppController
 
 
         $avgYieldBefore = 0;
+
         $avgYieldAfter = 0;
 
-        if ($yieldData) {
+
+        if (
+            $yieldData
+        ) {
 
             $avgYieldBefore =
                 (float)(
-                    $yieldData->avg_yield_before ?? 0
+                    $yieldData
+                        ->avg_yield_before
+                    ?? 0
                 );
+
 
             $avgYieldAfter =
                 (float)(
-                    $yieldData->avg_yield_after ?? 0
+                    $yieldData
+                        ->avg_yield_after
+                    ?? 0
                 );
         }
 
@@ -470,7 +1322,10 @@ class AnalyticsController extends AppController
 
         $yieldImprovement = 0;
 
-        if ($avgYieldBefore > 0) {
+
+        if (
+            $avgYieldBefore > 0
+        ) {
 
             $yieldImprovement =
                 (
@@ -483,6 +1338,7 @@ class AnalyticsController extends AppController
                 )
                 * 100;
         }
+
 
         $yieldImprovement =
             round(
@@ -500,6 +1356,7 @@ class AnalyticsController extends AppController
         $sellingPriceQuery =
             $this->Evaluations->find();
 
+
         $sellingPriceData =
             $sellingPriceQuery
                 ->select([
@@ -515,39 +1372,54 @@ class AnalyticsController extends AppController
 
         $avgSellingPrice = 0;
 
-        if ($sellingPriceData) {
+
+        if (
+            $sellingPriceData
+        ) {
 
             $avgSellingPrice =
                 (float)(
                     $sellingPriceData
-                        ->avg_selling_price ?? 0
+                        ->avg_selling_price
+                    ?? 0
                 );
         }
 
 
         /*
          * ============================================================
-         * MOST EFFECTIVE PROGRAM YIELD DATA
-         * ============================================================
-         *
-         * These values now correspond to the program that has the
-         * highest Feedbacks.rating average.
+         * SEED SUBSIDY YIELD DATA
          * ============================================================
          */
 
         $seedAvgYieldBefore = 0;
+
         $seedAvgYieldAfter = 0;
+
         $seedAvgSellingPrice = 0;
+
         $seedYieldImprovement = 0;
 
 
-        if ($mostEffectiveProgram !== null) {
+        if (
+            $seedProgram !== null
+        ) {
 
-            $mostEffectiveProgramName =
-                $mostEffectiveProgram['program_name'];
+            $seedProgramCode =
+                $seedProgram[
+                    'program_code'
+                ];
+
+
+            /*
+             * --------------------------------------------------------
+             * PROGRAM YIELD QUERY
+             * --------------------------------------------------------
+             */
 
             $programYieldQuery =
                 $this->Evaluations->find();
+
 
             $programYieldData =
                 $programYieldQuery
@@ -573,55 +1445,90 @@ class AnalyticsController extends AppController
                                 ->avg(
                                     'Evaluations.selling_price'
                                 )
-                            ])
+                    ])
+
+
+                    /*
+                     * Join Farms
+                     */
+
                     ->innerJoin(
                         ['Farms' => 'farms'],
                         [
                             'Farms.id = Evaluations.farm_id'
                         ]
                     )
+
+
+                    /*
+                     * Join Schedules
+                     */
+
                     ->innerJoin(
                         ['Schedules' => 'schedules'],
                         [
                             'Schedules.id = Evaluations.schedule_id'
                         ]
                     )
+
+
+                    /*
+                     * Match Seed program
+                     */
+
                     ->where([
-                        'Schedules.program_name' =>
-                            $mostEffectiveProgramName
+                        'Schedules.program_code' =>
+                            $seedProgramCode
                     ])
+
+
                     ->first();
 
 
-            if ($programYieldData) {
+            /*
+             * --------------------------------------------------------
+             * GET SEED VALUES
+             * --------------------------------------------------------
+             */
+
+            if (
+                $programYieldData
+            ) {
 
                 $seedAvgYieldBefore =
                     (float)(
                         $programYieldData
-                            ->avg_yield_before ?? 0
+                            ->avg_yield_before
+                        ?? 0
                     );
+
 
                 $seedAvgYieldAfter =
                     (float)(
                         $programYieldData
-                            ->avg_yield_after ?? 0
+                            ->avg_yield_after
+                        ?? 0
                     );
+
 
                 $seedAvgSellingPrice =
                     (float)(
                         $programYieldData
-                            ->avg_selling_price ?? 0
+                            ->avg_selling_price
+                        ?? 0
                     );
             }
 
 
             /*
-             * ========================================================
-             * MOST EFFECTIVE PROGRAM YIELD IMPROVEMENT
-             * ========================================================
+             * --------------------------------------------------------
+             * SEED YIELD IMPROVEMENT
+             * --------------------------------------------------------
              */
 
-            if ($seedAvgYieldBefore > 0) {
+            if (
+                $seedAvgYieldBefore > 0
+            ) {
 
                 $seedYieldImprovement =
                     (
@@ -634,6 +1541,7 @@ class AnalyticsController extends AppController
                     )
                     * 100;
             }
+
 
             $seedYieldImprovement =
                 round(
@@ -652,11 +1560,14 @@ class AnalyticsController extends AppController
         $modelStatus =
             'Active';
 
+
         $modelName =
             'Random Forest Classifier';
 
+
         $modelAccuracy =
             93.5;
+
 
         $lastTrained =
             'July 22, 2026 11:30 PM';
@@ -698,6 +1609,12 @@ class AnalyticsController extends AppController
 
         $this->set(compact(
 
+            /*
+             * --------------------------------------------------------
+             * Overall
+             * --------------------------------------------------------
+             */
+
             'totalEvaluations',
 
             'effective',
@@ -712,11 +1629,55 @@ class AnalyticsController extends AppController
 
             'notEffectiveRate',
 
-            'mostEffectiveProgram',
+
+            /*
+             * --------------------------------------------------------
+             * Program effectiveness
+             * --------------------------------------------------------
+             */
 
             'programEffectiveness',
 
+            'mostEffectiveProgram',
+
+
+            /*
+             * --------------------------------------------------------
+             * Seed Subsidy
+             * --------------------------------------------------------
+             */
+
+            'seedProgram',
+
+            'seedTotalEvaluations',
+
+            'seedTotalFeedbacks',
+
+            'seedFeedbackRating',
+
+            'seedEffective',
+
+            'seedModeratelyEffective',
+
+            'seedNotEffective',
+
+            'seedEffectivenessRate',
+
+
+            /*
+             * --------------------------------------------------------
+             * Feedback
+             * --------------------------------------------------------
+             */
+
             'feedbackAverage',
+
+
+            /*
+             * --------------------------------------------------------
+             * Yield
+             * --------------------------------------------------------
+             */
 
             'avgYieldBefore',
 
@@ -724,7 +1685,21 @@ class AnalyticsController extends AppController
 
             'yieldImprovement',
 
+
+            /*
+             * --------------------------------------------------------
+             * Selling price
+             * --------------------------------------------------------
+             */
+
             'avgSellingPrice',
+
+
+            /*
+             * --------------------------------------------------------
+             * Seed yield
+             * --------------------------------------------------------
+             */
 
             'seedAvgYieldBefore',
 
@@ -734,6 +1709,13 @@ class AnalyticsController extends AppController
 
             'seedYieldImprovement',
 
+
+            /*
+             * --------------------------------------------------------
+             * Machine learning
+             * --------------------------------------------------------
+             */
+
             'modelStatus',
 
             'modelName',
@@ -741,6 +1723,13 @@ class AnalyticsController extends AppController
             'modelAccuracy',
 
             'lastTrained',
+
+
+            /*
+             * --------------------------------------------------------
+             * Feature importance
+             * --------------------------------------------------------
+             */
 
             'featureImportance'
         ));
