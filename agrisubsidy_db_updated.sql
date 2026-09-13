@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 11, 2026 at 04:26 AM
+-- Generation Time: Sep 13, 2026 at 03:45 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -31,8 +31,45 @@ CREATE TABLE `audit_logs` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `action` varchar(255) NOT NULL,
-  `action_date` datetime NOT NULL
+  `subject_type` varchar(255) DEFAULT NULL,
+  `subject_id` int(11) DEFAULT NULL,
+  `description` varchar(255) NOT NULL,
+  `properties` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`properties`)),
+  `ip_address` varchar(45) DEFAULT NULL,
+  `user_agent` text DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `audit_logs`
+--
+
+INSERT INTO `audit_logs` (`id`, `user_id`, `action`, `subject_type`, `subject_id`, `description`, `properties`, `ip_address`, `user_agent`, `created`, `updated`) VALUES
+(1, 1, 'created', 'Farm', 182, 'Farm record imported from Excel', '{\"source\":\"Excel import\",\"excel_row\":2,\"farm_name\":\"Farm 1\",\"farmer_id\":218,\"farmer_name\":\"Farmer 1\",\"farm_size\":1,\"location\":\"NABBUAN, SANTIAGO CITY\",\"average_yield\":100}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(2, 1, 'created', 'Farm', 183, 'Farm record imported from Excel', '{\"source\":\"Excel import\",\"excel_row\":3,\"farm_name\":\"Farm 2\",\"farmer_id\":219,\"farmer_name\":\"Farmer 2\",\"farm_size\":0.5124,\"location\":\"CABULAY, SANTIAGO CITY\",\"average_yield\":120}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(3, 1, 'created', 'Farm', 184, 'Farm record imported from Excel', '{\"source\":\"Excel import\",\"excel_row\":4,\"farm_name\":\"Farm 3\",\"farmer_id\":220,\"farmer_name\":\"Farmer 3\",\"farm_size\":0.6666,\"location\":\"MABINI, SANTIAGO CITY\",\"average_yield\":89.5}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(4, 1, 'created', 'Farm', 185, 'Farm record imported from Excel', '{\"source\":\"Excel import\",\"excel_row\":5,\"farm_name\":\"Farm 4\",\"farmer_id\":221,\"farmer_name\":\"Farmer 4\",\"farm_size\":1.5,\"location\":\"BALUARTE, SANTIAGO CITY\",\"average_yield\":140}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(5, 1, 'created', 'Farm', 186, 'Farm record imported from Excel', '{\"source\":\"Excel import\",\"excel_row\":6,\"farm_name\":\"Farm 5\",\"farmer_id\":222,\"farmer_name\":\"Farmer 5\",\"farm_size\":0.95,\"location\":\"SAN ISIDRO, SANTIAGO CITY\",\"average_yield\":160}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(6, 39, 'login', 'User', 39, 'User logged in successfully', '{\"username\":\"Farmer1\",\"role\":\"farmer\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-13 12:52:46', '0000-00-00 00:00:00'),
+(7, 17, 'login', 'User', 17, 'User logged in successfully', '{\"username\":\"superadmin\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-13 12:53:58', '0000-00-00 00:00:00'),
+(9, 17, 'login', 'User', 17, 'User logged in successfully', '{\"username\":\"superadmin\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-13 12:55:56', '0000-00-00 00:00:00'),
+(10, 17, 'logout', 'User', 17, 'User logged out successfully', '{\"username\":\"superadmin\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-13 12:58:08', '0000-00-00 00:00:00'),
+(11, 17, 'login', 'User', 17, 'User logged in successfully', '{\"username\":\"superadmin\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-13 12:58:13', '0000-00-00 00:00:00'),
+(12, 17, 'logout', 'User', 17, 'User logged out successfully', '{\"username\":\"superadmin\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-13 12:59:24', '0000-00-00 00:00:00'),
+(13, 17, 'login', 'User', 17, 'User logged in successfully', '{\"username\":\"superadmin\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-13 13:00:22', '0000-00-00 00:00:00'),
+(14, 17, 'logout', 'User', 17, 'User logged out successfully', '{\"username\":\"superadmin\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-13 13:01:06', '0000-00-00 00:00:00'),
+(15, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-13 13:01:10', '0000-00-00 00:00:00'),
+(16, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-13 13:01:47', '0000-00-00 00:00:00'),
+(17, 17, 'login', 'User', 17, 'User logged in successfully', '{\"username\":\"superadmin\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-13 13:02:58', '0000-00-00 00:00:00'),
+(18, 17, 'logout', 'User', 17, 'User logged out successfully', '{\"username\":\"superadmin\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-13 13:16:18', '0000-00-00 00:00:00'),
+(19, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-13 13:16:24', '0000-00-00 00:00:00'),
+(20, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-13 13:22:45', '0000-00-00 00:00:00'),
+(21, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-13 13:24:59', '0000-00-00 00:00:00'),
+(22, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36', '2026-09-13 13:40:55', '0000-00-00 00:00:00'),
+(23, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-13 13:42:46', '0000-00-00 00:00:00'),
+(24, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-13 13:43:00', '0000-00-00 00:00:00'),
+(25, 17, 'login', 'User', 17, 'User logged in successfully', '{\"username\":\"superadmin\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-13 13:43:53', '0000-00-00 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -80,27 +117,12 @@ CREATE TABLE `farmers` (
 --
 
 INSERT INTO `farmers` (`id`, `farmer_no`, `first_name`, `last_name`, `middle_name`, `birthdate`, `gender`, `address`, `contact_no`, `user_id`, `created`, `modified`) VALUES
-(2, '2334535', 'Marc', 'sardinia', 'Gomez', '2008-07-11', 'Female', 'balintocatoc', '09876543219', 10, '2026-07-14 14:54:19', '2026-08-11 11:57:42'),
-(152, '2147483647', 'jane', 'mauro', 'Valdez', '2008-07-15', 'Female', 'balintocatoc', '09876654321', NULL, '2026-07-15 13:09:07', '2026-07-15 13:09:07'),
-(153, '4234535', 'Jayson', 'Nudo', 'Rovillos', '2008-08-10', 'Male', 'Dub West Santiago City', '09876543210', 26, '2026-07-15 13:10:21', '2026-08-11 11:58:24'),
-(156, '7645244', 'Rona', 'Padilla', 'Mauro', '2026-07-10', 'Male', 'Dub West Santiago City', '09123456789', NULL, '2026-07-15 13:42:48', '2026-07-15 13:42:48'),
-(159, '1423345345', 'Rona', 'sardinia', 'Tolentino', '2026-07-01', 'Male', 'Dub West Santiago City', '09876543213', NULL, '2026-07-16 03:16:54', '2026-07-16 03:16:54'),
-(162, '24435456', 'Caezar', 'Abalos', 'Baltazar', '2008-07-08', 'Male', 'balintocatoc ,santiago city', '0986543216', 30, '2026-07-18 12:20:37', '2026-07-18 12:20:37'),
-(163, '1423345345', 'jane', 'Nudo', 'Mauro', '2005-02-09', 'Male', 'Fortune, Aurora, Alicia, Isabela', '09123456789', 36, '2026-07-23 07:33:54', '2026-07-23 07:33:54'),
-(164, '112', 'Emma', 'Tan', 'Yee', '2005-04-11', 'Male', '#367, Purok 6 Dubinan West, Santiago City Isabela', '09125478999', 37, '2026-07-31 07:37:17', '2026-08-31 05:27:37'),
-(165, '1423345345', 'Marc', 'Padilla', 'Tolentino', '2005-06-01', 'Male', 'balintocatoc', '09876543221', NULL, '2026-08-06 12:26:24', '2026-08-11 11:58:46'),
-(166, '4234535', 'Marc', 'Nudo', 'Gomez', '2008-07-02', 'Male', 'balintocatoc', '09123456789', 38, '2026-08-29 13:12:04', '2026-08-29 13:12:04'),
-(207, 'FMR-0001', 'Juan', 'Cruz', 'Dela', '1990-03-15', 'Male', 'Alicia, Isabela', '9123456789', NULL, '2026-08-30 11:38:50', '2026-08-30 11:38:50'),
-(208, 'FMR-0002', 'Maria', 'Garcia', 'Santos', '1988-07-22', 'Female', 'Santiago City, Isabela', '9234567890', NULL, '2026-08-30 11:38:50', '2026-08-30 11:38:50'),
-(209, 'FMR-0003', 'Pedro', 'Dela Cruz', 'Reyes', '1995-11-08', 'Male', 'Echague, Isabela', '9345678901', NULL, '2026-08-30 11:38:50', '2026-08-30 11:38:50'),
-(210, 'FRM-007', 'Zhay', 'Guillermo', 'Gomez', '2005-02-14', 'Male', 'Alicia,isabela', '09876543216', NULL, '2026-08-31 02:33:44', '2026-08-31 02:33:44'),
-(211, 'FRM-007', 'Zhay', 'Nudo', 'Gomez', '2004-02-17', 'Male', 'Fortune, Aurora, Alicia, Isabela', '09876543222', NULL, '2026-08-31 02:34:36', '2026-08-31 02:34:36'),
-(212, 'FMR-0009', 'Dos', 'Cruz', 'Dela', '1990-03-15', 'Male', 'Alicia, Isabela', '9123456750', NULL, '2026-08-31 02:45:36', '2026-08-31 02:45:36'),
-(213, 'FMR-0008', 'Mario', 'Garcia', 'Santos', '1988-07-22', 'Male', 'Santiago City, Isabela', '9234567894', NULL, '2026-08-31 02:45:36', '2026-08-31 02:45:36'),
-(214, 'FMR-007', 'Peter', 'Dela Cruz', 'Reyes', '1995-11-08', 'Male', 'Echague, Isabela', '9345678900', NULL, '2026-08-31 02:45:36', '2026-08-31 02:45:36'),
-(215, 'FRM-00008', 'Michael', 'Jordan', 'Pacquiao', '1989-02-21', 'Male', '#367, Purok 6 Dubinan West, Santiago City Isabela', '09876775543', NULL, '2026-08-31 05:37:15', '2026-08-31 05:37:15'),
-(216, 'FRM-0004', 'Lizian', 'Gomez', 'Lei', '1997-02-06', 'Male', '#367, Purok 6 Dubinan West, Santiago City Isabela', '09876543323', NULL, '2026-09-06 07:36:04', '2026-09-06 07:36:04'),
-(217, 'FRM-0017', 'Roi', 'Nudo', 'Gomez', '2005-01-11', 'Male', '#367, Purok 6 Dubinan West, Santiago City Isabela', '09876543218', NULL, '2026-09-06 07:40:43', '2026-09-06 07:40:43');
+(218, '02-31-35-003-000414', 'Farmer', '1', 'Beneficiary', '1991-03-15', 'Male', 'BALINTOCATOC, SANTIAGO CITY', '9123456750', 39, '2026-09-12 12:14:37', '2026-09-12 12:14:37'),
+(219, '02-31-35-007-000046', 'Farmer', '2', 'Beneficiary', '1989-07-22', 'Male', 'BUENAVISTA, SANTIAGO CITY', '9234567894', 40, '2026-09-12 12:14:37', '2026-09-12 12:15:17'),
+(220, '02-31-35-019-000078', 'Farmer', '3', 'Beneficiary', '1996-11-08', 'Male', 'MABINI, SANTIAGO CITY', '09345678900', 41, '2026-09-12 12:14:37', '2026-09-12 14:10:54'),
+(221, '02-31-35-008-000081', 'Farmer', '4', 'Beneficiary', '1998-06-06', 'Female', 'RIZAL, SANTIAGO CITY', '9876543217', 42, '2026-09-12 12:14:37', '2026-09-12 12:14:58'),
+(222, '02-31-35-002-000069', 'Farmer', '5', 'Beneficiary', '1989-09-05', 'Female', 'BATAL, SANTIAGO CITY', '9876543218', 43, '2026-09-12 12:14:37', '2026-09-12 14:10:37'),
+(223, '02-31-35-028-000048', 'Farmer', '6', 'Beneficiary', '1998-06-23', 'Male', 'SALVADOR, SANTIAGO CITY', '09876654321', NULL, '2026-09-12 14:05:15', '2026-09-12 14:05:46');
 
 -- --------------------------------------------------------
 
@@ -124,7 +146,11 @@ CREATE TABLE `farms` (
 --
 
 INSERT INTO `farms` (`id`, `farmer_id`, `farm_name`, `farm_size`, `location`, `average_yield`, `created`, `modified`) VALUES
-(162, 153, 'Farm 1', 1.30, 'Rizal, Santiago City', 500.00, '2026-09-10 03:54:42', '2026-09-10 03:54:42');
+(182, 218, 'Farm 1', 1.00, 'NABBUAN, SANTIAGO CITY', 100.00, '2026-09-13 12:27:30', '2026-09-13 12:27:30'),
+(183, 219, 'Farm 2', 0.51, 'CABULAY, SANTIAGO CITY', 120.00, '2026-09-13 12:27:30', '2026-09-13 12:27:30'),
+(184, 220, 'Farm 3', 0.67, 'MABINI, SANTIAGO CITY', 89.50, '2026-09-13 12:27:30', '2026-09-13 12:27:30'),
+(185, 221, 'Farm 4', 1.50, 'BALUARTE, SANTIAGO CITY', 140.00, '2026-09-13 12:27:30', '2026-09-13 12:27:30'),
+(186, 222, 'Farm 5', 0.95, 'SAN ISIDRO, SANTIAGO CITY', 160.00, '2026-09-13 12:27:30', '2026-09-13 12:27:30');
 
 -- --------------------------------------------------------
 
@@ -139,13 +165,6 @@ CREATE TABLE `feedbacks` (
   `comment` text NOT NULL,
   `feedback_date` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `feedbacks`
---
-
-INSERT INTO `feedbacks` (`id`, `farmer_id`, `rating`, `comment`, `feedback_date`) VALUES
-(125, 153, 4.3, '', '2026-09-10 01:56:32');
 
 -- --------------------------------------------------------
 
@@ -170,15 +189,7 @@ CREATE TABLE `notifications` (
 --
 
 INSERT INTO `notifications` (`id`, `user_id`, `title`, `message`, `type`, `status`, `data`, `created`, `modified`) VALUES
-(44, NULL, 'New Farmer Registration', 'A new farmer registration requires approval.', 'registration', 'approved', '{\"farmer\":{\"farmer_no\":\"1423345345\",\"first_name\":\"jane\",\"middle_name\":\"Mauro\",\"last_name\":\"Nudo\",\"gender\":\"Male\",\"contact_no\":\"09123456789\",\"address\":\"Fortune, Aurora, Alicia, Isabela\",\"birthdate\":\"2005-02-09\"},\"user\":{\"username\":\"Marlon L. Castro\",\"password\":\"12345678@a\",\"confirm_password\":\"12345678@a\",\"role\":\"farmer\"}}', '2026-07-16 06:42:20', '2026-07-23 07:33:54'),
-(45, NULL, 'New Farmer Registration', 'A new farmer registration requires approval.', 'registration', 'approved', '{\"farmer\":{\"farmer_no\":\"4234535\",\"first_name\":\"Marc\",\"middle_name\":\"Gomez\",\"last_name\":\"Nudo\",\"gender\":\"Male\",\"contact_no\":\"09123456789\",\"address\":\"balintocatoc\",\"birthdate\":\"2008-07-02\"},\"user\":{\"username\":\"Marck\",\"password\":\"Marc01@2\",\"confirm_password\":\"Marc01@2\",\"role\":\"farmer\"}}', '2026-07-23 07:35:44', '2026-08-29 13:12:04'),
-(46, NULL, 'New Farmer Registration', 'A new farmer registration requires approval.', 'registration', 'declined', '{\"farmer\":{\"farmer_no\":\"7866868\",\"first_name\":\"jane\",\"middle_name\":\"mauro\",\"last_name\":\"Valdez\",\"gender\":\"Female\",\"contact_no\":\"21474836474\",\"address\":\"balintocatoc\",\"birthdate\":\"2008-07-15\"},\"user\":{\"username\":\"jane\",\"password\":\"1234567M@\",\"confirm_password\":\"1234567M@\",\"role\":\"farmer\"}}', '2026-07-30 05:52:27', '2026-07-30 05:53:25'),
-(48, NULL, 'New Farmer Registration', 'A new farmer registration requires approval.', 'registration', 'pending', '{\"farmer\":{\"farmer_no\":\"2147483647\",\"first_name\":\"jane\",\"middle_name\":\"mauro\",\"last_name\":\"Valdez\",\"gender\":\"Female\",\"contact_no\":\"09876654321\",\"address\":\"balintocatoc\",\"birthdate\":\"2008-07-15\"},\"user\":{\"username\":\"jane\",\"password\":\"1234567M@\",\"confirm_password\":\"1234567M@\",\"role\":\"farmer\"}}', '2026-07-30 06:05:07', '2026-07-30 06:05:07'),
-(49, NULL, 'New Farmer Registration', 'A new farmer registration requires approval.', 'registration', 'pending', '{\"farmer\":{\"farmer_no\":\"2147483647\",\"first_name\":\"jane\",\"middle_name\":\"Valdez\",\"last_name\":\"mauro\",\"gender\":\"Female\",\"contact_no\":\"09876654321\",\"address\":\"balintocatoc\",\"birthdate\":\"2008-07-15\"},\"user\":{\"username\":\"janee\",\"password\":\"1234567M@\",\"confirm_password\":\"1234567M@\",\"role\":\"farmer\"}}', '2026-07-30 06:07:41', '2026-07-30 06:07:41'),
-(50, NULL, 'New Farmer Registration', 'A new farmer registration requires approval.', 'registration', 'pending', '{\"farmer\":{\"farmer_no\":\"4234535\",\"first_name\":\"Marc\",\"middle_name\":\"Tolentino\",\"last_name\":\"Padilla\",\"gender\":\"Male\",\"contact_no\":\"09123456789\",\"address\":\"balintocatoc\",\"birthdate\":\"2008-07-29\"},\"user\":{\"username\":\"Marc\",\"password\":\"1234567@M\",\"confirm_password\":\"1234567@M\",\"role\":\"farmer\"}}', '2026-07-31 06:16:27', '2026-07-31 06:16:27'),
-(51, NULL, 'New Farmer Registration', 'A new farmer registration requires approval.', 'registration', 'approved', '{\"farmer\":{\"farmer_no\":\"0112\",\"first_name\":\"Emma\",\"middle_name\":\"Yee\",\"last_name\":\"Tan\",\"gender\":\"Female\",\"contact_no\":\"09125478999\",\"address\":\"#367, Purok 6 Dubinan West, Santiago City Isabela\",\"birthdate\":\"2005-04-11\"},\"user\":{\"username\":\"Emma T\",\"password\":\"Emma@*1234\",\"confirm_password\":\"Emma@*1234\",\"role\":\"farmer\"}}', '2026-07-31 07:34:14', '2026-07-31 07:37:17'),
-(52, NULL, 'New Farmer Registration', 'A new farmer registration requires approval.', 'registration', 'pending', '{\"farmer\":{\"farmer_no\":\"4234535\",\"first_name\":\"Marc\",\"middle_name\":\"Tolentino\",\"last_name\":\"mauro\",\"gender\":\"Female\",\"contact_no\":\"09876543212\",\"address\":\"Alicia,isabela\",\"birthdate\":\"2008-08-06\"},\"user\":{\"username\":\"maki01\",\"password\":\"marc01@M\",\"confirm_password\":\"marc01@M\",\"role\":\"farmer\"}}', '2026-08-29 13:10:12', '2026-08-29 13:10:12'),
-(53, NULL, 'New Farmer Registration', 'A new farmer registration requires approval.', 'registration', 'pending', '{\"farmer\":{\"farmer_no\":\"FRM-0037\",\"first_name\":\"Rona\",\"middle_name\":\"Valdez\",\"last_name\":\"Abalos\",\"gender\":\"Male\",\"contact_no\":\"09876543289\",\"address\":\"Santiago city\",\"birthdate\":\"2005-07-10\"},\"user\":{\"username\":\"Onami\",\"password\":\"Onamu01@\",\"confirm_password\":\"Onamu01@\",\"role\":\"farmer\"}}', '2026-09-06 07:46:19', '2026-09-06 07:46:19');
+(54, NULL, 'New Farmer Registration', 'A new farmer registration requires approval.', 'registration', 'pending', '{\"farmer\":{\"farmer_no\":\"02-31-35-028-000048\",\"first_name\":\"Farmer\",\"middle_name\":\"Beneficiary\",\"last_name\":\"6\",\"gender\":\"Male\",\"contact_no\":\"09876654321\",\"address\":\"SALVADOR, SANTIAGO CITY\",\"birthdate\":\"1998-06-23\"},\"user\":{\"username\":\"Farmer6\",\"password\":\"Farmer@06\",\"confirm_password\":\"Farmer@06\",\"role\":\"farmer\"}}', '2026-09-12 14:08:10', '2026-09-12 14:08:10');
 
 -- --------------------------------------------------------
 
@@ -213,6 +224,13 @@ CREATE TABLE `records` (
   `modified_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `records`
+--
+
+INSERT INTO `records` (`id`, `farmer_id`, `subsidy_item`, `quantity`, `received_date`, `status`, `schedule_id`, `confirmed_at`, `created_at`, `modified_at`) VALUES
+(201, 219, 'Seed Subsidy', 120.00, '2026-09-12 16:48:32', 'Received', 32, '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00');
+
 -- --------------------------------------------------------
 
 --
@@ -224,7 +242,7 @@ CREATE TABLE `schedules` (
   `program_code` varchar(100) NOT NULL,
   `program_name` varchar(255) NOT NULL,
   `description` text NOT NULL,
-  `baranggay` varchar(150) NOT NULL,
+  `barangay` varchar(150) NOT NULL,
   `start_date` date NOT NULL,
   `end_date` date NOT NULL,
   `start_time` time NOT NULL,
@@ -235,8 +253,9 @@ CREATE TABLE `schedules` (
 -- Dumping data for table `schedules`
 --
 
-INSERT INTO `schedules` (`id`, `program_code`, `program_name`, `description`, `baranggay`, `start_date`, `end_date`, `start_time`, `end_time`) VALUES
-(31, 'SD-1', 'Seed Subsidy Distribution', 'G-5', 'Rizal', '2026-09-11', '2026-09-11', '10:20:24', '16:30:00');
+INSERT INTO `schedules` (`id`, `program_code`, `program_name`, `description`, `barangay`, `start_date`, `end_date`, `start_time`, `end_time`) VALUES
+(31, 'SD-1', 'Seed Subsidy Distribution', 'G-5', 'Rizal', '2026-09-11', '2026-09-11', '10:20:24', '16:30:00'),
+(32, 'SD-2', 'Seed Subsidy Distribution', 'G-5', 'Rizal', '2026-09-12', '2026-09-12', '07:00:00', '17:00:00');
 
 -- --------------------------------------------------------
 
@@ -261,15 +280,13 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `password`, `role`, `created`, `modified`, `status`, `failed_attempts`, `locked_until`) VALUES
-(1, 'admin', '$2y$10$mOsQfa7o.YJXIKkzMQa/iOCMpMay0vaZWOmXDE2Z2oT.r7Yl8kRP2', 'admin', '2026-06-17 05:17:00', '2026-09-11 02:09:27', 'pending', 0, NULL),
-(10, 'Maki', '$2y$10$sH3pyTnexvxspeuivmd5dujFsFqb6NKASs2QLaUCAlfXlIAVMu2fK', 'farmer', '2026-06-19 06:48:48', '2026-07-15 02:26:14', 'pending', 0, NULL),
-(17, 'superadmin', '$2y$10$6LlYegtiDE46XLuhzPnJoe8ii32u7yYbHyf1GSkjY3kK.3eHf8tOK', 'staff', '2026-06-30 01:07:50', '2026-09-10 11:17:20', 'pending', 0, NULL),
-(26, 'Jayson', '$2y$10$vqHrBjft1A3bcmaUiWM4TOz23sna4xw1Coh3iVYjXouKWMycF/FpK', 'farmer', '2026-07-15 13:10:21', '2026-09-11 02:22:12', 'pending', 0, NULL),
-(29, 'Lxi', '$2y$10$96pJIUC6Z9/AkPKQKHpRi.zys0cVS5T0n0.5MT7eLe3n7TluPMR8K', 'farmer', '2026-07-15 13:47:03', '2026-07-15 13:47:03', 'pending', 0, NULL),
-(30, 'Jha', '$2y$10$DaDUC5VjD0bvq7EQ/nVwbuNuabd6I3vPkCgu4gdbxK0KQN/MXSsIi', 'farmer', '2026-07-16 03:01:05', '2026-09-08 12:49:18', 'pending', 0, NULL),
-(36, 'Marlon L. Castro', '$2y$10$ZkqyY3JOeD2anhrKF.o78.MugtjnMrrdIZ63LB1aklo0gn7kdi/2C', 'farmer', '2026-07-23 07:33:54', '2026-07-23 07:33:54', 'pending', 0, NULL),
-(37, 'Emma T', '$2y$10$CET5WzN0Mfe8lFcKYQIWzOcqzEgi4Ps/bug3h6ef2Juril7r4cW4e', 'farmer', '2026-07-31 07:37:17', '2026-09-06 07:12:41', 'pending', 0, NULL),
-(38, 'Marck', '$2y$10$BYWj6REijUN844Wx929RAeSYpHzuUCT9zfwcSvp9CHPho83M1oedW', 'farmer', '2026-08-29 13:12:04', '2026-08-29 13:12:04', 'pending', 0, NULL);
+(1, 'admin', '$2y$10$mOsQfa7o.YJXIKkzMQa/iOCMpMay0vaZWOmXDE2Z2oT.r7Yl8kRP2', 'staff', '2026-06-17 05:17:00', '2026-09-13 13:42:46', 'pending', 0, NULL),
+(17, 'superadmin', '$2y$10$6LlYegtiDE46XLuhzPnJoe8ii32u7yYbHyf1GSkjY3kK.3eHf8tOK', 'admin', '2026-06-30 01:07:50', '2026-09-13 13:43:53', 'pending', 0, NULL),
+(39, 'Farmer1', '$2y$10$My45YbsX7Mr9IybpQhSkRuW0cdYOrfbhIJBA2dxyk1JlYyYjOlQla', 'farmer', '2026-09-12 12:49:59', '2026-09-13 12:52:46', 'pending', 0, NULL),
+(40, 'Farmer2', '$2y$10$bi0ADL4UdCJFdqEFYn4GTuzUorWkZ5T2K5OF6BdBCdRiKUN0bWvz2', 'farmer', '2026-09-12 12:51:07', '2026-09-12 12:56:45', 'pending', 0, NULL),
+(41, 'Farmer3', '$2y$10$.OdBgKjEyYClQBRt1.j3W.Bo3C7WD78XEdKldHKFbc/df43zaXm/i', 'farmer', '2026-09-12 12:51:44', '2026-09-12 12:57:11', 'pending', 0, NULL),
+(42, 'Farmer4', '$2y$10$JQ7RcaTbRWKzpNHbT2qtuuvJDyEECbHpqiLPL88H1CX0P9a863BAW', 'farmer', '2026-09-12 12:52:10', '2026-09-12 12:57:45', 'pending', 0, NULL),
+(43, 'Farmer5', '$2y$10$g1.zgMTXn9e2SBBNaOo8yeRKXfqvwGMDK2cPOkX61hybCWMaoBvkW', 'farmer', '2026-09-12 12:52:47', '2026-09-12 12:58:00', 'pending', 0, NULL);
 
 --
 -- Indexes for dumped tables
@@ -355,55 +372,55 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_logs`
 --
 ALTER TABLE `audit_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `evaluations`
 --
 ALTER TABLE `evaluations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=164;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=169;
 
 --
 -- AUTO_INCREMENT for table `farmers`
 --
 ALTER TABLE `farmers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=218;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=238;
 
 --
 -- AUTO_INCREMENT for table `farms`
 --
 ALTER TABLE `farms`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=166;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=187;
 
 --
 -- AUTO_INCREMENT for table `feedbacks`
 --
 ALTER TABLE `feedbacks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=126;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=131;
 
 --
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
 
 --
 -- AUTO_INCREMENT for table `records`
 --
 ALTER TABLE `records`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=199;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=202;
 
 --
 -- AUTO_INCREMENT for table `schedules`
 --
 ALTER TABLE `schedules`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
 
 --
 -- Constraints for dumped tables
