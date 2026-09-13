@@ -58,12 +58,12 @@ class RecordsController extends AppController
         $scheduleData = $this->Schedules->find()
             ->select([
                 'id',
-                'program_name',
+                'program_code',
                 'start_date',
                 'start_time'
             ])
             ->order([
-                'program_name' => 'ASC',
+                'program_code' => 'ASC',
                 'start_date' => 'DESC'
             ])
             ->all()
@@ -76,7 +76,7 @@ class RecordsController extends AppController
 
         foreach ($scheduleData as $schedule) {
             $schedules[$schedule->id] =
-                $schedule->program_name;
+                $schedule->program_code;
         }
 
         /*
@@ -277,895 +277,839 @@ class RecordsController extends AppController
         ]);
     }
 
-    /**
-     * ================================================================
-     * UPLOAD EXCEL
-     * ================================================================
-     *
-     * Excel format:
-     *
-     * A = Farmer
-     * B = Subsidy Item
-     * C = Quantity
-     * D = Received Date
-     * E = Status
-     * F = Schedule ID
-     *
-     * Duplicate:
-     *
-     * farmer_id + schedule_id
-     */
     public function uploadExcel()
-    {
-        $this->request->allowMethod(['post']);
+{
+    $this->request->allowMethod(['post']);
 
-        $session = $this->request->getSession();
+    $session = $this->request->getSession();
 
-        /*
-         * Remove previous result
-         */
-        $session->delete(
-            'ExcelImportResult'
-        );
+    $result = [
+        'success' => false,
+        'message' => '',
+        'imported' => 0,
+        'skipped' => 0,
+        'failed' => 0,
+        'errors' => []
+    ];
 
-        /*
-         * ============================================================
-         * GET UPLOADED FILE
-         * ============================================================
-         */
-        $uploadedFile =
-            $this->request->getData('excel_file');
+    $tempPath = null;
 
-        if (
-            !$uploadedFile ||
-            !is_object($uploadedFile)
-        ) {
-            $session->write(
-                'ExcelImportResult',
-                [
-                    'type' => 'error',
-                    'success' => 0,
-                    'failed' => 0,
-                    'errors' => [
-                        'Please select an Excel file.'
-                    ]
-                ]
+    try {
+
+        /* =========================================================
+         * 1. CHECK FILE
+         * ========================================================= */
+
+        $file = $this->request->getData('excel_file');
+
+        if (!$file || $file->getError() !== UPLOAD_ERR_OK) {
+            throw new \RuntimeException(
+                'Please select a valid Excel file.'
             );
-
-            return $this->redirect([
-                'action' => 'index'
-            ]);
         }
-
-        /*
-         * ============================================================
-         * UPLOAD ERROR
-         * ============================================================
-         */
-        if (
-            method_exists(
-                $uploadedFile,
-                'getError'
-            ) &&
-            $uploadedFile->getError() !==
-                UPLOAD_ERR_OK
-        ) {
-            $session->write(
-                'ExcelImportResult',
-                [
-                    'type' => 'error',
-                    'success' => 0,
-                    'failed' => 0,
-                    'errors' => [
-                        'There was a problem uploading the Excel file.'
-                    ]
-                ]
-            );
-
-            return $this->redirect([
-                'action' => 'index'
-            ]);
-        }
-
-        /*
-         * ============================================================
-         * FILE EXTENSION
-         * ============================================================
-         */
-        $originalName = method_exists(
-            $uploadedFile,
-            'getClientFilename'
-        )
-            ? $uploadedFile->getClientFilename()
-            : '';
 
         $extension = strtolower(
             pathinfo(
-                $originalName,
+                $file->getClientFilename(),
                 PATHINFO_EXTENSION
             )
         );
 
-        if (
-            !in_array(
-                $extension,
-                [
-                    'xlsx',
-                    'xls'
-                ],
-                true
-            )
-        ) {
-            $session->write(
-                'ExcelImportResult',
-                [
-                    'type' => 'error',
-                    'success' => 0,
-                    'failed' => 0,
-                    'errors' => [
-                        'Invalid file type. Please upload an .xlsx or .xls file.'
-                    ]
-                ]
-            );
-
-            return $this->redirect([
-                'action' => 'index'
-            ]);
-        }
-
-        /*
-         * ============================================================
-         * TEMPORARY FILE
-         * ============================================================
-         */
-        $tmpPath = null;
-
-        if (
-            method_exists(
-                $uploadedFile,
-                'getStream'
-            )
-        ) {
-            $stream = $uploadedFile->getStream();
-
-            $tmpPath = $stream->getMetadata(
-                'uri'
+        if (!in_array($extension, ['xlsx', 'xls'], true)) {
+            throw new \RuntimeException(
+                'Invalid file type. Please upload an .xlsx or .xls file.'
             );
         }
 
-        if (
-            !$tmpPath &&
-            method_exists(
-                $uploadedFile,
-                'getTmpName'
-            )
-        ) {
-            $tmpPath =
-                $uploadedFile->getTmpName();
-        }
 
-        if (
-            !$tmpPath ||
-            !file_exists($tmpPath)
-        ) {
-            $session->write(
-                'ExcelImportResult',
-                [
-                    'type' => 'error',
-                    'success' => 0,
-                    'failed' => 0,
-                    'errors' => [
-                        'Unable to access the uploaded Excel file.'
-                    ]
-                ]
+        /* =========================================================
+         * 2. SAVE TEMPORARY FILE
+         * ========================================================= */
+
+        $tempPath =
+            TMP .
+            uniqid('records_', true) .
+            '.' .
+            $extension;
+
+        $file->moveTo($tempPath);
+
+
+        /* =========================================================
+         * 3. LOAD EXCEL
+         * ========================================================= */
+
+        $spreadsheet =
+            \PhpOffice\PhpSpreadsheet\IOFactory::load(
+                $tempPath
             );
 
-            return $this->redirect([
-                'action' => 'index'
-            ]);
+        $worksheet =
+            $spreadsheet->getActiveSheet();
+
+        $highestRow =
+            $worksheet->getHighestRow();
+
+
+        /* =========================================================
+         * 4. VALIDATE HEADERS
+         *
+         * A = Farmer
+         * B = Subsidy Item
+         * C = Quantity
+         * D = Received Date
+         * E = Status
+         * F = Schedule ID
+         * ========================================================= */
+
+        $headers = [];
+
+        for ($column = 1; $column <= 6; $column++) {
+
+            $headers[$column] = strtolower(
+                trim(
+                    (string)$worksheet
+                        ->getCellByColumnAndRow(
+                            $column,
+                            1
+                        )
+                        ->getValue()
+                )
+            );
         }
 
-        try {
-            $this->loadModel('Farmers');
-            $this->loadModel('Schedules');
+        $expectedHeaders = [
+            1 => 'farmer',
+            2 => 'subsidy item',
+            3 => 'quantity',
+            4 => 'received date',
+            5 => 'status',
+            6 => 'schedule id'
+        ];
 
-            /*
-             * ========================================================
-             * LOAD EXCEL
-             * ========================================================
-             */
-            $spreadsheet =
-                IOFactory::load($tmpPath);
+        foreach ($expectedHeaders as $column => $expected) {
 
-            $worksheet =
-                $spreadsheet->getActiveSheet();
+            if (($headers[$column] ?? '') !== $expected) {
 
-            $rows =
-                $worksheet->toArray(
-                    null,
-                    true,
-                    true,
-                    true
+                throw new \RuntimeException(
+                    'Invalid Excel format. Column ' .
+                    $column .
+                    ' must be "' .
+                    $expected .
+                    '".'
                 );
+            }
+        }
+
+
+        /* =========================================================
+         * 5. GET TABLES
+         * ========================================================= */
+
+        $farmersTable =
+            $this->fetchTable('Farmers');
+
+        $schedulesTable =
+            $this->fetchTable('Schedules');
+
+        $recordsTable =
+            $this->fetchTable('Records');
+
+
+        /* =========================================================
+         * 6. TRACK DUPLICATES IN EXCEL
+         * ========================================================= */
+
+        $seen = [];
+
+
+        /* =========================================================
+         * 7. PROCESS ROWS
+         * ========================================================= */
+
+        for ($row = 2; $row <= $highestRow; $row++) {
+
+            /* -----------------------------------------------------
+             * Read values
+             * ----------------------------------------------------- */
+
+            $farmerValue = trim(
+                (string)$worksheet
+                    ->getCellByColumnAndRow(1, $row)
+                    ->getFormattedValue()
+            );
+
+            $subsidyItem = trim(
+                (string)$worksheet
+                    ->getCellByColumnAndRow(2, $row)
+                    ->getFormattedValue()
+            );
+
+            $quantityValue =
+                $worksheet
+                    ->getCellByColumnAndRow(3, $row)
+                    ->getValue();
+
+            $receivedDateCell =
+                $worksheet
+                    ->getCellByColumnAndRow(4, $row);
+
+            $receivedDateValue =
+                $receivedDateCell->getValue();
+
+            $statusValue = trim(
+                (string)$worksheet
+                    ->getCellByColumnAndRow(5, $row)
+                    ->getFormattedValue()
+            );
+
+            $scheduleIdValue =
+                $worksheet
+                    ->getCellByColumnAndRow(6, $row)
+                    ->getValue();
+
+
+            /* -----------------------------------------------------
+             * Skip completely empty rows
+             * ----------------------------------------------------- */
+
+            if (
+                $farmerValue === '' &&
+                ($quantityValue === null ||
+                    trim((string)$quantityValue) === '') &&
+                ($receivedDateValue === null ||
+                    trim((string)$receivedDateValue) === '') &&
+                $statusValue === '' &&
+                ($scheduleIdValue === null ||
+                    trim((string)$scheduleIdValue) === '')
+            ) {
+                continue;
+            }
+
+
+            /* =====================================================
+             * FARMER
+             * ===================================================== */
+
+            if ($farmerValue === '') {
+
+                $result['failed']++;
+
+                $result['errors'][] =
+                    "Row {$row}: Farmer is required.";
+
+                continue;
+            }
+
 
             /*
-             * Remove header
+             * First try farmer_no
              */
-            if (!empty($rows)) {
-                array_shift($rows);
+
+            $farmer =
+                $farmersTable
+                    ->find()
+                    ->where([
+                        'farmer_no' => $farmerValue
+                    ])
+                    ->first();
+
+
+            /*
+             * If not found, try farmer_name
+             */
+
+            if (!$farmer) {
+
+                $farmer =
+                    $farmersTable
+                        ->find()
+                        ->where([
+                            'farmer_name' => $farmerValue
+                        ])
+                        ->first();
+            }
+
+
+            if (!$farmer) {
+
+                $result['failed']++;
+
+                $result['errors'][] =
+                    "Row {$row}: Farmer " .
+                    "'{$farmerValue}' was not found.";
+
+                continue;
+            }
+
+            $farmerId = (int)$farmer->id;
+
+
+            /* =====================================================
+             * SUBSIDY ITEM
+             * ===================================================== */
+
+            if (
+                $subsidyItem === '' ||
+                strcasecmp(
+                    $subsidyItem,
+                    'Seed Subsidy'
+                ) !== 0
+            ) {
+
+                $result['failed']++;
+
+                $result['errors'][] =
+                    "Row {$row}: Subsidy Item must be " .
+                    "'Seed Subsidy'.";
+
+                continue;
             }
 
             /*
-             * Remove completely empty rows
+             * Always save Seed Subsidy.
              */
-            $rows = array_values(
-                array_filter(
-                    $rows,
-                    function ($row) {
-                        foreach ($row as $value) {
-                            if (
-                                $value !== null &&
-                                trim((string)$value) !== ''
-                            ) {
-                                return true;
+
+            $subsidyItem = 'Seed Subsidy';
+
+
+            /* =====================================================
+             * QUANTITY
+             * ===================================================== */
+
+            if (
+                $quantityValue === null ||
+                trim((string)$quantityValue) === ''
+            ) {
+
+                $result['failed']++;
+
+                $result['errors'][] =
+                    "Row {$row}: Quantity is required.";
+
+                continue;
+            }
+
+            if (!is_numeric($quantityValue)) {
+
+                $result['failed']++;
+
+                $result['errors'][] =
+                    "Row {$row}: Quantity must be numeric.";
+
+                continue;
+            }
+
+            $quantity = (float)$quantityValue;
+
+            if ($quantity <= 0) {
+
+                $result['failed']++;
+
+                $result['errors'][] =
+                    "Row {$row}: Quantity must be greater than zero.";
+
+                continue;
+            }
+
+
+            /* =====================================================
+             * SCHEDULE ID
+             * ===================================================== */
+
+            if (
+                $scheduleIdValue === null ||
+                trim((string)$scheduleIdValue) === ''
+            ) {
+
+                $result['failed']++;
+
+                $result['errors'][] =
+                    "Row {$row}: Schedule ID is required.";
+
+                continue;
+            }
+
+            if (!is_numeric($scheduleIdValue)) {
+
+                $result['failed']++;
+
+                $result['errors'][] =
+                    "Row {$row}: Schedule ID must be numeric.";
+
+                continue;
+            }
+
+            $scheduleId = (int)$scheduleIdValue;
+
+
+            /* =====================================================
+             * FIND SCHEDULE
+             *
+             * ONLY:
+             * id
+             * program_code
+             * start_date
+             *
+             * NO program_name
+             * NO subsidy_item
+             * ===================================================== */
+
+            $schedule =
+                $schedulesTable
+                    ->find()
+                    ->select([
+                        'id',
+                        'program_code',
+                        'start_date'
+                    ])
+                    ->where([
+                        'id' => $scheduleId
+                    ])
+                    ->first();
+
+
+            if (!$schedule) {
+
+                $result['failed']++;
+
+                $result['errors'][] =
+                    "Row {$row}: Schedule ID " .
+                    "{$scheduleId} does not exist.";
+
+                continue;
+            }
+
+
+            /* =====================================================
+             * CHECK PROGRAM CODE
+             *
+             * Seed Subsidy should use the appropriate
+             * program code stored in schedules.program_code.
+             *
+             * Change SD- if your Seed Subsidy codes use
+             * another format.
+             * ===================================================== */
+
+            $programCode = trim(
+                (string)$schedule->program_code
+            );
+
+            if ($programCode === '') {
+
+                $result['failed']++;
+
+                $result['errors'][] =
+                    "Row {$row}: Schedule ID " .
+                    "{$scheduleId} has no program code.";
+
+                continue;
+            }
+
+
+            /* =====================================================
+             * RECEIVED DATE
+             * ===================================================== */
+
+            $receivedDate = null;
+
+            /*
+             * Blank and N/A are allowed.
+             */
+
+            if (
+                $receivedDateValue !== null &&
+                trim((string)$receivedDateValue) !== '' &&
+                strtoupper(
+                    trim((string)$receivedDateValue)
+                ) !== 'N/A'
+            ) {
+
+                try {
+
+                    /*
+                     * Excel numeric date
+                     */
+
+                    if (
+                        is_numeric($receivedDateValue) &&
+                        \PhpOffice\PhpSpreadsheet\Shared\Date::isDateTime(
+                            $receivedDateCell
+                        )
+                    ) {
+
+                        $dateTime =
+                            \PhpOffice\PhpSpreadsheet\Shared\Date
+                                ::excelToDateTimeObject(
+                                    $receivedDateValue
+                                );
+
+                        $receivedDate =
+                            new \Cake\I18n\FrozenDate(
+                                $dateTime->format('Y-m-d')
+                            );
+
+                    } else {
+
+                        /*
+                         * Text date
+                         */
+
+                        $dateString =
+                            trim((string)$receivedDateValue);
+
+                        $formats = [
+                            'Y-m-d',
+                            'm/d/Y',
+                            'd/m/Y',
+                            'm-d-Y',
+                            'd-m-Y',
+                            'Y/m/d',
+                            'F j, Y',
+                            'M j, Y',
+                            'Y-m-d H:i:s',
+                            'Y-m-d H:i'
+                        ];
+
+                        $parsedDate = false;
+
+                        foreach ($formats as $format) {
+
+                            $dateTime =
+                                \DateTime::createFromFormat(
+                                    $format,
+                                    $dateString
+                                );
+
+                            if ($dateTime !== false) {
+                                $parsedDate = $dateTime;
+                                break;
                             }
                         }
 
-                        return false;
+
+                        /*
+                         * Fallback
+                         */
+
+                        if ($parsedDate === false) {
+
+                            try {
+
+                                $parsedDate =
+                                    new \DateTime(
+                                        $dateString
+                                    );
+
+                            } catch (\Exception $e) {
+
+                                $parsedDate = false;
+                            }
+                        }
+
+
+                        if ($parsedDate === false) {
+
+                            throw new \Exception(
+                                'Invalid date format.'
+                            );
+                        }
+
+                        $receivedDate =
+                            new \Cake\I18n\FrozenDate(
+                                $parsedDate->format('Y-m-d')
+                            );
                     }
+
+                } catch (\Throwable $e) {
+
+                    $result['failed']++;
+
+                    $result['errors'][] =
+                        "Row {$row}: Invalid Received Date.";
+
+                    continue;
+                }
+            }
+
+
+            /* =====================================================
+             * STATUS
+             * ===================================================== */
+
+            $statusKey = strtolower(
+                preg_replace(
+                    '/[\s_-]+/',
+                    ' ',
+                    trim($statusValue)
                 )
             );
 
-            if (empty($rows)) {
-                $session->write(
-                    'ExcelImportResult',
-                    [
-                        'type' => 'error',
-                        'success' => 0,
-                        'failed' => 0,
-                        'errors' => [
-                            'The Excel file does not contain any records.'
-                        ]
-                    ]
-                );
+            $statusMap = [
 
-                return $this->redirect([
-                    'action' => 'index'
-                ]);
-            }
+                'received' =>
+                    'Received',
 
-            /*
-             * ========================================================
-             * FIRST PASS
-             *
-             * Validate all rows before inserting.
-             * ========================================================
-             */
-            $validRows = [];
-            $errors = [];
-            $duplicateRows = [];
+                'not received' =>
+                    'Not Received',
 
-            foreach (
-                $rows as $excelRowNumber => $row
-            ) {
-                /*
-                 * Header = row 1
-                 * First data row = row 2
-                 */
-                $rowNumber =
-                    $excelRowNumber + 2;
+                'rescheduled' =>
+                    'Re-Scheduled',
 
-                /*
-                 * ====================================================
-                 * A = FARMER
-                 * ====================================================
-                 */
-                $farmerName =
-                    isset($row['A'])
-                        ? trim((string)$row['A'])
-                        : '';
+                're scheduled' =>
+                    'Re-Scheduled',
 
-                if ($farmerName === '') {
-                    $errors[] =
-                        "Row {$rowNumber}: Farmer name is required.";
+                're-scheduled' =>
+                    'Re-Scheduled',
 
-                    continue;
-                }
+                'cancelled' =>
+                    'Cancelled',
 
-                /*
-                 * ====================================================
-                 * B = SUBSIDY ITEM
-                 * ====================================================
-                 */
-                $subsidyItem =
-                    isset($row['B'])
-                        ? trim((string)$row['B'])
-                        : '';
+                'canceled' =>
+                    'Cancelled'
+            ];
 
-                if ($subsidyItem === '') {
-                    $errors[] =
-                        "Row {$rowNumber}: Subsidy Item is required.";
 
-                    continue;
-                }
-
-                /*
-                 * Only Seed Subsidy
-                 */
-                if (
-                    strtolower($subsidyItem) !==
-                    strtolower('Seed Subsidy')
-                ) {
-                    $errors[] =
-                        "Row {$rowNumber}: Only Seed Subsidy records can be uploaded.";
-
-                    continue;
-                }
-
-                /*
-                 * ====================================================
-                 * C = QUANTITY
-                 * ====================================================
-                 */
-                $quantityValue =
-                    $row['C'] ?? null;
-
-                if (
-                    $quantityValue === null ||
-                    trim((string)$quantityValue) === ''
-                ) {
-                    $errors[] =
-                        "Row {$rowNumber}: Quantity is required.";
-
-                    continue;
-                }
-
-                if (!is_numeric($quantityValue)) {
-                    $errors[] =
-                        "Row {$rowNumber}: Quantity must be numeric.";
-
-                    continue;
-                }
-
-                $quantity =
-                    (float)$quantityValue;
-
-                if ($quantity <= 0) {
-                    $errors[] =
-                        "Row {$rowNumber}: Quantity must be greater than zero.";
-
-                    continue;
-                }
-
-                /*
-                 * ====================================================
-                 * D = RECEIVED DATE
-                 * ====================================================
-                 */
-                $receivedDateValue =
-                    $row['D'] ?? null;
-
-                $receivedDate = null;
-
-                if (
-                    $receivedDateValue !== null &&
-                    trim((string)$receivedDateValue) !== ''
-                ) {
-                    try {
-                        /*
-                         * If Excel numeric date
-                         */
-                        if (
-                            is_numeric(
-                                $receivedDateValue
-                            )
-                        ) {
-                            $receivedDate =
-                                FrozenDate::createFromTimestamp(
-                                    ExcelDate::excelToTimestamp(
-                                        (float)$receivedDateValue
-                                    )
-                                );
-                        } else {
-                            /*
-                             * Normal date string
-                             */
-                            $receivedDate =
-                                new FrozenDate(
-                                    trim(
-                                        (string)$receivedDateValue
-                                    )
-                                );
-                        }
-                    } catch (\Throwable $e) {
-                        $errors[] =
-                            "Row {$rowNumber}: Invalid received date.";
-
-                        continue;
-                    }
-                }
-
-                /*
-                 * ====================================================
-                 * E = STATUS
-                 * ====================================================
-                 */
-                $statusValue =
-                    isset($row['E'])
-                        ? trim((string)$row['E'])
-                        : '';
-
-                $status =
-                    strtolower($statusValue);
-
-                /*
-                 * Normalize separators
-                 */
-                $status = str_replace(
-                    [
-                        '-',
-                        '_'
-                    ],
-                    ' ',
-                    $status
-                );
-
-                $status =
-                    preg_replace(
-                        '/\s+/',
-                        ' ',
-                        $status
-                    );
-
-                switch ($status) {
-                    case 'received':
-
-                        $normalizedStatus =
-                            'Received';
-
-                        break;
-
-                    case 'not received':
-                    case 'notreceived':
-
-                        $normalizedStatus =
-                            'Not Received';
-
-                        break;
-
-                    case 're scheduled':
-                    case 'rescheduled':
-
-                        $normalizedStatus =
-                            'Re-Scheduled';
-
-                        break;
-
-                    case 'cancelled':
-                    case 'canceled':
-
-                        $normalizedStatus =
-                            'Cancelled';
-
-                        break;
-
-                    case '':
-
-                        $normalizedStatus =
-                            'Not Received';
-
-                        break;
-
-                    default:
-
-                        $errors[] =
-                            "Row {$rowNumber}: Invalid status '{$statusValue}'.";
-
-                        continue 2;
-                }
-
-                /*
-                 * ====================================================
-                 * F = SCHEDULE ID
-                 * ====================================================
-                 */
-                $scheduleIdValue =
-                    $row['F'] ?? null;
-
-                if (
-                    $scheduleIdValue === null ||
-                    trim((string)$scheduleIdValue) === ''
-                ) {
-                    $errors[] =
-                        "Row {$rowNumber}: Schedule ID is required.";
-
-                    continue;
-                }
-
-                if (!is_numeric($scheduleIdValue)) {
-                    $errors[] =
-                        "Row {$rowNumber}: Schedule ID must be numeric.";
-
-                    continue;
-                }
-
-                $scheduleId =
-                    (int)$scheduleIdValue;
-
-                /*
-                 * ====================================================
-                 * FIND SCHEDULE
-                 * ====================================================
-                 */
-                $schedule =
-                    $this->Schedules->find()
-                        ->where([
-                            'Schedules.id' =>
-                                $scheduleId
-                        ])
-                        ->first();
-
-                if (!$schedule) {
-                    $errors[] =
-                        "Row {$rowNumber}: Schedule ID {$scheduleId} was not found.";
-
-                    continue;
-                }
-
-                /*
-                 * Verify Seed Subsidy schedule
-                 */
-                if (
-                    empty($schedule->program_name) ||
-                    strtolower(
-                        trim(
-                            (string)$schedule->program_name
-                        )
-                    ) !==
-                    strtolower('Seed Subsidy')
-                ) {
-                    $errors[] =
-                        "Row {$rowNumber}: Schedule ID {$scheduleId} is not a Seed Subsidy schedule.";
-
-                    continue;
-                }
-
-                /*
-                 * ====================================================
-                 * FIND FARMER
-                 * ====================================================
-                 */
-                $nameParts =
-                    preg_split(
-                        '/\s+/',
-                        $farmerName
-                    );
-
-                $firstName = '';
-                $lastName = '';
-
-                if (!empty($nameParts)) {
-                    $firstName =
-                        trim(
-                            (string)$nameParts[0]
-                        );
-
-                    if (
-                        count($nameParts) > 1
-                    ) {
-                        $lastName =
-                            trim(
-                                implode(
-                                    ' ',
-                                    array_slice(
-                                        $nameParts,
-                                        1
-                                    )
-                                )
-                            );
-                    }
-                }
-
-                if ($lastName === '') {
-                    $errors[] =
-                        "Row {$rowNumber}: Farmer name '{$farmerName}' must contain a last name.";
-
-                    continue;
-                }
-
-                /*
-                 * Case-insensitive search
-                 */
-                $farmer =
-                    $this->Farmers->find()
-                        ->where([
-                            'LOWER(Farmers.first_name)' =>
-                                strtolower(
-                                    $firstName
-                                ),
-
-                            'LOWER(Farmers.last_name)' =>
-                                strtolower(
-                                    $lastName
-                                )
-                        ])
-                        ->first();
-
-                if (!$farmer) {
-                    $errors[] =
-                        "Row {$rowNumber}: Farmer '{$farmerName}' was not found.";
-
-                    continue;
-                }
-
-                /*
-                 * ====================================================
-                 * DUPLICATE CHECK
-                 *
-                 * Same farmer + same schedule
-                 * = duplicate.
-                 * ====================================================
-                 */
-                $existingRecord =
-                    $this->Records->find()
-                        ->where([
-                            'Records.farmer_id' =>
-                                $farmer->id,
-
-                            'Records.schedule_id' =>
-                                $scheduleId
-                        ])
-                        ->first();
-
-                if ($existingRecord) {
-                    $duplicateRows[] = [
-                        'row' =>
-                            $rowNumber,
-
-                        'farmer' =>
-                            $farmerName,
-
-                        'schedule_id' =>
-                            $scheduleId
-                    ];
-
-                    continue;
-                }
-
-                /*
-                 * ====================================================
-                 * STORE VALID DATA
-                 * ====================================================
-                 */
-                $validRows[] = [
-                    'row_number' =>
-                        $rowNumber,
-
-                    'farmer_id' =>
-                        $farmer->id,
-
-                    'schedule_id' =>
-                        $scheduleId,
-
-                    'subsidy_item' =>
-                        $subsidyItem,
-
-                    'quantity' =>
-                        $quantity,
-
-                    'received_date' =>
-                        $receivedDate,
-
-                    'status' =>
-                        $normalizedStatus
-                ];
-            }
-
-            /*
-             * ========================================================
-             * ALL ROWS ARE DUPLICATES
-             * ========================================================
-             */
             if (
-                empty($validRows) &&
-                !empty($duplicateRows) &&
-                empty($errors)
+                $statusKey === '' ||
+                !isset($statusMap[$statusKey])
             ) {
-                $duplicateCount =
-                    count($duplicateRows);
 
-                $session->write(
-                    'ExcelImportResult',
-                    [
-                        'type' =>
-                            'duplicate',
+                $result['failed']++;
 
-                        'success' =>
-                            0,
+                $result['errors'][] =
+                    "Row {$row}: Invalid Status " .
+                    "'{$statusValue}'.";
 
-                        'failed' =>
-                            $duplicateCount,
-
-                        'errors' => [
-                            'The data in this Excel are already uploaded.'
-                        ]
-                    ]
-                );
-
-                return $this->redirect([
-                    'action' => 'index'
-                ]);
+                continue;
             }
 
-            /*
-             * ========================================================
-             * SECOND PASS
+            $status =
+                $statusMap[$statusKey];
+
+
+            /* =====================================================
+             * DUPLICATE KEY
              *
-             * Save only new records.
-             * ========================================================
-             */
-            $successCount = 0;
+             * farmer_id + schedule_id
+             * ===================================================== */
 
-            $failedCount =
-                count($errors);
+            $duplicateKey =
+                $farmerId . '_' . $scheduleId;
 
-            foreach (
-                $validRows as $data
-            ) {
-                try {
-                    $record =
-                        $this->Records
-                            ->newEmptyEntity();
 
-                    $record =
-                        $this->Records
-                            ->patchEntity(
-                                $record,
-                                [
-                                    'farmer_id' =>
-                                        $data['farmer_id'],
+            /* -----------------------------------------------------
+             * Duplicate within Excel
+             * ----------------------------------------------------- */
 
-                                    'schedule_id' =>
-                                        $data['schedule_id'],
+            if (isset($seen[$duplicateKey])) {
 
-                                    'subsidy_item' =>
-                                        $data['subsidy_item'],
+                $result['skipped']++;
 
-                                    'quantity' =>
-                                        $data['quantity'],
+                $result['errors'][] =
+                    "Row {$row}: Duplicate record for " .
+                    "farmer '{$farmerValue}' and " .
+                    "Schedule ID {$scheduleId}. Skipped.";
 
-                                    'received_date' =>
-                                        $data['received_date'],
-
-                                    'status' =>
-                                        $data['status']
-                                ]
-                            );
-
-                    if (
-                        $this->Records
-                            ->save($record)
-                    ) {
-                        $successCount++;
-                    } else {
-                        $failedCount++;
-
-                        $errors[] =
-                            "Row {$data['row_number']}: Record could not be saved.";
-                    }
-                } catch (\Throwable $e) {
-                    $failedCount++;
-
-                    $errors[] =
-                        "Row {$data['row_number']}: " .
-                        $e->getMessage();
-                }
+                continue;
             }
 
-            /*
-             * ========================================================
-             * DUPLICATES IN MIXED FILE
-             * ========================================================
-             */
-            if (!empty($duplicateRows)) {
-                $failedCount +=
-                    count($duplicateRows);
 
-                foreach (
-                    $duplicateRows as $duplicate
-                ) {
-                    $errors[] =
-                        "Row {$duplicate['row']}: " .
-                        "{$duplicate['farmer']} already has a record " .
-                        "for Schedule ID {$duplicate['schedule_id']}.";
-                }
+            /* -----------------------------------------------------
+             * Duplicate already in database
+             * ----------------------------------------------------- */
+
+            $existingRecord =
+                $recordsTable
+                    ->find()
+                    ->where([
+                        'farmer_id' => $farmerId,
+                        'schedule_id' => $scheduleId
+                    ])
+                    ->first();
+
+
+            if ($existingRecord) {
+
+                $result['skipped']++;
+
+                $result['errors'][] =
+                    "Row {$row}: Record already exists for " .
+                    "farmer '{$farmerValue}' and " .
+                    "Schedule ID {$scheduleId}. Skipped.";
+
+                $seen[$duplicateKey] = true;
+
+                continue;
             }
 
+
+            /* =====================================================
+             * CREATE RECORD
+             * ===================================================== */
+
+            $record =
+                $recordsTable->newEmptyEntity();
+
+            $record->farmer_id =
+                $farmerId;
+
             /*
-             * ========================================================
-             * RESULT TYPE
-             * ========================================================
+             * Always Seed Subsidy.
              */
-            if (
-                $successCount > 0 &&
-                $failedCount === 0
-            ) {
-                $resultType =
-                    'success';
-            } elseif (
-                $successCount > 0 &&
-                $failedCount > 0
-            ) {
-                $resultType =
-                    'partial';
+
+            $record->subsidy_item =
+                'Seed Subsidy';
+
+            $record->quantity =
+                $quantity;
+
+            /*
+             * Blank/N/A = NULL
+             */
+
+            $record->received_date =
+                $receivedDate;
+
+            $record->status =
+                $status;
+
+            /*
+             * Schedule relationship.
+             */
+
+            $record->schedule_id =
+                $scheduleId;
+
+
+            /*
+             * Confirmed timestamp.
+             */
+
+            if ($status === 'Received') {
+
+                $record->confirmed_at =
+                    \Cake\I18n\FrozenTime::now();
+
             } else {
-                $resultType =
-                    'error';
+
+                $record->confirmed_at =
+                    null;
             }
 
-            /*
-             * ========================================================
-             * SAVE RESULT
-             * ========================================================
-             */
-            $session->write(
-                'ExcelImportResult',
-                [
-                    'type' =>
-                        $resultType,
 
-                    'success' =>
-                        $successCount,
+            /* =====================================================
+             * SAVE
+             * ===================================================== */
 
-                    'failed' =>
-                        $failedCount,
+            if (!$recordsTable->save($record)) {
 
-                    'errors' =>
-                        $errors
-                ]
-            );
+                $errors =
+                    $record->getErrors();
 
-            return $this->redirect([
-                'action' => 'index'
-            ]);
-        } catch (\Throwable $e) {
-            /*
-             * Log detailed error
-             */
-            \Cake\Log\Log::error(
-                'RecordsController::uploadExcel(): ' .
-                $e->getMessage() .
-                "\n" .
-                $e->getTraceAsString()
-            );
+                $errorMessage =
+                    'Unable to save record.';
+
+                if (!empty($errors)) {
+
+                    $errorMessage .=
+                        ' ' .
+                        json_encode($errors);
+                }
+
+                $result['failed']++;
+
+                $result['errors'][] =
+                    "Row {$row}: {$errorMessage}";
+
+                continue;
+            }
+
 
             /*
-             * User-friendly result
+             * Mark combination as processed.
              */
-            $session->write(
-                'ExcelImportResult',
-                [
-                    'type' =>
-                        'error',
 
-                    'success' =>
-                        0,
+            $seen[$duplicateKey] = true;
 
-                    'failed' =>
-                        0,
-
-                    'errors' => [
-                        'Unable to import the Excel file: ' .
-                        $e->getMessage()
-                    ]
-                ]
-            );
-
-            return $this->redirect([
-                'action' => 'index'
-            ]);
+            $result['imported']++;
         }
+
+
+        /* =========================================================
+         * 8. DELETE TEMP FILE
+         * ========================================================= */
+
+        if (
+            $tempPath !== null &&
+            file_exists($tempPath)
+        ) {
+            unlink($tempPath);
+        }
+
+
+        /* =========================================================
+         * 9. FINAL MESSAGE
+         * ========================================================= */
+
+        $result['success'] = true;
+
+        if ($result['imported'] > 0) {
+
+            $result['message'] =
+                'Excel import completed successfully. ' .
+                $result['imported'] .
+                ' record(s) imported.';
+
+        } elseif ($result['skipped'] > 0) {
+
+            $result['message'] =
+                'Excel import completed. ' .
+                'No new records were imported. ' .
+                'Existing or duplicate records were skipped.';
+
+        } else {
+
+            $result['message'] =
+                'Excel import completed, but no records were imported.';
+        }
+
+
+    } catch (\Throwable $e) {
+
+        if (
+            $tempPath !== null &&
+            file_exists($tempPath)
+        ) {
+            unlink($tempPath);
+        }
+
+        $result['success'] = false;
+
+        $result['message'] =
+            'Unable to import the Excel file: ' .
+            $e->getMessage();
     }
+
+
+    /* =============================================================
+     * 10. SAVE RESULT
+     * ============================================================= */
+
+    $session->write(
+        'ExcelImportResult',
+        $result
+    );
+
+
+    /* =============================================================
+     * 11. REDIRECT
+     * ============================================================= */
+
+    return $this->redirect([
+        'action' => 'index'
+    ]);
+}
 
     /**
      * ================================================================
@@ -1269,7 +1213,7 @@ class RecordsController extends AppController
             $distributionTime =
                 'N/A';
 
-            $programName =
+            $programCode =
                 'N/A';
 
             if (!empty($record->schedule)) {
@@ -1300,11 +1244,11 @@ class RecordsController extends AppController
 
                 if (
                     !empty(
-                        $schedule->program_name
+                        $schedule->program_code
                     )
                 ) {
-                    $programName =
-                        $schedule->program_name;
+                    $programCode =
+                        $schedule->program_code;
                 }
             }
 
@@ -1365,8 +1309,8 @@ class RecordsController extends AppController
                                 'farmer_name' =>
                                     $farmerName,
 
-                                'program_name' =>
-                                    $programName,
+                                'program_code' =>
+                                    $programCode,
 
                                 'subsidy_item' =>
                                     $subsidyItem,
@@ -1408,23 +1352,6 @@ class RecordsController extends AppController
      * ================================================================
      * GET ALL FARMER DISTRIBUTION RECORDS
      * ================================================================
-     *
-     * URL:
-     *
-     * /Records/getFarmerRecords/{farmerId}
-     *
-     * Returns:
-     *
-     * farmer
-     * records
-     *
-     * The schedule table is joined using:
-     *
-     * Records.schedule_id = Schedules.id
-     *
-     * Distribution date comes from:
-     *
-     * Schedules.start_date
      */
     public function getFarmerRecords($farmerId = null)
     {
@@ -1495,13 +1422,6 @@ class RecordsController extends AppController
                     );
             }
 
-            /*
-             * ========================================================
-             * FIND ALL RECORDS FOR FARMER
-             *
-             * JOIN SCHEDULES
-             * ========================================================
-             */
             $records =
                 $this->Records->find()
                     ->select([
@@ -1529,17 +1449,8 @@ class RecordsController extends AppController
                         /*
                          * Program comes from Schedules
                          */
-                        'program_name' =>
-                            'Schedules.program_name',
-
-                        /*
-                         * IMPORTANT:
-                         *
-                         * There is NO
-                         * Schedules.distribution_date.
-                         *
-                         * start_date is the distribution date.
-                         */
+                        'program_code' =>
+                            'Schedules.program_code',
                         'distribution_date' =>
                             'Schedules.start_date'
                     ])

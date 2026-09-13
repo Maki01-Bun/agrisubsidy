@@ -108,7 +108,7 @@
                 <thead>
                     <tr>
                         <th>Farmer</th>
-                        <th>Program Name</th>
+                        <th>Distribution Code</th>
                         <th>Subsidy Item</th>
                         <th>Received Date</th>
                         <th>Status</th>
@@ -262,8 +262,8 @@
                         <td id="view_farmer_name"></td>
                     </tr>
                     <tr>
-                        <th width="30%">Program Name</th>
-                        <td id="view_program_name"></td>
+                        <th width="30%">Distribution Code</th>
+                        <td id="view_program_code"></td>
                     </tr>
                     <tr>
                         <th width="30%">Subsidy Item</th>

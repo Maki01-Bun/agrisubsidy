@@ -18,7 +18,7 @@ $(function(){
             .done(function(data){
                 if(data!=''){
                 	$('#farmer-id').val(data.farmer_id);
-                    $('#program-name').val(data.program_name);
+                    $('#program-code').val(data.program_name);
                 	$('#subsidy-item').val(data.subsidy_item);
                 	$('#quantity').val(data.quantity);
                     $('#schedule-id').val(data.schedule_id);
@@ -116,7 +116,7 @@ function getRecords()
         },
         "columns": [
 			{data:"farmer_name"},
-            {data:"program_name"},
+            {data:"program_code"},
             {data:"subsidy_item"},
             {data:"received_date"},
             {data:"status"},
@@ -244,7 +244,7 @@ function viewRecord(recordId)
      */
 
     $('#view_farmer_name').text('Loading...');
-    $('#view_program_name').text('Loading...');
+    $('#view_program_code').text('Loading...');
     $('#view_subsidy_item').text('Loading...');
     $('#view_quantity').text('Loading...');
     $('#view_distribution_date').text('Loading...');
@@ -282,11 +282,11 @@ function viewRecord(recordId)
                 );
 
                 /*
-                 * Program Name
+                 * Program Code
                  */
 
-                $('#view_program_name').text(
-                    response.data.program_name ||
+                $('#view_program_code').text(
+                    response.data.program_code ||
                     'None'
                 );
 
@@ -333,7 +333,7 @@ function viewRecord(recordId)
 
             else {
                 $('#view_farmer_name').text('N/A');
-                $('#view_program_name').text('N/A');
+                $('#view_program_code').text('N/A');
                 $('#view_subsidy_item').text('N/A');
                 $('#view_quantity').text('N/A');
                 $('#view_distribution_date').text('N/A');
@@ -357,7 +357,7 @@ function viewRecord(recordId)
             $('#view_farmer_name').text(
                 'Unable to load'
             );
-            $('#view_program_name').text(
+            $('#view_program_code').text(
                 'Unable to load'
             );
             $('#view_subsidy_item').text(

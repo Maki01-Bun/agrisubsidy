@@ -57,7 +57,7 @@ class RecordsController extends AppController
                 // Distribution date comes from Schedules
                 'distribution_date' => 'Schedules.start_date',
                 'distribution_time' => 'Schedules.start_time',
-                'program_name' => 'Schedules.program_name',
+                'program_code' => 'Schedules.program_code',
 
                 // These come from Records
                 'received_date' => 'Records.received_date',
@@ -98,7 +98,7 @@ class RecordsController extends AppController
                 // From schedules table
                 'distribution_date' => $record['distribution_date'],
                 'distribution_time' => $record['distribution_time'],
-                'program_name' => $record['program_name'],
+                'program_code' => $record['program_code'],
 
                 // From records table
                 'received_date' => $record['received_date'],

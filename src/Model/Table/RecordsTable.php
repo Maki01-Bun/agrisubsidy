@@ -85,8 +85,7 @@ class RecordsTable extends Table
 
         $validator
             ->dateTime('received_date')
-            ->requirePresence('received_date', 'create')
-            ->notEmptyDateTime('received_date');
+            ->allowEmptyDateTime('received_date');
             
         $validator
             ->dateTime('confirmed_at')

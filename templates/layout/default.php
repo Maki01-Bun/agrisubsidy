@@ -56,10 +56,10 @@ $cakeDescription = 'AgriSubsidy';
 <body class="sidebar-mini layout-fixed layout-footer-fixed layout-navbar-fixed" style="height: auto;" cz-shortcut-listen="true">
 <?= $this->element('navbar') ?>
 <?php
-    if($auth['role']=='admin'){
+    if($auth['role']=='staff'){
         echo $this->element('sidebar');
-    }else if($auth['role']=='staff'){
-        echo $this->element('staff-sidebar');
+    }else if($auth['role']=='admin'){
+        echo $this->element('admin-sidebar');
     }else{
         echo $this->element('farmersidebar');
     }

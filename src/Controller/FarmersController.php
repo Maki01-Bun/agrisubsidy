@@ -106,573 +106,813 @@ class FarmersController extends AppController
     }
 
     public function uploadExcel()
-{
-    if (!$this->request->is('post')) {
-        return $this->redirect(['action' => 'index']);
-    }
+    {
+        if (!$this->request->is('post')) {
+            return $this->redirect([
+                'action' => 'index'
+            ]);
+        }
 
-    $file = $this->request->getData('excel_file');
-
-    /*
-     * =========================================================
-     * VALIDATE FILE
-     * =========================================================
-     */
-
-    if (!$file || $file->getError() !== UPLOAD_ERR_OK) {
-        $this->Flash->error(
-            'Please select a valid Excel file.'
-        );
-
-        return $this->redirect(['action' => 'index']);
-    }
-
-
-    $extension = strtolower(
-        pathinfo(
-            $file->getClientFilename(),
-            PATHINFO_EXTENSION
-        )
-    );
-
-
-    if (!in_array($extension, ['xlsx', 'xls'], true)) {
-
-        $this->Flash->error(
-            'Only Excel files (.xlsx or .xls) are allowed.'
-        );
-
-        return $this->redirect(['action' => 'index']);
-    }
-
-
-    /*
-     * =========================================================
-     * COUNTERS
-     * =========================================================
-     */
-
-    $success = 0;
-    $failed = 0;
-    $duplicate = 0;
-
-    /*
-     * Store hashes of rows already processed in this Excel file.
-     *
-     * This prevents the same row from appearing twice in
-     * the same Excel file.
-     */
-
-    $uploadedRows = [];
-
-
-    try {
+        $file = $this->request->getData('excel_file');
 
         /*
-         * =====================================================
-         * LOAD EXCEL
-         * =====================================================
-         */
+        |--------------------------------------------------------------------------
+        | VALIDATE FILE
+        |--------------------------------------------------------------------------
+        */
 
-        $spreadsheet = IOFactory::load(
-            $file->getStream()->getMetadata('uri')
-        );
+        if (!$file || $file->getError() !== UPLOAD_ERR_OK) {
 
+            $this->request->getSession()->write(
+                'ExcelImportResult',
+                [
+                    'type' => 'error',
+                    'title' => 'Upload Failed',
+                    'success' => 0,
+                    'duplicate' => 0,
+                    'failed' => 0,
+                    'message' => 'Please select a valid Excel file.'
+                ]
+            );
 
-        $sheet = $spreadsheet->getActiveSheet();
-
-
-        $rows = $sheet->toArray(
-            null,
-            true,
-            true,
-            true
-        );
+            return $this->redirect([
+                'action' => 'index'
+            ]);
+        }
 
 
         /*
-         * =====================================================
-         * PROCESS EACH ROW
-         * =====================================================
-         */
+        |--------------------------------------------------------------------------
+        | CHECK FILE EXTENSION
+        |--------------------------------------------------------------------------
+        */
 
-        foreach ($rows as $index => $row) {
+        $extension = strtolower(
+            pathinfo(
+                $file->getClientFilename(),
+                PATHINFO_EXTENSION
+            )
+        );
+
+
+        if (!in_array($extension, ['xlsx', 'xls'], true)) {
+
+            $this->request->getSession()->write(
+                'ExcelImportResult',
+                [
+                    'type' => 'error',
+                    'title' => 'Invalid File',
+                    'success' => 0,
+                    'duplicate' => 0,
+                    'failed' => 0,
+                    'message' =>
+                        'Only Excel files (.xlsx or .xls) are allowed.'
+                ]
+            );
+
+            return $this->redirect([
+                'action' => 'index'
+            ]);
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | COUNTERS
+        |--------------------------------------------------------------------------
+        */
+
+        $success = 0;
+        $failed = 0;
+        $duplicate = 0;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | STORE ROW HASHES
+        |--------------------------------------------------------------------------
+        |
+        | Used to detect duplicate rows inside the SAME Excel file.
+        |
+        */
+
+        $uploadedRows = [];
+
+
+        try {
 
             /*
-             * Skip header
-             */
+            |--------------------------------------------------------------------------
+            | LOAD EXCEL FILE
+            |--------------------------------------------------------------------------
+            */
 
-            if ($index == 1) {
-                continue;
-            }
-
-
-            /*
-             * Skip completely empty rows
-             */
-
-            if (
-                empty(trim((string)($row['A'] ?? ''))) &&
-                empty(trim((string)($row['B'] ?? ''))) &&
-                empty(trim((string)($row['C'] ?? '')))
-            ) {
-                continue;
-            }
-
-
-            /*
-             * =================================================
-             * GET BASIC DATA
-             * =================================================
-             */
-
-            $farmerNo = trim(
-                (string)($row['A'] ?? '')
+            $spreadsheet = IOFactory::load(
+                $file->getStream()->getMetadata('uri')
             );
 
-            $firstName = trim(
-                (string)($row['B'] ?? '')
-            );
 
-            $lastName = trim(
-                (string)($row['C'] ?? '')
-            );
+            $sheet = $spreadsheet->getActiveSheet();
 
-            $middleName = trim(
-                (string)($row['D'] ?? '')
-            );
 
-            $gender = trim(
-                (string)($row['F'] ?? '')
-            );
-
-            $address = trim(
-                (string)($row['G'] ?? '')
-            );
-
-            $contactNo = trim(
-                (string)($row['H'] ?? '')
+            $rows = $sheet->toArray(
+                null,
+                true,
+                true,
+                true
             );
 
 
             /*
-             * =================================================
-             * PROCESS BIRTHDATE
-             * =================================================
-             */
+            |--------------------------------------------------------------------------
+            | PROCESS EACH ROW
+            |--------------------------------------------------------------------------
+            */
 
-            $birthdate = null;
+            foreach ($rows as $index => $row) {
 
+                /*
+                |--------------------------------------------------------------------------
+                | SKIP HEADER
+                |--------------------------------------------------------------------------
+                */
 
-            if (!empty($row['E'])) {
-
-                $birthdateValue = $row['E'];
+                if ($index == 1) {
+                    continue;
+                }
 
 
                 /*
-                 * Excel numeric date
-                 */
+                |--------------------------------------------------------------------------
+                | SKIP COMPLETELY EMPTY ROWS
+                |--------------------------------------------------------------------------
+                */
 
-                if (is_numeric($birthdateValue)) {
+                if (
+                    empty(trim((string)($row['A'] ?? ''))) &&
+                    empty(trim((string)($row['B'] ?? ''))) &&
+                    empty(trim((string)($row['C'] ?? ''))) &&
+                    empty(trim((string)($row['D'] ?? ''))) &&
+                    empty(trim((string)($row['E'] ?? ''))) &&
+                    empty(trim((string)($row['F'] ?? ''))) &&
+                    empty(trim((string)($row['G'] ?? ''))) &&
+                    empty(trim((string)($row['H'] ?? '')))
+                ) {
+                    continue;
+                }
 
-                    $dateTime = Date::excelToDateTimeObject(
-                        (float)$birthdateValue
-                    );
 
-                    $birthdate =
-                        FrozenDate::createFromMutable(
-                            $dateTime
-                        );
+                /*
+                |--------------------------------------------------------------------------
+                | GET FARMER DATA
+                |--------------------------------------------------------------------------
+                */
 
-                } else {
+                $farmerNo = trim(
+                    (string)($row['A'] ?? '')
+                );
+
+
+                $firstName = trim(
+                    (string)($row['B'] ?? '')
+                );
+
+
+                $lastName = trim(
+                    (string)($row['C'] ?? '')
+                );
+
+
+                $middleName = trim(
+                    (string)($row['D'] ?? '')
+                );
+
+
+                $gender = trim(
+                    (string)($row['F'] ?? '')
+                );
+
+
+                $address = trim(
+                    (string)($row['G'] ?? '')
+                );
+
+
+                $contactNo = trim(
+                    (string)($row['H'] ?? '')
+                );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | VALIDATE FARMER NUMBER
+                |--------------------------------------------------------------------------
+                */
+
+                if ($farmerNo === '') {
+
+                    $failed++;
+
+                    continue;
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | PROCESS BIRTHDATE
+                |--------------------------------------------------------------------------
+                */
+
+                $birthdate = null;
+
+
+                if (
+                    isset($row['E']) &&
+                    trim((string)$row['E']) !== ''
+                ) {
+
+                    $birthdateValue = $row['E'];
+
 
                     /*
-                     * Normal text date
-                     */
+                    |--------------------------------------------------------------------------
+                    | EXCEL NUMERIC DATE
+                    |--------------------------------------------------------------------------
+                    */
 
-                    $dateValue = trim(
-                        (string)$birthdateValue
-                    );
-
-                    $dateTime = false;
-
-
-                    $formats = [
-                        'Y-m-d',
-                        'm/d/Y',
-                        'd/m/Y',
-                        'm-d-Y',
-                        'd-m-Y',
-                        'F j, Y',
-                        'M j, Y'
-                    ];
-
-
-                    foreach ($formats as $format) {
-
-                        $dateTime =
-                            \DateTime::createFromFormat(
-                                $format,
-                                $dateValue
-                            );
-
-                        if ($dateTime !== false) {
-                            break;
-                        }
-                    }
-
-
-                    /*
-                     * Try normal DateTime parsing
-                     */
-
-                    if ($dateTime === false) {
+                    if (is_numeric($birthdateValue)) {
 
                         try {
 
                             $dateTime =
-                                new \DateTime($dateValue);
+                                Date::excelToDateTimeObject(
+                                    (float)$birthdateValue
+                                );
+
+
+                            $birthdate =
+                                FrozenDate::createFromMutable(
+                                    $dateTime
+                                );
 
                         } catch (\Throwable $e) {
 
-                            $dateTime = false;
+                            $failed++;
+
+                            continue;
                         }
+
+                    } else {
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | TEXT DATE
+                        |--------------------------------------------------------------------------
+                        */
+
+                        $dateValue = trim(
+                            (string)$birthdateValue
+                        );
+
+
+                        $dateTime = false;
+
+
+                        $formats = [
+                            'Y-m-d',
+                            'm/d/Y',
+                            'd/m/Y',
+                            'm-d-Y',
+                            'd-m-Y',
+                            'Y/m/d',
+                            'F j, Y',
+                            'M j, Y'
+                        ];
+
+
+                        foreach ($formats as $format) {
+
+                            $dateTime =
+                                \DateTime::createFromFormat(
+                                    $format,
+                                    $dateValue
+                                );
+
+
+                            if ($dateTime !== false) {
+                                break;
+                            }
+                        }
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | FALLBACK DATE PARSING
+                        |--------------------------------------------------------------------------
+                        */
+
+                        if ($dateTime === false) {
+
+                            try {
+
+                                $dateTime =
+                                    new \DateTime(
+                                        $dateValue
+                                    );
+
+                            } catch (\Throwable $e) {
+
+                                $dateTime = false;
+                            }
+                        }
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | INVALID DATE
+                        |--------------------------------------------------------------------------
+                        */
+
+                        if ($dateTime === false) {
+
+                            $failed++;
+
+                            continue;
+                        }
+
+
+                        $birthdate =
+                            FrozenDate::createFromMutable(
+                                $dateTime
+                            );
                     }
-
-
-                    /*
-                     * Invalid date
-                     */
-
-                    if ($dateTime === false) {
-
-                        throw new \Exception(
-                            'Invalid birthdate: ' .
-                            $dateValue
-                        );
-                    }
-
-
-                    $birthdate =
-                        FrozenDate::createFromMutable(
-                            $dateTime
-                        );
-                }
-            }
-
-
-            /*
-             * =================================================
-             * CREATE A UNIQUE DATA SIGNATURE
-             * =================================================
-             *
-             * This is based on the actual data.
-             *
-             * Therefore:
-             *
-             * SAME FILE + DIFFERENT DATA = UPLOAD
-             *
-             * DIFFERENT FILE + SAME DATA = SKIP
-             */
-
-            $birthdateString = '';
-
-            if ($birthdate !== null) {
-                $birthdateString =
-                    $birthdate->format('Y-m-d');
-            }
-
-
-            $dataSignature = implode('|', [
-                strtolower($farmerNo),
-                strtolower($firstName),
-                strtolower($lastName),
-                strtolower($middleName),
-                $birthdateString,
-                strtolower($gender),
-                strtolower($address),
-                strtolower($contactNo)
-            ]);
-
-
-            /*
-             * Create hash
-             */
-
-            $rowHash = hash(
-                'sha256',
-                $dataSignature
-            );
-
-
-            /*
-             * =================================================
-             * CHECK DUPLICATE INSIDE CURRENT EXCEL
-             * =================================================
-             */
-
-            if (isset($uploadedRows[$rowHash])) {
-
-                $duplicate++;
-
-                continue;
-            }
-
-
-            /*
-             * Remember this row
-             */
-
-            $uploadedRows[$rowHash] = true;
-
-
-            /*
-             * =================================================
-             * CHECK DATABASE FOR EXISTING DATA
-             * =================================================
-             *
-             * We compare ALL farmer information.
-             *
-             * The Excel filename is NOT checked.
-             */
-
-            $existingFarmers = $this->Farmers->find()
-                ->where([
-                    'farmer_no' => $farmerNo
-                ])
-                ->all();
-
-
-            $alreadyExists = false;
-
-
-            foreach ($existingFarmers as $existingFarmer) {
-
-                /*
-                 * Existing birthdate
-                 */
-
-                $existingBirthdate = '';
-
-                if (!empty($existingFarmer->birthdate)) {
-
-                    $existingBirthdate =
-                        $existingFarmer->birthdate->format(
-                            'Y-m-d'
-                        );
                 }
 
 
                 /*
-                 * Create signature for database record
-                 */
+                |--------------------------------------------------------------------------
+                | CREATE BIRTHDATE STRING
+                |--------------------------------------------------------------------------
+                */
 
-                $existingSignature = implode('|', [
+                $birthdateString = '';
+
+
+                if ($birthdate !== null) {
+
+                    $birthdateString =
+                        $birthdate->format('Y-m-d');
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | CREATE DATA SIGNATURE
+                |--------------------------------------------------------------------------
+                |
+                | Filename is NOT included.
+                |
+                | Only actual farmer data are compared.
+                |
+                */
+
+                $dataSignature = implode('|', [
+
                     strtolower(
-                        trim((string)$existingFarmer->farmer_no)
+                        trim($farmerNo)
                     ),
 
                     strtolower(
-                        trim((string)$existingFarmer->first_name)
+                        trim($firstName)
                     ),
 
                     strtolower(
-                        trim((string)$existingFarmer->last_name)
+                        trim($lastName)
                     ),
 
                     strtolower(
-                        trim((string)$existingFarmer->middle_name)
+                        trim($middleName)
                     ),
 
-                    $existingBirthdate,
+                    $birthdateString,
 
                     strtolower(
-                        trim((string)$existingFarmer->gender)
-                    ),
-
-                    strtolower(
-                        trim((string)$existingFarmer->address)
+                        trim($gender)
                     ),
 
                     strtolower(
-                        trim((string)$existingFarmer->contact_no)
+                        trim($address)
+                    ),
+
+                    strtolower(
+                        trim($contactNo)
                     )
                 ]);
 
 
-                $existingHash = hash(
+                /*
+                |--------------------------------------------------------------------------
+                | CREATE HASH
+                |--------------------------------------------------------------------------
+                */
+
+                $rowHash = hash(
                     'sha256',
-                    $existingSignature
+                    $dataSignature
                 );
 
 
                 /*
-                 * Exact same data found
-                 */
+                |--------------------------------------------------------------------------
+                | CHECK DUPLICATE INSIDE EXCEL
+                |--------------------------------------------------------------------------
+                */
 
-                if ($existingHash === $rowHash) {
+                if (isset($uploadedRows[$rowHash])) {
 
-                    $alreadyExists = true;
+                    $duplicate++;
 
-                    break;
+                    continue;
+                }
+
+
+                /*
+                | Remember row
+                */
+
+                $uploadedRows[$rowHash] = true;
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | CHECK DATABASE
+                |--------------------------------------------------------------------------
+                |
+                | First search using farmer_no.
+                |
+                */
+
+                $existingFarmers =
+                    $this->Farmers
+                        ->find()
+                        ->where([
+                            'farmer_no' => $farmerNo
+                        ])
+                        ->all();
+
+
+                $alreadyExists = false;
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | COMPARE EXISTING FARMERS
+                |--------------------------------------------------------------------------
+                */
+
+                foreach (
+                    $existingFarmers
+                    as $existingFarmer
+                ) {
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | EXISTING BIRTHDATE
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $existingBirthdate = '';
+
+
+                    if (!empty($existingFarmer->birthdate)) {
+
+                        $existingBirthdate =
+                            $existingFarmer
+                                ->birthdate
+                                ->format('Y-m-d');
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | EXISTING DATA SIGNATURE
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $existingSignature = implode('|', [
+
+                        strtolower(
+                            trim(
+                                (string)
+                                $existingFarmer->farmer_no
+                            )
+                        ),
+
+                        strtolower(
+                            trim(
+                                (string)
+                                $existingFarmer->first_name
+                            )
+                        ),
+
+                        strtolower(
+                            trim(
+                                (string)
+                                $existingFarmer->last_name
+                            )
+                        ),
+
+                        strtolower(
+                            trim(
+                                (string)
+                                $existingFarmer->middle_name
+                            )
+                        ),
+
+                        $existingBirthdate,
+
+                        strtolower(
+                            trim(
+                                (string)
+                                $existingFarmer->gender
+                            )
+                        ),
+
+                        strtolower(
+                            trim(
+                                (string)
+                                $existingFarmer->address
+                            )
+                        ),
+
+                        strtolower(
+                            trim(
+                                (string)
+                                $existingFarmer->contact_no
+                            )
+                        )
+                    ]);
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | EXISTING HASH
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $existingHash = hash(
+                        'sha256',
+                        $existingSignature
+                    );
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | EXACT MATCH FOUND
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if ($existingHash === $rowHash) {
+
+                        $alreadyExists = true;
+
+                        break;
+                    }
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | SKIP DUPLICATE
+                |--------------------------------------------------------------------------
+                */
+
+                if ($alreadyExists) {
+
+                    $duplicate++;
+
+                    continue;
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | CREATE FARMER ENTITY
+                |--------------------------------------------------------------------------
+                */
+
+                $farmer =
+                    $this->Farmers->newEmptyEntity();
+
+
+                $farmer->farmer_no =
+                    $farmerNo;
+
+
+                $farmer->first_name =
+                    $firstName;
+
+
+                $farmer->last_name =
+                    $lastName;
+
+
+                $farmer->middle_name =
+                    $middleName;
+
+
+                $farmer->birthdate =
+                    $birthdate;
+
+
+                $farmer->gender =
+                    $gender;
+
+
+                $farmer->address =
+                    $address;
+
+
+                $farmer->contact_no =
+                    $contactNo;
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | SAVE FARMER
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    $this->Farmers->save(
+                        $farmer
+                    )
+                ) {
+
+                    $success++;
+
+                } else {
+
+                    $failed++;
                 }
             }
 
 
             /*
-             * =================================================
-             * SKIP DUPLICATE
-             * =================================================
-             */
+            |--------------------------------------------------------------------------
+            | DETERMINE RESULT
+            |--------------------------------------------------------------------------
+            */
 
-            if ($alreadyExists) {
+            if (
+                $success > 0 &&
+                $duplicate > 0 &&
+                $failed === 0
+            ) {
 
-                $duplicate++;
+                /*
+                | New records + duplicates
+                */
 
-                continue;
-            }
+                $message =
+                    "{$success} new farmer(s) were imported successfully. " .
+                    "{$duplicate} row(s) were already uploaded and were skipped " .
+                    "to prevent duplicate data.";
 
+                $resultType = 'success';
 
-            /*
-             * =================================================
-             * CREATE NEW FARMER
-             * =================================================
-             */
+            } elseif (
+                $success > 0 &&
+                $duplicate === 0 &&
+                $failed === 0
+            ) {
 
-            $farmer =
-                $this->Farmers->newEmptyEntity();
+                /*
+                | All new
+                */
 
+                $message =
+                    "Excel import completed successfully. " .
+                    "{$success} new farmer(s) were imported.";
 
-            $farmer->farmer_no =
-                $farmerNo;
+                $resultType = 'success';
 
+            } elseif (
+                $success === 0 &&
+                $duplicate > 0 &&
+                $failed === 0
+            ) {
 
-            $farmer->first_name =
-                $firstName;
+                /*
+                | Everything was duplicate
+                */
 
+                $message =
+                    "No new data were uploaded. " .
+                    "{$duplicate} row(s) were already uploaded " .
+                    "and were skipped to prevent duplicate data.";
 
-            $farmer->last_name =
-                $lastName;
+                $resultType = 'warning';
 
+            } elseif (
+                $failed > 0
+            ) {
 
-            $farmer->middle_name =
-                $middleName;
+                /*
+                | Some failed
+                */
 
+                $message =
+                    "{$success} new farmer(s) imported, " .
+                    "{$duplicate} duplicate row(s) skipped, " .
+                    "{$failed} row(s) failed.";
 
-            $farmer->birthdate =
-                $birthdate;
-
-
-            $farmer->gender =
-                $gender;
-
-
-            $farmer->address =
-                $address;
-
-
-            $farmer->contact_no =
-                $contactNo;
-
-
-            /*
-             * =================================================
-             * SAVE
-             * =================================================
-             */
-
-            if ($this->Farmers->save($farmer)) {
-
-                $success++;
+                $resultType = 'warning';
 
             } else {
 
-                $failed++;
+                /*
+                | Nothing found
+                */
+
+                $message =
+                    'No valid farmer data were found in the Excel file.';
+
+                $resultType = 'warning';
             }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | STORE RESULT FOR MODAL
+            |--------------------------------------------------------------------------
+            */
+
+            $this->request
+                ->getSession()
+                ->write(
+                    'ExcelImportResult',
+                    [
+                        'type' => $resultType,
+
+                        'title' =>
+                            'Excel Import Completed',
+
+                        'success' =>
+                            $success,
+
+                        'duplicate' =>
+                            $duplicate,
+
+                        'failed' =>
+                            $failed,
+
+                        'message' =>
+                            $message
+                    ]
+                );
+
+        } catch (\Throwable $e) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | EXCEL ERROR
+            |--------------------------------------------------------------------------
+            */
+
+            $this->request
+                ->getSession()
+                ->write(
+                    'ExcelImportResult',
+                    [
+                        'type' => 'error',
+
+                        'title' =>
+                            'Excel Import Failed',
+
+                        'success' => 0,
+
+                        'duplicate' => 0,
+
+                        'failed' => 0,
+
+                        'message' =>
+                            'Unable to read the Excel file: ' .
+                            $e->getMessage()
+                    ]
+                );
         }
 
 
         /*
-         * =====================================================
-         * DISPLAY RESULTS
-         * =====================================================
-         */
+        |--------------------------------------------------------------------------
+        | REDIRECT TO RECORDS INDEX
+        |--------------------------------------------------------------------------
+        */
 
-        /*
-         * Nothing was imported because everything already exists
-         */
-
-        if (
-            $success === 0 &&
-            $duplicate > 0 &&
-            $failed === 0
-        ) {
-
-            $this->Flash->warning(
-                'The data inside the Excel file are already uploaded. ' .
-                "{$duplicate} existing row(s) were skipped. " .
-                'No duplicate data were uploaded.'
-            );
-
-        } else {
-
-            /*
-             * Some new data were uploaded
-             */
-
-            if ($success > 0) {
-
-                $this->Flash->success(
-                    "Excel import completed. " .
-                    "{$success} new farmer(s) imported."
-                );
-            }
-
-
-            /*
-             * Existing records were skipped
-             */
-
-            if ($duplicate > 0) {
-
-                $this->Flash->warning(
-                    "{$duplicate} row(s) were already uploaded " .
-                    "and were skipped to prevent duplicate data."
-                );
-            }
-
-
-            /*
-             * Failed records
-             */
-
-            if ($failed > 0) {
-
-                $this->Flash->error(
-                    "{$failed} row(s) could not be imported."
-                );
-            }
-        }
-
-
-    } catch (\Throwable $e) {
-
-        /*
-         * =====================================================
-         * ERROR
-         * =====================================================
-         */
-
-        $this->Flash->error(
-            'Unable to read the Excel file: ' .
-            $e->getMessage()
-        );
+        return $this->redirect([
+            'action' => 'index'
+        ]);
     }
-
-
-    return $this->redirect([
-        'action' => 'index'
-    ]);
-}
     
 }
