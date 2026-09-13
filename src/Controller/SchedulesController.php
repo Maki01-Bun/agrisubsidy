@@ -112,7 +112,7 @@ class SchedulesController extends AppController
                 'program_code',
                 'program_name',
                 'description',
-                'baranggay',
+                'barangay',
                 'start_date',
                 'end_date',
                 'start_time',

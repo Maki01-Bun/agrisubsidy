@@ -40,13 +40,15 @@ class AuditLogsTable extends Table
         parent::initialize($config);
 
         $this->setTable('audit_logs');
-        $this->setDisplayField('action');
+        $this->setDisplayField('description');
         $this->setPrimaryKey('id');
 
         $this->belongsTo('Users', [
             'foreignKey' => 'user_id',
             'joinType' => 'INNER',
         ]);
+
+        $this->addBehavior('Timestamp');
     }
 
     /**
@@ -57,20 +59,79 @@ class AuditLogsTable extends Table
      */
     public function validationDefault(Validator $validator): Validator
     {
+        /*
+         * user_id
+         */
         $validator
             ->integer('user_id')
+            ->requirePresence('user_id', 'create')
             ->notEmptyString('user_id');
 
+        /*
+         * action
+         */
         $validator
             ->scalar('action')
             ->maxLength('action', 255)
             ->requirePresence('action', 'create')
             ->notEmptyString('action');
 
+        /*
+         * subject_type
+         *
+         * Nullable in database.
+         */
         $validator
-            ->dateTime('action_date')
-            ->requirePresence('action_date', 'create')
-            ->notEmptyDateTime('action_date');
+            ->scalar('subject_type')
+            ->maxLength('subject_type', 255)
+            ->allowEmptyString('subject_type');
+
+        /*
+         * subject_id
+         *
+         * Nullable in database.
+         */
+        $validator
+            ->integer('subject_id')
+            ->allowEmptyString('subject_id');
+
+        /*
+         * description
+         */
+        $validator
+            ->scalar('description')
+            ->maxLength('description', 255)
+            ->requirePresence('description', 'create')
+            ->notEmptyString('description');
+
+        /*
+         * properties
+         *
+         * longtext and nullable.
+         */
+        $validator
+            ->scalar('properties')
+            ->allowEmptyString('properties');
+
+        /*
+         * ip_address
+         */
+        $validator
+            ->scalar('ip_address')
+            ->maxLength('ip_address', 45)
+            ->allowEmptyString('ip_address');
+
+        /*
+         * user_agent
+         */
+        $validator
+            ->scalar('user_agent')
+            ->allowEmptyString('user_agent');
+
+        /*
+         * created and updated are normally handled
+         * automatically by CakePHP TimestampBehavior.
+         */
 
         return $validator;
     }

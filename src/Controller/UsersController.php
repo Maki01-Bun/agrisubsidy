@@ -126,6 +126,7 @@ class UsersController extends AppController
                 $existingUser->locked_until &&
                 $existingUser->locked_until > date('Y-m-d H:i:s')
             ) {
+
                 $this->Flash->error(
                     'Your account is temporarily locked. Please try again later.'
                 );
@@ -143,12 +144,16 @@ class UsersController extends AppController
                     $this->Users->save($existingUser);
     
                 }
-    
-    
-    
                 $this->Auth->setUser($user);
-    
-    
+                $this->AuditLogger->logActivity(
+                    'login',
+                    'User logged in successfully',
+                    $existingUser,
+                    [
+                        'username' => $existingUser->username,
+                        'role' => $existingUser->role,
+                    ]
+                );
     
                 if ($user['role'] == 'admin') {
     
@@ -202,6 +207,18 @@ class UsersController extends AppController
 
     public function logout()
     {
+        $user = $this->Auth->user();
+        if ($user) {
+            $this->AuditLogger->logActivity(
+                'logout',
+                'User logged out successfully',
+                $user,
+                [
+                    'username' => $user['username'],
+                    'role' => $user['role'],
+                ]
+            );
+        }
         return $this->redirect($this->Auth->logout());
     }
 

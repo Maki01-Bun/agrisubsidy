@@ -4494,3 +4494,266 @@ side-bar logout part
     }
 
 }
+
+/* =========================================================
+   AUDIT LOG PAGE
+========================================================= */
+
+.audit-filter-card,
+.audit-table-card {
+    border: 1px solid #e1e5e9;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   FILTER HEADER
+========================================================= */
+
+.audit-filter-card .card-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.filter-icon {
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 5px;
+
+    background: #eef1f4;
+    color: #6c757d;
+}
+
+
+/* =========================================================
+   FILTER LABELS
+========================================================= */
+
+.filter-label {
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    color: #6c757d;
+}
+
+.filter-label i {
+    width: 14px;
+    text-align: center;
+}
+
+
+/* =========================================================
+   FILTER INPUTS
+========================================================= */
+
+.audit-filter-card .form-control,
+.audit-filter-card .input-group-text {
+    border-color: #dfe3e6;
+}
+
+.audit-filter-card .form-control {
+    height: 34px;
+}
+
+.audit-filter-card .form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, .1);
+}
+
+
+/* =========================================================
+   IP SEARCH
+========================================================= */
+
+.audit-filter-card .input-group-text {
+    background: #fff;
+    color: #89939e;
+    border-right: 0;
+}
+
+.audit-filter-card .input-group .form-control {
+    border-left: 0;
+}
+
+
+/* =========================================================
+   CLEAR BUTTON
+========================================================= */
+
+#clearFilters {
+    min-width: 78px;
+    transition: .2s ease;
+}
+
+#clearFilters:hover {
+    background: #6c757d;
+    color: #fff;
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.audit-table-card .card-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+#audit-logs-table {
+    margin-bottom: 0 !important;
+}
+
+#audit-logs-table thead th {
+    background: #078a27;
+    color: #fff;
+
+    border-color: #078a27;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    padding: 11px 10px;
+
+    white-space: nowrap;
+}
+
+#audit-logs-table tbody td {
+    font-size: 13px;
+    vertical-align: middle;
+    padding: 9px 10px;
+}
+
+#audit-logs-table tbody tr:hover {
+    background-color: #f7faf8;
+}
+
+
+/* =========================================================
+   ACTION BADGES
+========================================================= */
+
+#audit-logs-table .badge {
+    font-size: 11px;
+    font-weight: 600;
+
+    padding: 5px 8px;
+
+    border-radius: 4px;
+}
+
+
+/* =========================================================
+   IP ADDRESS
+========================================================= */
+
+#audit-logs-table code {
+    font-size: 12px;
+    background: #f5f5f5;
+    padding: 3px 6px;
+    border-radius: 4px;
+}
+
+
+/* =========================================================
+   DATATABLE CONTROLS
+========================================================= */
+
+#audit-logs-table_wrapper {
+    padding: 0;
+}
+
+#audit-logs-table_wrapper .dataTables_length,
+#audit-logs-table_wrapper .dataTables_filter {
+    padding: 12px 15px 5px;
+}
+
+#audit-logs-table_wrapper .dataTables_info {
+    padding-left: 15px;
+    padding-bottom: 10px;
+}
+
+#audit-logs-table_wrapper .dataTables_paginate {
+    padding-right: 15px;
+    padding-bottom: 10px;
+}
+
+#audit-logs-table_wrapper .dataTables_length label,
+#audit-logs-table_wrapper .dataTables_filter label {
+    font-size: 13px;
+    color: #555;
+}
+
+
+/* Search box */
+
+#audit-logs-table_wrapper .dataTables_filter input {
+    height: 34px;
+    margin-left: 5px;
+
+    border: 1px solid #dfe3e6;
+    border-radius: 5px;
+
+    padding: 5px 10px;
+}
+
+
+/* Entries dropdown */
+
+#audit-logs-table_wrapper .dataTables_length select {
+    height: 34px;
+
+    border: 1px solid #dfe3e6;
+    border-radius: 5px;
+
+    padding: 4px 25px 4px 8px;
+}
+
+
+/* Pagination */
+
+#audit-logs-table_wrapper .pagination {
+    margin-bottom: 0;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 767.98px) {
+
+    .container-fluid {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .audit-filter-card .card-body {
+        padding: 12px !important;
+    }
+
+    .audit-filter-card .col-xl-2 {
+        margin-bottom: 8px;
+    }
+
+    #audit-logs-table_wrapper .dataTables_length,
+    #audit-logs-table_wrapper .dataTables_filter {
+        text-align: left;
+        width: 100%;
+    }
+
+    #audit-logs-table_wrapper .dataTables_filter input {
+        width: calc(100% - 65px);
+    }
+
+}
