@@ -17,35 +17,67 @@ use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 class RecordsController extends AppController
 {
     public function initialize(): void
-{
-    parent::initialize();
+    {
+        parent::initialize();
 
-    $this->loadComponent('Flash');
+        /*
+        * ============================================================
+        * LOAD TABLES
+        * ============================================================
+        */
 
-    $this->loadModel('Farmers');
+        $this->loadModel('Records');
+        $this->loadModel('Farmers');
+        $this->loadModel('Schedules');
 
-    // Keep your existing models/components here
-}   
+
+        /*
+        * ============================================================
+        * LOAD COMPONENTS
+        * ============================================================
+        */
+
+        $this->loadComponent('Flash');
+        $this->loadComponent('AuditLogger');
+    }
+ 
     /**
      * Index
      */
+
     public function index()
     {
+        /*
+        * ============================================================
+        * CREATE EMPTY RECORD ENTITY
+        * ============================================================
+        */
+
         $records = $this->Records->newEmptyEntity();
+
+
+        /*
+        * ============================================================
+        * LOAD REQUIRED MODELS
+        * ============================================================
+        */
 
         $this->loadModel('Farmers');
         $this->loadModel('Schedules');
 
+
         /*
-         * ============================================================
-         * FARMERS
-         * ============================================================
-         */
+        * ============================================================
+        * FARMERS
+        * ============================================================
+        */
+
         $farmers = $this->Farmers->find()
             ->all()
             ->combine(
                 'id',
                 function ($farmer) {
+
                     return trim(
                         ($farmer->first_name ?? '') .
                         ' ' .
@@ -55,16 +87,17 @@ class RecordsController extends AppController
             )
             ->toArray();
 
+
         /*
-         * ============================================================
-         * SCHEDULES
-         *
-         * IMPORTANT:
-         * Your schedules table does NOT have distribution_date.
-         *
-         * We use start_date as the distribution date.
-         * ============================================================
-         */
+        * ============================================================
+        * SCHEDULES
+        *
+        * Only program_code is needed.
+        *
+        * start_date is used as the distribution date.
+        * ============================================================
+        */
+
         $scheduleData = $this->Schedules->find()
             ->select([
                 'id',
@@ -74,36 +107,76 @@ class RecordsController extends AppController
             ])
             ->order([
                 'program_code' => 'ASC',
-                'start_date' => 'DESC'
+                'start_date' => 'DESC',
+                'id' => 'DESC'
             ])
             ->all()
             ->toArray();
 
+
         /*
-         * Schedule dropdown
-         */
+        * ============================================================
+        * SCHEDULE DROPDOWN
+        * ============================================================
+        */
+
         $schedules = [];
 
         foreach ($scheduleData as $schedule) {
-            $schedules[$schedule->id] =
-                $schedule->program_code;
+
+            $label = trim(
+                (string)($schedule->program_code ?? '')
+            );
+
+
+            /*
+            * Add start date
+            */
+
+            if (!empty($schedule->start_date)) {
+
+                $label .=
+                    ' - ' .
+                    $schedule->start_date->format('Y-m-d');
+            }
+
+
+            /*
+            * Add start time if available
+            */
+
+            if (!empty($schedule->start_time)) {
+                $label .= ' ' . date('H:i', strtotime((string)$schedule->start_time));
+            }
+
+
+            $schedules[$schedule->id] = $label;
         }
 
+
         /*
-         * Excel import result.
-         *
-         * consume() removes it after reading so the same
-         * alert will not appear again on page refresh.
-         */
+        * ============================================================
+        * EXCEL IMPORT RESULT
+        * ============================================================
+        */
+
         $excelResult = null;
 
         $session = $this->request->getSession();
 
         if ($session->check('ExcelImportResult')) {
+
             $excelResult = $session->consume(
                 'ExcelImportResult'
             );
         }
+
+
+        /*
+        * ============================================================
+        * SEND DATA TO VIEW
+        * ============================================================
+        */
 
         $this->set(compact(
             'records',
@@ -113,7 +186,6 @@ class RecordsController extends AppController
             'excelResult'
         ));
     }
-
     /**
      * View
      */
@@ -286,23 +358,34 @@ class RecordsController extends AppController
             'action' => 'index'
         ]);
     }
-
-    public function uploadExcel()
+public function uploadExcel()
 {
     $this->request->allowMethod(['post']);
 
-    /*
-     * ============================================================
-     * GET UPLOADED FILE
-     * ============================================================
-     */
-
     $file = $this->request->getData('excel_file');
 
-    if (!$file || $file->getError() !== UPLOAD_ERR_OK) {
+    $successCount = 0;
+    $skippedCount = 0;
+    $errors = [];
 
+    /*
+     * ============================================================
+     * 1. VALIDATE UPLOADED FILE
+     * ============================================================
+     */
+
+    if (!$file) {
+        $this->Flash->error('Please select an Excel file.');
+
+        return $this->redirect([
+            'action' => 'index'
+        ]);
+    }
+
+    if ($file->getError() !== UPLOAD_ERR_OK) {
         $this->Flash->error(
-            'Please select a valid Excel file.'
+            'File upload failed. Upload error code: ' .
+            $file->getError()
         );
 
         return $this->redirect([
@@ -310,28 +393,15 @@ class RecordsController extends AppController
         ]);
     }
 
-
-    /*
-     * ============================================================
-     * VALIDATE FILE EXTENSION
-     * ============================================================
-     */
+    $fileName = $file->getClientFilename();
 
     $extension = strtolower(
-        pathinfo(
-            $file->getClientFilename(),
-            PATHINFO_EXTENSION
-        )
+        pathinfo($fileName, PATHINFO_EXTENSION)
     );
 
-    if (!in_array(
-        $extension,
-        ['xlsx', 'xls'],
-        true
-    )) {
-
+    if (!in_array($extension, ['xlsx', 'xls'], true)) {
         $this->Flash->error(
-            'Only XLSX and XLS files are allowed.'
+            'Invalid file type. Please upload an XLSX or XLS file.'
         );
 
         return $this->redirect([
@@ -342,31 +412,22 @@ class RecordsController extends AppController
 
     /*
      * ============================================================
-     * GET TEMPORARY FILE PATH
-     * ============================================================
-     */
-
-    $tempPath = $file
-        ->getStream()
-        ->getMetadata('uri');
-
-
-    /*
-     * ============================================================
-     * LOAD EXCEL FILE
+     * 2. LOAD EXCEL FILE
      * ============================================================
      */
 
     try {
 
-        $spreadsheet = IOFactory::load($tempPath);
+        $filePath = $file->getStream()->getMetadata('uri');
 
-        $worksheet = $spreadsheet->getActiveSheet();
+        $spreadsheet =
+            \PhpOffice\PhpSpreadsheet\IOFactory::load($filePath);
 
     } catch (\Throwable $e) {
 
         $this->Flash->error(
-            'The Excel file could not be read.'
+            'Unable to read the Excel file: ' .
+            $e->getMessage()
         );
 
         return $this->redirect([
@@ -377,37 +438,18 @@ class RecordsController extends AppController
 
     /*
      * ============================================================
-     * FIND LATEST SEED SUBSIDY SCHEDULE
-     *
-     * IMPORTANT:
-     * We search the Schedules table directly.
+     * 3. GET ACTIVE WORKSHEET
      * ============================================================
      */
 
-   $schedule = $this->Records
-    ->find()
-    ->where([
-        'Records.subsidy_item' => 'Seed Subsidy'
-    ])
-    ->contain([
-        'Schedules'
-    ])
-    ->order([
-        'Records.id' => 'DESC'
-    ])
-    ->first();
+    $worksheet = $spreadsheet->getActiveSheet();
 
+    $highestRow = $worksheet->getHighestRow();
 
-    /*
-     * ============================================================
-     * NO SEED SUBSIDY SCHEDULE
-     * ============================================================
-     */
+    if ($highestRow < 2) {
 
-    if (!$schedule) {
-
-        $this->Flash->error(
-            'No Seed Subsidy schedule was found.'
+        $this->Flash->warning(
+            'The Excel file contains no data rows.'
         );
 
         return $this->redirect([
@@ -418,79 +460,16 @@ class RecordsController extends AppController
 
     /*
      * ============================================================
-     * IMPORT COUNTERS
-     * ============================================================
-     */
-
-    $successCount = 0;
-
-    $skipCount = 0;
-
-    $errorCount = 0;
-
-    $errors = [];
-
-
-    /*
-     * ============================================================
-     * GET HIGHEST EXCEL ROW
-     * ============================================================
-     */
-
-    $highestRow =
-        $worksheet->getHighestRow();
-
-
-    /*
-     * ============================================================
-     * STATUS NORMALIZATION MAP
-     * ============================================================
-     */
-
-    $statusMap = [
-
-        'received' =>
-            'Received',
-
-        'not received' =>
-            'Not Received',
-
-        'not_received' =>
-            'Not Received',
-
-        'not-received' =>
-            'Not Received',
-
-        're-scheduled' =>
-            'Re-Scheduled',
-
-        'rescheduled' =>
-            'Re-Scheduled',
-
-        're_scheduled' =>
-            'Re-Scheduled',
-
-        're scheduled' =>
-            'Re-Scheduled',
-
-        'cancelled' =>
-            'Cancelled',
-
-        'canceled' =>
-            'Cancelled'
-    ];
-
-
-    /*
-     * ============================================================
-     * PROCESS EXCEL ROWS
+     * 4. PROCESS EACH EXCEL ROW
      *
      * Excel structure:
      *
-     * A = Farmer Name
-     * B = Quantity
-     * C = Received Date
-     * D = Status
+     * A = Farmer
+     * B = Subsidy Item
+     * C = Quantity
+     * D = Received Date
+     * E = Status
+     * F = Schdule ID
      * ============================================================
      */
 
@@ -498,7 +477,7 @@ class RecordsController extends AppController
 
         /*
          * --------------------------------------------------------
-         * READ FARMER NAME
+         * READ EXCEL VALUES
          * --------------------------------------------------------
          */
 
@@ -508,69 +487,61 @@ class RecordsController extends AppController
                 ->getValue()
         );
 
+        $subsidyItem = trim(
+            (string)$worksheet
+                ->getCell("B{$row}")
+                ->getValue()
+        );
 
-        /*
-         * --------------------------------------------------------
-         * READ QUANTITY
-         * --------------------------------------------------------
-         */
-
-        $quantity = $worksheet
-            ->getCell("B{$row}")
-            ->getValue();
-
-
-        /*
-         * --------------------------------------------------------
-         * READ RECEIVED DATE
-         * --------------------------------------------------------
-         */
+        $quantity =
+            $worksheet
+                ->getCell("C{$row}")
+                ->getValue();
 
         $receivedDateValue =
             $worksheet
-                ->getCell("C{$row}")
+                ->getCell("D{$row}")
+                ->getValue();
+
+        $status = trim(
+            (string)$worksheet
+                ->getCell("E{$row}")
+                ->getValue()
+        );
+
+        $scheduleIdValue =
+            $worksheet
+                ->getCell("F{$row}")
                 ->getValue();
 
 
         /*
          * --------------------------------------------------------
-         * READ STATUS
+         * SKIP COMPLETELY EMPTY ROWS
          * --------------------------------------------------------
-         */
-
-        $status = trim(
-            (string)$worksheet
-                ->getCell("D{$row}")
-                ->getValue()
-        );
-
-
-        /*
-         * ========================================================
-         * SKIP COMPLETELY BLANK ROW
-         * ========================================================
          */
 
         if (
             $farmerName === '' &&
+            $subsidyItem === '' &&
             ($quantity === null || $quantity === '') &&
-            ($receivedDateValue === null || $receivedDateValue === '') &&
-            $status === ''
+            ($receivedDateValue === null ||
+                $receivedDateValue === '') &&
+            $status === '' &&
+            ($scheduleIdValue === null ||
+                $scheduleIdValue === '')
         ) {
-
             continue;
         }
 
 
         /*
          * ========================================================
-         * FARMER NAME IS REQUIRED
+         * 5. VALIDATE FARMER
          * ========================================================
          */
 
         if ($farmerName === '') {
-
-            $errorCount++;
 
             $errors[] =
                 "Row {$row}: Farmer name is required.";
@@ -581,54 +552,20 @@ class RecordsController extends AppController
 
         /*
          * ========================================================
-         * FIND FARMER
+         * 6. VALIDATE SUBSIDY ITEM
          *
-         * Excel:
-         * "Juan Dela Cruz"
-         *
-         * Database:
-         * first_name = Juan
-         * last_name  = Dela Cruz
-         *
-         * We compare the complete name in PHP.
+         * Only Seed Subsidy is allowed.
          * ========================================================
          */
 
-       $farmer = $this->Farmers
-    ->find()
-    ->where([
-        'Farmers.first_name IS NOT' => null,
-        'Farmers.last_name IS NOT' => null
-    ])
-    ->all()
-    ->filter(
-        function ($farmer) use ($farmerName) {
-
-            $fullName = trim(
-                $farmer->first_name . ' ' . $farmer->last_name
-            );
-
-            return strcasecmp(
-                $fullName,
-                $farmerName
-            ) === 0;
-        }
-    )
-    ->first();
-
-
-        /*
-         * ========================================================
-         * FARMER NOT FOUND
-         * ========================================================
-         */
-
-        if (!$farmer) {
-
-            $errorCount++;
+        if (
+            strtolower(trim($subsidyItem)) !==
+            strtolower('Seed Subsidy')
+        ) {
 
             $errors[] =
-                "Row {$row}: Farmer '{$farmerName}' was not found.";
+                "Row {$row}: Subsidy Item must be "
+                . "'Seed Subsidy'.";
 
             continue;
         }
@@ -636,36 +573,395 @@ class RecordsController extends AppController
 
         /*
          * ========================================================
-         * CHECK DUPLICATE
+         * 7. VALIDATE QUANTITY
+         * ========================================================
+         */
+
+        if (
+            $quantity === null ||
+            $quantity === ''
+        ) {
+
+            $errors[] =
+                "Row {$row}: Quantity is required.";
+
+            continue;
+        }
+
+        if (!is_numeric($quantity)) {
+
+            $errors[] =
+                "Row {$row}: Quantity must be a valid number.";
+
+            continue;
+        }
+
+        $quantity = (float)$quantity;
+
+        if ($quantity <= 0) {
+
+            $errors[] =
+                "Row {$row}: Quantity must be greater than zero.";
+
+            continue;
+        }
+
+
+        /*
+         * ========================================================
+         * 8. VALIDATE SCHEDULE ID
+         * ========================================================
+         */
+
+        if (
+            $scheduleIdValue === null ||
+            trim((string)$scheduleIdValue) === ''
+        ) {
+
+            $errors[] =
+                "Row {$row}: Schedule ID is required.";
+
+            continue;
+        }
+
+
+        /*
+         * Excel may contain:
          *
-         * One farmer can only have one record
-         * for the same schedule.
+         * 31
+         * 31.0
+         *
+         * Convert safely to integer.
+         */
+
+        if (
+            is_numeric($scheduleIdValue) &&
+            (float)$scheduleIdValue ==
+            (int)$scheduleIdValue
+        ) {
+
+            $scheduleId =
+                (int)$scheduleIdValue;
+
+        } else {
+
+            $scheduleId =
+                (int)trim((string)$scheduleIdValue);
+        }
+
+
+        if ($scheduleId <= 0) {
+
+            $errors[] =
+                "Row {$row}: Invalid Schedule ID '" .
+                $scheduleIdValue .
+                "'.";
+
+            continue;
+        }
+
+
+        /*
+         * ========================================================
+         * 9. FIND SCHEDULE
+         *
+         * IMPORTANT:
+         *
+         * We DO NOT use program_name.
+         *
+         * We DO NOT use distribution_date.
+         *
+         * We only use Schedule ID.
+         * ========================================================
+         */
+
+        $schedule = $this->Schedules
+            ->find()
+            ->where([
+                'Schedules.id' => $scheduleId
+            ])
+            ->first();
+
+
+        if (!$schedule) {
+
+            $errors[] =
+                "Row {$row}: Schedule ID {$scheduleId} "
+                . "does not exist.";
+
+            continue;
+        }
+
+
+        /*
+         * ========================================================
+         * 10. VALIDATE PROGRAM CODE
+         *
+         * Seed Subsidy schedule codes:
+         *
+         * SD-1
+         * SD-2
+         * ========================================================
+         */
+
+        $programCode = strtoupper(
+            trim((string)$schedule->program_code)
+        );
+
+
+        if (
+            !in_array(
+                $programCode,
+                ['SD-1', 'SD-2'],
+                true
+            )
+        ) {
+
+            $errors[] =
+                "Row {$row}: Schedule ID {$scheduleId} "
+                . "has unsupported program code '" .
+                $programCode .
+                "'. Only SD-1 and SD-2 are allowed "
+                . "for Seed Subsidy.";
+
+            continue;
+        }
+
+
+        /*
+         * ========================================================
+         * 11. NORMALIZE STATUS
+         * ========================================================
+         */
+
+        $normalizedStatus =
+            strtolower(trim($status));
+
+
+        /*
+         * Convert:
+         *
+         * Not Received
+         * not_received
+         * not-received
+         *
+         * into:
+         *
+         * not received
+         */
+
+        $normalizedStatus = preg_replace(
+            '/[\s_-]+/',
+            ' ',
+            $normalizedStatus
+        );
+
+
+        /*
+         * ========================================================
+         * 12. CONVERT STATUS
+         *
+         * IMPORTANT:
+         *
+         * Do NOT use "continue" inside the switch.
+         * ========================================================
+         */
+
+        $finalStatus = null;
+
+
+        switch ($normalizedStatus) {
+
+            case 'received':
+
+                $finalStatus = 'Received';
+
+                break;
+
+
+            case 'not received':
+
+                $finalStatus = 'Not Received';
+
+                break;
+
+
+            case 're scheduled':
+
+                $finalStatus = 'Re-Scheduled';
+
+                break;
+
+
+            case 'cancelled':
+
+                $finalStatus = 'Cancelled';
+
+                break;
+
+
+            case 'canceled':
+
+                $finalStatus = 'Cancelled';
+
+                break;
+
+
+            case '':
+
+                /*
+                 * Blank status defaults to Not Received.
+                 */
+
+                $finalStatus = 'Not Received';
+
+                break;
+
+
+            default:
+
+                $errors[] =
+                    "Row {$row}: Invalid status '" .
+                    $status .
+                    "'. Allowed values are "
+                    . "Received, Not Received, "
+                    . "Re-Scheduled, or Cancelled.";
+
+                $finalStatus = null;
+
+                break;
+        }
+
+
+        /*
+         * --------------------------------------------------------
+         * IMPORTANT:
+         *
+         * This "continue" is OUTSIDE the switch.
+         *
+         * Therefore it correctly continues the FOR loop.
+         * --------------------------------------------------------
+         */
+
+        if ($finalStatus === null) {
+            continue;
+        }
+
+
+        /*
+         * ========================================================
+         * 13. FIND FARMER
+         * ========================================================
+         *
+         * Excel:
+         *
+         * Farmer 1
+         *
+         * Database:
+         *
+         * first_name + last_name
+         *
+         * Comparison is case-insensitive.
+         * ========================================================
+         */
+
+        $normalizedExcelFarmerName =
+            strtolower(
+                trim(
+                    preg_replace(
+                        '/\s+/',
+                        ' ',
+                        $farmerName
+                    )
+                )
+            );
+
+
+        $farmers = $this->Farmers
+            ->find()
+            ->all();
+
+
+        $farmer = null;
+
+
+        foreach ($farmers as $candidate) {
+
+            $databaseFarmerName =
+                trim(
+                    $candidate->first_name .
+                    ' ' .
+                    $candidate->last_name
+                );
+
+
+            $normalizedDatabaseFarmerName =
+                strtolower(
+                    preg_replace(
+                        '/\s+/',
+                        ' ',
+                        $databaseFarmerName
+                    )
+                );
+
+
+            if (
+                $normalizedExcelFarmerName ===
+                $normalizedDatabaseFarmerName
+            ) {
+
+                $farmer = $candidate;
+
+                break;
+            }
+        }
+
+
+        if (!$farmer) {
+
+            $errors[] =
+                "Row {$row}: Farmer '" .
+                $farmerName .
+                "' was not found in the database.";
+
+            continue;
+        }
+
+
+        /*
+         * ========================================================
+         * 14. CHECK DUPLICATE
+         *
+         * Duplicate rule:
          *
          * farmer_id + schedule_id
          * ========================================================
          */
 
-        $existing = $this->Records
-            ->find()
-            ->where([
-                'Records.farmer_id' =>
-                    $farmer->id,
+        $existingRecord =
+            $this->Records
+                ->find()
+                ->where([
+                    'Records.farmer_id' =>
+                        $farmer->id,
 
-                'Records.schedule_id' =>
-                    $schedule->id
-            ])
-            ->first();
+                    'Records.schedule_id' =>
+                        $scheduleId
+                ])
+                ->first();
 
 
-        /*
-         * ========================================================
-         * DUPLICATE FOUND
-         * ========================================================
-         */
+        if ($existingRecord) {
 
-        if ($existing) {
+            $skippedCount++;
 
-            $skipCount++;
+            $errors[] =
+                "Row {$row}: Record already exists "
+                . "for farmer '" .
+                $farmerName .
+                "' and Schedule ID " .
+                $scheduleId .
+                ". Skipped.";
 
             continue;
         }
@@ -673,48 +969,24 @@ class RecordsController extends AppController
 
         /*
          * ========================================================
-         * NORMALIZE STATUS
-         * ========================================================
-         */
-
-        $statusKey = strtolower(
-            trim($status)
-        );
-
-
-        if (isset($statusMap[$statusKey])) {
-
-            $normalizedStatus =
-                $statusMap[$statusKey];
-
-        } elseif ($status === '') {
-
-            /*
-             * Blank status defaults to Not Received.
-             */
-
-            $normalizedStatus =
-                'Not Received';
-
-        } else {
-
-            /*
-             * Preserve unknown status,
-             * but format it nicely.
-             */
-
-            $normalizedStatus =
-                ucwords(
-                    strtolower($status)
-                );
-        }
-
-
-        /*
-         * ========================================================
-         * PARSE RECEIVED DATE
+         * 15. PROCESS RECEIVED DATE
          *
-         * Blank dates ARE ALLOWED.
+         * BUSINESS RULE:
+         *
+         * Received:
+         *     Use Excel Received Date.
+         *
+         * Not Received:
+         *     NULL
+         *
+         * Re-Scheduled:
+         *     NULL
+         *
+         * Cancelled:
+         *     NULL
+         *
+         * Blank date:
+         *     NULL
          * ========================================================
          */
 
@@ -722,121 +994,109 @@ class RecordsController extends AppController
 
 
         /*
-         * Check whether Excel date is actually populated.
+         * Only process the Excel date if status is Received.
          */
 
-        if (
-            $receivedDateValue !== null &&
-            trim((string)$receivedDateValue) !== ''
-        ) {
+        if ($finalStatus === 'Received') {
 
-            try {
+            /*
+             * ----------------------------------------------------
+             * Blank Received Date
+             * ----------------------------------------------------
+             */
 
-                /*
-                 * ------------------------------------------------
-                 * EXCEL SERIAL DATE
-                 *
-                 * Example:
-                 * 45900
-                 * ------------------------------------------------
-                 */
+            if (
+                $receivedDateValue !== null &&
+                trim((string)$receivedDateValue) !== ''
+            ) {
 
-                if (is_numeric($receivedDateValue)) {
-
-                    $dateObj =
-                        ExcelDate::excelToDateTimeObject(
-                            (float)$receivedDateValue
-                        );
-
-
-                    $receivedDate =
-                        FrozenDate::createFromDate(
-                            (int)$dateObj->format('Y'),
-                            (int)$dateObj->format('m'),
-                            (int)$dateObj->format('d')
-                        );
-
-
-                } else {
+                try {
 
                     /*
-                     * --------------------------------------------
-                     * TEXT DATE
+                     * ------------------------------------------------
+                     * Excel numeric date
+                     * ------------------------------------------------
                      *
                      * Example:
-                     * 09/20/2026
-                     * 2026-09-20
-                     * September 20, 2026
-                     * --------------------------------------------
+                     *
+                     * 45889
                      */
 
-                    $dateString = trim(
-                        (string)$receivedDateValue
-                    );
+                    if (
+                        is_numeric($receivedDateValue) &&
+                        (float)$receivedDateValue > 0
+                    ) {
+
+                        $receivedDate =
+                            \PhpOffice\PhpSpreadsheet\Shared\Date
+                                ::excelToDateTimeObject(
+                                    (float)$receivedDateValue
+                                );
+
+                    } else {
+
+                        /*
+                         * ------------------------------------------------
+                         * Text date
+                         * ------------------------------------------------
+                         */
+
+                        $dateString =
+                            trim(
+                                (string)$receivedDateValue
+                            );
 
 
-                    $receivedDate =
-                        FrozenDate::parseDate(
-                            $dateString
-                        );
+                        $timestamp =
+                            strtotime($dateString);
+
+
+                        if ($timestamp === false) {
+
+                            throw new \Exception(
+                                'Invalid date format'
+                            );
+                        }
+
+
+                        $receivedDate =
+                            new \DateTime($dateString);
+                    }
+
+                } catch (\Throwable $e) {
+
+                    $errors[] =
+                        "Row {$row}: Invalid Received Date '" .
+                        $receivedDateValue .
+                        "'.";
+
+                    continue;
                 }
-
-            } catch (\Throwable $e) {
-
-                $errorCount++;
-
-                $errors[] =
-                    "Row {$row}: Invalid received date.";
-
-                continue;
             }
+
+        } else {
+
+            /*
+             * ----------------------------------------------------
+             * IMPORTANT:
+             *
+             * Ignore the Excel Received Date for:
+             *
+             * Not Received
+             * Re-Scheduled
+             * Cancelled
+             *
+             * The database receives NULL.
+             * ----------------------------------------------------
+             */
+
+            $receivedDate = null;
         }
 
 
         /*
          * ========================================================
-         * VALIDATE QUANTITY
-         * ========================================================
-         */
-
-        $quantityValue = 0;
-
-
-        if (
-            $quantity !== null &&
-            trim((string)$quantity) !== ''
-        ) {
-
-            if (!is_numeric($quantity)) {
-
-                $errorCount++;
-
-                $errors[] =
-                    "Row {$row}: Quantity must be a valid number.";
-
-                continue;
-            }
-
-
-            $quantityValue =
-                (float)$quantity;
-
-
-            if ($quantityValue < 0) {
-
-                $errorCount++;
-
-                $errors[] =
-                    "Row {$row}: Quantity cannot be negative.";
-
-                continue;
-            }
-        }
-
-
-        /*
-         * ========================================================
-         * CREATE NEW RECORD
+         * 16. CREATE RECORD
          * ========================================================
          */
 
@@ -845,74 +1105,58 @@ class RecordsController extends AppController
 
 
         /*
-         * ========================================================
-         * RECORD DATA
-         * ========================================================
+         * Farmer
          */
 
-        $recordData = [
-
-            /*
-             * Farmer foreign key
-             */
-            'farmer_id' =>
-                $farmer->id,
+        $record->farmer_id =
+            $farmer->id;
 
 
-            /*
-             * Schedule foreign key
-             */
-            'schedule_id' =>
-                $schedule->id,
+        /*
+         * Schedule
+         */
+
+        $record->schedule_id =
+            $scheduleId;
 
 
-            /*
-             * Fixed subsidy item
-             */
-            'subsidy_item' =>
-                'Seed Subsidy',
+        /*
+         * IMPORTANT:
+         *
+         * Always save Seed Subsidy.
+         */
+
+        $record->subsidy_item =
+            'Seed Subsidy';
 
 
-            /*
-             * Quantity
-             */
-            'quantity' =>
-                $quantityValue,
+        /*
+         * Quantity
+         */
+
+        $record->quantity =
+            $quantity;
 
 
-            /*
-             * Received date
-             *
-             * NULL if Excel date is blank.
-             */
-            'received_date' =>
-                $receivedDate,
+        /*
+         * Received Date
+         */
+
+        $record->received_date =
+            $receivedDate;
 
 
-            /*
-             * Normalized status
-             */
-            'status' =>
-                $normalizedStatus
-        ];
+        /*
+         * Status
+         */
+
+        $record->status =
+            $finalStatus;
 
 
         /*
          * ========================================================
-         * PATCH ENTITY
-         * ========================================================
-         */
-
-        $record =
-            $this->Records->patchEntity(
-                $record,
-                $recordData
-            );
-
-
-        /*
-         * ========================================================
-         * SAVE RECORD
+         * 17. SAVE RECORD
          * ========================================================
          */
 
@@ -920,130 +1164,161 @@ class RecordsController extends AppController
 
             $successCount++;
 
-            $this->AuditLogger->logActivity(
-                'created',
-                'Seed Subsidy record imported from Excel',
-                $record,
-                [
-                    'source' => 'Excel import',
-                    'excel_row' => $row,
-                    'farmer_id' => $farmer->id,
-                    'farmer_name' => $farmerName,
-                    'schedule_id' => $schedule->id,
-                    'quantity' => $record->quantity,
-                    'received_date' =>
-                        $receivedDate
-                            ? $receivedDate->format('Y-m-d')
-                            : null,
-                    'status' => $normalizedStatus
-                ]
-            );
+
+            /*
+             * ====================================================
+             * AUDIT LOG
+             * ====================================================
+             */
+
+            try {
+
+                if (
+                    isset($this->AuditLogger) &&
+                    $this->AuditLogger
+                ) {
+
+                    $auditMessage =
+                        "Imported Seed Subsidy record for farmer '" .
+                        $farmerName .
+                        "' " .
+                        "(Schedule ID: " .
+                        $scheduleId .
+                        ", Program Code: " .
+                        $programCode .
+                        ", Quantity: " .
+                        $quantity .
+                        ", Status: " .
+                        $finalStatus .
+                        ")";
+
+
+                    $this->AuditLogger->logActivity(
+                        'Import Record',
+                        $auditMessage
+                    );
+                }
+
+            } catch (\Throwable $auditException) {
+
+                /*
+                 * Audit logging failure should not
+                 * cancel a successful import.
+                 */
+            }
 
         } else {
 
-            $errorCount++;
+            /*
+             * ====================================================
+             * SAVE VALIDATION ERRORS
+             * ====================================================
+             */
 
-            $validationErrors = $record->getErrors();
+            $entityErrors =
+                $record->getErrors();
 
-            $errorMessage = "Row {$row}: Record could not be saved.";
 
-            if (!empty($validationErrors)) {
+            $errorDetails = [];
 
-                $details = [];
 
-                foreach ($validationErrors as $field => $fieldErrors) {
+            foreach (
+                $entityErrors
+                as $field => $fieldErrors
+            ) {
 
-                    if (is_array($fieldErrors)) {
-                        foreach ($fieldErrors as $message) {
-                            $details[] = "{$field}: {$message}";
-                        }
-                    } else {
-                        $details[] = "{$field}: {$fieldErrors}";
+                if (is_array($fieldErrors)) {
+
+                    foreach (
+                        $fieldErrors
+                        as $message
+                    ) {
+
+                        $errorDetails[] =
+                            "{$field}: {$message}";
                     }
-                }
 
-                if (!empty($details)) {
-                    $errorMessage .= ' ' . implode(' | ', $details);
+                } else {
+
+                    $errorDetails[] =
+                        "{$field}: {$fieldErrors}";
                 }
             }
 
-            $errors[] = $errorMessage;
+
+            if (!empty($errorDetails)) {
+
+                $errors[] =
+                    "Row {$row}: Could not save record. " .
+                    implode(
+                        ', ',
+                        $errorDetails
+                    );
+
+            } else {
+
+                $errors[] =
+                    "Row {$row}: Could not save record.";
+            }
         }
     }
 
 
     /*
      * ============================================================
-     * STORE IMPORT RESULT IN SESSION
+     * 18. SAVE IMPORT RESULT TO SESSION
      * ============================================================
      */
 
-    $this->getRequest()
+    $this->request
         ->getSession()
         ->write(
             'ExcelImportResult',
             [
-
-                'success' =>
-                    $successCount,
-
-                'skipped' =>
-                    $skipCount,
-
-                'errors' =>
-                    $errorCount,
-
-                'error_details' =>
-                    $errors
+                'success' => $successCount,
+                'skipped' => $skippedCount,
+                'errors' => $errors
             ]
         );
 
 
     /*
      * ============================================================
-     * FLASH SUCCESS MESSAGE
+     * 19. FLASH MESSAGES
      * ============================================================
      */
 
     if ($successCount > 0) {
 
         $this->Flash->success(
-            "{$successCount} record(s) imported successfully."
+            $successCount .
+            ' record(s) imported successfully.'
         );
     }
 
 
-    /*
-     * ============================================================
-     * FLASH DUPLICATE MESSAGE
-     * ============================================================
-     */
-
-    if ($skipCount > 0) {
+    if ($skippedCount > 0) {
 
         $this->Flash->warning(
-            "{$skipCount} duplicate record(s) were skipped."
+            $skippedCount .
+            ' duplicate record(s) were skipped.'
         );
     }
 
 
-    /*
-     * ============================================================
-     * FLASH ERROR MESSAGE
-     * ============================================================
-     */
-
-    if ($errorCount > 0) {
+    if (!empty($errors)) {
 
         $this->Flash->error(
-            "{$errorCount} record(s) could not be imported."
+            count($errors) .
+            ' record(s) could not be imported or were skipped '
+            . 'due to validation issues.'
         );
     }
 
 
     /*
      * ============================================================
-     * REDIRECT
+     * 20. REDIRECT
      * ============================================================
      */
 
@@ -1051,6 +1326,7 @@ class RecordsController extends AppController
         'action' => 'index'
     ]);
 }
+
     /**
      * ================================================================
      * VIEW SINGLE RECORD
