@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 13, 2026 at 03:45 PM
+-- Generation Time: Sep 14, 2026 at 05:07 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -69,7 +69,38 @@ INSERT INTO `audit_logs` (`id`, `user_id`, `action`, `subject_type`, `subject_id
 (22, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36', '2026-09-13 13:40:55', '0000-00-00 00:00:00'),
 (23, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-13 13:42:46', '0000-00-00 00:00:00'),
 (24, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-13 13:43:00', '0000-00-00 00:00:00'),
-(25, 17, 'login', 'User', 17, 'User logged in successfully', '{\"username\":\"superadmin\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-13 13:43:53', '0000-00-00 00:00:00');
+(25, 17, 'login', 'User', 17, 'User logged in successfully', '{\"username\":\"superadmin\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-13 13:43:53', '0000-00-00 00:00:00'),
+(26, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 01:41:54', '0000-00-00 00:00:00'),
+(27, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 01:42:09', '0000-00-00 00:00:00'),
+(28, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 01:42:16', '0000-00-00 00:00:00'),
+(29, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 01:59:42', '0000-00-00 00:00:00'),
+(30, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:01:23', '0000-00-00 00:00:00'),
+(31, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:02:54', '0000-00-00 00:00:00'),
+(32, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:05:14', '0000-00-00 00:00:00'),
+(33, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:05:25', '0000-00-00 00:00:00'),
+(34, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:05:29', '0000-00-00 00:00:00'),
+(35, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:08:44', '0000-00-00 00:00:00'),
+(36, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:09:13', '0000-00-00 00:00:00'),
+(37, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:10:19', '0000-00-00 00:00:00'),
+(38, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:10:30', '0000-00-00 00:00:00'),
+(39, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:10:32', '0000-00-00 00:00:00'),
+(40, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:12:46', '0000-00-00 00:00:00'),
+(41, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:17:02', '0000-00-00 00:00:00'),
+(42, 1, 'created', 'Record', 202, 'Seed Subsidy record imported from Excel', '{\"source\":\"Excel import\",\"excel_row\":2,\"farmer_id\":218,\"farmer_name\":\"Farmer 1\",\"schedule_id\":31,\"program_code\":\"SD-1\",\"schedule_start_date\":\"2026-09-11\",\"subsidy_item\":\"Seed Subsidy\",\"quantity\":\"130\",\"received_date\":\"2026-08-20\",\"status\":\"Received\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:17:12', '0000-00-00 00:00:00'),
+(43, 1, 'created', 'Record', 203, 'Seed Subsidy record imported from Excel', '{\"source\":\"Excel import\",\"excel_row\":3,\"farmer_id\":222,\"farmer_name\":\"Farmer 5\",\"schedule_id\":31,\"program_code\":\"SD-1\",\"schedule_start_date\":\"2026-09-11\",\"subsidy_item\":\"Seed Subsidy\",\"quantity\":\"120\",\"received_date\":\"2026-08-21\",\"status\":\"Not Received\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:17:12', '0000-00-00 00:00:00'),
+(44, 1, 'created', 'Record', 204, 'Seed Subsidy record imported from Excel', '{\"source\":\"Excel import\",\"excel_row\":4,\"farmer_id\":220,\"farmer_name\":\"Farmer 3\",\"schedule_id\":32,\"program_code\":\"SD-2\",\"schedule_start_date\":\"2026-09-12\",\"subsidy_item\":\"Seed Subsidy\",\"quantity\":\"150\",\"received_date\":\"2026-08-21\",\"status\":\"Received\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:17:12', '0000-00-00 00:00:00'),
+(45, 1, 'created', 'Record', 205, 'Seed Subsidy record imported from Excel', '{\"source\":\"Excel import\",\"excel_row\":5,\"farmer_id\":221,\"farmer_name\":\"Farmer 4\",\"schedule_id\":32,\"program_code\":\"SD-2\",\"schedule_start_date\":\"2026-09-12\",\"subsidy_item\":\"Seed Subsidy\",\"quantity\":\"100\",\"received_date\":\"2026-08-21\",\"status\":\"Cancelled\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:17:12', '0000-00-00 00:00:00'),
+(46, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:17:21', '0000-00-00 00:00:00'),
+(47, 17, 'login', 'User', 17, 'User logged in successfully', '{\"username\":\"superadmin\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:17:35', '0000-00-00 00:00:00'),
+(48, 17, 'logout', 'User', 17, 'User logged out successfully', '{\"username\":\"superadmin\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:17:56', '0000-00-00 00:00:00'),
+(49, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:18:00', '0000-00-00 00:00:00'),
+(50, 1, 'Import Record', NULL, NULL, 'Imported Seed Subsidy record for farmer \'Farmer 1\' (Schedule ID: 31, Program Code: SD-1, Quantity: 130, Status: Received)', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:24:15', '0000-00-00 00:00:00'),
+(51, 1, 'Import Record', NULL, NULL, 'Imported Seed Subsidy record for farmer \'Farmer 5\' (Schedule ID: 31, Program Code: SD-1, Quantity: 120, Status: Not Received)', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:25:30', '0000-00-00 00:00:00'),
+(52, 1, 'Import Record', NULL, NULL, 'Imported Seed Subsidy record for farmer \'Farmer 3\' (Schedule ID: 32, Program Code: SD-2, Quantity: 150, Status: Received)', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:25:30', '0000-00-00 00:00:00'),
+(53, 1, 'Import Record', NULL, NULL, 'Imported Seed Subsidy record for farmer \'Farmer 4\' (Schedule ID: 32, Program Code: SD-2, Quantity: 100, Status: Cancelled)', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:25:30', '0000-00-00 00:00:00'),
+(54, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:30:18', '0000-00-00 00:00:00'),
+(55, 17, 'login', 'User', 17, 'User logged in successfully', '{\"username\":\"superadmin\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:30:37', '0000-00-00 00:00:00'),
+(56, 17, 'logout', 'User', 17, 'User logged out successfully', '{\"username\":\"superadmin\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:31:17', '0000-00-00 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -216,7 +247,7 @@ CREATE TABLE `records` (
   `farmer_id` int(11) DEFAULT NULL,
   `subsidy_item` varchar(150) NOT NULL,
   `quantity` decimal(10,2) NOT NULL,
-  `received_date` datetime NOT NULL,
+  `received_date` datetime DEFAULT NULL,
   `status` enum('Pending','Received','Not Received','Cancelled','Re-Scheduled') NOT NULL,
   `schedule_id` int(11) DEFAULT NULL,
   `confirmed_at` datetime NOT NULL,
@@ -229,7 +260,11 @@ CREATE TABLE `records` (
 --
 
 INSERT INTO `records` (`id`, `farmer_id`, `subsidy_item`, `quantity`, `received_date`, `status`, `schedule_id`, `confirmed_at`, `created_at`, `modified_at`) VALUES
-(201, 219, 'Seed Subsidy', 120.00, '2026-09-12 16:48:32', 'Received', 32, '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00');
+(201, 219, 'Seed Subsidy', 120.00, '2026-09-12 16:48:32', 'Received', 32, '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(206, 218, 'Seed Subsidy', 130.00, '2026-08-20 09:00:00', 'Received', 31, '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(207, 222, 'Seed Subsidy', 120.00, NULL, 'Not Received', 31, '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(208, 220, 'Seed Subsidy', 150.00, '2026-08-21 09:59:59', 'Received', 32, '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(209, 221, 'Seed Subsidy', 100.00, NULL, 'Cancelled', 32, '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -280,8 +315,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `password`, `role`, `created`, `modified`, `status`, `failed_attempts`, `locked_until`) VALUES
-(1, 'admin', '$2y$10$mOsQfa7o.YJXIKkzMQa/iOCMpMay0vaZWOmXDE2Z2oT.r7Yl8kRP2', 'staff', '2026-06-17 05:17:00', '2026-09-13 13:42:46', 'pending', 0, NULL),
-(17, 'superadmin', '$2y$10$6LlYegtiDE46XLuhzPnJoe8ii32u7yYbHyf1GSkjY3kK.3eHf8tOK', 'admin', '2026-06-30 01:07:50', '2026-09-13 13:43:53', 'pending', 0, NULL),
+(1, 'admin', '$2y$10$mOsQfa7o.YJXIKkzMQa/iOCMpMay0vaZWOmXDE2Z2oT.r7Yl8kRP2', 'staff', '2026-06-17 05:17:00', '2026-09-14 02:18:00', 'pending', 0, NULL),
+(17, 'superadmin', '$2y$10$6LlYegtiDE46XLuhzPnJoe8ii32u7yYbHyf1GSkjY3kK.3eHf8tOK', 'admin', '2026-06-30 01:07:50', '2026-09-14 02:30:37', 'pending', 0, NULL),
 (39, 'Farmer1', '$2y$10$My45YbsX7Mr9IybpQhSkRuW0cdYOrfbhIJBA2dxyk1JlYyYjOlQla', 'farmer', '2026-09-12 12:49:59', '2026-09-13 12:52:46', 'pending', 0, NULL),
 (40, 'Farmer2', '$2y$10$bi0ADL4UdCJFdqEFYn4GTuzUorWkZ5T2K5OF6BdBCdRiKUN0bWvz2', 'farmer', '2026-09-12 12:51:07', '2026-09-12 12:56:45', 'pending', 0, NULL),
 (41, 'Farmer3', '$2y$10$.OdBgKjEyYClQBRt1.j3W.Bo3C7WD78XEdKldHKFbc/df43zaXm/i', 'farmer', '2026-09-12 12:51:44', '2026-09-12 12:57:11', 'pending', 0, NULL),
@@ -372,7 +407,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_logs`
 --
 ALTER TABLE `audit_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
 
 --
 -- AUTO_INCREMENT for table `evaluations`
@@ -408,7 +443,7 @@ ALTER TABLE `notifications`
 -- AUTO_INCREMENT for table `records`
 --
 ALTER TABLE `records`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=202;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=210;
 
 --
 -- AUTO_INCREMENT for table `schedules`
