@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Cake\Controller\Controller;
+use Cake\Datasource\Paging\Paginator;
 
 
 /**
@@ -69,6 +70,8 @@ class AppController extends Controller
         $this->loadComponent('RequestHandler');
         $this->loadComponent('Flash');
         $this->loadComponent('AuditLogger');
+        Paginator::useBootstrapFive();  
+
 
         /*
          * Enable the following component for recommended CakePHP form protection settings.
