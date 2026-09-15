@@ -4757,3 +4757,748 @@ side-bar logout part
     }
 
 }
+
+.profile-container {
+    background: #ffffff;
+}
+
+
+/* ==========================================
+   TABS
+========================================== */
+
+.profile-tabs-wrapper {
+    border-bottom: 1px solid #e9ecef;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+}
+
+.profile-tabs {
+    display: flex;
+    flex-wrap: nowrap;
+    min-width: max-content;
+    border-bottom: 0;
+}
+
+.profile-tabs .nav-item {
+    margin-right: 6px;
+}
+
+.profile-tabs .nav-link {
+    border: 0;
+    border-radius: 8px 8px 0 0;
+    color: #6c757d;
+    font-weight: 600;
+    padding: 13px 20px;
+    white-space: nowrap;
+    transition: all 0.25s ease;
+    position: relative;
+}
+
+.profile-tabs .nav-link:hover {
+    color: #28a745;
+    background: #f6fbf7;
+}
+
+.profile-tabs .nav-link.active {
+    color: #28a745;
+    background: #f6fbf7;
+}
+
+.profile-tabs .nav-link.active::after {
+    content: "";
+    position: absolute;
+    left: 15px;
+    right: 15px;
+    bottom: -1px;
+    height: 3px;
+    background: #28a745;
+    border-radius: 5px 5px 0 0;
+}
+
+
+/* ==========================================
+   PROFILE HEADER
+========================================== */
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    padding: 28px;
+    border-radius: 16px;
+    background: linear-gradient(
+        135deg,
+        #f8fff9 0%,
+        #ffffff 55%,
+        #f7fbff 100%
+    );
+    border: 1px solid #edf2ee;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.04);
+}
+
+.profile-avatar-wrapper {
+    flex-shrink: 0;
+    position: relative;
+}
+
+.profile-avatar-wrapper::after {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background: #28a745;
+    border: 3px solid #ffffff;
+    border-radius: 50%;
+    right: 8px;
+    bottom: 8px;
+}
+
+.profile-avatar {
+    width: 125px;
+    height: 125px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 5px solid #ffffff;
+    box-shadow: 0 7px 20px rgba(0, 0, 0, 0.12);
+}
+
+.profile-header-content {
+    min-width: 0;
+}
+
+.profile-name {
+    margin: 0 0 8px;
+    font-size: 28px;
+    font-weight: 700;
+    color: #212529;
+    word-break: break-word;
+}
+
+.profile-role {
+    display: inline-flex;
+    align-items: center;
+    background: #eaf7ee;
+    color: #218838;
+    padding: 6px 13px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.profile-status {
+    margin-top: 10px;
+}
+
+.profile-status span {
+    color: #6c757d;
+    font-size: 13px;
+}
+
+.profile-status i {
+    color: #28a745;
+    font-size: 8px;
+    vertical-align: middle;
+}
+
+
+/* ==========================================
+   SECTION HEADING
+========================================== */
+
+.section-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.section-icon {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: #eaf7ee;
+    color: #28a745;
+}
+
+.section-heading h5 {
+    margin: 0;
+    font-weight: 700;
+    color: #343a40;
+}
+
+.section-heading p {
+    margin: 3px 0 0;
+    color: #8a8f94;
+    font-size: 13px;
+}
+
+
+/* ==========================================
+   INFO CARDS
+========================================== */
+
+.info-card {
+    height: 100%;
+    min-height: 92px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 18px;
+    background: #ffffff;
+    border: 1px solid #edf0f2;
+    border-radius: 12px;
+    transition: all 0.25s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-2px);
+    border-color: #dcefe1;
+    box-shadow: 0 7px 20px rgba(0, 0, 0, 0.07);
+}
+
+.info-icon {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 17px;
+}
+
+.info-icon.success {
+    background: #28a745;
+}
+
+.info-icon.primary {
+    background: #007bff;
+}
+
+.info-icon.warning {
+    background: #f0ad00;
+}
+
+.info-icon.danger {
+    background: #dc3545;
+}
+
+.info-content {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.info-label {
+    color: #8a8f94;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.info-value {
+    color: #343a40;
+    font-size: 15px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+
+/* ==========================================
+   FARM SECTION
+========================================== */
+
+.farm-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.farm-icon {
+    background: #fff1f1;
+    color: #dc3545;
+}
+
+.farm-count {
+    flex-shrink: 0;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    color: #6c757d;
+    padding: 8px 13px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+
+/* ==========================================
+   FARM CARD
+========================================== */
+
+.farm-card {
+    height: 100%;
+    background: #ffffff;
+    border: 1px solid #e8ecef;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.045);
+    transition: all 0.25s ease;
+}
+
+.farm-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 9px 25px rgba(0, 0, 0, 0.09);
+}
+
+
+/* FARM CARD HEADER */
+
+.farm-card-header {
+    padding: 18px 20px;
+    background: linear-gradient(
+        135deg,
+        #dc3545,
+        #c82333
+    );
+    color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.farm-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.farm-icon-circle {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.18);
+    font-size: 17px;
+}
+
+.farm-title {
+    min-width: 0;
+}
+
+.farm-title span {
+    display: block;
+    font-size: 11px;
+    opacity: 0.8;
+    margin-bottom: 2px;
+}
+
+.farm-title h5 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 16px;
+    overflow-wrap: anywhere;
+}
+
+.farm-badge {
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    padding: 5px 9px;
+    border-radius: 15px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+
+/* FARM BODY */
+
+.farm-card-body {
+    padding: 20px;
+}
+
+.farm-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.farm-detail {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    min-width: 0;
+}
+
+.farm-detail-icon {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.farm-detail-icon.size {
+    background: #eaf7ee;
+    color: #28a745;
+}
+
+.farm-detail-icon.location {
+    background: #fff1f1;
+    color: #dc3545;
+}
+
+.farm-detail-label {
+    display: block;
+    color: #8a8f94;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 3px;
+}
+
+.farm-detail strong {
+    display: block;
+    color: #343a40;
+    font-size: 15px;
+    overflow-wrap: anywhere;
+}
+
+.farm-detail strong small {
+    color: #6c757d;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.location-text {
+    line-height: 1.35;
+}
+
+
+/* FARM DIVIDER */
+
+.farm-divider {
+    height: 1px;
+    background: #edf0f2;
+    margin: 20px 0 15px;
+}
+
+
+/* FARM DATE */
+
+.farm-date {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #8a8f94;
+    font-size: 12px;
+}
+
+.farm-date i {
+    color: #dc3545;
+}
+
+.farm-date strong {
+    color: #495057;
+}
+
+
+/* ==========================================
+   EMPTY STATE
+========================================== */
+
+.empty-farm-state {
+    margin-top: 20px;
+    padding: 50px 25px;
+    text-align: center;
+    background: #fffaf0;
+    border: 1px dashed #f0c36d;
+    border-radius: 15px;
+}
+
+.empty-farm-icon {
+    width: 65px;
+    height: 65px;
+    margin: 0 auto 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #fff3cd;
+    color: #d39e00;
+    font-size: 25px;
+}
+
+.empty-farm-state h5 {
+    margin-bottom: 6px;
+    font-weight: 700;
+    color: #5f4b00;
+}
+
+.empty-farm-state p {
+    margin: 0;
+    color: #856404;
+    font-size: 13px;
+}
+
+
+/* ==========================================
+   TABLET
+========================================== */
+
+@media (max-width: 991.98px) {
+
+    .profile-container {
+        padding: 24px !important;
+    }
+
+    .profile-header {
+        padding: 22px;
+    }
+
+    .profile-name {
+        font-size: 25px;
+    }
+
+}
+
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media (max-width: 767.98px) {
+
+    .profile-container {
+        padding: 15px !important;
+    }
+
+    /* Tabs */
+
+    .profile-tabs-wrapper {
+        margin-left: -5px;
+        margin-right: -5px;
+    }
+
+    .profile-tabs .nav-link {
+        padding: 11px 14px;
+        font-size: 13px;
+    }
+
+    .profile-tabs .nav-link i {
+        margin-right: 5px !important;
+    }
+
+
+    /* Profile header */
+
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+        padding: 25px 18px;
+        gap: 15px;
+    }
+
+    .profile-avatar {
+        width: 110px;
+        height: 110px;
+    }
+
+    .profile-avatar-wrapper::after {
+        right: 5px;
+        bottom: 5px;
+    }
+
+    .profile-name {
+        font-size: 23px;
+    }
+
+    .profile-header-content {
+        width: 100%;
+    }
+
+
+    /* Section heading */
+
+    .section-heading {
+        align-items: flex-start;
+    }
+
+    .section-icon {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+    }
+
+    .section-heading h5 {
+        font-size: 16px;
+    }
+
+    .section-heading p {
+        font-size: 12px;
+    }
+
+
+    /* Information cards */
+
+    .info-card {
+        min-height: 82px;
+        padding: 14px;
+    }
+
+    .info-icon {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+    }
+
+    .info-value {
+        font-size: 14px;
+    }
+
+
+    /* Farm header */
+
+    .farm-section-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .farm-count {
+        align-self: flex-start;
+    }
+
+
+    /* Farm card */
+
+    .farm-card-header {
+        padding: 15px;
+    }
+
+    .farm-card-body {
+        padding: 16px;
+    }
+
+    .farm-title h5 {
+        font-size: 15px;
+    }
+
+    .farm-badge {
+        display: none;
+    }
+
+    .farm-detail-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+}
+
+
+/* ==========================================
+   SMALL MOBILE
+========================================== */
+
+@media (max-width: 480px) {
+
+    .profile-container {
+        padding: 10px !important;
+    }
+
+    .profile-tabs .nav-link span {
+        display: none;
+    }
+
+    .profile-tabs .nav-link {
+        padding: 11px 17px;
+    }
+
+    .profile-tabs .nav-link i {
+        margin-right: 0 !important;
+    }
+
+    .profile-header {
+        border-radius: 12px;
+        padding: 22px 14px;
+    }
+
+    .profile-avatar {
+        width: 95px;
+        height: 95px;
+    }
+
+    .profile-name {
+        font-size: 21px;
+    }
+
+    .profile-role {
+        font-size: 12px;
+    }
+
+    .info-card {
+        padding: 13px;
+        gap: 11px;
+    }
+
+    .info-icon {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        font-size: 14px;
+    }
+
+    .info-label {
+        font-size: 11px;
+    }
+
+    .info-value {
+        font-size: 13px;
+    }
+
+    .farm-card {
+        border-radius: 12px;
+    }
+
+    .farm-icon-circle {
+        width: 37px;
+        height: 37px;
+        min-width: 37px;
+    }
+
+    .farm-title h5 {
+        font-size: 14px;
+    }
+
+    .farm-detail strong {
+        font-size: 14px;
+    }
+
+}
+
+
+/* ==========================================
+   ACCESSIBILITY / REDUCED MOTION
+========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .info-card,
+    .farm-card,
+    .profile-tabs .nav-link {
+        transition: none;
+    }
+
+}
