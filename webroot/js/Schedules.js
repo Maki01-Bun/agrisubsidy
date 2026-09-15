@@ -46,23 +46,37 @@ $(function(){
 		}
 
 		$.ajax({
-			processData:false,
-			contentType:false,
-			data:fd,
-			url:url,
-			type:'POST',
-			dataType:'json'
-		}).done(function(data){
-			if(data.status=='success'){
-				getSchedules();
-				msgBox(data.status,data.message);
-				$('#schedules-modal').modal('hide');
-			}else{
-				msgBox(data.status,data.message);
-			}
-		}).fail(function(jqXHR,textStatus,errorThrown){
-			msgBox('error',errorThrown);
-		});
+            processData: false,
+            contentType: false,
+            data: fd,
+            url: url,
+            type: 'POST',
+            dataType: 'json'
+        }).done(function(data) {
+            if (data.status == 'success') {
+                getSchedules();
+                msgBox(data.status, data.message);
+                $('#schedules-modal').modal('hide');
+            } else {
+                msgBox(data.status, data.message);
+            }
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            let message = 'Unable to save schedule.';
+            // Get the message returned by the API
+            if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
+                message = jqXHR.responseJSON.message;
+            } else if (jqXHR.responseText) {
+                try {
+                    const response = JSON.parse(jqXHR.responseText);
+                    if (response.message) {
+                        message = response.message;
+                    }
+                } catch (e) {
+                    message = errorThrown || message;
+                }
+            }
+            msgBox('error', message);
+        });
 	});
 
     $('#schedules-table').on('click', '.delete', function (e) {

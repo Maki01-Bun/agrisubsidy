@@ -14,7 +14,7 @@
                         <th>Program Code</th>
                         <th>Program Name</th>
                         <th>Description</th>
-                        <th>Baranggay</th>
+                        <th>Barangay</th>
                         <th>Start Date</th>
                         <th>End Date</th>
                         <th>Start Time</th>
@@ -44,8 +44,8 @@
                     <?= $this->Form->control('program_name',['class'=>'form-control','label'=>false]) ?>
                     <label for="description">Description</label>
                     <?= $this->Form->control('description',['class'=>'form-control','label'=>false]) ?>
-                     <label for="baranggay">Baranggay</label>
-                    <?= $this->Form->control('baranggay',['class'=>'form-control','label'=>false]) ?>
+                     <label for="barangay">Barangay</label>
+                    <?= $this->Form->control('barangay',['class'=>'form-control','label'=>false]) ?>
                     <label for="start_date">Start Date</label>
                     <?= $this->Form->control('start_date',['class'=>'form-control','label'=>false]) ?>
                     <label for="end_date">End Date</label>

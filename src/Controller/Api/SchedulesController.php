@@ -58,16 +58,35 @@ class SchedulesController extends AppController
     public function add()
     {
         $schedule = $this->Schedules->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $schedule = $this->Schedules->patchEntity($schedule, $this->request->getData());
-            if ($this->Schedules->save($schedule)) {
-                $result = ['status' => 'success', 'message' => 'The schedule has been saved.'];
-            }else {
-                $result = ['status'=>'error','message'=>'The schedule could not be saved. Please, try again.'];
-            }
-            return $this->response->withType('application/json')
-                ->withStringBody(json_encode($result));
+
+        if (!$this->request->is('post')) {
+            return $this->response->withStatus(405)->withType('application/json')
+                ->withStringBody(json_encode(['status' => 'error', 'message' => 'Invalid request method.'
+                ]));
         }
+
+        $data = $this->request->getData();
+        $validationResult = $this->validateScheduleDateTime($data);
+        if ($validationResult !== true) {
+            return $this->response->withStatus(400)->withType('application/json')
+                ->withStringBody(json_encode(['status' => 'error', 'message' => $validationResult
+                ]));
+        }
+        $schedule = $this->Schedules->patchEntity(
+            $schedule,
+            $data
+        );
+        if ($this->Schedules->save($schedule)) {
+            return $this->response
+                ->withType('application/json')->withStringBody(json_encode(['status' => 'success',
+                'message' => 'The schedule has been saved.','data' => $schedule
+                ]));
+        }
+        return $this->response
+            ->withStatus(400)->withType('application/json')
+            ->withStringBody(json_encode(['status' => 'error', 'message' => 'The schedule could not be saved.',
+                'errors' => $schedule->getErrors()
+            ]));
     }
 
     /**
@@ -113,5 +132,195 @@ class SchedulesController extends AppController
         }
         return $this->response->withType('application/json')
             ->withStringBody(json_encode($result));
+    }
+
+    private function validateScheduleDateTime(array $data)
+    {
+        $startDate = $data['start_date'] ?? '';
+        $endDate   = $data['end_date'] ?? '';
+        $startTime = $data['start_time'] ?? '';
+        $endTime   = $data['end_time'] ?? '';
+
+        /*
+        * ==========================================
+        * START DATE / END DATE
+        * ==========================================
+        */
+
+        if (empty($startDate)) {
+            return 'Start date is required.';
+        }
+
+        if (empty($endDate)) {
+            return 'End date is required.';
+        }
+
+        /*
+        * Convert values to strings.
+        */
+        if ($startDate instanceof \DateTimeInterface) {
+            $startDate = $startDate->format('Y-m-d');
+        } else {
+            $startDate = trim((string)$startDate);
+        }
+
+        if ($endDate instanceof \DateTimeInterface) {
+            $endDate = $endDate->format('Y-m-d');
+        } else {
+            $endDate = trim((string)$endDate);
+        }
+
+        /*
+        * Parse dates strictly.
+        *
+        * Expected format:
+        * YYYY-MM-DD
+        */
+        $startDateObj = \DateTime::createFromFormat('!Y-m-d', $startDate);
+        $endDateObj   = \DateTime::createFromFormat('!Y-m-d', $endDate);
+
+        /*
+        * If the form sends another format, try strtotime().
+        */
+        if (!$startDateObj) {
+            $timestamp = strtotime($startDate);
+
+            if ($timestamp === false) {
+                return 'Invalid start date.';
+            }
+
+            $startDateObj = new \DateTime(
+                date('Y-m-d', $timestamp)
+            );
+        }
+
+        if (!$endDateObj) {
+            $timestamp = strtotime($endDate);
+
+            if ($timestamp === false) {
+                return 'Invalid end date.';
+            }
+
+            $endDateObj = new \DateTime(
+                date('Y-m-d', $timestamp)
+            );
+        }
+
+        /*
+        * Normalize dates.
+        */
+        $startDateString = $startDateObj->format('Y-m-d');
+        $endDateString   = $endDateObj->format('Y-m-d');
+
+        /*
+        * ==========================================
+        * RULE 1:
+        *
+        * END DATE MUST NOT BE BEFORE START DATE
+        * ==========================================
+        */
+        if ($endDateObj->getTimestamp() < $startDateObj->getTimestamp()) {
+
+            return 'Invalid schedule: End date (' .
+                $endDateString .
+                ') cannot be earlier than start date (' .
+                $startDateString .
+                ').';
+        }
+
+        /*
+        * ==========================================
+        * RULE 2:
+        *
+        * IF SAME DATE, COMPARE TIMES
+        * ==========================================
+        */
+        if ($startDateString === $endDateString) {
+
+            if (empty($startTime)) {
+                return 'Start time is required.';
+            }
+
+            if (empty($endTime)) {
+                return 'End time is required.';
+            }
+
+            /*
+            * Convert time objects to strings.
+            */
+            if ($startTime instanceof \DateTimeInterface) {
+                $startTime = $startTime->format('H:i:s');
+            } else {
+                $startTime = trim((string)$startTime);
+            }
+
+            if ($endTime instanceof \DateTimeInterface) {
+                $endTime = $endTime->format('H:i:s');
+            } else {
+                $endTime = trim((string)$endTime);
+            }
+
+            /*
+            * Parse times.
+            */
+            $startTimeObj = \DateTime::createFromFormat(
+                '!H:i:s',
+                $startTime
+            );
+
+            $endTimeObj = \DateTime::createFromFormat(
+                '!H:i:s',
+                $endTime
+            );
+
+            /*
+            * Try H:i if H:i:s didn't work.
+            */
+            if (!$startTimeObj) {
+                $startTimeObj = \DateTime::createFromFormat(
+                    '!H:i',
+                    $startTime
+                );
+            }
+
+            if (!$endTimeObj) {
+                $endTimeObj = \DateTime::createFromFormat(
+                    '!H:i',
+                    $endTime
+                );
+            }
+
+            /*
+            * Invalid time.
+            */
+            if (!$startTimeObj) {
+                return 'Invalid start time.';
+            }
+
+            if (!$endTimeObj) {
+                return 'Invalid end time.';
+            }
+
+            /*
+            * ==========================================
+            * END TIME MUST NOT BE BEFORE START TIME
+            * ==========================================
+            */
+            if ($endTimeObj->getTimestamp() < $startTimeObj->getTimestamp()) {
+
+                return 'Invalid schedule: End time (' .
+                    $endTimeObj->format('H:i:s') .
+                    ') cannot be earlier than start time (' .
+                    $startTimeObj->format('H:i:s') .
+                    ') when the dates are the same.';
+            }
+        }
+
+        /*
+        * ==========================================
+        * VALID
+        * ==========================================
+        */
+        return true;
     }
 }
