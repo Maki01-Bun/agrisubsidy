@@ -26,7 +26,6 @@ $(function(){
                     $('#address').val(data.address);
                     $('#contact-no').val(data.contact_no);
                     $('#created').val(data.created);
-                    $('#modified').val(data.modified);
                     $('#user_id').val(data.user_id);
                     $('#id').val(data.id);
                     $('#farmers-modal').modal('show');
@@ -127,7 +126,6 @@ function getFarmers()
             {data:"address"},
             {data:"contact_no"},
             {data:"created"},
-            {data:"modified"},
             { data: null,render: function(data){
                      var option = '<div style="text-align:center;">' + '<a href="" class="edit" ' + 'data-toggle="tooltip" ' + 'data-placement="bottom" ' +
                     'title="Edit Record" ' + 'data-id="' + data.id + '">' + '<i class="fa fas fa-pen"></i>' + '</a>' + ' | ' +

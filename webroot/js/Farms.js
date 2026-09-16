@@ -18,7 +18,6 @@ $(function(){
             .done(function(data){
                 if(data!=''){
                     $('#farmer-id').val(data.farmer_id);
-                	$('#farm-name').val(data.farm_name);
                 	$('#farm-size').val(data.farm_size);
                     $('#location').val(data.location);
                     $('#average-yield').val(data.average_yield);
@@ -92,7 +91,7 @@ $(function(){
 
     $('#farms-modal').on('shown.bs.modal', function() {
         setTimeout(function() {
-            $('#farm-name').focus();
+            $('#farm-size').focus();
         }, 500);
     });
 
@@ -112,8 +111,7 @@ function getFarms()
             "url": BASE_URL + '/api/Farms/getFarms',
         },
         "columns": [
-            {data:"farmer_name"},
-			{data:"farm_name"},
+            {data:"farmer_no"},
             {data:"farm_size"},
             {data:"location"},
             {data:"average_yield"},

@@ -66,18 +66,36 @@ class FarmsController extends AppController
     
     public function getFarms()
 {
+    $this->request->allowMethod(['get']);
+
     $this->loadModel('Farmers');
 
     $user = $this->request->getSession()->read('Auth.User');
 
-    $query = $this->Farms->find()
-        ->contain(['Farmers']);
+    if (!$user) {
+        return $this->response
+            ->withType('application/json')
+            ->withStatus(401)
+            ->withStringBody(json_encode([
+                'status' => 'error',
+                'message' => 'User is not authenticated.',
+                'data' => []
+            ]));
+    }
 
-    // If the logged-in user is a Farmer, filter their farms only
-    if ($user['role'] === 'farmer') {
+    $query = $this->Farms->find()
+        ->contain(['Farmers'])
+        ->order([
+            'Farms.id' => 'ASC'
+        ]);
+
+    // Farmer can only see their own farms
+    if (strtolower($user['role'] ?? '') === 'farmer') {
 
         $farmer = $this->Farmers->find()
-            ->where(['user_id' => $user['id']])
+            ->where([
+                'Farmers.user_id' => $user['id']
+            ])
             ->first();
 
         if ($farmer) {
@@ -85,7 +103,7 @@ class FarmsController extends AppController
                 'Farms.farmer_id' => $farmer->id
             ]);
         } else {
-            // No farmer record found, return no farms
+            // No farmer record = no farms
             $query->where([
                 'Farms.id IS' => null
             ]);
@@ -97,21 +115,25 @@ class FarmsController extends AppController
     $data = [];
 
     foreach ($farms as $farm) {
+
         $data[] = [
             'id' => $farm->id,
             'farmer_id' => $farm->farmer_id,
-            'farmer_name' => $farm->farmer->first_name . ' ' . $farm->farmer->last_name,
-            'farm_name' => $farm->farm_name,
+            // Get farmer_no from the contained Farmer entity
+            'farmer_no' => $farm->farmer->farmer_no ?? '',
             'farm_size' => $farm->farm_size,
             'location' => $farm->location,
-            'average_yield' => $farm->average_yield,
-            'income' => $farm->income,
+            'average_yield' => $farm->average_yield
         ];
     }
 
     return $this->response
         ->withType('application/json')
-        ->withStringBody(json_encode(['data' => $data]));
+        ->withStatus(200)
+        ->withStringBody(json_encode([
+            'status' => 'success',
+            'data' => $data
+        ]));
 }
     
 

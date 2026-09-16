@@ -24,59 +24,39 @@ class FarmsController extends AppController
 
         $user = $this->request->getSession()->read('Auth.User');
 
-        $farms = [];
+        if (!$user) {
+            return $this->redirect([
+                'controller' => 'Users',
+                'action' => 'login'
+            ]);
+        }
+        $farms = $this->Farms->find()
+            ->contain(['Farmers'])
+            ->all();
+        $farmerList = $this->Farmers->find()
+            ->select([
+                'id',
+                'farmer_no'
+            ])
+            ->where([
+                'farmer_no IS NOT' => null,
+                'farmer_no !=' => ''
+            ])
+            ->order([
+                'farmer_no' => 'ASC'
+            ])
+            ->all();
+
         $farmers = [];
 
-        if ($user['role'] === 'admin') {
+        foreach ($farmerList as $farmer) {
 
-            // Admin sees all farms
-            $farms = $this->Farms->find()
-                ->contain(['Farmers'])
-                ->all();
-
-            // Admin can select any farmer
-            $farmers = $this->Farmers->find('list', [
-                'keyField' => 'id',
-                'valueField' => function ($farmer) {
-                    return $farmer->first_name . ' ' . $farmer->last_name;
-                }
-            ])
-                ->order([
-                    'Farmers.last_name' => 'ASC',
-                    'Farmers.first_name' => 'ASC'
-                ])
-                ->toArray();
-
-        } else {
-
-            // Get farmer associated with logged-in user
-            $farmer = $this->Farmers->find()
-                ->where([
-                    'user_id' => $user['id']
-                ])
-                ->first();
-
-            if ($farmer) {
-
-                // Farmer sees only their own farms
-                $farms = $this->Farms->find()
-                    ->where([
-                        'farmer_id' => $farmer->id
-                    ])
-                    ->contain(['Farmers'])
-                    ->all();
-
-                // Only show logged-in farmer
-                $farmers = [
-                    $farmer->id => $farmer->first_name . ' ' . $farmer->last_name
-                ];
-            }
+            $farmers[$farmer->id] = $farmer->farmer_no;
         }
-
-        $this->set(compact(
-            'farms',
-            'farmers'
-        ));
+        $this->set([
+            'farms' => $farms,
+            'farmers' => $farmers
+        ]);
     }
 
     /**
@@ -101,6 +81,17 @@ class FarmsController extends AppController
      */
     public function add()
     {
+        $this->loadModel('Farmers');
+
+        $farmers = $this->Farmers->find('list', [
+            'keyField' => 'id',
+            'valueField' => 'farmer_no'
+        ])
+        ->order([
+            'farmer_no' => 'ASC'
+        ])
+        ->toArray();
+
         $farm = $this->Farms->newEmptyEntity();
 
         if ($this->request->is('post')) {
@@ -111,28 +102,7 @@ class FarmsController extends AppController
             );
 
             if ($this->Farms->save($farm)) {
-
-                /*
-                 * ==========================================
-                 * AUDIT LOG - FARM CREATED
-                 * ==========================================
-                 */
-                $this->AuditLogger->logActivity(
-                    'created',
-                    'Farm record created',
-                    $farm,
-                    [
-                        'farm_name' => $farm->farm_name,
-                        'farmer_id' => $farm->farmer_id,
-                        'farm_size' => $farm->farm_size,
-                        'location' => $farm->location,
-                        'average_yield' => $farm->average_yield,
-                    ]
-                );
-
-                $this->Flash->success(
-                    __('The farm has been saved.')
-                );
+                $this->Flash->success('Farm added successfully.');
 
                 return $this->redirect([
                     'action' => 'index'
@@ -140,11 +110,14 @@ class FarmsController extends AppController
             }
 
             $this->Flash->error(
-                __('The farm could not be saved. Please, try again.')
+                'The farm could not be saved.'
             );
         }
 
-        $this->set(compact('farm'));
+        $this->set([
+            'farm' => $farm,
+            'farmers' => $farmers
+        ]);
     }
 
     /**
@@ -178,7 +151,6 @@ class FarmsController extends AppController
                     'Farm record updated',
                     $farm,
                     [
-                        'farm_name' => $farm->farm_name,
                         'farmer_id' => $farm->farmer_id,
                         'farm_size' => $farm->farm_size,
                         'location' => $farm->location,
@@ -226,7 +198,6 @@ class FarmsController extends AppController
          * We need the entity because after deletion
          * the record will no longer exist in the database.
          */
-        $farmName = $farm->farm_name;
         $farmerId = $farm->farmer_id;
         $farmSize = $farm->farm_size;
         $location = $farm->location;
@@ -244,7 +215,6 @@ class FarmsController extends AppController
                 'Farm record deleted',
                 $farm,
                 [
-                    'farm_name' => $farmName,
                     'farmer_id' => $farmerId,
                     'farm_size' => $farmSize,
                     'location' => $location,
@@ -278,10 +248,10 @@ class FarmsController extends AppController
     public function uploadExcel()
     {
         /*
-         * =====================================================
-         * ONLY ALLOW POST REQUEST
-         * =====================================================
-         */
+        * =====================================================
+        * ONLY ALLOW POST REQUEST
+        * =====================================================
+        */
         if (!$this->request->is('post')) {
             return $this->redirect([
                 'action' => 'index'
@@ -289,22 +259,21 @@ class FarmsController extends AppController
         }
 
         /*
-         * =====================================================
-         * GET UPLOADED FILE
-         * =====================================================
-         */
+        * =====================================================
+        * GET UPLOADED FILE
+        * =====================================================
+        */
         $file = $this->request->getData('excel_file');
 
         /*
-         * =====================================================
-         * VALIDATE UPLOADED FILE
-         * =====================================================
-         */
+        * =====================================================
+        * VALIDATE UPLOADED FILE
+        * =====================================================
+        */
         if (
             !$file ||
             $file->getError() !== UPLOAD_ERR_OK
         ) {
-
             $this->request->getSession()->write(
                 'ExcelImportResult',
                 [
@@ -323,10 +292,10 @@ class FarmsController extends AppController
         }
 
         /*
-         * =====================================================
-         * VALIDATE FILE EXTENSION
-         * =====================================================
-         */
+        * =====================================================
+        * VALIDATE FILE EXTENSION
+        * =====================================================
+        */
         $extension = strtolower(
             pathinfo(
                 $file->getClientFilename(),
@@ -335,7 +304,6 @@ class FarmsController extends AppController
         );
 
         if (!in_array($extension, ['xlsx', 'xls'], true)) {
-
             $this->request->getSession()->write(
                 'ExcelImportResult',
                 [
@@ -356,18 +324,18 @@ class FarmsController extends AppController
         try {
 
             /*
-             * =================================================
-             * LOAD TABLES
-             * =================================================
-             */
+            * =================================================
+            * LOAD TABLES
+            * =================================================
+            */
             $this->loadModel('Farms');
             $this->loadModel('Farmers');
 
             /*
-             * =================================================
-             * LOAD EXCEL FILE
-             * =================================================
-             */
+            * =================================================
+            * LOAD EXCEL FILE
+            * =================================================
+            */
             $spreadsheet = IOFactory::load(
                 $file->getStream()->getMetadata('uri')
             );
@@ -375,10 +343,10 @@ class FarmsController extends AppController
             $sheet = $spreadsheet->getActiveSheet();
 
             /*
-             * =================================================
-             * CONVERT EXCEL TO ARRAY
-             * =================================================
-             */
+            * =================================================
+            * CONVERT EXCEL TO ARRAY
+            * =================================================
+            */
             $rows = $sheet->toArray(
                 null,
                 true,
@@ -387,119 +355,100 @@ class FarmsController extends AppController
             );
 
             /*
-             * =================================================
-             * INITIALIZE COUNTERS
-             * =================================================
-             */
+            * =================================================
+            * INITIALIZE COUNTERS
+            * =================================================
+            */
             $success = 0;
             $failed = 0;
             $errors = [];
 
             /*
-             * =================================================
-             * TRACK DUPLICATES
-             * =================================================
-             */
+            * =================================================
+            * TRACK DUPLICATES
+            *
+            * Key = Farmer ID
+            * =================================================
+            */
             $uploadedRows = [];
 
             /*
-             * =================================================
-             * PROCESS EACH ROW
-             * =================================================
-             */
+            * =================================================
+            * PROCESS EACH ROW
+            * =================================================
+            */
             foreach ($rows as $index => $row) {
 
                 /*
-                 * -------------------------------------------------
-                 * SKIP HEADER
-                 * -------------------------------------------------
-                 */
+                * -------------------------------------------------
+                * SKIP HEADER
+                * -------------------------------------------------
+                */
                 if ($index == 1) {
                     continue;
                 }
 
                 /*
-                 * -------------------------------------------------
-                 * SKIP EMPTY ROWS
-                 * -------------------------------------------------
-                 */
+                * -------------------------------------------------
+                * SKIP EMPTY ROWS
+                * -------------------------------------------------
+                */
                 if (
                     empty($row['A']) &&
                     empty($row['B']) &&
                     empty($row['C']) &&
-                    empty($row['D']) &&
-                    empty($row['E'])
+                    empty($row['D'])
                 ) {
                     continue;
                 }
 
                 /*
-                 * -------------------------------------------------
-                 * EXCEL COLUMNS
-                 *
-                 * A = Farmer Name
-                 * B = Farm Name
-                 * C = Farm Size
-                 * D = Location
-                 * E = Average Yield
-                 * -------------------------------------------------
-                 */
+                * =================================================
+                * EXCEL COLUMNS
+                *
+                * A = Farmer No.
+                * B = Farm Size
+                * C = Location
+                * D = Average Yield
+                * =================================================
+                */
 
-                $farmerName = trim(
+                $farmerNo = trim(
                     (string)($row['A'] ?? '')
                 );
 
-                $farmName = trim(
+                $farmSize = trim(
                     (string)($row['B'] ?? '')
                 );
 
-                $farmSize = trim(
+                $location = trim(
                     (string)($row['C'] ?? '')
                 );
 
-                $location = trim(
+                $averageYield = trim(
                     (string)($row['D'] ?? '')
                 );
 
-                $averageYield = trim(
-                    (string)($row['E'] ?? '')
-                );
-
                 /*
-                 * =================================================
-                 * VALIDATE FARMER NAME
-                 * =================================================
-                 */
-                if ($farmerName === '') {
+                * =================================================
+                * VALIDATE FARMER NUMBER
+                * =================================================
+                */
+                if ($farmerNo === '') {
 
                     $failed++;
 
                     $errors[] =
-                        "Row {$index}: Farmer name is required.";
+                        "Row {$index}: Farmer No. is required.";
 
                     continue;
                 }
 
                 /*
-                 * =================================================
-                 * VALIDATE FARM NAME
-                 * =================================================
-                 */
-                if ($farmName === '') {
-
-                    $failed++;
-
-                    $errors[] =
-                        "Row {$index}: Farm name is required.";
-
-                    continue;
-                }
-
-                /*
-                 * =================================================
-                 * VALIDATE FARM SIZE
-                 * =================================================
-                 */
+                * =================================================
+                * VALIDATE FARM SIZE
+                * =================================================
+                */
                 if ($farmSize === '') {
 
                     $failed++;
@@ -524,10 +473,10 @@ class FarmsController extends AppController
                 }
 
                 /*
-                 * =================================================
-                 * VALIDATE LOCATION
-                 * =================================================
-                 */
+                * =================================================
+                * VALIDATE LOCATION
+                * =================================================
+                */
                 if ($location === '') {
 
                     $failed++;
@@ -539,10 +488,10 @@ class FarmsController extends AppController
                 }
 
                 /*
-                 * =================================================
-                 * VALIDATE AVERAGE YIELD
-                 * =================================================
-                 */
+                * =================================================
+                * VALIDATE AVERAGE YIELD
+                * =================================================
+                */
                 if ($averageYield === '') {
 
                     $failed++;
@@ -567,71 +516,62 @@ class FarmsController extends AppController
                 }
 
                 /*
-                 * =================================================
-                 * SPLIT FARMER FULL NAME
-                 * =================================================
-                 */
-                $nameParts = preg_split(
-                    '/\s+/',
-                    $farmerName
-                );
+                * =================================================
+                * FIND FARMER USING FARMER NUMBER
+                * =================================================
+                *
+                * IMPORTANT:
+                * We no longer split the value as a farmer name.
+                *
+                * Example:
+                * Excel A2 = "RSBSA-123456789"
+                *
+                * The system searches:
+                * Farmers.farmer_no = "RSBSA-123456789"
+                *
+                * =================================================
+                */
 
-                $firstName = $nameParts[0] ?? '';
-
-                $lastName = '';
-
-                if (count($nameParts) > 1) {
-                    $lastName = end($nameParts);
-                }
-
-                /*
-                 * =================================================
-                 * FIND FARMER
-                 * =================================================
-                 */
                 $farmer = $this->Farmers->find()
                     ->where([
-                        'Farmers.first_name' => $firstName,
-                        'Farmers.last_name' => $lastName
+                        'Farmers.farmer_no' => $farmerNo
                     ])
                     ->first();
 
                 /*
-                 * =================================================
-                 * FARMER NOT FOUND
-                 * =================================================
-                 */
+                * =================================================
+                * FARMER NOT FOUND
+                * =================================================
+                */
                 if (!$farmer) {
 
                     $failed++;
 
                     $errors[] =
-                        "Row {$index}: Farmer not found: " .
-                        $farmerName;
+                        "Row {$index}: Farmer not found with Farmer No. '{$farmerNo}'.";
 
                     continue;
                 }
 
                 /*
-                 * =================================================
-                 * CREATE DUPLICATE KEY
-                 * =================================================
-                 */
-                $duplicateKey =
-                    strtolower(
-                        trim((string)$farmer->id)
-                    )
-                    . '|'
-                    .
-                    strtolower(
-                        trim($farmName)
-                    );
+                * =================================================
+                * CREATE DUPLICATE KEY
+                * =================================================
+                *
+                * Since one farmer should only have one farm
+                * record in this import, use farmer ID as the key.
+                * =================================================
+                */
+
+                $duplicateKey = strtolower(
+                    trim((string)$farmer->id)
+                );
 
                 /*
-                 * =================================================
-                 * CHECK DUPLICATE INSIDE EXCEL
-                 * =================================================
-                 */
+                * =================================================
+                * CHECK DUPLICATE INSIDE EXCEL
+                * =================================================
+                */
                 if (isset($uploadedRows[$duplicateKey])) {
 
                     $previousRow =
@@ -641,22 +581,20 @@ class FarmsController extends AppController
 
                     $errors[] =
                         "Row {$index}: Duplicate data in Excel. " .
-                        "The farm '{$farmName}' for farmer " .
-                        "'{$farmerName}' was already listed " .
+                        "Farm for farmer '{$farmerNo}' was already listed " .
                         "in row {$previousRow}.";
 
                     continue;
                 }
 
                 /*
-                 * =================================================
-                 * CHECK DUPLICATE IN DATABASE
-                 * =================================================
-                 */
+                * =================================================
+                * CHECK DUPLICATE IN DATABASE
+                * =================================================
+                */
                 $existingFarm = $this->Farms->find()
                     ->where([
-                        'Farms.farmer_id' => $farmer->id,
-                        'Farms.farm_name' => $farmName
+                        'Farms.farmer_id' => $farmer->id
                     ])
                     ->first();
 
@@ -666,33 +604,33 @@ class FarmsController extends AppController
 
                     $errors[] =
                         "Row {$index}: Duplicate data. " .
-                        "Farm '{$farmName}' already exists " .
-                        "for farmer '{$farmerName}'.";
+                        "Farm already exists for farmer '{$farmerNo}'.";
 
+                    /*
+                    * Mark as processed so another row for the same
+                    * farmer in the Excel file will also be detected.
+                    */
                     $uploadedRows[$duplicateKey] = $index;
 
                     continue;
                 }
 
                 /*
-                 * =================================================
-                 * MARK ROW AS PROCESSED
-                 * =================================================
-                 */
+                * =================================================
+                * MARK ROW AS PROCESSED
+                * =================================================
+                */
                 $uploadedRows[$duplicateKey] = $index;
 
                 /*
-                 * =================================================
-                 * CREATE FARM ENTITY
-                 * =================================================
-                 */
+                * =================================================
+                * CREATE FARM ENTITY
+                * =================================================
+                */
                 $farm = $this->Farms->newEmptyEntity();
 
                 $farm->farmer_id =
                     $farmer->id;
-
-                $farm->farm_name =
-                    $farmName;
 
                 $farm->farm_size =
                     (float)$farmSize;
@@ -704,19 +642,19 @@ class FarmsController extends AppController
                     (float)$averageYield;
 
                 /*
-                 * =================================================
-                 * SAVE FARM
-                 * =================================================
-                 */
+                * =================================================
+                * SAVE FARM
+                * =================================================
+                */
                 if ($this->Farms->save($farm)) {
 
                     $success++;
 
                     /*
-                     * ==============================================
-                     * AUDIT LOG - FARM IMPORTED
-                     * ==============================================
-                     */
+                    * ==============================================
+                    * AUDIT LOG - FARM IMPORTED
+                    * ==============================================
+                    */
                     $this->AuditLogger->logActivity(
                         'created',
                         'Farm record imported from Excel',
@@ -724,12 +662,11 @@ class FarmsController extends AppController
                         [
                             'source' => 'Excel import',
                             'excel_row' => $index,
-                            'farm_name' => $farm->farm_name,
                             'farmer_id' => $farm->farmer_id,
-                            'farmer_name' => $farmerName,
+                            'farmer_no' => $farmerNo,
                             'farm_size' => $farm->farm_size,
                             'location' => $farm->location,
-                            'average_yield' => $farm->average_yield,
+                            'average_yield' => $farm->average_yield
                         ]
                     );
 
@@ -746,10 +683,10 @@ class FarmsController extends AppController
             }
 
             /*
-             * =====================================================
-             * ALL SUCCESSFUL
-             * =====================================================
-             */
+            * =====================================================
+            * ALL SUCCESSFUL
+            * =====================================================
+            */
             if (
                 $success > 0 &&
                 $failed === 0
@@ -762,10 +699,10 @@ class FarmsController extends AppController
             }
 
             /*
-             * =====================================================
-             * PARTIAL SUCCESS
-             * =====================================================
-             */
+            * =====================================================
+            * PARTIAL SUCCESS
+            * =====================================================
+            */
             elseif (
                 $success > 0 &&
                 $failed > 0
@@ -783,10 +720,10 @@ class FarmsController extends AppController
             }
 
             /*
-             * =====================================================
-             * ALL FAILED
-             * =====================================================
-             */
+            * =====================================================
+            * ALL FAILED
+            * =====================================================
+            */
             elseif (
                 $success === 0 &&
                 $failed > 0
@@ -804,10 +741,10 @@ class FarmsController extends AppController
             }
 
             /*
-             * =====================================================
-             * NO DATA
-             * =====================================================
-             */
+            * =====================================================
+            * NO DATA
+            * =====================================================
+            */
             else {
 
                 $this->Flash->warning(
@@ -818,10 +755,10 @@ class FarmsController extends AppController
         } catch (\Exception $e) {
 
             /*
-             * =====================================================
-             * EXCEL PROCESSING ERROR
-             * =====================================================
-             */
+            * =====================================================
+            * EXCEL PROCESSING ERROR
+            * =====================================================
+            */
             $this->request->getSession()->write(
                 'ExcelImportResult',
                 [
@@ -837,10 +774,10 @@ class FarmsController extends AppController
         }
 
         /*
-         * =========================================================
-         * RETURN TO FARM INDEX
-         * =========================================================
-         */
+        * =========================================================
+        * RETURN TO FARM INDEX
+        * =========================================================
+        */
         return $this->redirect([
             'action' => 'index'
         ]);

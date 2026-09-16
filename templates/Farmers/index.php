@@ -3,10 +3,146 @@
         <div class="card-header">
             <h3 class="card-title text-dark">Beneficiaries</h3>
             <div class="card-tools d-flex align-items-center">
-                <button type="button" class="btn btn-success mr-2" data-toggle="modal" data-target="#excelUploadModal" data-placement="bottom" title="Upload Excel">
-                    <i class="fas fa-file-excel mr-1"></i>
-                    Upload Beneficiaries
-                </button>
+                <div class="dropdown mr-2 beneficiary-actions">
+                    <button
+                        type="button"
+                        class="btn btn-success beneficiary-dropdown-btn dropdown-toggle"
+                        id="beneficiariesDropdown"
+                        data-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                    >
+                        <span class="beneficiary-btn-icon">
+                            <i class="fas fa-users"></i>
+                        </span>
+                        <span class="beneficiary-btn-label">Beneficiaries</span>
+                    </button>
+
+                    <div
+                        class="dropdown-menu dropdown-menu-right beneficiary-dropdown-menu"
+                        aria-labelledby="beneficiariesDropdown"
+                    >
+
+                        <!-- HEADER -->
+                        <div class="beneficiary-menu-header">
+                            <div class="beneficiary-header-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+
+                            <div class="beneficiary-header-content">
+                                <div class="beneficiary-header-title">
+                                    Beneficiary Management
+                                </div>
+
+                                <div class="beneficiary-header-subtitle">
+                                    Import or export beneficiary data
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="beneficiary-divider"></div>
+
+                        <!-- EXPORT -->
+                        <div class="beneficiary-section-label">
+                            <i class="fas fa-download"></i>
+                            <span>EXPORT</span>
+                        </div>
+
+
+                        <!-- DOWNLOAD BENEFICIARIES -->
+                        <a
+                            href="<?= $this->Url->build([
+                                'controller' => 'Farmers',
+                                'action' => 'downloadFarmersExcel'
+                            ]) ?>"
+                            class="beneficiary-link"
+                        >
+                            <div class="beneficiary-link-icon beneficiary-excel-icon">
+                                <i class="fas fa-file-excel"></i>
+                            </div>
+
+                            <div class="beneficiary-link-content">
+                                <div class="beneficiary-link-title">
+                                    Download Beneficiaries
+                                </div>
+
+                                <div class="beneficiary-link-description">
+                                    Export all beneficiary records
+                                </div>
+                            </div>
+
+                            <div class="beneficiary-link-arrow">
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </a>
+
+
+                        <!-- DOWNLOAD TEMPLATE -->
+                        <a
+                            href="<?= $this->Url->build([
+                                'controller' => 'Farmers',
+                                'action' => 'downloadExcelTemplate'
+                            ]) ?>"
+                            class="beneficiary-link"
+                        >
+                            <div class="beneficiary-link-icon beneficiary-template-icon">
+                                <i class="fas fa-file-download"></i>
+                            </div>
+
+                            <div class="beneficiary-link-content">
+                                <div class="beneficiary-link-title">
+                                    Download Template
+                                </div>
+
+                                <div class="beneficiary-link-description">
+                                    Get the Excel import template
+                                </div>
+                            </div>
+
+                            <div class="beneficiary-link-arrow">
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </a>
+
+
+                        <div class="beneficiary-divider"></div>
+
+
+                        <!-- IMPORT -->
+                        <div class="beneficiary-section-label">
+                            <i class="fas fa-upload"></i>
+                            <span>IMPORT</span>
+                        </div>
+
+
+                        <!-- UPLOAD -->
+                        <button
+                            type="button"
+                            class="beneficiary-upload"
+                            data-toggle="modal"
+                            data-target="#excelUploadModal"
+                        >
+                            <div class="beneficiary-link-icon beneficiary-upload-icon">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+
+                            <div class="beneficiary-link-content">
+                                <div class="beneficiary-link-title">
+                                    Upload Beneficiaries
+                                </div>
+
+                                <div class="beneficiary-link-description">
+                                    Import beneficiaries from Excel
+                                </div>
+                            </div>
+
+                            <div class="beneficiary-link-arrow">
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </button>
+
+                    </div>
+                </div>
                 <?= $this->Html->link('<i class="fas fa-plus"></i>',['action' => 'add'],
                 [ 'id' => 'add', 'class' => 'btn btn-primary', 'data-toggle' => 'tooltip', 'data-placement' => 'bottom', 'title' => 'Add Record', 'escape' => false ])?>
             </div>
@@ -56,7 +192,7 @@
             <table id="farmers-table" class="table table-bordered table-hover">
                 <thead>
                     <tr>
-                        <th>Farmer Number</th>
+                        <th>LGU RSBSA Number</th>
                         <th>Firstname</th>
                         <th>Lastname</th>
                         <th>Middlename</th>
@@ -65,7 +201,6 @@
                         <th>Address</th>
                         <th>Contact Number</th>
                         <th>Created</th>
-                        <th>Modified</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -250,6 +385,10 @@
         </div>
     </div>
 </div>
+<?php
+$importResult = $this->request->getSession()->consume('ExcelImportResult');
+?>
+
 <div class="modal fade"
      id="importResultModal"
      tabindex="-1"
@@ -261,6 +400,7 @@
 
         <div class="modal-content import-result-modal">
 
+            <!-- HEADER -->
             <div class="modal-header import-result-header">
 
                 <div class="import-result-icon">
@@ -278,6 +418,7 @@
 
             </div>
 
+            <!-- BODY -->
             <div class="modal-body text-center">
 
                 <h4 id="importResultModalLabel"
@@ -289,8 +430,71 @@
                    class="import-result-message">
                 </p>
 
+                <!-- IMPORT SUMMARY -->
+                <div id="importResultSummary"
+                     class="import-result-summary mt-3"
+                     style="display:none;">
+
+                    <div class="row">
+
+                        <div class="col-4">
+                            <div class="import-summary-box uploaded">
+                                <div class="summary-icon">
+                                    <i class="fas fa-user-plus"></i>
+                                </div>
+
+                                <div class="summary-number"
+                                     id="importSuccessCount">
+                                    0
+                                </div>
+
+                                <div class="summary-label">
+                                    Uploaded
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-4">
+                            <div class="import-summary-box duplicate">
+                                <div class="summary-icon">
+                                    <i class="fas fa-copy"></i>
+                                </div>
+
+                                <div class="summary-number"
+                                     id="importDuplicateCount">
+                                    0
+                                </div>
+
+                                <div class="summary-label">
+                                    Already Uploaded
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-4">
+                            <div class="import-summary-box failed">
+                                <div class="summary-icon">
+                                    <i class="fas fa-times-circle"></i>
+                                </div>
+
+                                <div class="summary-number"
+                                     id="importFailedCount">
+                                    0
+                                </div>
+
+                                <div class="summary-label">
+                                    Failed
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
             </div>
 
+            <!-- FOOTER -->
             <div class="modal-footer justify-content-center">
 
                 <button type="button"
@@ -312,109 +516,123 @@
 <script>
 $(document).ready(function () {
 
-    /*
-     * =====================================================
-     * GET CAKEPHP FLASH MESSAGE
-     * =====================================================
-     */
+    <?php if (!empty($importResult)): ?>
 
-    var flashMessage = $('.message');
-
-    /*
-     * If CakePHP generated a success message
-     */
-
-    if (flashMessage.length) {
-
-        var messageText = flashMessage.text().trim();
+        var importResult = <?= json_encode($importResult) ?>;
 
         /*
-         * Determine message type
+         * ============================================
+         * GET IMPORT RESULT
+         * ============================================
          */
 
-        var isWarning =
-            flashMessage.hasClass('warning') ||
-            flashMessage.hasClass('alert-warning') ||
-            flashMessage.find('.alert-warning').length > 0;
+        var resultType = importResult.type || 'success';
+        var resultTitle = importResult.title || 'Import Completed';
+        var resultMessage = importResult.message || '';
 
-        var isError =
-            flashMessage.hasClass('error') ||
-            flashMessage.hasClass('alert-danger') ||
-            flashMessage.find('.alert-danger').length > 0;
+        var successCount = parseInt(importResult.success || 0);
+        var duplicateCount = parseInt(importResult.duplicate || 0);
+        var failedCount = parseInt(importResult.failed || 0);
 
 
         /*
-         * =================================================
-         * SET MODAL CONTENT
-         * =================================================
+         * ============================================
+         * SET MESSAGE
+         * ============================================
          */
 
-        $('#importResultMessage').text(messageText);
+        $('#importResultModalLabel').text(resultTitle);
+
+        $('#importResultMessage').text(resultMessage);
 
 
         /*
-         * =================================================
+         * ============================================
+         * SET COUNTS
+         * ============================================
+         */
+
+        $('#importSuccessCount').text(successCount);
+        $('#importDuplicateCount').text(duplicateCount);
+        $('#importFailedCount').text(failedCount);
+
+        $('#importResultSummary').show();
+
+
+        /*
+         * ============================================
+         * RESET MODAL CLASSES
+         * ============================================
+         */
+
+        $('.import-result-modal')
+            .removeClass('result-success result-warning result-error');
+
+
+        /*
+         * ============================================
          * SUCCESS
-         * =================================================
+         * ============================================
          */
 
-        if (!isWarning && !isError) {
+        if (resultType === 'success') {
 
-            $('#importResultModal')
-                .removeClass('warning error');
+            $('.import-result-modal')
+                .addClass('result-success');
 
-            $('#importResultModal .import-result-icon')
+            $('.import-result-icon')
                 .html('<i class="fas fa-check"></i>');
 
-            $('#importResultModalLabel')
-                .text('Import Completed');
+            $('.import-ok-btn')
+                .removeClass('btn-warning btn-danger')
+                .addClass('btn-success');
         }
 
 
         /*
-         * =================================================
-         * WARNING
-         * =================================================
+         * ============================================
+         * WARNING / ALREADY UPLOADED
+         * ============================================
          */
 
-        else if (isWarning) {
+        else if (resultType === 'warning') {
 
-            $('#importResultModal')
-                .removeClass('error')
-                .addClass('warning');
+            $('.import-result-modal')
+                .addClass('result-warning');
 
-            $('#importResultModal .import-result-icon')
-                .html('<i class="fas fa-exclamation"></i>');
+            $('.import-result-icon')
+                .html('<i class="fas fa-exclamation-triangle"></i>');
 
-            $('#importResultModalLabel')
-                .text('Data Already Uploaded');
+            $('.import-ok-btn')
+                .removeClass('btn-success btn-danger')
+                .addClass('btn-warning');
         }
 
 
         /*
-         * =================================================
+         * ============================================
          * ERROR
-         * =================================================
+         * ============================================
          */
 
-        else if (isError) {
+        else {
 
-            $('#importResultModal')
-                .removeClass('warning')
-                .addClass('error');
+            $('.import-result-modal')
+                .addClass('result-error');
 
-            $('#importResultModal .import-result-icon')
+            $('.import-result-icon')
                 .html('<i class="fas fa-times"></i>');
 
-            $('#importResultModalLabel')
-                .text('Import Failed');
+            $('.import-ok-btn')
+                .removeClass('btn-success btn-warning')
+                .addClass('btn-danger');
         }
 
 
         /*
-         * =================================================
-         * SHOW MODAL
-         * =================================================
+         * ============================================
+         * SHOW RESULT MODAL
+         * ============================================
          */
 
         $('#importResultModal').modal({
@@ -422,15 +640,7 @@ $(document).ready(function () {
             keyboard: false
         });
 
-
-        /*
-         * =================================================
-         * HIDE ORIGINAL FLASH MESSAGE
-         * =================================================
-         */
-
-        flashMessage.hide();
-    }
+    <?php endif; ?>
 
 });
 </script>

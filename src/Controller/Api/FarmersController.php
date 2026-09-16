@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace App\Controller\Api;
 
 use App\Controller\AppController;
-
+use Carbon\Carbon;
 /**
  * Farmers Controller
  *
@@ -26,11 +26,57 @@ class FarmersController extends AppController
     }
 
     public function getFarmers()
-    {
-        $farmers = $this->Farmers->find();
-        return $this->response->withType('application/json')
-            ->withStringBody(json_encode(['data'=>$farmers]));
+{
+    $farmers = $this->Farmers->find()
+        ->order(['Farmers.created' => 'DESC'])
+        ->all();
+
+    $data = [];
+
+    foreach ($farmers as $farmer) {
+
+        $created = '';
+
+        if (!empty($farmer->created)) {
+            $created = $farmer->created
+                ->setTimezone('Asia/Manila')
+                ->format('M d, Y h:i A');
+        }
+
+        $birthdate = '';
+
+        if (!empty($farmer->birthdate)) {
+            $birthdate = $farmer->birthdate->format('M d, Y');
+        }
+
+        $data[] = [
+            'id' => $farmer->id,
+            'farmer_no' => $farmer->farmer_no ?? '',
+            'first_name' => $farmer->first_name ?? '',
+            'last_name' => $farmer->last_name ?? '',
+            'middle_name' => $farmer->middle_name ?? '',
+            'birthdate' => $birthdate,
+            'gender' => strtoupper(
+                strtolower(trim((string)($farmer->gender ?? ''))) === 'male'
+                    ? 'M'
+                    : (
+                        strtolower(trim((string)($farmer->gender ?? ''))) === 'female'
+                            ? 'F'
+                            : trim((string)($farmer->gender ?? ''))
+                    )
+            ),
+            'address' => $farmer->address ?? '',
+            'contact_no' => $farmer->contact_no ?? '',
+            'created' => $created
+        ];
     }
+
+    return $this->response
+        ->withType('application/json')
+        ->withStringBody(json_encode([
+            'data' => $data
+        ]));
+}
 
     /**
      * Add method

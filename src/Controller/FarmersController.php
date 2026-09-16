@@ -106,24 +106,40 @@ class FarmersController extends AppController
     }
 
     public function uploadExcel()
-    {
-        if (!$this->request->is('post')) {
-            return $this->redirect([
-                'action' => 'index'
-            ]);
-        }
+{
+    /*
+    |--------------------------------------------------------------------------
+    | ONLY ALLOW POST
+    |--------------------------------------------------------------------------
+    */
 
-        $file = $this->request->getData('excel_file');
+    if (!$this->request->is('post')) {
+        return $this->redirect([
+            'action' => 'index'
+        ]);
+    }
 
-        /*
-        |--------------------------------------------------------------------------
-        | VALIDATE FILE
-        |--------------------------------------------------------------------------
-        */
 
-        if (!$file || $file->getError() !== UPLOAD_ERR_OK) {
+    /*
+    |--------------------------------------------------------------------------
+    | GET UPLOADED FILE
+    |--------------------------------------------------------------------------
+    */
 
-            $this->request->getSession()->write(
+    $file = $this->request->getData('excel_file');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDATE FILE
+    |--------------------------------------------------------------------------
+    */
+
+    if (!$file || $file->getError() !== UPLOAD_ERR_OK) {
+
+        $this->request
+            ->getSession()
+            ->write(
                 'ExcelImportResult',
                 [
                     'type' => 'error',
@@ -131,33 +147,36 @@ class FarmersController extends AppController
                     'success' => 0,
                     'duplicate' => 0,
                     'failed' => 0,
-                    'message' => 'Please select a valid Excel file.'
+                    'message' =>
+                        'Please select a valid Excel file.'
                 ]
             );
 
-            return $this->redirect([
-                'action' => 'index'
-            ]);
-        }
+        return $this->redirect([
+            'action' => 'index'
+        ]);
+    }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | CHECK FILE EXTENSION
-        |--------------------------------------------------------------------------
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | CHECK FILE EXTENSION
+    |--------------------------------------------------------------------------
+    */
 
-        $extension = strtolower(
-            pathinfo(
-                $file->getClientFilename(),
-                PATHINFO_EXTENSION
-            )
-        );
+    $extension = strtolower(
+        pathinfo(
+            $file->getClientFilename(),
+            PATHINFO_EXTENSION
+        )
+    );
 
 
-        if (!in_array($extension, ['xlsx', 'xls'], true)) {
+    if (!in_array($extension, ['xlsx', 'xls'], true)) {
 
-            $this->request->getSession()->write(
+        $this->request
+            ->getSession()
+            ->write(
                 'ExcelImportResult',
                 [
                     'type' => 'error',
@@ -170,749 +189,1499 @@ class FarmersController extends AppController
                 ]
             );
 
-            return $this->redirect([
-                'action' => 'index'
-            ]);
-        }
+        return $this->redirect([
+            'action' => 'index'
+        ]);
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | COUNTERS
+    |--------------------------------------------------------------------------
+    */
+
+    $success = 0;
+    $failed = 0;
+    $duplicate = 0;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TRACK FARMER NUMBERS INSIDE EXCEL
+    |--------------------------------------------------------------------------
+    */
+
+    $uploadedFarmerNumbers = [];
+
+
+    try {
+
+        /*
+        |--------------------------------------------------------------------------
+        | LOAD EXCEL FILE
+        |--------------------------------------------------------------------------
+        */
+
+        $spreadsheet = IOFactory::load(
+            $file->getStream()->getMetadata('uri')
+        );
+
+
+        $sheet = $spreadsheet->getActiveSheet();
 
 
         /*
         |--------------------------------------------------------------------------
-        | COUNTERS
+        | CONVERT SHEET TO ARRAY
         |--------------------------------------------------------------------------
         */
 
-        $success = 0;
-        $failed = 0;
-        $duplicate = 0;
+        $rows = $sheet->toArray(
+            null,
+            true,
+            true,
+            true
+        );
 
 
         /*
         |--------------------------------------------------------------------------
-        | STORE ROW HASHES
+        | PROCESS EACH ROW
         |--------------------------------------------------------------------------
-        |
-        | Used to detect duplicate rows inside the SAME Excel file.
-        |
         */
 
-        $uploadedRows = [];
-
-
-        try {
+        foreach ($rows as $index => $row) {
 
             /*
             |--------------------------------------------------------------------------
-            | LOAD EXCEL FILE
+            | SKIP HEADER
             |--------------------------------------------------------------------------
             */
 
-            $spreadsheet = IOFactory::load(
-                $file->getStream()->getMetadata('uri')
-            );
-
-
-            $sheet = $spreadsheet->getActiveSheet();
-
-
-            $rows = $sheet->toArray(
-                null,
-                true,
-                true,
-                true
-            );
+            if ($index == 1) {
+                continue;
+            }
 
 
             /*
             |--------------------------------------------------------------------------
-            | PROCESS EACH ROW
+            | READ EXCEL COLUMNS
+            |--------------------------------------------------------------------------
+            |
+            | A = LGU RSBSA Number
+            | B = FIRST NAME
+            | C = LAST NAME
+            | D = MNAME
+            | E = SUFFIX
+            | F = BIRTHDATE
+            | G = GENDER
+            | H = ADDRESS
+            | I = CONTACT NUMBER
+            |
+            */
+
+            $farmerNo = trim(
+                (string)($row['A'] ?? '')
+            );
+
+            $firstName = trim(
+                (string)($row['B'] ?? '')
+            );
+
+            $lastName = trim(
+                (string)($row['C'] ?? '')
+            );
+
+            $middleName = trim(
+                (string)($row['D'] ?? '')
+            );
+
+            $suffix = trim(
+                (string)($row['E'] ?? '')
+            );
+
+            $birthdateValue = $row['F'] ?? '';
+
+            $gender = trim(
+                (string)($row['G'] ?? '')
+            );
+
+            $address = trim(
+                (string)($row['H'] ?? '')
+            );
+
+            $contactNo = trim(
+                (string)($row['I'] ?? '')
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | CHECK EMPTY ROW
             |--------------------------------------------------------------------------
             */
 
-            foreach ($rows as $index => $row) {
+            if (
+                $farmerNo === '' &&
+                $firstName === '' &&
+                $lastName === '' &&
+                $middleName === '' &&
+                $suffix === '' &&
+                trim((string)$birthdateValue) === '' &&
+                $gender === '' &&
+                $address === '' &&
+                $contactNo === ''
+            ) {
+                continue;
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | REQUIRED FIELDS
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                $farmerNo === '' ||
+                $firstName === '' ||
+                $lastName === ''
+            ) {
+
+                $failed++;
+
+                continue;
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | NORMALIZE RSBSA NUMBER
+            |--------------------------------------------------------------------------
+            */
+
+            $normalizedFarmerNo = strtolower(
+                preg_replace(
+                    '/\s+/',
+                    '',
+                    $farmerNo
+                )
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | CHECK DUPLICATE INSIDE CURRENT EXCEL FILE
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                isset(
+                    $uploadedFarmerNumbers[
+                        $normalizedFarmerNo
+                    ]
+                )
+            ) {
+
+                $duplicate++;
+
+                continue;
+            }
+
+
+            /*
+            | Remember RSBSA number
+            */
+
+            $uploadedFarmerNumbers[
+                $normalizedFarmerNo
+            ] = true;
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | PROCESS BIRTHDATE
+            |--------------------------------------------------------------------------
+            */
+
+            $birthdate = null;
+
+
+            if (
+                $birthdateValue !== null &&
+                trim((string)$birthdateValue) !== ''
+            ) {
 
                 /*
                 |--------------------------------------------------------------------------
-                | SKIP HEADER
+                | EXCEL NUMERIC DATE
                 |--------------------------------------------------------------------------
                 */
 
-                if ($index == 1) {
-                    continue;
-                }
+                if (is_numeric($birthdateValue)) {
 
+                    try {
 
-                /*
-                |--------------------------------------------------------------------------
-                | SKIP COMPLETELY EMPTY ROWS
-                |--------------------------------------------------------------------------
-                */
-
-                if (
-                    empty(trim((string)($row['A'] ?? ''))) &&
-                    empty(trim((string)($row['B'] ?? ''))) &&
-                    empty(trim((string)($row['C'] ?? ''))) &&
-                    empty(trim((string)($row['D'] ?? ''))) &&
-                    empty(trim((string)($row['E'] ?? ''))) &&
-                    empty(trim((string)($row['F'] ?? ''))) &&
-                    empty(trim((string)($row['G'] ?? ''))) &&
-                    empty(trim((string)($row['H'] ?? '')))
-                ) {
-                    continue;
-                }
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | GET FARMER DATA
-                |--------------------------------------------------------------------------
-                */
-
-                $farmerNo = trim(
-                    (string)($row['A'] ?? '')
-                );
-
-
-                $firstName = trim(
-                    (string)($row['B'] ?? '')
-                );
-
-
-                $lastName = trim(
-                    (string)($row['C'] ?? '')
-                );
-
-
-                $middleName = trim(
-                    (string)($row['D'] ?? '')
-                );
-
-
-                $gender = trim(
-                    (string)($row['F'] ?? '')
-                );
-
-
-                $address = trim(
-                    (string)($row['G'] ?? '')
-                );
-
-
-                $contactNo = trim(
-                    (string)($row['H'] ?? '')
-                );
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | VALIDATE FARMER NUMBER
-                |--------------------------------------------------------------------------
-                */
-
-                if ($farmerNo === '') {
-
-                    $failed++;
-
-                    continue;
-                }
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | PROCESS BIRTHDATE
-                |--------------------------------------------------------------------------
-                */
-
-                $birthdate = null;
-
-
-                if (
-                    isset($row['E']) &&
-                    trim((string)$row['E']) !== ''
-                ) {
-
-                    $birthdateValue = $row['E'];
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | EXCEL NUMERIC DATE
-                    |--------------------------------------------------------------------------
-                    */
-
-                    if (is_numeric($birthdateValue)) {
-
-                        try {
-
-                            $dateTime =
-                                Date::excelToDateTimeObject(
-                                    (float)$birthdateValue
-                                );
-
-
-                            $birthdate =
-                                FrozenDate::createFromMutable(
-                                    $dateTime
-                                );
-
-                        } catch (\Throwable $e) {
-
-                            $failed++;
-
-                            continue;
-                        }
-
-                    } else {
-
-                        /*
-                        |--------------------------------------------------------------------------
-                        | TEXT DATE
-                        |--------------------------------------------------------------------------
-                        */
-
-                        $dateValue = trim(
-                            (string)$birthdateValue
-                        );
-
-
-                        $dateTime = false;
-
-
-                        $formats = [
-                            'Y-m-d',
-                            'm/d/Y',
-                            'd/m/Y',
-                            'm-d-Y',
-                            'd-m-Y',
-                            'Y/m/d',
-                            'F j, Y',
-                            'M j, Y'
-                        ];
-
-
-                        foreach ($formats as $format) {
-
-                            $dateTime =
-                                \DateTime::createFromFormat(
-                                    $format,
-                                    $dateValue
-                                );
-
-
-                            if ($dateTime !== false) {
-                                break;
-                            }
-                        }
-
-
-                        /*
-                        |--------------------------------------------------------------------------
-                        | FALLBACK DATE PARSING
-                        |--------------------------------------------------------------------------
-                        */
-
-                        if ($dateTime === false) {
-
-                            try {
-
-                                $dateTime =
-                                    new \DateTime(
-                                        $dateValue
-                                    );
-
-                            } catch (\Throwable $e) {
-
-                                $dateTime = false;
-                            }
-                        }
-
-
-                        /*
-                        |--------------------------------------------------------------------------
-                        | INVALID DATE
-                        |--------------------------------------------------------------------------
-                        */
-
-                        if ($dateTime === false) {
-
-                            $failed++;
-
-                            continue;
-                        }
-
+                        $dateTime =
+                            Date::excelToDateTimeObject(
+                                (float)$birthdateValue
+                            );
 
                         $birthdate =
                             FrozenDate::createFromMutable(
                                 $dateTime
                             );
+
+                    } catch (\Throwable $e) {
+
+                        $failed++;
+
+                        continue;
                     }
-                }
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | CREATE BIRTHDATE STRING
-                |--------------------------------------------------------------------------
-                */
-
-                $birthdateString = '';
-
-
-                if ($birthdate !== null) {
-
-                    $birthdateString =
-                        $birthdate->format('Y-m-d');
-                }
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | CREATE DATA SIGNATURE
-                |--------------------------------------------------------------------------
-                |
-                | Filename is NOT included.
-                |
-                | Only actual farmer data are compared.
-                |
-                */
-
-                $dataSignature = implode('|', [
-
-                    strtolower(
-                        trim($farmerNo)
-                    ),
-
-                    strtolower(
-                        trim($firstName)
-                    ),
-
-                    strtolower(
-                        trim($lastName)
-                    ),
-
-                    strtolower(
-                        trim($middleName)
-                    ),
-
-                    $birthdateString,
-
-                    strtolower(
-                        trim($gender)
-                    ),
-
-                    strtolower(
-                        trim($address)
-                    ),
-
-                    strtolower(
-                        trim($contactNo)
-                    )
-                ]);
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | CREATE HASH
-                |--------------------------------------------------------------------------
-                */
-
-                $rowHash = hash(
-                    'sha256',
-                    $dataSignature
-                );
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | CHECK DUPLICATE INSIDE EXCEL
-                |--------------------------------------------------------------------------
-                */
-
-                if (isset($uploadedRows[$rowHash])) {
-
-                    $duplicate++;
-
-                    continue;
-                }
-
-
-                /*
-                | Remember row
-                */
-
-                $uploadedRows[$rowHash] = true;
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | CHECK DATABASE
-                |--------------------------------------------------------------------------
-                |
-                | First search using farmer_no.
-                |
-                */
-
-                $existingFarmers =
-                    $this->Farmers
-                        ->find()
-                        ->where([
-                            'farmer_no' => $farmerNo
-                        ])
-                        ->all();
-
-
-                $alreadyExists = false;
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | COMPARE EXISTING FARMERS
-                |--------------------------------------------------------------------------
-                */
-
-                foreach (
-                    $existingFarmers
-                    as $existingFarmer
-                ) {
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | EXISTING BIRTHDATE
-                    |--------------------------------------------------------------------------
-                    */
-
-                    $existingBirthdate = '';
-
-
-                    if (!empty($existingFarmer->birthdate)) {
-
-                        $existingBirthdate =
-                            $existingFarmer
-                                ->birthdate
-                                ->format('Y-m-d');
-                    }
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | EXISTING DATA SIGNATURE
-                    |--------------------------------------------------------------------------
-                    */
-
-                    $existingSignature = implode('|', [
-
-                        strtolower(
-                            trim(
-                                (string)
-                                $existingFarmer->farmer_no
-                            )
-                        ),
-
-                        strtolower(
-                            trim(
-                                (string)
-                                $existingFarmer->first_name
-                            )
-                        ),
-
-                        strtolower(
-                            trim(
-                                (string)
-                                $existingFarmer->last_name
-                            )
-                        ),
-
-                        strtolower(
-                            trim(
-                                (string)
-                                $existingFarmer->middle_name
-                            )
-                        ),
-
-                        $existingBirthdate,
-
-                        strtolower(
-                            trim(
-                                (string)
-                                $existingFarmer->gender
-                            )
-                        ),
-
-                        strtolower(
-                            trim(
-                                (string)
-                                $existingFarmer->address
-                            )
-                        ),
-
-                        strtolower(
-                            trim(
-                                (string)
-                                $existingFarmer->contact_no
-                            )
-                        )
-                    ]);
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | EXISTING HASH
-                    |--------------------------------------------------------------------------
-                    */
-
-                    $existingHash = hash(
-                        'sha256',
-                        $existingSignature
-                    );
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | EXACT MATCH FOUND
-                    |--------------------------------------------------------------------------
-                    */
-
-                    if ($existingHash === $rowHash) {
-
-                        $alreadyExists = true;
-
-                        break;
-                    }
-                }
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | SKIP DUPLICATE
-                |--------------------------------------------------------------------------
-                */
-
-                if ($alreadyExists) {
-
-                    $duplicate++;
-
-                    continue;
-                }
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | CREATE FARMER ENTITY
-                |--------------------------------------------------------------------------
-                */
-
-                $farmer =
-                    $this->Farmers->newEmptyEntity();
-
-
-                $farmer->farmer_no =
-                    $farmerNo;
-
-
-                $farmer->first_name =
-                    $firstName;
-
-
-                $farmer->last_name =
-                    $lastName;
-
-
-                $farmer->middle_name =
-                    $middleName;
-
-
-                $farmer->birthdate =
-                    $birthdate;
-
-
-                $farmer->gender =
-                    $gender;
-
-
-                $farmer->address =
-                    $address;
-
-
-                $farmer->contact_no =
-                    $contactNo;
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | SAVE FARMER
-                |--------------------------------------------------------------------------
-                */
-
-                if (
-                    $this->Farmers->save(
-                        $farmer
-                    )
-                ) {
-
-                    $success++;
 
                 } else {
 
-                    $failed++;
+                    /*
+                    |--------------------------------------------------------------------------
+                    | TEXT DATE
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $dateValue = trim(
+                        (string)$birthdateValue
+                    );
+
+                    $dateTime = false;
+
+
+                    $formats = [
+                        'Y-m-d',
+                        'm/d/Y',
+                        'd/m/Y',
+                        'm-d-Y',
+                        'd-m-Y',
+                        'Y/m/d',
+                        'F j, Y',
+                        'M j, Y'
+                    ];
+
+
+                    foreach ($formats as $format) {
+
+                        $dateTime =
+                            \DateTime::createFromFormat(
+                                $format,
+                                $dateValue
+                            );
+
+                        if ($dateTime !== false) {
+                            break;
+                        }
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | FALLBACK DATE PARSING
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if ($dateTime === false) {
+
+                        try {
+
+                            $dateTime =
+                                new \DateTime(
+                                    $dateValue
+                                );
+
+                        } catch (\Throwable $e) {
+
+                            $dateTime = false;
+                        }
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | INVALID DATE
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if ($dateTime === false) {
+
+                        $failed++;
+
+                        continue;
+                    }
+
+
+                    $birthdate =
+                        FrozenDate::createFromMutable(
+                            $dateTime
+                        );
                 }
             }
 
 
             /*
             |--------------------------------------------------------------------------
-            | DETERMINE RESULT
+            | NORMALIZE CONTACT NUMBER
             |--------------------------------------------------------------------------
             */
 
             if (
-                $success > 0 &&
-                $duplicate > 0 &&
-                $failed === 0
+                $contactNo !== '' &&
+                strlen($contactNo) === 10 &&
+                $contactNo[0] === '9'
             ) {
 
-                /*
-                | New records + duplicates
-                */
-
-                $message =
-                    "{$success} new farmer(s) were imported successfully. " .
-                    "{$duplicate} row(s) were already uploaded and were skipped " .
-                    "to prevent duplicate data.";
-
-                $resultType = 'success';
-
-            } elseif (
-                $success > 0 &&
-                $duplicate === 0 &&
-                $failed === 0
-            ) {
-
-                /*
-                | All new
-                */
-
-                $message =
-                    "Excel import completed successfully. " .
-                    "{$success} new farmer(s) were imported.";
-
-                $resultType = 'success';
-
-            } elseif (
-                $success === 0 &&
-                $duplicate > 0 &&
-                $failed === 0
-            ) {
-
-                /*
-                | Everything was duplicate
-                */
-
-                $message =
-                    "No new data were uploaded. " .
-                    "{$duplicate} row(s) were already uploaded " .
-                    "and were skipped to prevent duplicate data.";
-
-                $resultType = 'warning';
-
-            } elseif (
-                $failed > 0
-            ) {
-
-                /*
-                | Some failed
-                */
-
-                $message =
-                    "{$success} new farmer(s) imported, " .
-                    "{$duplicate} duplicate row(s) skipped, " .
-                    "{$failed} row(s) failed.";
-
-                $resultType = 'warning';
-
-            } else {
-
-                /*
-                | Nothing found
-                */
-
-                $message =
-                    'No valid farmer data were found in the Excel file.';
-
-                $resultType = 'warning';
+                $contactNo =
+                    '0' . $contactNo;
             }
 
 
             /*
             |--------------------------------------------------------------------------
-            | STORE RESULT FOR MODAL
+            | CHECK DATABASE
             |--------------------------------------------------------------------------
+            |
+            | LGU RSBSA Number is the unique identifier.
+            |
             */
 
-            $this->request
-                ->getSession()
-                ->write(
-                    'ExcelImportResult',
-                    [
-                        'type' => $resultType,
+            $existingFarmer =
+                $this->Farmers
+                    ->find()
+                    ->where([
+                        'farmer_no' => $farmerNo
+                    ])
+                    ->first();
 
-                        'title' =>
-                            'Excel Import Completed',
-
-                        'success' =>
-                            $success,
-
-                        'duplicate' =>
-                            $duplicate,
-
-                        'failed' =>
-                            $failed,
-
-                        'message' =>
-                            $message
-                    ]
-                );
-
-        } catch (\Throwable $e) {
 
             /*
             |--------------------------------------------------------------------------
-            | EXCEL ERROR
+            | ALREADY UPLOADED
             |--------------------------------------------------------------------------
             */
 
-            $this->request
-                ->getSession()
-                ->write(
-                    'ExcelImportResult',
-                    [
-                        'type' => 'error',
+            if ($existingFarmer) {
 
-                        'title' =>
-                            'Excel Import Failed',
+                $duplicate++;
 
-                        'success' => 0,
+                continue;
+            }
 
-                        'duplicate' => 0,
 
-                        'failed' => 0,
+            /*
+            |--------------------------------------------------------------------------
+            | CREATE FARMER ENTITY
+            |--------------------------------------------------------------------------
+            */
 
-                        'message' =>
-                            'Unable to read the Excel file: ' .
-                            $e->getMessage()
-                    ]
-                );
+            $farmer =
+                $this->Farmers->newEmptyEntity();
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | ASSIGN DATA
+            |--------------------------------------------------------------------------
+            */
+
+            $farmer->farmer_no =
+                $farmerNo;
+
+            $farmer->first_name =
+                $firstName;
+
+            $farmer->last_name =
+                $lastName;
+
+            $farmer->middle_name =
+                $middleName;
+
+            $farmer->suffix =
+                $suffix;
+
+            $farmer->birthdate =
+                $birthdate;
+
+            $farmer->gender =
+                $gender;
+
+            $farmer->address =
+                $address;
+
+            $farmer->contact_no =
+                $contactNo;
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | SAVE
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                $this->Farmers->save(
+                    $farmer
+                )
+            ) {
+
+                $success++;
+
+            } else {
+
+                $failed++;
+            }
         }
 
 
         /*
         |--------------------------------------------------------------------------
-        | REDIRECT TO RECORDS INDEX
+        | DETERMINE RESULT
         |--------------------------------------------------------------------------
         */
 
-        return $this->redirect([
-            'action' => 'index'
-        ]);
+        if (
+            $success > 0 &&
+            $duplicate > 0 &&
+            $failed === 0
+        ) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | NEW + ALREADY UPLOADED
+            |--------------------------------------------------------------------------
+            */
+
+            $message =
+                "Upload completed successfully. " .
+                "{$success} new beneficiary(s) were uploaded. " .
+                "{$duplicate} beneficiary(s) were already uploaded " .
+                "and were skipped to prevent duplicate records.";
+
+            $resultType = 'success';
+
+            $resultTitle =
+                'Upload Completed';
+
+
+        } elseif (
+            $success > 0 &&
+            $duplicate === 0 &&
+            $failed === 0
+        ) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | ALL NEW
+            |--------------------------------------------------------------------------
+            */
+
+            $message =
+                "Upload completed successfully. " .
+                "{$success} beneficiary(s) were uploaded.";
+
+            $resultType = 'success';
+
+            $resultTitle =
+                'Upload Successful';
+
+
+        } elseif (
+            $success === 0 &&
+            $duplicate > 0 &&
+            $failed === 0
+        ) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | ALL ALREADY UPLOADED
+            |--------------------------------------------------------------------------
+            */
+
+            $message =
+                "The beneficiary data are already uploaded. " .
+                "{$duplicate} beneficiary(s) already exist in the system. " .
+                "No duplicate records were created.";
+
+            $resultType = 'warning';
+
+            $resultTitle =
+                'Data Already Uploaded';
+
+
+        } elseif (
+            $success > 0 ||
+            $duplicate > 0 ||
+            $failed > 0
+        ) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | MIXED RESULT
+            |--------------------------------------------------------------------------
+            */
+
+            $message =
+                "Upload completed with some issues. " .
+                "{$success} new beneficiary(s) uploaded, " .
+                "{$duplicate} already uploaded/skipped, " .
+                "{$failed} row(s) failed.";
+
+            $resultType = 'warning';
+
+            $resultTitle =
+                'Upload Completed with Warnings';
+
+
+        } else {
+
+            /*
+            |--------------------------------------------------------------------------
+            | NO DATA
+            |--------------------------------------------------------------------------
+            */
+
+            $message =
+                'No valid beneficiary data were found in the Excel file.';
+
+            $resultType = 'warning';
+
+            $resultTitle =
+                'No Data Found';
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | STORE RESULT IN SESSION
+        |--------------------------------------------------------------------------
+        */
+
+        $this->request
+            ->getSession()
+            ->write(
+                'ExcelImportResult',
+                [
+                    'type' =>
+                        $resultType,
+
+                    'title' =>
+                        $resultTitle,
+
+                    'success' =>
+                        $success,
+
+                    'duplicate' =>
+                        $duplicate,
+
+                    'failed' =>
+                        $failed,
+
+                    'message' =>
+                        $message
+                ]
+            );
+
+
+    } catch (\Throwable $e) {
+
+        /*
+        |--------------------------------------------------------------------------
+        | EXCEL PROCESSING ERROR
+        |--------------------------------------------------------------------------
+        */
+
+        $this->request
+            ->getSession()
+            ->write(
+                'ExcelImportResult',
+                [
+                    'type' =>
+                        'error',
+
+                    'title' =>
+                        'Excel Import Failed',
+
+                    'success' =>
+                        0,
+
+                    'duplicate' =>
+                        0,
+
+                    'failed' =>
+                        0,
+
+                    'message' =>
+                        'Unable to read the Excel file: ' .
+                        $e->getMessage()
+                ]
+            );
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | REDIRECT
+    |--------------------------------------------------------------------------
+    */
+
+    return $this->redirect([
+        'action' => 'index'
+    ]);
+}
     
+    public function downloadExcelTemplate()
+    {
+        $spreadsheet =
+            new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+
+        $sheet =
+            $spreadsheet->getActiveSheet();
+
+        $sheet->setTitle('Farmers');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | HEADERS
+        |--------------------------------------------------------------------------
+        */
+
+        $headers = [
+            'LGU RSBSA Number',
+            'FIRST NAME',
+            'LAST NAME',
+            'MNAME',
+            'SUFFIX',
+            'BIRTHDATE',
+            'GENDER',
+            'ADDRESS',
+            'CONTACT NUMBER'
+        ];
+
+        foreach ($headers as $index => $header) {
+
+            $column =
+                \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(
+                    $index + 1
+                );
+
+            $sheet->setCellValue(
+                $column . '1',
+                $header
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | COLUMN WIDTHS
+        |--------------------------------------------------------------------------
+        */
+
+        $widths = [
+            'A' => 28,
+            'B' => 20,
+            'C' => 20,
+            'D' => 20,
+            'E' => 15,
+            'F' => 15,
+            'G' => 15,
+            'H' => 35,
+            'I' => 20
+        ];
+
+        foreach ($widths as $column => $width) {
+
+            $sheet
+                ->getColumnDimension($column)
+                ->setWidth($width);
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | BLANK DATA ROWS
+        |--------------------------------------------------------------------------
+        |
+        | Provides 10 empty rows with borders so users know where
+        | to enter beneficiary information.
+        |
+        */
+
+        $lastTemplateRow = 11;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ALL CELL BORDERS
+        |--------------------------------------------------------------------------
+        */
+
+        $sheet
+            ->getStyle("A1:I{$lastTemplateRow}")
+            ->getBorders()
+            ->getAllBorders()
+            ->setBorderStyle(
+                \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN
+            )
+            ->getColor()
+            ->setARGB('D9D9D9');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | HEADER STYLE
+        |--------------------------------------------------------------------------
+        */
+
+        $headerStyle = $sheet->getStyle('A1:I1');
+
+
+        // Yellow background
+
+        $headerStyle
+            ->getFill()
+            ->setFillType(
+                \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID
+            )
+            ->getStartColor()
+            ->setARGB('FFFF00');
+
+
+        // Bold text
+
+        $headerStyle
+            ->getFont()
+            ->setBold(true);
+
+
+        // Header font size
+
+        $headerStyle
+            ->getFont()
+            ->setSize(11);
+
+
+        // Center horizontally
+
+        $headerStyle
+            ->getAlignment()
+            ->setHorizontal(
+                \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER
+            );
+
+
+        // Center vertically
+
+        $headerStyle
+            ->getAlignment()
+            ->setVertical(
+                \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
+            );
+
+
+        // Wrap text
+
+        $headerStyle
+            ->getAlignment()
+            ->setWrapText(true);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | HEADER BORDER
+        |--------------------------------------------------------------------------
+        */
+
+        $headerStyle
+            ->getBorders()
+            ->getAllBorders()
+            ->setBorderStyle(
+                \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN
+            )
+            ->getColor()
+            ->setARGB('808080');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | HEADER ROW HEIGHT
+        |--------------------------------------------------------------------------
+        */
+
+        $sheet
+            ->getRowDimension(1)
+            ->setRowHeight(32);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DATA ROW HEIGHT
+        |--------------------------------------------------------------------------
+        */
+
+        for ($row = 2; $row <= $lastTemplateRow; $row++) {
+
+            $sheet
+                ->getRowDimension($row)
+                ->setRowHeight(22);
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CONTACT NUMBER COLUMN
+        |--------------------------------------------------------------------------
+        |
+        | Keep contact numbers as text so leading zeroes are preserved.
+        |
+        */
+
+        $sheet
+            ->getStyle("I2:I{$lastTemplateRow}")
+            ->getNumberFormat()
+            ->setFormatCode('@');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | RSBSA NUMBER COLUMN
+        |--------------------------------------------------------------------------
+        |
+        | Keep RSBSA numbers as text as well.
+        |
+        */
+
+        $sheet
+            ->getStyle("A2:A{$lastTemplateRow}")
+            ->getNumberFormat()
+            ->setFormatCode('@');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DATA ALIGNMENT
+        |--------------------------------------------------------------------------
+        */
+
+        $sheet
+            ->getStyle("A2:I{$lastTemplateRow}")
+            ->getAlignment()
+            ->setVertical(
+                \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
+            );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | FREEZE HEADER
+        |--------------------------------------------------------------------------
+        */
+
+        $sheet->freezePane('A2');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | AUTO FILTER
+        |--------------------------------------------------------------------------
+        */
+
+        $sheet->setAutoFilter(
+            "A1:I{$lastTemplateRow}"
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PAGE SETUP
+        |--------------------------------------------------------------------------
+        */
+
+        $sheet
+            ->getPageSetup()
+            ->setOrientation(
+                \PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE
+            );
+
+        $sheet
+            ->getPageSetup()
+            ->setPaperSize(
+                \PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4
+            );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DOWNLOAD
+        |--------------------------------------------------------------------------
+        */
+
+        $filename = 'farmers_import_template.xlsx';
+
+
+        $writer =
+            new \PhpOffice\PhpSpreadsheet\Writer\Xlsx(
+                $spreadsheet
+            );
+
+
+        $tempFile =
+            tempnam(
+                sys_get_temp_dir(),
+                'farmer_template_'
+            );
+
+
+        $writer->save($tempFile);
+
+
+        return $this->response
+            ->withType(
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+            ->withDownload($filename)
+            ->withFile(
+                $tempFile,
+                [
+                    'download' => true,
+                    'name' => $filename
+                ]
+            );
+    }
+
+    public function downloadFarmersExcel()
+{
+    /*
+    |--------------------------------------------------------------------------
+    | GET ALL BENEFICIARIES
+    |--------------------------------------------------------------------------
+    */
+
+    $farmers = $this->Farmers->find()
+        ->order([
+            'Farmers.farmer_no' => 'ASC'
+        ])
+        ->all();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CREATE SPREADSHEET
+    |--------------------------------------------------------------------------
+    */
+
+    $spreadsheet =
+        new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+
+    $sheet =
+        $spreadsheet->getActiveSheet();
+
+    $sheet->setTitle('Beneficiaries');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HEADERS
+    |--------------------------------------------------------------------------
+    */
+
+    $headers = [
+        'LGU RSBSA Number',
+        'FIRST NAME',
+        'LAST NAME',
+        'MNAME',
+        'SUFFIX',
+        'BIRTHDATE',
+        'GENDER',
+        'ADDRESS',
+        'CONTACT NUMBER'
+    ];
+
+    foreach ($headers as $index => $header) {
+
+        $column =
+            \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(
+                $index + 1
+            );
+
+        $sheet->setCellValue(
+            $column . '1',
+            $header
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | INSERT BENEFICIARY DATA
+    |--------------------------------------------------------------------------
+    */
+
+    $rowNumber = 2;
+
+    foreach ($farmers as $farmer) {
+
+        /*
+        |--------------------------------------------------------------------------
+        | RSBSA NUMBER
+        |--------------------------------------------------------------------------
+        */
+
+        $farmerNo = trim(
+            (string)($farmer->farmer_no ?? '')
+        );
+
+        $sheet->setCellValueExplicit(
+            'A' . $rowNumber,
+            $farmerNo,
+            \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | FIRST NAME
+        |--------------------------------------------------------------------------
+        */
+
+        $sheet->setCellValue(
+            'B' . $rowNumber,
+            $farmer->first_name ?? ''
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | LAST NAME
+        |--------------------------------------------------------------------------
+        */
+
+        $sheet->setCellValue(
+            'C' . $rowNumber,
+            $farmer->last_name ?? ''
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | MIDDLE NAME
+        |--------------------------------------------------------------------------
+        */
+
+        $sheet->setCellValue(
+            'D' . $rowNumber,
+            $farmer->middle_name ?? ''
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SUFFIX
+        |--------------------------------------------------------------------------
+        */
+
+        $sheet->setCellValue(
+            'E' . $rowNumber,
+            $farmer->suffix ?? ''
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | BIRTHDATE
+        |--------------------------------------------------------------------------
+        */
+
+        if (!empty($farmer->birthdate)) {
+
+            if ($farmer->birthdate instanceof \DateTimeInterface) {
+
+                $birthdate =
+                    $farmer->birthdate->format('m/d/Y');
+
+            } else {
+
+                $birthdate =
+                    date(
+                        'm/d/Y',
+                        strtotime((string)$farmer->birthdate)
+                    );
+            }
+
+            $sheet->setCellValue(
+                'F' . $rowNumber,
+                $birthdate
+            );
+
+        } else {
+
+            $sheet->setCellValue(
+                'F' . $rowNumber,
+                ''
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | GENDER
+        |--------------------------------------------------------------------------
+        */
+
+        $sheet->setCellValue(
+            'G' . $rowNumber,
+            $farmer->gender ?? ''
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ADDRESS
+        |--------------------------------------------------------------------------
+        */
+
+        $sheet->setCellValue(
+            'H' . $rowNumber,
+            $farmer->address ?? ''
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CONTACT NUMBER
+        |--------------------------------------------------------------------------
+        |
+        | Store as TEXT to preserve leading zero.
+        |
+        */
+
+        $contactNo = trim(
+            (string)($farmer->contact_no ?? '')
+        );
+
+        /*
+        | If database contains 10-digit Philippine mobile number
+        | such as 9123456750, add leading zero.
+        */
+
+        if (
+            $contactNo !== '' &&
+            strlen($contactNo) === 10 &&
+            $contactNo[0] === '9'
+        ) {
+            $contactNo = '0' . $contactNo;
+        }
+
+        $sheet->setCellValueExplicit(
+            'I' . $rowNumber,
+            $contactNo,
+            \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING
+        );
+
+
+        $rowNumber++;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LAST ROW
+    |--------------------------------------------------------------------------
+    */
+
+    $lastRow = max(
+        1,
+        $rowNumber - 1
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | COLUMN WIDTHS
+    |--------------------------------------------------------------------------
+    */
+
+    $widths = [
+        'A' => 28,
+        'B' => 20,
+        'C' => 20,
+        'D' => 20,
+        'E' => 15,
+        'F' => 15,
+        'G' => 15,
+        'H' => 35,
+        'I' => 20
+    ];
+
+    foreach ($widths as $column => $width) {
+
+        $sheet
+            ->getColumnDimension($column)
+            ->setWidth($width);
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HEADER STYLE
+    |--------------------------------------------------------------------------
+    */
+
+    $headerStyle =
+        $sheet->getStyle('A1:I1');
+
+
+    /*
+    | Yellow background
+    */
+
+    $headerStyle
+        ->getFill()
+        ->setFillType(
+            \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID
+        )
+        ->getStartColor()
+        ->setARGB('FFFF00');
+
+
+    /*
+    | Bold
+    */
+
+    $headerStyle
+        ->getFont()
+        ->setBold(true);
+
+
+    /*
+    | Font size
+    */
+
+    $headerStyle
+        ->getFont()
+        ->setSize(11);
+
+
+    /*
+    | Horizontal alignment
+    */
+
+    $headerStyle
+        ->getAlignment()
+        ->setHorizontal(
+            \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER
+        );
+
+
+    /*
+    | Vertical alignment
+    */
+
+    $headerStyle
+        ->getAlignment()
+        ->setVertical(
+            \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
+        );
+
+
+    /*
+    | Wrap text
+    */
+
+    $headerStyle
+        ->getAlignment()
+        ->setWrapText(true);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HEADER BORDER
+    |--------------------------------------------------------------------------
+    */
+
+    $headerStyle
+        ->getBorders()
+        ->getAllBorders()
+        ->setBorderStyle(
+            \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN
+        )
+        ->getColor()
+        ->setARGB('808080');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DATA BORDERS
+    |--------------------------------------------------------------------------
+    */
+
+    if ($lastRow >= 2) {
+
+        $sheet
+            ->getStyle("A2:I{$lastRow}")
+            ->getBorders()
+            ->getAllBorders()
+            ->setBorderStyle(
+                \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN
+            )
+            ->getColor()
+            ->setARGB('D9D9D9');
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HEADER ROW HEIGHT
+    |--------------------------------------------------------------------------
+    */
+
+    $sheet
+        ->getRowDimension(1)
+        ->setRowHeight(32);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DATA ROW HEIGHT
+    |--------------------------------------------------------------------------
+    */
+
+    if ($lastRow >= 2) {
+
+        for ($row = 2; $row <= $lastRow; $row++) {
+
+            $sheet
+                ->getRowDimension($row)
+                ->setRowHeight(22);
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TEXT FORMATTING
+    |--------------------------------------------------------------------------
+    */
+
+    $sheet
+        ->getStyle("A2:A{$lastRow}")
+        ->getNumberFormat()
+        ->setFormatCode('@');
+
+    $sheet
+        ->getStyle("I2:I{$lastRow}")
+        ->getNumberFormat()
+        ->setFormatCode('@');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | VERTICAL ALIGNMENT
+    |--------------------------------------------------------------------------
+    */
+
+    if ($lastRow >= 2) {
+
+        $sheet
+            ->getStyle("A2:I{$lastRow}")
+            ->getAlignment()
+            ->setVertical(
+                \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
+            );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FREEZE HEADER
+    |--------------------------------------------------------------------------
+    */
+
+    $sheet->freezePane('A2');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | AUTO FILTER
+    |--------------------------------------------------------------------------
+    */
+
+    $sheet->setAutoFilter(
+        "A1:I{$lastRow}"
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PAGE SETUP
+    |--------------------------------------------------------------------------
+    */
+
+    $sheet
+        ->getPageSetup()
+        ->setOrientation(
+            \PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE
+        );
+
+    $sheet
+        ->getPageSetup()
+        ->setPaperSize(
+            \PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DOWNLOAD FILE
+    |--------------------------------------------------------------------------
+    */
+
+    $filename =
+        'beneficiaries_' .
+        date('Y-m-d_H-i-s') .
+        '.xlsx';
+
+
+    $writer =
+        new \PhpOffice\PhpSpreadsheet\Writer\Xlsx(
+            $spreadsheet
+        );
+
+
+    $tempFile =
+        tempnam(
+            sys_get_temp_dir(),
+            'beneficiaries_'
+        );
+
+
+    $writer->save($tempFile);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RETURN FILE
+    |--------------------------------------------------------------------------
+    */
+
+    return $this->response
+        ->withType(
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        ->withDownload($filename)
+        ->withFile(
+            $tempFile,
+            [
+                'download' => true,
+                'name' => $filename
+            ]
+        );
+}
 }

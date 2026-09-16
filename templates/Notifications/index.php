@@ -1,4 +1,4 @@
-<div class="col-12">
+<!-- <div class="col-12">
     <div class="card card-primary">
 
         <div class="card-header">
@@ -134,4 +134,4 @@
 
     <input type="hidden" name="ids" id="selected-ids">
 
-</form>
+</form> -->

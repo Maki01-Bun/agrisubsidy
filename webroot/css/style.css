@@ -2355,7 +2355,7 @@ side-bar logout part
     width: 58px;
     height: 58px;
     border-radius: 16px;
-    background: rgba(255,255,255,.20);
+    background: rgba(0, 255, 47, 0.2);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2442,11 +2442,26 @@ side-bar logout part
 .section-icon {
     width: 42px;
     height: 42px;
-    border-radius: 12px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 17px;
+    flex-shrink: 0;
+}
+
+.section-icon i {
+    font-size: 20px;
+    opacity: 1 !important;
+}
+
+/* Green chart icon */
+.effectiveness-icon {
+    color: #00000086 !important;
+}
+
+/* Blue registration icon */
+.registration-icon {
+    color: #0d6efd !important;
 }
 
 .analytics-badge,
@@ -5501,4 +5516,1946 @@ side-bar logout part
         transition: none;
     }
 
+}
+/*========================================
+    CHECKBOX COLUMN
+==========================================*/
+
+.dashboard-table .checkbox-column {
+    width: 64px !important;
+    min-width: 64px !important;
+    max-width: 64px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+/* ==========================================
+   CHECKBOX WRAPPER
+   Both header and row checkboxes use
+   exactly the same positioning.
+========================================== */
+.checkbox-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+}
+/* ==========================================
+   CHECKBOX
+========================================== */
+.checkbox-wrapper .form-check-input {
+    position: relative;
+    width: 16px;
+    height: 16px;
+    margin: 0 !important;
+    padding: 0;
+    float: none !important;
+    cursor: pointer;
+    vertical-align: middle;
+}
+/* Remove Bootstrap default left offset */
+.dashboard-table .form-check-input {
+    margin-left: 0 !important;
+}
+/* ==========================================
+   HEADER CHECKBOX
+========================================== */
+#selectAllNotifications {
+    margin: 0 !important;
+    position: relative;
+}
+/* ==========================================
+   ROW CHECKBOX
+========================================== */
+.notif-checkbox {
+    margin: 0 !important;
+    position: relative;
+}
+/* ==========================================
+   TABLE VERTICAL ALIGNMENT
+========================================== */
+#registration-table th,
+#registration-table td {
+    vertical-align: middle !important;
+}
+/* ==========================================
+   ICON COLORS
+========================================== */
+.registration-icon {
+    color: #0d6efd !important;
+    opacity: 1 !important;
+}
+.section-icon i {
+    opacity: 1 !important;
+}
+/* ==========================================
+   OPTIONAL: CHECKBOX SIZE
+========================================== */
+#registration-table input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+/* ==========================================
+   MOBILE
+========================================== */
+@media (max-width: 768px) {
+    .dashboard-table .checkbox-column {
+        width: 50px !important;
+        min-width: 50px !important;
+        max-width: 50px !important;
+    }
+    #registration-table input[type="checkbox"] {
+        width: 15px;
+        height: 15px;
+    }
+}
+
+/* ============================================================
+   REGISTRATION CARD
+============================================================ */
+
+.registration-card {
+    overflow: hidden;
+    border-radius: 16px;
+}
+
+
+/* ============================================================
+   HEADER
+============================================================ */
+
+.registration-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 18px 24px;
+}
+
+
+.registration-header-left {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+
+.registration-header-left > div:last-child {
+    min-width: 0;
+}
+
+
+.registration-header h5 {
+    margin: 0 0 3px;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+
+.registration-header p {
+    margin: 0;
+    font-size: 12px;
+}
+
+
+.registration-section-icon {
+    width: 52px;
+    height: 52px;
+    min-width: 52px;
+    margin-right: 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 13px;
+
+    background: #e8f7ed !important;
+}
+
+
+.registration-icon {
+    color: #198754 !important;
+    font-size: 22px;
+}
+
+
+/* ============================================================
+   HEADER ACTIONS
+============================================================ */
+
+.registration-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+
+.request-count {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 8px 13px;
+
+    border-radius: 20px;
+
+    background: #ffffff;
+
+    color: #087f23;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
+
+.registration-header-actions
+.btn {
+    border-radius: 8px;
+}
+
+
+/* ============================================================
+   TABLE
+============================================================ */
+
+.registration-table {
+    width: 100%;
+}
+
+
+.registration-table thead th {
+    height: 58px;
+
+    padding: 12px 16px;
+
+    vertical-align: middle;
+
+    background: #f7f9fa;
+
+    color: #68737d;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    letter-spacing: .4px;
+
+    border-bottom: 1px solid #e9edef;
+
+    white-space: nowrap;
+}
+
+
+.registration-table tbody td {
+    padding: 14px 16px;
+
+    vertical-align: middle;
+
+    border-bottom: 1px solid #edf0f2;
+}
+
+
+.registration-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+
+/* ============================================================
+   CHECKBOX ALIGNMENT
+============================================================ */
+
+.checkbox-column {
+    width: 55px !important;
+
+    min-width: 55px !important;
+
+    max-width: 55px !important;
+
+    padding-left: 10px !important;
+
+    padding-right: 10px !important;
+
+    text-align: center !important;
+
+    vertical-align: middle !important;
+}
+
+
+.checkbox-wrapper {
+    width: 100%;
+
+    height: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+}
+
+
+.checkbox-wrapper .form-check-input {
+    position: relative;
+
+    margin: 0 !important;
+
+    width: 16px;
+
+    height: 16px;
+
+    cursor: pointer;
+
+    vertical-align: middle;
+}
+
+
+/* ============================================================
+   MESSAGE
+============================================================ */
+
+.request-message {
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+    min-width: 280px;
+}
+
+
+.message-icon {
+    width: 48px;
+
+    height: 48px;
+
+    min-width: 48px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: #e8f1ff;
+
+    color: #1769e0;
+
+    font-size: 18px;
+}
+
+
+.request-message-content {
+    display: flex;
+
+    flex-direction: column;
+
+    min-width: 0;
+}
+
+
+.request-message-content span {
+    color: #202b33;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    line-height: 1.4;
+}
+
+
+.request-message-content small {
+    margin-top: 3px;
+
+    color: #89939c;
+
+    font-size: 11px;
+}
+
+
+/* ============================================================
+   DATE
+============================================================ */
+
+.date-text {
+    display: inline-flex;
+
+    align-items: center;
+
+    color: #263238;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+
+.registration-table td small {
+    font-size: 11px;
+}
+
+
+/* ============================================================
+   VIEW BUTTON
+============================================================ */
+
+.view-registration-btn {
+    width: 44px;
+
+    height: 44px;
+
+    padding: 0;
+
+    border: 0;
+
+    border-radius: 11px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #e8f1ff;
+
+    color: #1769e0;
+
+    cursor: pointer;
+
+    transition: all .2s ease;
+}
+
+
+.view-registration-btn:hover {
+    background: #1769e0;
+
+    color: #ffffff;
+
+    transform: translateY(-1px);
+
+    box-shadow: 0 5px 12px rgba(23, 105, 224, .18);
+}
+
+
+.view-registration-btn:focus {
+    outline: none;
+
+    box-shadow:
+        0 0 0 3px rgba(23, 105, 224, .15);
+}
+
+
+/* ============================================================
+   MODAL
+============================================================ */
+
+.registration-modal {
+    border: 0;
+
+    border-radius: 18px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, .20);
+}
+
+
+/* ============================================================
+   MODAL HEADER
+============================================================ */
+
+.registration-modal-header {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 20px 24px;
+
+    background: #00a91c;
+
+    color: #ffffff;
+
+    border: 0;
+}
+
+
+.registration-modal-title-wrapper {
+    display: flex;
+
+    align-items: center;
+}
+
+
+.registration-modal-icon {
+    width: 48px;
+
+    height: 48px;
+
+    min-width: 48px;
+
+    margin-right: 13px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: rgba(255,255,255,.95);
+
+    color: #008c18;
+
+    font-size: 21px;
+}
+
+
+.registration-modal-header
+.modal-title {
+    margin: 0;
+
+    font-size: 18px;
+
+    font-weight: 700;
+}
+
+
+.registration-modal-header small {
+    display: block;
+
+    margin-top: 3px;
+
+    color: rgba(255,255,255,.85);
+
+    font-size: 12px;
+}
+
+
+.registration-close {
+    color: #ffffff !important;
+
+    opacity: .85;
+
+    font-size: 28px;
+
+    text-shadow: none;
+}
+
+
+.registration-close:hover {
+    opacity: 1;
+}
+
+
+/* ============================================================
+   MODAL BODY
+============================================================ */
+
+.registration-modal-body {
+    min-height: 350px;
+
+    padding: 24px;
+
+    background: #f7f9f8;
+}
+
+
+/* ============================================================
+   LOADING
+============================================================ */
+
+.registration-loading {
+    min-height: 350px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    text-align: center;
+}
+
+
+.registration-loading .spinner-border {
+    width: 42px;
+
+    height: 42px;
+
+    margin-bottom: 14px;
+}
+
+
+.registration-loading p {
+    margin: 0;
+
+    color: #7b8794;
+
+    font-size: 13px;
+}
+
+
+/* ============================================================
+   ALERTS
+============================================================ */
+
+.registration-alert {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 14px;
+
+    padding: 16px 18px;
+
+    margin-bottom: 20px;
+
+    border-radius: 12px;
+}
+
+
+.registration-alert h6 {
+    margin: 0 0 4px;
+
+    font-size: 14px;
+
+    font-weight: 700;
+}
+
+
+.registration-alert p {
+    margin: 0;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+}
+
+
+.registration-alert-icon {
+    width: 40px;
+
+    height: 40px;
+
+    min-width: 40px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 10px;
+
+    font-size: 17px;
+}
+
+
+.registration-alert-warning {
+    color: #765b00;
+
+    background: #fff8df;
+
+    border: 1px solid #f5df8c;
+}
+
+
+.registration-alert-warning
+.registration-alert-icon {
+    color: #9a7600;
+
+    background: #ffeaa7;
+}
+
+
+.registration-alert-success {
+    color: #176b35;
+
+    background: #eaf8ef;
+
+    border: 1px solid #c9ecd5;
+}
+
+
+.registration-alert-success
+.registration-alert-icon {
+    color: #198754;
+
+    background: #d5f2df;
+}
+
+
+.farmer-number-display {
+    margin-top: 7px;
+
+    font-size: 12px;
+}
+
+
+/* ============================================================
+   INFORMATION SECTION
+============================================================ */
+
+.registration-section {
+    margin-bottom: 20px;
+
+    overflow: hidden;
+
+    background: #ffffff;
+
+    border: 1px solid #e5ebe7;
+
+    border-radius: 13px;
+}
+
+
+.registration-section-title {
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+
+    padding: 14px 17px;
+
+    background: #fbfcfb;
+
+    border-bottom: 1px solid #edf1ee;
+}
+
+
+.registration-section-title
+.registration-section-icon {
+    width: 36px;
+
+    height: 36px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 9px;
+
+    background: #e8f7ed;
+
+    color: #198754;
+
+    font-size: 15px;
+}
+
+
+.registration-section-title h6 {
+    margin: 0;
+
+    color: #263238;
+
+    font-size: 14px;
+
+    font-weight: 700;
+}
+
+
+.registration-section-title small {
+    display: block;
+
+    margin-top: 2px;
+
+    color: #89939c;
+
+    font-size: 11px;
+}
+
+
+/* ============================================================
+   INFO GRID
+============================================================ */
+
+.registration-info-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+}
+
+
+.registration-info-item {
+    padding: 14px 17px;
+
+    border-bottom: 1px solid #edf1ee;
+}
+
+
+.registration-info-item:nth-child(odd) {
+    border-right: 1px solid #edf1ee;
+}
+
+
+.registration-label {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: #89939c;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: .4px;
+}
+
+
+.registration-value {
+    display: block;
+
+    color: #263238;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    word-break: break-word;
+}
+
+
+/* ============================================================
+   ERROR
+============================================================ */
+
+.registration-error {
+    min-height: 350px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    text-align: center;
+
+    padding: 30px;
+}
+
+
+.registration-error-icon {
+    width: 65px;
+
+    height: 65px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    margin-bottom: 15px;
+
+    border-radius: 50%;
+
+    background: #fff1f1;
+
+    color: #dc3545;
+
+    font-size: 25px;
+}
+
+
+.registration-error h5 {
+    margin: 0 0 7px;
+
+    color: #263238;
+
+    font-weight: 700;
+}
+
+
+.registration-error p {
+    max-width: 420px;
+
+    margin-bottom: 15px;
+
+    color: #7b8794;
+
+    font-size: 13px;
+}
+
+
+/* ============================================================
+   MODAL FOOTER
+============================================================ */
+
+.registration-modal-footer {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-end;
+
+    gap: 8px;
+
+    padding: 14px 24px;
+
+    background: #ffffff;
+
+    border-top: 1px solid #e9eeeb;
+}
+
+
+.registration-modal-footer .btn {
+    border-radius: 8px;
+
+    padding: 8px 15px;
+
+    font-size: 12px;
+
+    font-weight: 600;
+}
+
+
+/* ============================================================
+   EMPTY STATE
+============================================================ */
+
+.registration-empty-cell {
+    padding: 0 !important;
+}
+
+
+.registration-table .empty-state {
+    padding: 55px 20px;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media (max-width: 768px) {
+
+    .registration-header {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        padding: 16px;
+    }
+
+
+    .registration-header-actions {
+        width: 100%;
+    }
+
+
+    .registration-header-actions
+    .request-count {
+        flex: 1;
+
+        justify-content: center;
+    }
+
+
+    .registration-header-actions
+    .btn {
+        flex: 1;
+    }
+
+
+    .registration-section-icon {
+        width: 46px;
+
+        height: 46px;
+
+        min-width: 46px;
+    }
+
+
+    .registration-modal-header {
+        padding: 16px;
+    }
+
+
+    .registration-modal-body {
+        padding: 15px;
+    }
+
+
+    .registration-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .registration-info-item:nth-child(odd) {
+        border-right: 0;
+    }
+
+
+    .registration-modal-footer {
+        flex-wrap: wrap;
+
+        padding: 12px 15px;
+    }
+
+
+    .registration-modal-footer .btn {
+        flex: 1;
+
+        min-width: 120px;
+    }
+
+}
+
+
+@media (max-width: 576px) {
+
+    .registration-header h5 {
+        font-size: 15px;
+    }
+
+
+    .registration-header p {
+        font-size: 11px;
+    }
+
+
+    .request-message {
+        min-width: 220px;
+    }
+
+
+    .message-icon {
+        width: 40px;
+
+        height: 40px;
+
+        min-width: 40px;
+    }
+
+
+    .registration-table thead th,
+    .registration-table tbody td {
+        padding: 11px 10px;
+    }
+
+
+    .registration-modal-icon {
+        width: 42px;
+
+        height: 42px;
+
+        min-width: 42px;
+    }
+
+
+    .registration-modal-header
+    .modal-title {
+        font-size: 16px;
+    }
+
+}
+
+/* =========================================================
+   EFFECTIVENESS EVALUATION CARD
+========================================================= */
+
+.effectiveness-card {
+    overflow: hidden;
+    border-radius: 18px;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.effectiveness-header {
+    min-height: 86px;
+    padding: 18px 24px;
+}
+
+
+.effectiveness-header > div:first-child {
+    display: flex;
+    align-items: center;
+}
+
+
+/* =========================================================
+   SECTION ICON
+========================================================= */
+
+.effectiveness-section-icon {
+    width: 52px;
+    height: 52px;
+
+    min-width: 52px;
+
+    margin-right: 14px;
+
+    border-radius: 13px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #e8f7ed !important;
+}
+
+
+.effectiveness-icon {
+    color: #198754 !important;
+
+    font-size: 23px;
+
+    opacity: 1 !important;
+}
+
+
+/* =========================================================
+   TITLE
+========================================================= */
+
+.effectiveness-title h5 {
+    margin: 0 0 4px;
+
+    font-size: 17px;
+
+    font-weight: 700;
+
+    color: #ffffff;
+}
+
+
+.effectiveness-title p {
+    margin: 0;
+
+    font-size: 12px;
+
+    color: rgba(255, 255, 255, 0.85);
+}
+
+
+/* =========================================================
+   ANALYTICS BADGE
+========================================================= */
+
+.analytics-badge {
+    display: inline-flex;
+
+    align-items: center;
+
+    padding: 7px 12px;
+
+    border-radius: 20px;
+
+    background: rgba(255, 255, 255, 0.18);
+
+    color: #ffffff;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   BODY
+========================================================= */
+
+.effectiveness-body {
+    min-height: 360px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 30px !important;
+}
+
+
+/* =========================================================
+   CHART
+========================================================= */
+
+.chart-wrapper {
+    position: relative;
+
+    width: 100%;
+
+    height: 320px;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.evaluation-empty-state {
+
+    width: 100%;
+
+    min-height: 300px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    text-align: center;
+
+    padding: 35px 25px;
+
+}
+
+
+/* =========================================================
+   EMPTY STATE ICON
+========================================================= */
+
+.evaluation-empty-icon {
+
+    width: 76px;
+    height: 76px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    margin-bottom: 20px;
+
+    border-radius: 50%;
+
+    background: #e8f7ed;
+
+    border: 8px solid #f4fbf6;
+
+    color: #198754;
+
+    font-size: 29px;
+
+    box-shadow:
+        0 5px 20px rgba(25, 135, 84, 0.08);
+
+}
+
+
+.evaluation-empty-icon i {
+    color: #198754 !important;
+
+    opacity: 1 !important;
+}
+
+
+/* =========================================================
+   EMPTY TITLE
+========================================================= */
+
+.evaluation-empty-state h5 {
+
+    margin: 0 0 9px;
+
+    color: #263238;
+
+    font-size: 19px;
+
+    font-weight: 700;
+
+}
+
+
+/* =========================================================
+   EMPTY DESCRIPTION
+========================================================= */
+
+.evaluation-empty-state p {
+
+    max-width: 480px;
+
+    margin: 0 0 20px;
+
+    color: #7b8794;
+
+    font-size: 14px;
+
+    line-height: 1.6;
+
+}
+
+
+/* =========================================================
+   EMPTY INFORMATION BOX
+========================================================= */
+
+.evaluation-empty-hint {
+
+    max-width: 540px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 9px;
+
+    padding: 11px 16px;
+
+    border-radius: 10px;
+
+    background: #f7f9fa;
+
+    border: 1px solid #edf0f2;
+
+    color: #6c757d;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+
+}
+
+
+.evaluation-empty-hint i {
+
+    color: #198754;
+
+    font-size: 14px;
+
+    flex-shrink: 0;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 768px) {
+
+    .effectiveness-header {
+
+        padding: 16px;
+
+    }
+
+
+    .effectiveness-section-icon {
+
+        width: 46px;
+
+        height: 46px;
+
+        min-width: 46px;
+
+    }
+
+
+    .effectiveness-icon {
+
+        font-size: 20px;
+
+    }
+
+
+    .effectiveness-title h5 {
+
+        font-size: 15px;
+
+    }
+
+
+    .effectiveness-title p {
+
+        font-size: 11px;
+
+    }
+
+
+    .analytics-badge {
+
+        display: none;
+
+    }
+
+
+    .effectiveness-body {
+
+        min-height: 320px;
+
+        padding: 20px !important;
+
+    }
+
+
+    .evaluation-empty-state {
+
+        min-height: 270px;
+
+        padding: 25px 10px;
+
+    }
+
+
+    .evaluation-empty-icon {
+
+        width: 65px;
+
+        height: 65px;
+
+        font-size: 25px;
+
+    }
+
+
+    .evaluation-empty-state h5 {
+
+        font-size: 17px;
+
+    }
+
+
+    .evaluation-empty-state p {
+
+        font-size: 13px;
+
+        max-width: 350px;
+
+    }
+
+
+    .evaluation-empty-hint {
+
+        max-width: 100%;
+
+        font-size: 11px;
+
+    }
+
+}
+
+/* =========================================================
+   BENEFICIARY DROPDOWN
+   COMPACT VERSION
+   ========================================================= */
+
+.beneficiary-actions {
+    position: relative;
+}
+
+
+/* =========================================================
+   MAIN BUTTON
+   ========================================================= */
+
+.beneficiary-dropdown-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 7px;
+
+    height: 40px;
+    padding: 5px 13px !important;
+
+    border-radius: 8px !important;
+
+    font-size: 14px !important;
+    font-weight: 600 !important;
+
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .08);
+
+    transition: .2s ease;
+}
+
+.beneficiary-dropdown-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .12);
+}
+
+.beneficiary-btn-icon {
+    width: 26px !important;
+    height: 26px !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 6px;
+
+    background: rgba(255,255,255,.18);
+
+    flex-shrink: 0;
+}
+
+.beneficiary-btn-icon i {
+    position: static !important;
+    margin: 0 !important;
+    font-size: 13px !important;
+}
+
+
+/* =========================================================
+   DROPDOWN
+   ========================================================= */
+
+.beneficiary-dropdown-menu {
+    width: 370px !important;
+    max-width: calc(100vw - 20px) !important;
+
+    padding: 7px !important;
+    margin-top: 6px !important;
+
+    border: 1px solid #e5e8eb !important;
+    border-radius: 11px !important;
+
+    background: #fff !important;
+
+    box-shadow: 0 10px 28px rgba(0,0,0,.13) !important;
+
+    overflow: hidden !important;
+
+    z-index: 9999 !important;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.beneficiary-menu-header {
+    display: flex !important;
+    align-items: center !important;
+
+    width: 100% !important;
+
+    padding: 7px 9px 9px !important;
+
+    box-sizing: border-box !important;
+}
+
+.beneficiary-header-icon {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    margin-right: 10px !important;
+
+    border-radius: 9px !important;
+
+    background: #eaf7ee !important;
+    color: #28a745 !important;
+}
+
+.beneficiary-header-icon i {
+    position: static !important;
+    margin: 0 !important;
+    font-size: 17px !important;
+}
+
+.beneficiary-header-content {
+    position: static !important;
+
+    display: block !important;
+
+    flex: 1 !important;
+
+    min-width: 0 !important;
+}
+
+.beneficiary-header-title {
+    display: block !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    color: #343a40 !important;
+
+    font-size: 14px !important;
+    font-weight: 700 !important;
+
+    line-height: 1.25 !important;
+}
+
+.beneficiary-header-subtitle {
+    display: block !important;
+
+    margin: 2px 0 0 !important;
+    padding: 0 !important;
+
+    color: #9aa3aa !important;
+
+    font-size: 11px !important;
+
+    line-height: 1.25 !important;
+}
+
+
+/* =========================================================
+   DIVIDER
+   ========================================================= */
+
+.beneficiary-divider {
+    display: block !important;
+
+    width: calc(100% - 8px) !important;
+    height: 1px !important;
+
+    margin: 5px 4px !important;
+
+    background: #edf0f2 !important;
+
+    border: 0 !important;
+}
+
+
+/* =========================================================
+   SECTION
+   ========================================================= */
+
+.beneficiary-section-label {
+    display: flex !important;
+    align-items: center !important;
+
+    gap: 6px !important;
+
+    width: 100% !important;
+
+    padding: 5px 9px 3px !important;
+
+    margin: 0 !important;
+
+    box-sizing: border-box !important;
+
+    color: #929ba3 !important;
+
+    font-size: 9px !important;
+    font-weight: 700 !important;
+
+    letter-spacing: .7px !important;
+}
+
+.beneficiary-section-label i {
+    position: static !important;
+
+    margin: 0 !important;
+
+    font-size: 10px !important;
+}
+
+
+/* =========================================================
+   DOWNLOAD LINKS
+   ========================================================= */
+
+.beneficiary-link {
+    position: relative !important;
+
+    display: flex !important;
+    align-items: center !important;
+
+    width: 100% !important;
+
+    /* REDUCED FROM 64px */
+    min-height: 54px !important;
+    height: 54px !important;
+
+    padding: 6px 8px !important;
+    margin: 1px 0 !important;
+
+    box-sizing: border-box !important;
+
+    border: 0 !important;
+    border-radius: 8px !important;
+
+    background: transparent !important;
+
+    color: #343a40 !important;
+
+    text-decoration: none !important;
+
+    overflow: visible !important;
+
+    cursor: pointer;
+
+    transform: none !important;
+}
+
+.beneficiary-link:hover,
+.beneficiary-link:focus {
+    background: #f6f8f7 !important;
+
+    color: #343a40 !important;
+
+    text-decoration: none !important;
+
+    outline: none !important;
+}
+
+
+/* =========================================================
+   ICON
+   ========================================================= */
+
+.beneficiary-link-icon {
+    position: static !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    /* REDUCED FROM 42px */
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+
+    margin: 0 10px 0 0 !important;
+    padding: 0 !important;
+
+    box-sizing: border-box !important;
+
+    border-radius: 8px !important;
+
+    flex-shrink: 0 !important;
+
+    float: none !important;
+
+    transform: none !important;
+}
+
+.beneficiary-link-icon i {
+    position: static !important;
+
+    display: inline-block !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    font-size: 14px !important;
+
+    line-height: 1 !important;
+}
+
+
+/* =========================================================
+   ICON COLORS
+   ========================================================= */
+
+.beneficiary-excel-icon {
+    background: #eaf2ff !important;
+    color: #007bff !important;
+}
+
+.beneficiary-template-icon {
+    background: #eaf7ee !important;
+    color: #28a745 !important;
+}
+
+.beneficiary-upload-icon {
+    background: #fff4e2 !important;
+    color: #f39c12 !important;
+}
+
+
+/* =========================================================
+   TEXT CONTENT
+   ========================================================= */
+
+.beneficiary-link-content {
+    position: static !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    flex: 1 1 auto !important;
+
+    width: auto !important;
+    min-width: 0 !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    overflow: hidden !important;
+
+    float: none !important;
+}
+
+.beneficiary-link-title {
+    display: block !important;
+
+    width: auto !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    color: #343a40 !important;
+
+    font-size: 13px !important;
+    font-weight: 600 !important;
+
+    line-height: 1.25 !important;
+
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.beneficiary-link-description {
+    display: block !important;
+
+    width: auto !important;
+
+    margin: 2px 0 0 !important;
+    padding: 0 !important;
+
+    color: #9aa3aa !important;
+
+    font-size: 10.5px !important;
+
+    line-height: 1.2 !important;
+
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+
+/* =========================================================
+   ARROW
+   ========================================================= */
+
+.beneficiary-link-arrow {
+    position: static !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    width: 18px !important;
+    min-width: 18px !important;
+
+    margin-left: 6px !important;
+    padding: 0 !important;
+
+    color: #adb5bd !important;
+
+    font-size: 9px !important;
+
+    flex-shrink: 0 !important;
+
+    float: none !important;
+
+    transform: none !important;
+}
+
+.beneficiary-link:hover .beneficiary-link-arrow,
+.beneficiary-upload:hover .beneficiary-link-arrow {
+    color: #6c757d !important;
+
+    transform: translateX(3px) !important;
+}
+
+.beneficiary-link-arrow i {
+    position: static !important;
+    margin: 0 !important;
+}
+
+
+/* =========================================================
+   UPLOAD BUTTON
+   ========================================================= */
+
+.beneficiary-upload {
+    position: relative !important;
+
+    display: flex !important;
+    align-items: center !important;
+
+    width: 100% !important;
+
+    /* REDUCED FROM 64px */
+    min-height: 54px !important;
+    height: 54px !important;
+
+    padding: 6px 8px !important;
+    margin: 1px 0 !important;
+
+    box-sizing: border-box !important;
+
+    border: 0 !important;
+    border-radius: 8px !important;
+
+    background: transparent !important;
+
+    color: #343a40 !important;
+
+    text-align: left !important;
+
+    font-family: inherit !important;
+
+    cursor: pointer !important;
+
+    outline: none !important;
+}
+
+.beneficiary-upload:hover,
+.beneficiary-upload:focus {
+    background: #f6f8f7 !important;
+
+    outline: none !important;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 575.98px) {
+
+    .beneficiary-dropdown-menu {
+        width: 340px !important;
+        max-width: calc(100vw - 16px) !important;
+    }
+
+    .beneficiary-btn-label {
+        display: none !important;
+    }
+
+    .beneficiary-dropdown-btn {
+        padding: 6px 10px !important;
+    }
 }

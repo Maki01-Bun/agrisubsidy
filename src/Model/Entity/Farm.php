@@ -9,7 +9,6 @@ use Cake\ORM\Entity;
  * Farm Entity
  *
  * @property int $id
- * @property string $farm_name
  * @property float $farm_size
  * @property string $location
  * @property float $average_yield
@@ -28,7 +27,6 @@ class Farm extends Entity
      * @var array<string, bool>
      */
     protected $_accessible = [
-        'farm_name' => true,
         'farm_size' => true,
         'location' => true,
         'average_yield' => true,

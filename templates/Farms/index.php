@@ -15,8 +15,7 @@
             <table id="farms-table" class="table table-bordered table-hover">
                 <thead>
                     <tr>
-                        <th>Farmer</th>
-                        <th>Farm Name</th>
+                        <th>LGU RSBSA Number</th>
                         <th>Farm Size</th>
                         <th>Location</th>
                         <th>Average Yield (bags/ha)</th>
@@ -38,14 +37,10 @@
             </div>
             <?= $this->Form->create(null,['id'=>'farms-form']) ?>
             <div class="modal-body">
-                <div class="form-group">
-                    <label for="farmer-id">Farmer</label>
-                    <?= $this->Form->control('farmer_id', ['type' => 'select', 'options' => $farmers,
-                        'empty' => '-- Select Farmer --','class' => 'form-control','label' => false])?>
-                </div>
-                <div class="form-group">
-                    <label for="farm-name">Farm Name</label>
-                    <?= $this->Form->control('farm_name',['class'=>'form-control','label'=>false])?>
+              <div class="form-group">
+                    <label for="farmer-id">LGU RSBSA Number</label>
+                    <?= $this->Form->control('farmer_id', ['type' => 'select', 'options' => $farmers, 'empty' => '-- Select Farmer Number --',
+                    'class' => 'form-control', 'label' => false, 'id' => 'farmer-id'])?>
                 </div>
                 <div class="form-group">
                     <label for="farm_size">Farm Size</label>

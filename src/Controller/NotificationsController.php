@@ -264,6 +264,135 @@ class NotificationsController extends AppController
         ]);
     }
 
+    public function getRegistrationDetails($id)
+{
+    $this->request->allowMethod(['get']);
+
+    try {
+        $notificationsTable = $this->getTableLocator()->get('Notifications');
+        $farmersTable = $this->getTableLocator()->get('Farmers');
+
+        // Get notification
+        $notification = $notificationsTable->find()
+            ->where(['Notifications.id' => $id])
+            ->first();
+
+        if (!$notification) {
+            $this->response = $this->response->withStatus(404);
+            $this->response = $this->response->withType('application/json');
+
+            return $this->response->withStringBody(json_encode([
+                'success' => false,
+                'message' => 'Registration notification not found.'
+            ]));
+        }
+
+        // Decode notification data
+        $data = $notification->data;
+
+        if (is_string($data)) {
+            $data = json_decode($data, true);
+        }
+
+        if (!is_array($data)) {
+            $this->response = $this->response->withStatus(500);
+            $this->response = $this->response->withType('application/json');
+
+            return $this->response->withStringBody(json_encode([
+                'success' => false,
+                'message' => 'Invalid registration data.'
+            ]));
+        }
+
+        $farmerData = $data['farmer'] ?? [];
+        $userData = $data['user'] ?? [];
+
+        /*
+         * Check if farmer already exists
+         */
+        $existingFarmer = null;
+
+        $firstName = trim((string)($farmerData['first_name'] ?? ''));
+        $middleName = trim((string)($farmerData['middle_name'] ?? ''));
+        $lastName = trim((string)($farmerData['last_name'] ?? ''));
+
+        if ($firstName !== '' && $lastName !== '') {
+
+            $conditions = [
+                'Farmers.first_name' => $firstName,
+                'Farmers.last_name' => $lastName
+            ];
+
+            // Only compare middle name if supplied
+            if ($middleName !== '') {
+                $conditions['Farmers.middle_name'] = $middleName;
+            }
+
+            $existingFarmer = $farmersTable->find()
+                ->where($conditions)
+                ->first();
+        }
+
+        /*
+         * Convert existing farmer to JSON-safe array
+         */
+        $existingFarmerData = null;
+
+        if ($existingFarmer) {
+            $existingFarmerData = [
+                'id' => $existingFarmer->id ?? null,
+                'farmer_no' => $existingFarmer->farmer_no ?? null,
+                'first_name' => $existingFarmer->first_name ?? null,
+                'middle_name' => $existingFarmer->middle_name ?? null,
+                'last_name' => $existingFarmer->last_name ?? null
+            ];
+        }
+
+        /*
+         * Prepare response
+         */
+        $result = [
+            'success' => true,
+            'status' => $notification->status ?? 'pending',
+
+            'data' => [
+                'user' => $userData,
+                'farmer' => $farmerData
+            ],
+
+            'existingFarmer' => $existingFarmerData
+        ];
+
+        $this->response = $this->response
+            ->withStatus(200)
+            ->withType('application/json');
+
+        return $this->response->withStringBody(
+            json_encode($result)
+        );
+
+    } catch (\Throwable $e) {
+
+        // Log the real error
+        \Cake\Log\Log::error(
+            'getRegistrationDetails Error: ' .
+            $e->getMessage() .
+            "\n" .
+            $e->getTraceAsString()
+        );
+
+        $this->response = $this->response
+            ->withStatus(500)
+            ->withType('application/json');
+
+        // Don't expose internal server details to the browser
+        return $this->response->withStringBody(json_encode([
+            'success' => false,
+            'message' => 'Unable to load registration details.'
+        ]));
+    }
+}
+
 
 /**
  * Bulk approve registration requests
@@ -382,5 +511,7 @@ public function bulkApprove()
         $this->referer()
     );
 }
+
+
 
 }

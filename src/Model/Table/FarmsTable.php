@@ -40,7 +40,7 @@ class FarmsTable extends Table
         parent::initialize($config);
 
         $this->setTable('farms');
-        $this->setDisplayField('farmer_name');
+        $this->setDisplayField('farmer_no');
         $this->setPrimaryKey('id');
 
         $this->belongsTo('Farmers', [
@@ -59,11 +59,6 @@ class FarmsTable extends Table
      */
     public function validationDefault(Validator $validator): Validator
     {
-        $validator
-            ->scalar('farm_name')
-            ->maxLength('farm_name', 255)
-            ->requirePresence('farm_name', 'create')
-            ->notEmptyString('farm_name');
 
         $validator
             ->decimal('farm_size')
