@@ -3,145 +3,146 @@
         <div class="card-header">
             <h3 class="card-title text-dark">Beneficiaries</h3>
             <div class="card-tools d-flex align-items-center">
-                <div class="dropdown mr-2 beneficiary-actions">
+                <div class="dropdown admin-actions-dropdown">
                     <button
                         type="button"
-                        class="btn btn-success beneficiary-dropdown-btn dropdown-toggle"
-                        id="beneficiariesDropdown"
+                        class="btn admin-dropdown-btn admin-btn-green dropdown-toggle"
                         data-toggle="dropdown"
                         aria-haspopup="true"
                         aria-expanded="false"
                     >
-                        <span class="beneficiary-btn-icon">
+                        <span class="admin-dropdown-btn-icon">
                             <i class="fas fa-users"></i>
                         </span>
-                        <span class="beneficiary-btn-label">Beneficiaries</span>
+
+                        <span class="admin-dropdown-btn-label">
+                            Beneficiaries
+                        </span>
                     </button>
 
-                    <div
-                        class="dropdown-menu dropdown-menu-right beneficiary-dropdown-menu"
-                        aria-labelledby="beneficiariesDropdown"
-                    >
 
-                        <!-- HEADER -->
-                        <div class="beneficiary-menu-header">
-                            <div class="beneficiary-header-icon">
+                    <div class="dropdown-menu dropdown-menu-right admin-dropdown-menu">
+
+                        <div class="admin-dropdown-header">
+
+                            <div class="admin-dropdown-header-icon">
                                 <i class="fas fa-users"></i>
                             </div>
 
-                            <div class="beneficiary-header-content">
-                                <div class="beneficiary-header-title">
+                            <div class="admin-dropdown-header-content">
+
+                                <div class="admin-dropdown-header-title">
                                     Beneficiary Management
                                 </div>
 
-                                <div class="beneficiary-header-subtitle">
+                                <div class="admin-dropdown-header-subtitle">
                                     Import or export beneficiary data
                                 </div>
+
                             </div>
+
                         </div>
 
-                        <div class="beneficiary-divider"></div>
 
-                        <!-- EXPORT -->
-                        <div class="beneficiary-section-label">
+                        <div class="admin-dropdown-divider"></div>
+
+
+                        <div class="admin-dropdown-section">
                             <i class="fas fa-download"></i>
                             <span>EXPORT</span>
                         </div>
 
 
-                        <!-- DOWNLOAD BENEFICIARIES -->
-                        <a
-                            href="<?= $this->Url->build([
-                                'controller' => 'Farmers',
-                                'action' => 'downloadFarmersExcel'
-                            ]) ?>"
-                            class="beneficiary-link"
-                        >
-                            <div class="beneficiary-link-icon beneficiary-excel-icon">
+                        <a href="#" class="admin-dropdown-action">
+
+                            <div class="admin-dropdown-action-icon admin-icon-blue">
                                 <i class="fas fa-file-excel"></i>
                             </div>
 
-                            <div class="beneficiary-link-content">
-                                <div class="beneficiary-link-title">
+                            <div class="admin-dropdown-action-content">
+
+                                <div class="admin-dropdown-action-title">
                                     Download Beneficiaries
                                 </div>
 
-                                <div class="beneficiary-link-description">
+                                <div class="admin-dropdown-action-description">
                                     Export all beneficiary records
                                 </div>
+
                             </div>
 
-                            <div class="beneficiary-link-arrow">
+                            <div class="admin-dropdown-action-arrow">
                                 <i class="fas fa-chevron-right"></i>
                             </div>
+
                         </a>
 
 
-                        <!-- DOWNLOAD TEMPLATE -->
-                        <a
-                            href="<?= $this->Url->build([
-                                'controller' => 'Farmers',
-                                'action' => 'downloadExcelTemplate'
-                            ]) ?>"
-                            class="beneficiary-link"
-                        >
-                            <div class="beneficiary-link-icon beneficiary-template-icon">
+                        <a href="#" class="admin-dropdown-action">
+
+                            <div class="admin-dropdown-action-icon admin-icon-green">
                                 <i class="fas fa-file-download"></i>
                             </div>
 
-                            <div class="beneficiary-link-content">
-                                <div class="beneficiary-link-title">
+                            <div class="admin-dropdown-action-content">
+
+                                <div class="admin-dropdown-action-title">
                                     Download Template
                                 </div>
 
-                                <div class="beneficiary-link-description">
+                                <div class="admin-dropdown-action-description">
                                     Get the Excel import template
                                 </div>
+
                             </div>
 
-                            <div class="beneficiary-link-arrow">
+                            <div class="admin-dropdown-action-arrow">
                                 <i class="fas fa-chevron-right"></i>
                             </div>
+
                         </a>
 
 
-                        <div class="beneficiary-divider"></div>
+                        <div class="admin-dropdown-divider"></div>
 
 
-                        <!-- IMPORT -->
-                        <div class="beneficiary-section-label">
+                        <div class="admin-dropdown-section">
                             <i class="fas fa-upload"></i>
                             <span>IMPORT</span>
                         </div>
 
 
-                        <!-- UPLOAD -->
                         <button
                             type="button"
-                            class="beneficiary-upload"
+                            class="admin-dropdown-action"
                             data-toggle="modal"
                             data-target="#excelUploadModal"
                         >
-                            <div class="beneficiary-link-icon beneficiary-upload-icon">
+
+                            <div class="admin-dropdown-action-icon admin-icon-orange">
                                 <i class="fas fa-cloud-upload-alt"></i>
                             </div>
 
-                            <div class="beneficiary-link-content">
-                                <div class="beneficiary-link-title">
+                            <div class="admin-dropdown-action-content">
+
+                                <div class="admin-dropdown-action-title">
                                     Upload Beneficiaries
                                 </div>
 
-                                <div class="beneficiary-link-description">
+                                <div class="admin-dropdown-action-description">
                                     Import beneficiaries from Excel
                                 </div>
+
                             </div>
 
-                            <div class="beneficiary-link-arrow">
+                            <div class="admin-dropdown-action-arrow">
                                 <i class="fas fa-chevron-right"></i>
                             </div>
+
                         </button>
 
                     </div>
+
                 </div>
                 <?= $this->Html->link('<i class="fas fa-plus"></i>',['action' => 'add'],
                 [ 'id' => 'add', 'class' => 'btn btn-primary', 'data-toggle' => 'tooltip', 'data-placement' => 'bottom', 'title' => 'Add Record', 'escape' => false ])?>

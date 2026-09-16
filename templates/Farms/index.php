@@ -3,10 +3,175 @@
         <div class="card-header">
             <h3 class="card-title">Farms</h3>
             <div class="card-tools d-flex align-items-center">
-                <button type="button" class="btn btn-success mr-2" data-toggle="modal" data-target="#excelUploadModal" data-placement="bottom" title="Upload Excel">
-                    <i class="fas fa-file-excel mr-1"></i>
-                    Upload Farms
-                </button>
+                <div class="dropdown mr-2 admin-actions-dropdown">
+                    <button
+                        type="button"
+                        class="btn admin-dropdown-btn admin-btn-green dropdown-toggle"
+                        id="farmsDropdown"
+                        data-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                    >
+                        <span class="admin-dropdown-btn-icon">
+                            <i class="fas fa-tractor"></i>
+                        </span>
+
+                        <span class="admin-dropdown-btn-label">
+                            Farms
+                        </span>
+                    </button>
+
+
+                    <div
+                        class="dropdown-menu dropdown-menu-right admin-dropdown-menu"
+                        aria-labelledby="farmsDropdown"
+                    >
+
+                        <!-- HEADER -->
+                        <div class="admin-dropdown-header">
+
+                            <div class="admin-dropdown-header-icon admin-icon-green">
+                                <i class="fas fa-tractor"></i>
+                            </div>
+
+                            <div class="admin-dropdown-header-content">
+
+                                <div class="admin-dropdown-header-title">
+                                    Farm Management
+                                </div>
+
+                                <div class="admin-dropdown-header-subtitle">
+                                    Import or export farm data
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="admin-dropdown-divider"></div>
+
+
+                        <!-- EXPORT -->
+                        <div class="admin-dropdown-section">
+
+                            <i class="fas fa-download"></i>
+
+                            <span>EXPORT</span>
+
+                        </div>
+
+
+                        <!-- DOWNLOAD FARMS -->
+                        <a
+                            href="<?= $this->Url->build([
+                                'controller' => 'Farms',
+                                'action' => 'downloadFarmsExcel'
+                            ]) ?>"
+                            class="admin-dropdown-action"
+                        >
+
+                            <div class="admin-dropdown-action-icon admin-icon-green">
+                                <i class="fas fa-file-excel"></i>
+                            </div>
+
+                            <div class="admin-dropdown-action-content">
+
+                                <div class="admin-dropdown-action-title">
+                                    Download Farms
+                                </div>
+
+                                <div class="admin-dropdown-action-description">
+                                    Export all farm records
+                                </div>
+
+                            </div>
+
+                            <div class="admin-dropdown-action-arrow">
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+
+                        </a>
+
+
+                        <!-- DOWNLOAD TEMPLATE -->
+                        <a
+                            href="<?= $this->Url->build([
+                                'controller' => 'Farms',
+                                'action' => 'downloadFarmExcelTemplate'
+                            ]) ?>"
+                            class="admin-dropdown-action"
+                        >
+
+                            <div class="admin-dropdown-action-icon admin-icon-blue">
+                                <i class="fas fa-file-download"></i>
+                            </div>
+
+                            <div class="admin-dropdown-action-content">
+
+                                <div class="admin-dropdown-action-title">
+                                    Download Template
+                                </div>
+
+                                <div class="admin-dropdown-action-description">
+                                    Get the Excel farm template
+                                </div>
+
+                            </div>
+
+                            <div class="admin-dropdown-action-arrow">
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+
+                        </a>
+
+
+                        <div class="admin-dropdown-divider"></div>
+
+
+                        <!-- IMPORT -->
+                        <div class="admin-dropdown-section">
+
+                            <i class="fas fa-upload"></i>
+
+                            <span>IMPORT</span>
+
+                        </div>
+
+
+                        <!-- UPLOAD FARMS -->
+                        <button
+                            type="button"
+                            class="admin-dropdown-action"
+                            data-toggle="modal"
+                            data-target="#farmExcelUploadModal"
+                        >
+
+                            <div class="admin-dropdown-action-icon admin-icon-orange">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+
+                            <div class="admin-dropdown-action-content">
+
+                                <div class="admin-dropdown-action-title">
+                                    Upload Farms
+                                </div>
+
+                                <div class="admin-dropdown-action-description">
+                                    Import farms from Excel
+                                </div>
+
+                            </div>
+
+                            <div class="admin-dropdown-action-arrow">
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+
+                        </button>
+
+                    </div>
+
+                </div>
                  <?= $this->Html->link('<i class="fas fa-plus"></i>',['action' => 'add'],
                 [ 'id' => 'add', 'class' => 'btn btn-primary', 'data-toggle' => 'tooltip', 'data-placement' => 'bottom', 'title' => 'Add Farm', 'escape' => false ])?>
             </div>
