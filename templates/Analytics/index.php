@@ -46,21 +46,61 @@
         </div>
     </div>
     <!-- CHART ROW -->
-    <div class="row g-3 mt-3">
-        <!-- FEATURES -->
-        <div class="col-lg-12">
-            <div class="analytics-panel">
-                <div class="panel-title">
-                    Features That Most Affect Effectiveness
-                </div>
-                <div class="panel-body">
-                    <div class="chart-container">
-                        <canvas id="featureChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="card card-primary feature-importance-card mt-3">
+
+    <div class="card-header">
+        <h3 class="card-title text-dark">
+            <i class="fas fa-chart-bar mr-2"></i>
+            Features That Most Affect Effectiveness
+        </h3>
     </div>
+
+    <div class="card-body">
+        <?php
+        $featureLabelsSafe = $featureLabels ?? [];
+        $featureValuesSafe = $featureValues ?? [];
+        /*
+         * Determine if we actually have usable data.
+         */
+        $hasFeatureData =
+            !empty($featureLabelsSafe) &&
+            !empty($featureValuesSafe);
+        /*
+         * Check whether at least one value is greater than zero.
+         */
+        $hasNonZeroValue = false;
+        foreach ($featureValuesSafe as $value) {
+            if ((float)$value > 0) {
+                $hasNonZeroValue = true;
+                break;
+            }
+        }
+        ?>
+        <?php if ($hasFeatureData && $hasNonZeroValue): ?>
+            <div class="feature-chart-wrapper">
+                <canvas id="featureImportanceChart"></canvas>
+            </div>
+        <?php else: ?>
+            <div class="feature-empty-state">
+                <div class="feature-empty-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h5>
+                    No Feature Importance Data
+                </h5>
+                <p>
+                    Feature importance will be displayed here
+                    once enough evaluation data is available.
+                </p>
+                <span class="feature-empty-note">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Continue recording farmer evaluations to generate
+                    feature importance results.
+                </span>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
     <!-- PROGRAM EFFECTIVENESS TABLE -->
 <div class="table-responsive mt-3">
     <table class="table table-hover mb-0">
@@ -262,39 +302,133 @@
 
 <?= $this->Html->script('https://cdn.jsdelivr.net/npm/chart.js') ?>
 <script>
-const featureChart =
-    document.getElementById('featureChart');
-new Chart(featureChart, {
-    type: 'bar',
-    data: {
-        labels: [
-            <?php foreach ($featureImportance as $feature => $value): ?>
-                <?= json_encode($feature) ?>,
-            <?php endforeach; ?>
-        ],
-        datasets: [{
-            label: 'Importance',
-            data: [
-                <?php foreach ($featureImportance as $feature => $value): ?>
-                    <?= $value ?>,
-                <?php endforeach; ?>
-            ]
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-            y: {
-                beginAtZero: true,
-                max: 100
+    /* =========================================================
+       FEATURES THAT MOST AFFECT EFFECTIVENESS
+    ========================================================= */
+    const featureLabels =
+        <?= json_encode($featureLabels ?? []) ?>;
+    const featureValues =
+        <?= json_encode($featureValues ?? []) ?>;
+    const featureCanvas =
+        document.getElementById('featureImportanceChart');
+
+    /*
+     * Create chart only when:
+     * 1. Canvas exists
+     * 2. Feature labels exist
+     * 3. Feature values exist
+     */
+    if (
+        featureCanvas &&
+        Array.isArray(featureLabels) &&
+        Array.isArray(featureValues) &&
+        featureLabels.length > 0 &&
+        featureValues.length > 0
+    ) {
+        const featureCtx =
+            featureCanvas.getContext('2d');
+        /*
+         * Convert values to numbers
+         */
+        const importanceValues =
+            featureValues.map(function (value) {
+                return Number(value) || 0;
+            });
+
+        /*
+         * Create Feature Importance Chart
+         */
+
+        new Chart(featureCtx, {
+            type: 'bar',
+            data: {
+                labels: featureLabels,
+                datasets: [{
+                    label: 'Importance (%)',
+                    data: importanceValues,
+                    backgroundColor:
+                        'rgba(54, 162, 235, 0.55)',
+                    borderColor:
+                        'rgba(54, 162, 235, 1)',
+                    borderWidth: 1,
+                    borderRadius: 5,
+                    barPercentage: 0.65,
+                    categoryPercentage: 0.75
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 700
+                },
+                plugins: {
+                    /*
+                     * Hide legend because there is
+                     * only one dataset
+                     */
+                    legend: {
+
+                        display: false
+                    },
+                    /*
+                     * Tooltip
+                     */
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                const value =
+                                    Number(context.raw) || 0;
+                                return (
+                                    'Importance: ' +
+                                    value.toFixed(2) +
+                                    '%'
+                                );
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    /*
+                     * Y AXIS
+                     */
+                    y: {
+
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            stepSize: 10,
+                            callback: function (value) {
+                                return value + '%';
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Importance (%)'
+                        }
+                    },
+                    /*
+                     * X AXIS
+                     */
+                    x: {
+                        grid: {
+
+                            display: false
+                        },
+                        ticks: {
+                            autoSkip: false,
+                            maxRotation: 0,
+                            minRotation: 0
+                        }
+                    }
+                }
             }
-        },
-        plugins: {
-            legend: {
-                display: false
-            }
-        }
+        });
+
+    } else {
+
+        console.warn(
+            'Feature importance data is unavailable.'
+        );
     }
-});
 </script>

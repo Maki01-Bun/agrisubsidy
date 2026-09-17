@@ -49,7 +49,7 @@
             </div>
             <div class="row">
                 <div class="col-md-4 mb-3">
-                    <label>Crop Yield After (bags/ha)</label>
+                    <label>Crop Yield After (tons/ha)</label>
                     <?= $this->Form->control('crop_yield_after', [
                         'class' => 'form-control',
                         'label' => false

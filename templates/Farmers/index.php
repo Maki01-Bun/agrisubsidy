@@ -16,12 +16,14 @@
                         </span>
 
                         <span class="admin-dropdown-btn-label">
-                            Beneficiaries
+                            Export/Import
                         </span>
                     </button>
 
 
                     <div class="dropdown-menu dropdown-menu-right admin-dropdown-menu">
+
+                        <!-- HEADER -->
 
                         <div class="admin-dropdown-header">
 
@@ -47,20 +49,21 @@
                         <div class="admin-dropdown-divider"></div>
 
 
+                        <!-- EXPORT -->
+
                         <div class="admin-dropdown-section">
                             <i class="fas fa-download"></i>
                             <span>EXPORT</span>
                         </div>
 
 
-                        <a href="#" class="admin-dropdown-action">
-
+                        <?= $this->Html->link(
+                            '
                             <div class="admin-dropdown-action-icon admin-icon-blue">
                                 <i class="fas fa-file-excel"></i>
                             </div>
 
                             <div class="admin-dropdown-action-content">
-
                                 <div class="admin-dropdown-action-title">
                                     Download Beneficiaries
                                 </div>
@@ -68,24 +71,29 @@
                                 <div class="admin-dropdown-action-description">
                                     Export all beneficiary records
                                 </div>
-
                             </div>
 
                             <div class="admin-dropdown-action-arrow">
                                 <i class="fas fa-chevron-right"></i>
                             </div>
+                            ',
+                            [
+                                'action' => 'downloadFarmersExcel'
+                            ],
+                            [
+                                'class' => 'admin-dropdown-action',
+                                'escape' => false
+                            ]
+                        ) ?>
 
-                        </a>
 
-
-                        <a href="#" class="admin-dropdown-action">
-
+                        <?= $this->Html->link(
+                            '
                             <div class="admin-dropdown-action-icon admin-icon-green">
                                 <i class="fas fa-file-download"></i>
                             </div>
 
                             <div class="admin-dropdown-action-content">
-
                                 <div class="admin-dropdown-action-title">
                                     Download Template
                                 </div>
@@ -93,19 +101,24 @@
                                 <div class="admin-dropdown-action-description">
                                     Get the Excel import template
                                 </div>
-
                             </div>
 
                             <div class="admin-dropdown-action-arrow">
                                 <i class="fas fa-chevron-right"></i>
                             </div>
-
-                        </a>
+                            ',
+                            [
+                                'action' => 'downloadExcelTemplate'
+                            ],
+                            [
+                                'class' => 'admin-dropdown-action',
+                                'escape' => false
+                            ]
+                        ) ?>
 
 
                         <div class="admin-dropdown-divider"></div>
-
-
+                        <!-- IMPORT -->
                         <div class="admin-dropdown-section">
                             <i class="fas fa-upload"></i>
                             <span>IMPORT</span>
@@ -358,7 +371,7 @@
                                     Subsidy Item
                                 </th>
                                 <th>
-                                    Quantity
+                                    Quantity (tons)
                                 </th>
                                 <th>
                                     Distribution Date

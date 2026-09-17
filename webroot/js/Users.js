@@ -18,6 +18,7 @@ $(function(){
             .done(function(data){
                 if(data!=''){
                 	$('#username').val(data.username);
+                    $('#email').val(data.email);
                 	$('#role').val(data.role);
                 	$('#id').val(data.id);
                     $('#users-modal').modal('show');
@@ -110,6 +111,7 @@ function getUsers()
         },
         "columns": [
 			{data:"username"},
+            {data:"email"},
             {data:"role"},
             { data: null,render: function(data){
                     var option = '<div style="text-align:center;"><a href="" class="edit" data-toggle="tooltip" + ' +

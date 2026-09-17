@@ -3,53 +3,53 @@
         <div class="card-header">
             <h3 class="card-title text-dark">Evaluations</h3>
             <div class="card-tools evaluation-card-tools">
-                <!-- <div class="dropdown effectiveness-dropdown">
-                    <button class="btn btn-outline-primary dropdown-toggle effectiveness-btn" type="button" id="effectivenessDropdown" data-toggle="dropdown"
-                    aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-filter"></i>
-                        <span id="effectivenessLabel">
-                            Filter Subsidy Type
-                        </span>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-right subsidy-type-menu"
-                        aria-labelledby="subsidyTypeDropdown">
-                        <div class="dropdown-header subsidy-type-header">
-                            <span class="subsidy-type-header-icon">
-                                <i class="fas fa-seedling"></i>
-                            </span>
+                <!--<div class="dropdown effectiveness-dropdown">-->
+                <!--    <button class="btn btn-outline-primary dropdown-toggle effectiveness-btn" type="button" id="effectivenessDropdown" data-toggle="dropdown"-->
+                <!--    aria-haspopup="true" aria-expanded="false">-->
+                <!--        <i class="fas fa-filter"></i>-->
+                <!--        <span id="effectivenessLabel">-->
+                <!--            Filter Subsidy Type-->
+                <!--        </span>-->
+                <!--    </button>-->
+                <!--    <div class="dropdown-menu dropdown-menu-right subsidy-type-menu"-->
+                <!--        aria-labelledby="subsidyTypeDropdown">-->
+                <!--        <div class="dropdown-header subsidy-type-header">-->
+                <!--            <span class="subsidy-type-header-icon">-->
+                <!--                <i class="fas fa-seedling"></i>-->
+                <!--            </span>-->
 
-                            <span>
-                                Filter by Subsidy Type
-                            </span>
-                        </div>
-                        <div class="dropdown-divider"></div>
-                        <a href="#"
-                        class="dropdown-item subsidy-type-filter"
-                        data-value="Corn Seeds">
-                            <span class="subsidy-type-text">
-                                Corn Seeds
-                            </span>
-                        </a>
-                        <a href="#"
-                        class="dropdown-item subsidy-type-filter"
-                        data-value="Rice Seeds">
-                            <span class="subsidy-type-text">
-                                Rice Seeds
-                            </span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#"
-                        class="dropdown-item subsidy-type-filter clear-subsidy-type">
-                            <span class="subsidy-type-icon">
-                                <i class="fas fa-times"></i>
-                            </span>
-                            <span class="subsidy-type-text">
-                                Clear Filter
-                            </span>
-                        </a>
-                    </div>
-                </div> -->
-                <!-- Download Button -->
+                <!--            <span>-->
+                <!--                Filter by Subsidy Type-->
+                <!--            </span>-->
+                <!--        </div>-->
+                <!--        <div class="dropdown-divider"></div>-->
+                <!--        <a href="#"-->
+                <!--        class="dropdown-item subsidy-type-filter"-->
+                <!--        data-value="Corn Seeds">-->
+                <!--            <span class="subsidy-type-text">-->
+                <!--                Corn Seeds-->
+                <!--            </span>-->
+                <!--        </a>-->
+                <!--        <a href="#"-->
+                <!--        class="dropdown-item subsidy-type-filter"-->
+                <!--        data-value="Rice Seeds">-->
+                <!--            <span class="subsidy-type-text">-->
+                <!--                Rice Seeds-->
+                <!--            </span>-->
+                <!--        </a>-->
+                <!--        <div class="dropdown-divider"></div>-->
+                <!--        <a href="#"-->
+                <!--        class="dropdown-item subsidy-type-filter clear-subsidy-type">-->
+                <!--            <span class="subsidy-type-icon">-->
+                <!--                <i class="fas fa-times"></i>-->
+                <!--            </span>-->
+                <!--            <span class="subsidy-type-text">-->
+                <!--                Clear Filter-->
+                <!--            </span>-->
+                <!--        </a>-->
+                <!--    </div>-->
+                <!--</div> -->
+                <!-- Download Button-->
                 <a href="<?= $this->Url->build([ 'controller' => 'Evaluations', 'action' => 'downloadSummary' ]) ?>"
                 class="btn btn-success evaluation-download-btn" title="Download Evaluation Summary">
                     <i class="fas fa-file-excel"></i>
@@ -61,10 +61,9 @@
             <table id="evaluations-table" class="table table-bordered table-hover">
                 <thead>
                     <tr>
-                        <th>Farmer Name</th>
                         <th>Program Name</th>
                         <th>Farm Size (ha)</th> 
-                        <th>Yield After (bags/ha)</th> 
+                        <th>Yield After (tons/ha)</th> 
                         <th>Effectiveness Label</th> 
                         <th>Action</th>
                     </tr>
@@ -95,7 +94,7 @@
                         <td id="farmer_name"></td>
                     </tr>
                     <tr>
-                        <th width="30%">Yield After (bags/ha)</th>
+                        <th width="30%">Yield After (tons/ha)</th>
                         <td id="crop_yield_after">N/A</td>
                     </tr>
                     <tr>

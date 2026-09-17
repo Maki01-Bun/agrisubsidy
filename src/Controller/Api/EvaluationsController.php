@@ -37,7 +37,6 @@ class EvaluationsController extends AppController
     {
         $evaluation = $this->Evaluations->get($id, [
             'contain' => [
-                'Farmers',
                 'Feedbacks',
                 'Farms',
                 'Records',
@@ -52,53 +51,180 @@ class EvaluationsController extends AppController
     
     public function getEvaluations()
     {
+        $this->request->allowMethod(['get']);
+    
+        $this->autoRender = false;
+    
         try {
-            $evaluations = $this->Evaluations->find()->contain(['Farmers', 'Feedbacks','Farms','Schedules'])->all();
+    
+            /*
+             * ==========================================================
+             * GET ANONYMOUS EVALUATIONS
+             * ==========================================================
+             */
+            $evaluations = $this->Evaluations->find()
+                ->contain([
+                    'Farms',
+                    'Schedules'
+                ])
+                ->order([
+                    'Evaluations.id' => 'ASC'
+                ])
+                ->all();
     
             $data = [];
     
             foreach ($evaluations as $evaluation) {
     
-                $fullName = '';
-                $feedbackRating = '';
+                /*
+                 * ======================================================
+                 * FARM SIZE
+                 * ======================================================
+                 */
+                $farmSize = 'N/A';
     
-                if ($evaluation->farmer) {
-                    $fullName = trim(
-                        ($evaluation->farmer->first_name ?? '') . ' ' .
-                        ($evaluation->farmer->middle_name ?? '') . ' ' .
-                        ($evaluation->farmer->last_name ?? '')
-                    );
+                if (!empty($evaluation->farm)) {
+    
+                    $farmSize =
+                        $evaluation->farm->farm_size
+                        ?? 'N/A';
                 }
     
-                if ($evaluation->feedback) {
-                    $feedbackRating = $evaluation->feedback->rating;
+                /*
+                 * ======================================================
+                 * PROGRAM
+                 * ======================================================
+                 */
+                $programName = 'N/A';
+    
+                if (!empty($evaluation->schedule)) {
+    
+                    $programName =
+                        $evaluation->schedule->program_name
+                        ?? 'N/A';
                 }
     
+                /*
+                 * ======================================================
+                 * YIELD AFTER
+                 * ======================================================
+                 */
+                $cropYieldAfter = 'N/A';
+    
+                if (
+                    isset($evaluation->crop_yield_after) &&
+                    $evaluation->crop_yield_after !== null &&
+                    $evaluation->crop_yield_after !== ''
+                ) {
+    
+                    $cropYieldAfter =
+                        $evaluation->crop_yield_after;
+                }
+    
+                /*
+                 * ======================================================
+                 * EFFECTIVENESS
+                 * ======================================================
+                 */
+                $effectivenessLabel =
+                    'Not Predicted';
+    
+                if (
+                    isset($evaluation->effectiveness_label) &&
+                    $evaluation->effectiveness_label !== null &&
+                    $evaluation->effectiveness_label !== ''
+                ) {
+    
+                    $effectivenessLabel =
+                        $evaluation->effectiveness_label;
+    
+                    /*
+                     * Convert numeric labels.
+                     */
+                    $labelMap = [
+                        0 => 'Not Effective',
+                        1 => 'Moderately Effective',
+                        2 => 'Effective'
+                    ];
+    
+                    if (
+                        is_numeric(
+                            $effectivenessLabel
+                        )
+                    ) {
+    
+                        $numericLabel =
+                            (int)$effectivenessLabel;
+    
+                        $effectivenessLabel =
+                            $labelMap[$numericLabel]
+                            ??
+                            'Not Predicted';
+                    }
+                }
+    
+                /*
+                 * ======================================================
+                 * ANONYMOUS RESPONSE
+                 * ======================================================
+                 *
+                 * DO NOT include:
+                 *
+                 * farmer_name
+                 * farmer_number
+                 * farmer_id
+                 */
                 $data[] = [
-                    'id'                  => $evaluation->id,
-                    'farmer_name'         => $fullName,
-                    'program_name'        => $evaluation->schedule?$evaluation->schedule->program_name:'N/A',
-                    'subsidy_type'        => $evaluation->subsidy_type,
-                    'farm_size'           => $evaluation->farm?$evaluation->farm->farm_size:'N/A',
-                    'crop_yield_before'   => $evaluation->record?$evaluation->record->crop_yield:'N/A',
-                    'crop_yield_after'    => $evaluation->crop_yield_after,
-                    'feedback_rating'     => $feedbackRating,
-                    'effectiveness_label' => $evaluation->effectiveness_label
+    
+                    'id' =>
+                        $evaluation->id,
+    
+                    'program_name' =>
+                        $programName,
+    
+                    'farm_size' =>
+                        $farmSize,
+    
+                    'crop_yield_after' =>
+                        $cropYieldAfter,
+    
+                    'effectiveness_label' =>
+                        $effectivenessLabel
                 ];
             }
     
+            /*
+             * ==========================================================
+             * JSON RESPONSE
+             * ==========================================================
+             */
             return $this->response
                 ->withType('application/json')
-                ->withStringBody(json_encode(['data' => $data]));
+                ->withStringBody(
+                    json_encode([
+                        'data' => $data
+                    ])
+                );
     
         } catch (\Throwable $e) {
+    
+            $this->log(
+                'Get Evaluations API Error: ' .
+                $e->getMessage(),
+                'error'
+            );
+    
             return $this->response
+                ->withStatus(500)
                 ->withType('application/json')
-                ->withStringBody(json_encode([
-                    'error' => $e->getMessage(),
-                    'line' => $e->getLine(),
-                    'file' => $e->getFile()
-                ]));
+                ->withStringBody(
+                    json_encode([
+                        'data' => [],
+                        'success' => false,
+                        'message' =>
+                            $e->getMessage()
+                    ])
+                );
         }
     }
 
@@ -165,5 +291,5 @@ class EvaluationsController extends AppController
         }
         return $this->response->withType('application/json')
             ->withStringBody(json_encode($result));
-    } 
+    }
 }

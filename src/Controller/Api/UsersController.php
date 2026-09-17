@@ -27,9 +27,47 @@ class UsersController extends AppController
 
     public function getUsers()
     {
-        $users = $this->Users->find();
-        return $this->response->withType('application/json')
-            ->withStringBody(json_encode(['data'=>$users]));
+        $currentUser = $this->request->getAttribute('identity');
+    
+        $conditions = [
+            'LOWER(Users.role) !=' => 'admin'
+        ];
+    
+        // Hide the currently logged-in user's own account
+        if ($currentUser) {
+            $currentUserId = $currentUser->getIdentifier();
+    
+            if (!empty($currentUserId)) {
+                $conditions['Users.id !='] = $currentUserId;
+            }
+        }
+    
+        $users = $this->Users->find()
+            ->where($conditions)
+            ->order([
+                'Users.created' => 'DESC'
+            ])
+            ->all();
+    
+        $data = [];
+    
+        foreach ($users as $user) {
+            $data[] = [
+                'id' => $user->id,
+                'username' => $user->username,
+                'email'=> $user->email,
+                'role' => $user->role,
+                'created' => $user->created
+                    ? $user->created->format('M d, Y h:i A')
+                    : 'N/A'
+            ];
+        }
+    
+        return $this->response
+            ->withType('application/json')
+            ->withStringBody(json_encode([
+                'data' => $data
+            ]));
     }
 
     /**

@@ -13,6 +13,7 @@
                 <thead>
                     <tr>
                         <th>Username</th>
+                        <th>Email</th>
                         <th>Role</th>
                         <th>Action</th>
                     </tr>
@@ -35,6 +36,8 @@
                 <div class="form-group">
                     <label for="username">Username</label>
                     <?= $this->Form->control('username',['class'=>'form-control','label'=>false]) ?>
+                    <label for="email">Email</label>
+                    <?= $this->Form->control('email',['class'=>'form-control','label'=>false]) ?>
                     <label for="password">Password</label>
                     <?= $this->Form->control('password',['class'=>'form-control','label'=>false]) ?>
                     <label for="role">Role</label>

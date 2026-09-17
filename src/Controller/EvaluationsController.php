@@ -36,8 +36,7 @@ class EvaluationsController extends AppController
      */
     public function view($id = null)
     {
-        $evaluation = $this->Evaluations->get($id, [
-            'contain' => ['Farmers','Farms','Feedbacks','Schedules',],
+        $evaluation = $this->Evaluations->get($id, ['Farms','Feedbacks','Schedules',
         ]);
 
         $this->set(compact('evaluation'));
@@ -111,17 +110,17 @@ class EvaluationsController extends AppController
     public function downloadSummary()
     {
         try {
-
+    
             /*
             * ==========================================================
             * GET EVALUATIONS
             * ==========================================================
             *
-            * Load all related data needed for the Excel report.
+            * Farmer information is intentionally NOT loaded.
+            * Evaluation data is anonymous.
             */
             $evaluations = $this->Evaluations->find()
                 ->contain([
-                    'Farmers',
                     'Farms',
                     'Feedbacks',
                     'Schedules'
@@ -130,282 +129,314 @@ class EvaluationsController extends AppController
                     'Evaluations.id' => 'ASC'
                 ])
                 ->all();
-
+    
             /*
             * ==========================================================
             * CREATE SPREADSHEET
             * ==========================================================
             */
             $spreadsheet = new Spreadsheet();
-
+    
             $sheet = $spreadsheet->getActiveSheet();
-
+    
             $sheet->setTitle('Evaluation Summary');
-
+    
             /*
             * ==========================================================
             * TITLE
             * ==========================================================
             */
-            $sheet->mergeCells('A1:K1');
-
+            $sheet->mergeCells('A1:G1');
+    
             $sheet->setCellValue(
                 'A1',
                 'AGRICULTURAL SUBSIDY PROGRAM - EVALUATION SUMMARY'
             );
-
+    
             $sheet->getStyle('A1')
                 ->getFont()
                 ->setBold(true);
-
+    
             $sheet->getStyle('A1')
                 ->getFont()
                 ->setSize(14);
-
+    
             $sheet->getStyle('A1')
                 ->getAlignment()
                 ->setHorizontal(
                     Alignment::HORIZONTAL_CENTER
                 );
-
+    
             $sheet->getStyle('A1')
                 ->getAlignment()
                 ->setVertical(
                     Alignment::VERTICAL_CENTER
                 );
-
+    
             /*
             * ==========================================================
             * HEADERS
             * ==========================================================
             */
             $headers = [
-
+    
                 'A3' => 'No.',
-
-                'B3' => 'Farmer Name',
-
-                'C3' => 'Program',
-
-                'D3' => 'Farm Size (ha)',
-
-                'E3' => 'Yield After (bags/ha)',
-
-                'F3' => 'Selling Price (per bag)',
-
-                'G3' => 'Feedback Score',
-
-                'H3' => 'Effectiveness',
+    
+                'B3' => 'Program',
+    
+                'C3' => 'Farm Size (ha)',
+    
+                'D3' => 'Yield After (bags/ha)',
+    
+                'E3' => 'Selling Price (per bag)',
+    
+                'F3' => 'Feedback Score',
+    
+                'G3' => 'Effectiveness',
             ];
-
+    
             foreach ($headers as $cell => $value) {
-
+    
                 $sheet->setCellValue(
                     $cell,
                     $value
                 );
             }
-
+    
             /*
             * ==========================================================
             * HEADER STYLE
             * ==========================================================
             */
-            $sheet->getStyle('A3:K3')
+            $sheet->getStyle('A3:G3')
                 ->getFont()
                 ->setBold(true);
-
-            $sheet->getStyle('A3:K3')
+    
+            $sheet->getStyle('A3:G3')
                 ->getAlignment()
                 ->setHorizontal(
                     Alignment::HORIZONTAL_CENTER
                 );
-
-            $sheet->getStyle('A3:K3')
+    
+            $sheet->getStyle('A3:G3')
                 ->getAlignment()
                 ->setVertical(
                     Alignment::VERTICAL_CENTER
                 );
-
+    
+            /*
+            * ==========================================================
+            * HEADER FILL
+            * ==========================================================
+            */
+            $sheet->getStyle('A3:G3')
+                ->getFill()
+                ->setFillType(
+                    \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID
+                );
+    
+            $sheet->getStyle('A3:G3')
+                ->getFill()
+                ->getStartColor()
+                ->setARGB('FFFFFF00');
+    
+            $sheet->getStyle('A3:G3')
+                ->getFill()
+                ->getEndColor()
+                ->setARGB('FFFFFF00');
+    
             /*
             * ==========================================================
             * DATA START
             * ==========================================================
             */
             $row = 4;
-
+    
             $number = 1;
-
+    
             foreach ($evaluations as $evaluation) {
-
-                /*
-                * ======================================================
-                * FARMER NAME
-                * ======================================================
-                */
-                $farmerName = '';
-
-                if (!empty($evaluation->farmer)) {
-
-                    $farmerName = trim(
-                        ($evaluation->farmer->first_name ?? '') .
-                        ' ' .
-                        ($evaluation->farmer->middle_name ?? '') .
-                        ' ' .
-                        ($evaluation->farmer->last_name ?? '')
-                    );
-                }
-
-                /*
-                * If the name is still empty, try full_name.
-                */
-                if (
-                    $farmerName === '' &&
-                    !empty($evaluation->farmer)
-                ) {
-
-                    $farmerName =
-                        $evaluation->farmer->full_name
-                        ?? '';
-                }
-
+    
                 /*
                 * ======================================================
                 * FARM SIZE
                 * ======================================================
-                *
-                * Farm size is retrieved from the related Farms table.
                 */
-                $farmSize = '';
-
+                $farmSize = 'N/A';
+    
                 if (!empty($evaluation->farm)) {
-
+    
                     $farmSize =
                         $evaluation->farm->farm_size
                         ?? $evaluation->farm->farm_area
                         ?? $evaluation->farm->size
                         ?? $evaluation->farm->area
-                        ?? '';
+                        ?? 'N/A';
                 }
-                $program = '';
-
+    
+                /*
+                * ======================================================
+                * PROGRAM
+                * ======================================================
+                */
+                $program = 'N/A';
+    
                 if (!empty($evaluation->schedule)) {
-
+    
                     $program =
                         $evaluation->schedule->program_name
-                        ?? '';
+                        ?? 'N/A';
                 }
-
+    
                 /*
                 * ======================================================
                 * YIELD AFTER
                 * ======================================================
-                *
-                * This is confirmed by your screenshot.
                 */
-                $yieldAfter =
-                    $evaluation->crop_yield_after
-                    ?? '';
-
+                $yieldAfter = 'N/A';
+    
+                if (
+                    isset($evaluation->crop_yield_after) &&
+                    $evaluation->crop_yield_after !== null &&
+                    $evaluation->crop_yield_after !== ''
+                ) {
+    
+                    $yieldAfter =
+                        $evaluation->crop_yield_after;
+                }
+    
                 /*
                 * ======================================================
                 * SELLING PRICE
                 * ======================================================
                 */
-                $sellingPrice =
-                    $evaluation->selling_price
-                    ?? $evaluation->selling_price_per_bag
-                    ?? $evaluation->price_per_bag
-                    ?? $evaluation->selling_price_after
-                    ?? '';
-
-                $feedbackScore = '';
-
+                $sellingPrice = 'N/A';
+    
+                if (
+                    isset($evaluation->selling_price) &&
+                    $evaluation->selling_price !== null &&
+                    $evaluation->selling_price !== ''
+                ) {
+    
+                    $sellingPrice =
+                        $evaluation->selling_price;
+    
+                } elseif (
+                    isset($evaluation->selling_price_per_bag) &&
+                    $evaluation->selling_price_per_bag !== null &&
+                    $evaluation->selling_price_per_bag !== ''
+                ) {
+    
+                    $sellingPrice =
+                        $evaluation->selling_price_per_bag;
+    
+                } elseif (
+                    isset($evaluation->price_per_bag) &&
+                    $evaluation->price_per_bag !== null &&
+                    $evaluation->price_per_bag !== ''
+                ) {
+    
+                    $sellingPrice =
+                        $evaluation->price_per_bag;
+    
+                } elseif (
+                    isset($evaluation->selling_price_after) &&
+                    $evaluation->selling_price_after !== null &&
+                    $evaluation->selling_price_after !== ''
+                ) {
+    
+                    $sellingPrice =
+                        $evaluation->selling_price_after;
+                }
+    
+                /*
+                * ======================================================
+                * FEEDBACK SCORE
+                * ======================================================
+                */
+                $feedbackScore = 'N/A';
+    
                 if (!empty($evaluation->feedbacks)) {
-
-                    /*
-                    * Feedbacks is normally a collection.
-                    */
+    
                     foreach (
-                        $evaluation->feedbacks
-                        as $feedback
+                        $evaluation->feedbacks as $feedback
                     ) {
-
+    
                         if (!empty($feedback)) {
-
+    
                             /*
-                            * Try feedback_score first.
+                            * Feedback Score
                             */
                             if (
-                                isset(
-                                    $feedback->feedback_score
-                                ) &&
+                                isset($feedback->feedback_score) &&
                                 $feedback->feedback_score !== ''
                             ) {
-
+    
                                 $feedbackScore =
                                     $feedback->feedback_score;
-
+    
                             /*
-                            * Try rating.
+                            * Rating
                             */
                             } elseif (
-                                isset(
-                                    $feedback->rating
-                                ) &&
+                                isset($feedback->rating) &&
                                 $feedback->rating !== ''
                             ) {
-
+    
                                 $feedbackScore =
                                     $feedback->rating;
-
+    
                             /*
-                            * Try score.
+                            * Score
                             */
                             } elseif (
-                                isset(
-                                    $feedback->score
-                                ) &&
+                                isset($feedback->score) &&
                                 $feedback->score !== ''
                             ) {
-
+    
                                 $feedbackScore =
                                     $feedback->score;
                             }
-
+    
                             /*
-                            * Use the first feedback record.
+                            * Use first feedback.
                             */
                             break;
                         }
                     }
                 }
-
+    
                 /*
                 * ======================================================
                 * EFFECTIVENESS
                 * ======================================================
                 */
-                $effectiveness =
-                    $evaluation->effectiveness
-                    ?? $evaluation->effectiveness_label
-                    ?? '';
-
+                $effectiveness = 'N/A';
+    
+                if (
+                    isset($evaluation->effectiveness) &&
+                    $evaluation->effectiveness !== null &&
+                    $evaluation->effectiveness !== ''
+                ) {
+    
+                    $effectiveness =
+                        $evaluation->effectiveness;
+    
+                } elseif (
+                    isset($evaluation->effectiveness_label) &&
+                    $evaluation->effectiveness_label !== null &&
+                    $evaluation->effectiveness_label !== ''
+                ) {
+    
+                    $effectiveness =
+                        $evaluation->effectiveness_label;
+                }
+    
                 /*
                 * ======================================================
-                * SCHEDULE ID
+                * WRITE ROW
                 * ======================================================
                 */
-                $scheduleId =
-                    $evaluation->schedule_id
-                    ?? '';
-
-                /*
-                * ======================================================
-                * WRITE ROW TO EXCEL
-                * ======================================================
-                */
-
+    
                 /*
                 * A = Number
                 */
@@ -413,82 +444,72 @@ class EvaluationsController extends AppController
                     "A{$row}",
                     $number
                 );
-
+    
                 /*
-                * B = Farmer Name
+                * B = Program
                 */
                 $sheet->setCellValue(
                     "B{$row}",
-                    $farmerName
+                    $program
                 );
-
+    
                 /*
-                * C = Program
-                *
-                * From Schedules.program_name
+                * C = Farm Size
                 */
                 $sheet->setCellValue(
                     "C{$row}",
-                    $program
+                    $farmSize
                 );
-
+    
                 /*
-                * D = Farm Size
+                * D = Yield After
                 */
                 $sheet->setCellValue(
                     "D{$row}",
-                    $farmSize
+                    $yieldAfter
                 );
-
+    
                 /*
-                * G = Yield After
+                * E = Selling Price
                 */
                 $sheet->setCellValue(
                     "E{$row}",
-                    $yieldAfter
+                    $sellingPrice
                 );
-
+    
                 /*
-                * H = Selling Price
+                * F = Feedback Score
                 */
                 $sheet->setCellValue(
                     "F{$row}",
-                    $sellingPrice
+                    $feedbackScore
                 );
-
+    
                 /*
-                * I = Feedback Score
+                * G = Effectiveness
                 */
                 $sheet->setCellValue(
                     "G{$row}",
-                    $feedbackScore
-                );
-
-                /*
-                * J = Effectiveness
-                */
-                $sheet->setCellValue(
-                    "H{$row}",
                     $effectiveness
                 );
-
+    
                 /*
                 * NEXT ROW
                 */
                 $row++;
-
+    
                 $number++;
             }
-
+    
             /*
             * ==========================================================
             * BORDERS
             * ==========================================================
             */
             if ($row > 4) {
-
+    
                 $sheet->getStyle(
-                    'A3:H' . ($row - 1)
+                    'A3:G' . ($row - 1)
                 )
                     ->getBorders()
                     ->getAllBorders()
@@ -496,30 +517,30 @@ class EvaluationsController extends AppController
                         Border::BORDER_THIN
                     );
             }
-
+    
             /*
             * ==========================================================
             * ALIGNMENT
             * ==========================================================
             */
             if ($row > 4) {
-
+    
                 $sheet->getStyle(
-                    'A4:H' . ($row - 1)
+                    'A4:G' . ($row - 1)
                 )
                     ->getAlignment()
                     ->setVertical(
                         Alignment::VERTICAL_CENTER
                     );
             }
-
+    
             /*
             * ==========================================================
             * CENTER NUMERIC COLUMNS
             * ==========================================================
             */
             if ($row > 4) {
-
+    
                 $sheet->getStyle(
                     'A4:A' . ($row - 1)
                 )
@@ -527,48 +548,83 @@ class EvaluationsController extends AppController
                     ->setHorizontal(
                         Alignment::HORIZONTAL_CENTER
                     );
-
+    
                 $sheet->getStyle(
-                    'D4:H' . ($row - 1)
+                    'C4:G' . ($row - 1)
                 )
                     ->getAlignment()
                     ->setHorizontal(
                         Alignment::HORIZONTAL_CENTER
                     );
             }
-
+    
             /*
             * ==========================================================
             * AUTO SIZE
             * ==========================================================
             */
             foreach (
-                range('A', 'H')
+                range('A', 'G')
                 as $column
             ) {
-
+    
                 $sheet->getColumnDimension(
                     $column
                 )->setAutoSize(true);
             }
-
+    
             /*
             * ==========================================================
             * FREEZE HEADER
             * ==========================================================
             */
             $sheet->freezePane('A4');
-
+    
+            /*
+            * ==========================================================
+            * AUTO FILTER
+            * ==========================================================
+            */
+            $lastRow = max(3, $row - 1);
+    
+            $sheet->setAutoFilter(
+                'A3:G' . $lastRow
+            );
+    
+            /*
+            * ==========================================================
+            * PAGE SETUP
+            * ==========================================================
+            */
+            $sheet->getPageSetup()
+                ->setOrientation(
+                    \PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE
+                );
+    
+            $sheet->getPageSetup()
+                ->setPaperSize(
+                    \PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4
+                );
+    
+            $sheet->getPageSetup()
+                ->setFitToWidth(1);
+    
+            $sheet->getPageSetup()
+                ->setFitToHeight(0);
+    
+            $sheet->getSheetView()
+                ->setZoomScale(90);
+    
             /*
             * ==========================================================
             * FILE NAME
             * ==========================================================
             */
             $fileName =
-                'evaluation_summary_' .
+                'anonymous_evaluation_summary_' .
                 date('Y-m-d_H-i-s') .
                 '.xlsx';
-
+    
             /*
             * ==========================================================
             * TEMPORARY FILE
@@ -578,20 +634,20 @@ class EvaluationsController extends AppController
                 sys_get_temp_dir(),
                 'evaluation_summary_'
             );
-
+    
             /*
             * ==========================================================
-            * WRITE EXCEL FILE
+            * WRITE EXCEL
             * ==========================================================
             */
             $writer = new Xlsx(
                 $spreadsheet
             );
-
+    
             $writer->save(
                 $tempFile
             );
-
+    
             /*
             * ==========================================================
             * DOWNLOAD FILE
@@ -614,9 +670,9 @@ class EvaluationsController extends AppController
                         'name' => $fileName
                     ]
                 );
-
+    
         } catch (\Throwable $e) {
-
+    
             /*
             * ==========================================================
             * ERROR LOG
@@ -627,7 +683,7 @@ class EvaluationsController extends AppController
                 $e->getMessage(),
                 'error'
             );
-
+    
             /*
             * ==========================================================
             * ERROR MESSAGE
@@ -637,7 +693,7 @@ class EvaluationsController extends AppController
                 'Unable to generate the evaluation summary: ' .
                 $e->getMessage()
             );
-
+    
             /*
             * ==========================================================
             * RETURN TO INDEX
@@ -648,521 +704,4 @@ class EvaluationsController extends AppController
             ]);
         }
     }
-    public function viewFeedback($id = null)
-    {
-        if (!$id) {
-
-            $this->Flash->error(
-                'Invalid evaluation ID.'
-            );
-
-            return $this->redirect([
-                'action' => 'index'
-            ]);
-        }
-
-        try {
-
-            $evaluation = $this->Evaluations->get(
-                $id,
-                [
-                    'contain' => [
-                        'Farmers',
-                        'Farms',
-                        'Feedbacks',
-                        'Schedules'
-                    ]
-                ]
-            );
-
-            $this->set([
-                'evaluation' => $evaluation
-            ]);
-
-        } catch (\Exception $e) {
-
-            $this->Flash->error(
-                'Evaluation record not found.'
-            );
-
-            return $this->redirect([
-                'action' => 'index'
-            ]);
-        }
-    }
-
-
-    /**
-     * Get Feedback
-     *
-     * Returns evaluation feedback as JSON.
-     *
-     * program_name is retrieved from Schedules.
-     * subsidy_received is retrieved from Evaluations.
-     */
-    public function getFeedback($evaluationId = null)
-{
-    $this->request->allowMethod(['get']);
-
-    $this->autoRender = false;
-
-    /*
-     * ==========================================================
-     * VALIDATE ID
-     * ==========================================================
-     */
-    if (!$evaluationId) {
-
-        return $this->response
-            ->withType('application/json')
-            ->withStringBody(
-                json_encode([
-                    'success' => false,
-                    'message' => 'Invalid evaluation ID.'
-                ])
-            );
-    }
-
-    try {
-
-        /*
-         * ==========================================================
-         * GET EVALUATION
-         * ==========================================================
-         *
-         * IMPORTANT:
-         *
-         * Evaluations belongsTo Feedbacks through:
-         *
-         * evaluations.feedback_id
-         *          ↓
-         * feedbacks.id
-         *
-         * Therefore the entity property is:
-         *
-         * $evaluation->feedback
-         *
-         * NOT:
-         *
-         * $evaluation->feedbacks
-         *
-         * ==========================================================
-         */
-        $evaluation = $this->Evaluations->get(
-            $evaluationId,
-            [
-                'contain' => [
-                    'Farmers',
-                    'Feedbacks',
-                    'Schedules'
-                ]
-            ]
-        );
-
-        /*
-         * ==========================================================
-         * FARMER INFORMATION
-         * ==========================================================
-         */
-        $farmerName = 'N/A';
-
-        $farmerNumber = 'N/A';
-
-        if (!empty($evaluation->farmer)) {
-
-            $farmerName = trim(
-                ($evaluation->farmer->first_name ?? '') .
-                ' ' .
-                ($evaluation->farmer->middle_name ?? '') .
-                ' ' .
-                ($evaluation->farmer->last_name ?? '')
-            );
-
-            $farmerNumber =
-                $evaluation->farmer->farmer_no
-                ??
-                $evaluation->farmer->farmer_number
-                ??
-                'N/A';
-        }
-
-        /*
-         * ==========================================================
-         * SCHEDULE INFORMATION
-         * ==========================================================
-         */
-        $scheduleId = $evaluation->schedule_id ?? null;
-
-        $programName = 'N/A';
-
-        if (!empty($evaluation->schedule)) {
-
-            $programName =
-                $evaluation->schedule->program_name
-                ??
-                'N/A';
-        }
-
-        /*
-         * ==========================================================
-         * SUBSIDY RECEIVED
-         * ==========================================================
-         *
-         * This comes directly from Evaluations.
-         * ==========================================================
-         */
-        $subsidyReceived = 'N/A';
-
-        if (
-            isset($evaluation->subsidy_received) &&
-            $evaluation->subsidy_received !== null &&
-            $evaluation->subsidy_received !== ''
-        ) {
-
-            $subsidyReceived =
-                $evaluation->subsidy_received;
-        }
-
-        /*
-         * ==========================================================
-         * SELLING PRICE
-         * ==========================================================
-         */
-        $sellingPrice = '';
-
-        if (
-            isset($evaluation->selling_price) &&
-            $evaluation->selling_price !== null &&
-            $evaluation->selling_price !== ''
-        ) {
-
-            $sellingPrice =
-                $evaluation->selling_price;
-        }
-
-        /*
-         * ==========================================================
-         * FEEDBACK INFORMATION
-         * ==========================================================
-         *
-         * IMPORTANT:
-         *
-         * Feedbacks is belongsTo.
-         *
-         * Therefore:
-         *
-         * $evaluation->feedback
-         *
-         * ==========================================================
-         */
-        $feedbackRating = 'N/A';
-
-        $comments = 'No comments provided.';
-
-        $feedbackDate = 'N/A';
-
-        /*
-         * ==========================================================
-         * GET FEEDBACK
-         * ==========================================================
-         */
-        if (!empty($evaluation->feedback)) {
-
-            $feedback = $evaluation->feedback;
-
-            /*
-             * ======================================================
-             * RATING
-             * ======================================================
-             *
-             * Actual field in Feedbacks:
-             *
-             * rating
-             * ======================================================
-             */
-            if (
-                isset($feedback->rating) &&
-                $feedback->rating !== null &&
-                $feedback->rating !== ''
-            ) {
-
-                $feedbackRating =
-                    (float)$feedback->rating;
-            }
-
-            /*
-             * ======================================================
-             * COMMENTS
-             * ======================================================
-             */
-            if (
-                isset($feedback->comment) &&
-                $feedback->comment !== null &&
-                $feedback->comment !== ''
-            ) {
-
-                $comments =
-                    $feedback->comment;
-            }
-
-            /*
-             * ======================================================
-             * FEEDBACK DATE
-             * ======================================================
-             */
-            if (
-                isset($feedback->feedback_date) &&
-                $feedback->feedback_date !== null &&
-                $feedback->feedback_date !== ''
-            ) {
-
-                if (
-                    $feedback->feedback_date
-                    instanceof
-                    \DateTimeInterface
-                ) {
-
-                    $feedbackDate =
-                        $feedback
-                            ->feedback_date
-                            ->format(
-                                'F d, Y h:i A'
-                            );
-
-                } else {
-
-                    $feedbackDate =
-                        (string)$feedback->feedback_date;
-                }
-
-            } elseif (
-                isset($feedback->created) &&
-                $feedback->created !== null &&
-                $feedback->created !== ''
-            ) {
-
-                if (
-                    $feedback->created
-                    instanceof
-                    \DateTimeInterface
-                ) {
-
-                    $feedbackDate =
-                        $feedback
-                            ->created
-                            ->format(
-                                'F d, Y h:i A'
-                            );
-
-                } else {
-
-                    $feedbackDate =
-                        (string)$feedback->created;
-                }
-            }
-        }
-
-        /*
-         * ==========================================================
-         * CROP YIELD AFTER
-         * ==========================================================
-         */
-        $cropYieldAfter = 'None';
-
-        if (
-            isset($evaluation->crop_yield_after) &&
-            $evaluation->crop_yield_after !== null &&
-            $evaluation->crop_yield_after !== ''
-        ) {
-
-            $cropYieldAfter =
-                $evaluation->crop_yield_after;
-        }
-
-        /*
-         * ==========================================================
-         * AVERAGE YIELD
-         * ==========================================================
-         */
-        $averageYield = 'None';
-
-        if (
-            isset($evaluation->average_yield) &&
-            $evaluation->average_yield !== null &&
-            $evaluation->average_yield !== ''
-        ) {
-
-            $averageYield =
-                $evaluation->average_yield;
-        }
-
-        /*
-         * ==========================================================
-         * FARM SIZE
-         * ==========================================================
-         */
-        $farmSize = 'None';
-
-        if (
-            isset($evaluation->farm_size) &&
-            $evaluation->farm_size !== null &&
-            $evaluation->farm_size !== ''
-        ) {
-
-            $farmSize =
-                $evaluation->farm_size;
-        }
-
-        /*
-         * ==========================================================
-         * EFFECTIVENESS LABEL
-         * ==========================================================
-         */
-        $effectivenessLabel = 'Not Predicted';
-
-        if (
-            isset($evaluation->effectiveness_label) &&
-            $evaluation->effectiveness_label !== null &&
-            $evaluation->effectiveness_label !== ''
-        ) {
-
-            $effectivenessLabel =
-                $evaluation->effectiveness_label;
-
-            /*
-             * Convert old numerical values if necessary.
-             */
-            $labelMap = [
-                0 => 'Not Effective',
-                1 => 'Moderately Effective',
-                2 => 'Effective'
-            ];
-
-            if (is_numeric($effectivenessLabel)) {
-
-                $numericLabel =
-                    (int)$effectivenessLabel;
-
-                $effectivenessLabel =
-                    $labelMap[$numericLabel]
-                    ??
-                    'Not Predicted';
-            }
-        }
-
-        /*
-         * ==========================================================
-         * JSON RESPONSE
-         * ==========================================================
-         */
-        return $this->response
-            ->withType('application/json')
-            ->withStringBody(
-                json_encode([
-                    'success' => true,
-
-                    'data' => [
-
-                        /*
-                         * ------------------------------------------
-                         * EVALUATION
-                         * ------------------------------------------
-                         */
-                        'evaluation_id' =>
-                            $evaluation->id,
-
-                        /*
-                         * ------------------------------------------
-                         * FARMER
-                         * ------------------------------------------
-                         */
-                        'farmer_name' =>
-                            $farmerName,
-
-                        'farmer_number' =>
-                            $farmerNumber,
-
-                        /*
-                         * ------------------------------------------
-                         * SCHEDULE
-                         * ------------------------------------------
-                         */
-                        'schedule_id' =>
-                            $scheduleId,
-
-                        'program_name' =>
-                            $programName,
-
-                        /*
-                         * ------------------------------------------
-                         * SUBSIDY
-                         * ------------------------------------------
-                         */
-                        'subsidy_received' =>
-                            $subsidyReceived,
-
-                        /*
-                         * ------------------------------------------
-                         * FARM INFORMATION
-                         * ------------------------------------------
-                         */
-                        'farm_size' =>
-                            $farmSize,
-
-                        'average_yield' =>
-                            $averageYield,
-
-                        /*
-                         * ------------------------------------------
-                         * CROP YIELD
-                         * ------------------------------------------
-                         */
-                        'crop_yield_after' =>
-                            $cropYieldAfter,
-
-                        /*
-                         * ------------------------------------------
-                         * SELLING PRICE
-                         * ------------------------------------------
-                         */
-                        'selling_price' =>
-                            $sellingPrice,
-
-                        /*
-                         * ------------------------------------------
-                         * FEEDBACK
-                         * ------------------------------------------
-                         */
-                        'feedback_rating' =>
-                            $feedbackRating,
-
-                        'comments' =>
-                            $comments,
-
-                        'feedback_date' =>
-                            $feedbackDate,
-
-                        /*
-                         * ------------------------------------------
-                         * EFFECTIVENESS
-                         * ------------------------------------------
-                         */
-                        'effectiveness_label' =>
-                            $effectivenessLabel
-                    ]
-                ])
-            );
-
-    } catch (\Exception $e) {
-
-        return $this->response
-            ->withType('application/json')
-            ->withStringBody(
-                json_encode([
-                    'success' => false,
-                    'message' => $e->getMessage()
-                ])
-            );
-    }
-}
 }

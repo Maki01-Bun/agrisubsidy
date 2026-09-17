@@ -54,10 +54,180 @@
                         </a>    
                     </div>       
                 </div>
-                <button type="button" class="btn btn-success mr-2" data-toggle="modal" data-target="#excelUploadModal" data-placement="bottom" title="Upload Excel">
-                    <i class="fas fa-file-excel mr-1"></i>
-                    Upload Records
-                </button>
+                <div class="dropdown admin-actions-dropdown">
+
+    <button
+        type="button"
+        class="btn admin-dropdown-btn admin-btn-green dropdown-toggle"
+        data-toggle="dropdown"
+        aria-haspopup="true"
+        aria-expanded="false"
+    >
+
+        <span class="admin-dropdown-btn-icon">
+            <i class="fas fa-users"></i>
+        </span>
+
+        <span class="admin-dropdown-btn-label">
+            Export/Import
+        </span>
+
+    </button>
+
+
+    <div class="dropdown-menu dropdown-menu-right admin-dropdown-menu">
+
+        <!-- HEADER -->
+
+        <div class="admin-dropdown-header">
+
+            <div class="admin-dropdown-header-icon">
+                <i class="fas fa-users"></i>
+            </div>
+
+            <div class="admin-dropdown-header-content">
+
+                <div class="admin-dropdown-header-title">
+                    History Records Management
+                </div>
+
+                <div class="admin-dropdown-header-subtitle">
+                    Import or export distribution records data
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="admin-dropdown-divider"></div>
+
+
+        <!-- EXPORT -->
+
+        <div class="admin-dropdown-section">
+
+            <i class="fas fa-download"></i>
+
+            <span>EXPORT</span>
+
+        </div>
+
+
+        <!-- DOWNLOAD RECORDS -->
+
+        <?= $this->Html->link(
+            '
+            <div class="admin-dropdown-action-icon admin-icon-blue">
+                <i class="fas fa-file-excel"></i>
+            </div>
+
+            <div class="admin-dropdown-action-content">
+
+                <div class="admin-dropdown-action-title">
+                    Download History Distribution Records
+                </div>
+
+                <div class="admin-dropdown-action-description">
+                    Export all History records
+                </div>
+
+            </div>
+
+            <div class="admin-dropdown-action-arrow">
+                <i class="fas fa-chevron-right"></i>
+            </div>
+            ',
+            [
+                'action' => 'downloadRecordsExcel'
+            ],
+            [
+                'class' => 'admin-dropdown-action',
+                'escape' => false
+            ]
+        ) ?>
+
+
+        <!-- DOWNLOAD TEMPLATE -->
+
+        <?= $this->Html->link(
+            '
+            <div class="admin-dropdown-action-icon admin-icon-green">
+                <i class="fas fa-file-download"></i>
+            </div>
+
+            <div class="admin-dropdown-action-content">
+
+                <div class="admin-dropdown-action-title">
+                    Download Template
+                </div>
+
+                <div class="admin-dropdown-action-description">
+                    Get the Excel import template
+                </div>
+
+            </div>
+
+            <div class="admin-dropdown-action-arrow">
+                <i class="fas fa-chevron-right"></i>
+            </div>
+            ',
+            [
+                'action' => 'downloadExcelTemplate'
+            ],
+            [
+                'class' => 'admin-dropdown-action',
+                'escape' => false
+            ]
+        ) ?>
+
+
+        <div class="admin-dropdown-divider"></div>
+
+
+        <!-- IMPORT -->
+
+        <div class="admin-dropdown-section">
+
+            <i class="fas fa-upload"></i>
+
+            <span>IMPORT</span>
+
+        </div>
+
+
+        <button
+            type="button"
+            class="admin-dropdown-action"
+            data-toggle="modal"
+            data-target="#excelUploadModal"
+        >
+
+            <div class="admin-dropdown-action-icon admin-icon-orange">
+                <i class="fas fa-cloud-upload-alt"></i>
+            </div>
+
+            <div class="admin-dropdown-action-content">
+
+                <div class="admin-dropdown-action-title">
+                    Upload History Records
+                </div>
+
+                <div class="admin-dropdown-action-description">
+                    Import records from Excel
+                </div>
+
+            </div>
+
+            <div class="admin-dropdown-action-arrow">
+                <i class="fas fa-chevron-right"></i>
+            </div>
+
+        </button>
+
+    </div>
+
+</div>
                 <?= $this->Html->link('<i class="fas fa-plus"></i>',['action' => 'add'],
                 [ 'id' => 'add', 'class' => 'btn btn-primary', 'data-toggle' => 'tooltip', 'data-placement' => 'bottom', 'title' => 'Add Record', 'escape' => false ])?>
             </div>

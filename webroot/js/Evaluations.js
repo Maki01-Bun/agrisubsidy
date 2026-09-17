@@ -17,7 +17,6 @@ $(function(){
         })
             .done(function(data){
                 if(data!=''){
-                    $('#farmer_name').val(data.farmer_name);
                     $('#program_name').val(data.program_name);
                 	$('#farm_size').val(data.farm_size);
                 	$('#crop_yield_after').val(data.crop_yield_after);
@@ -114,7 +113,6 @@ function getEvaluations()
             "url": BASE_URL + '/api/Evaluations/getEvaluations'
         },
         "columns": [
-            {data:"farmer_name"},
             {data:"program_name"},
 			{data:"farm_size"},
             {data:"crop_yield_after"},

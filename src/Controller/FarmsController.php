@@ -82,7 +82,6 @@ class FarmsController extends AppController
     public function add()
     {
         $this->loadModel('Farmers');
-
         $farmers = $this->Farmers->find('list', [
             'keyField' => 'id',
             'valueField' => 'farmer_no'
@@ -96,22 +95,71 @@ class FarmsController extends AppController
 
         if ($this->request->is('post')) {
 
-            $farm = $this->Farms->patchEntity(
-                $farm,
-                $this->request->getData()
-            );
+            $data = $this->request->getData();
 
-            if ($this->Farms->save($farm)) {
-                $this->Flash->success('Farm added successfully.');
+            /*
+            * Validate farmer_id before saving.
+            * farms.farmer_id must reference farmers.id.
+            */
+            $farmerId = $data['farmer_id'] ?? null;
 
-                return $this->redirect([
-                    'action' => 'index'
-                ]);
+            if (empty($farmerId)) {
+
+                $this->Flash->error(
+                    'Please select a farmer.'
+                );
+
+            } else {
+
+                $farmer = $this->Farmers->find()
+                    ->where([
+                        'Farmers.id' => $farmerId
+                    ])
+                    ->first();
+
+                if (!$farmer) {
+
+                    $this->Flash->error(
+                        'The selected farmer does not exist.'
+                    );
+
+                } else {
+
+                    // Farmer exists, so it is safe to save the farm.
+                    $farm = $this->Farms->patchEntity(
+                        $farm,
+                        $data
+                    );
+
+                    if ($this->Farms->save($farm)) {
+
+                        $this->Flash->success(
+                            'Farm added successfully.'
+                        );
+
+                        return $this->redirect([
+                            'action' => 'index'
+                        ]);
+                    }
+
+                    // Display validation errors while debugging.
+                    $errors = $farm->getErrors();
+
+                    if (!empty($errors)) {
+                        foreach ($errors as $field => $messages) {
+                            foreach ($messages as $message) {
+                                $this->Flash->error(
+                                    ucfirst($field) . ': ' . $message
+                                );
+                            }
+                        }
+                    } else {
+                        $this->Flash->error(
+                            'The farm could not be saved.'
+                        );
+                    }
+                }
             }
-
-            $this->Flash->error(
-                'The farm could not be saved.'
-            );
         }
 
         $this->set([
@@ -119,6 +167,7 @@ class FarmsController extends AppController
             'farmers' => $farmers
         ]);
     }
+
 
     /**
      * Edit method

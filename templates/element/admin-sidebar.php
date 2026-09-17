@@ -17,13 +17,6 @@
         <ul class="nav nav-pills nav-sidebar flex-column h-100" data-widget="treeview" role="menu" data-accordion="false">
             <li class="nav-item">
                 <?= $this->Html->link(
-                    '<i class="nav-icon fas fa-user-alt"></i><p>Profile</p>',
-                    '/Profile',
-                    ['class' => 'nav-link '.($title == 'Profile' ? 'active' : ''),'escape' => false])?>
-            </li>
-    
-            <li class="nav-item">
-                <?= $this->Html->link(
                     '<i class="nav-icon fas fa-calendar-alt"></i><p>Audit Logs</p>',
                     '/AuditLogs',
                     ['class' => 'nav-link '.($title == 'AuditLogs' ? 'active' : ''),'escape' => false])?>
@@ -34,6 +27,12 @@
                     '<i class="nav-icon fas fa-user-cog"></i><p>Users</p>',
                     '/Users',
                     ['class' => 'nav-link '.($title == 'Users' ? 'active' : ''),'escape' => false])?>
+            </li>
+            <li class="nav-item">
+                <?= $this->Html->link(
+                    '<i class="nav-icon fas fa-user-alt"></i><p>Profile</p>',
+                    '/Profile',
+                    ['class' => 'nav-link '.($title == 'Profile' ? 'active' : ''),'escape' => false])?>
             </li>
         </ul>
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview">

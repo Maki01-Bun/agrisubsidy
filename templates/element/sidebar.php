@@ -16,12 +16,6 @@
         <ul class="nav nav-pills nav-sidebar flex-column h-100" data-widget="treeview" role="menu" data-accordion="false">
             <li class="nav-item">
                 <?= $this->Html->link(
-                    '<i class="nav-icon fas fa-user-alt"></i><p>Profile</p>',
-                    '/Profile',
-                    ['class' => 'nav-link '.($title == 'Profile' ? 'active' : ''),'escape' => false])?>
-            </li>
-            <li class="nav-item">
-                <?= $this->Html->link(
                     '<i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p>',
                     '/Dashboard',
                     ['class' => 'nav-link '.($title == 'Dashboard' ? 'active' : ''),'escape' => false])?>
@@ -61,6 +55,12 @@
                     '<i class="nav-icon fas fa-chart-line"></i><p>Data Analytics</p>',
                     '/Analytics',
                     ['class' => 'nav-link '.($title == 'Analytics' ? 'active' : ''),'escape' => false])?>
+            </li>
+            <li class="nav-item">
+                <?= $this->Html->link(
+                    '<i class="nav-icon fas fa-user-alt"></i><p>Profile</p>',
+                    '/Profile',
+                    ['class' => 'nav-link '.($title == 'Profile' ? 'active' : ''),'escape' => false])?>
             </li>
         </ul>
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview">

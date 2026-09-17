@@ -16,25 +16,25 @@
             <ul class="nav nav-pills nav-sidebar flex-column h-100" data-widget="treeview" role="menu" data-accordion="false">
                 <li class="nav-item">
                     <?= $this->Html->link(
-                        '<i class="nav-icon fas fa-user-alt"></i><p>Profile</p>',
-                        '/Profile',
-                        ['class' => 'nav-link '.($title == 'Profile' ? 'active' : ''),'escape' => false])?>
+                        '<i class="nav-icon fas fa-bullhorn"></i>
+                        <p>Subsidy Announcements</p>',
+                        ['controller' => 'Schedules','action' => 'announcements'],
+                        ['escape' => false,'class' => 'nav-link']
+                    ) ?>
                 </li>
-                    <li class="nav-item">
-                        <?= $this->Html->link(
-                            '<i class="nav-icon fas fa-bullhorn"></i>
-                            <p>Subsidy Announcements</p>',
-                            ['controller' => 'Schedules','action' => 'announcements'],
-                            ['escape' => false,'class' => 'nav-link']
-                        ) ?>
-                    </li>
-                    <li class="nav-item">
-                        <?php $active = $title=='Feedback'?'active':'' ?>
-                        <?= $this->Html->link('<i class="nav-icon fas fa-user-cog"></i>
-                            <p>
-                                Feedback
-                            </p>','/Feedbacks',['class'=>'nav-link '.$active,'escape'=>false]) ?>
-                    </li>
+                <li class="nav-item">
+                    <?php $active = $title=='Feedback'?'active':'' ?>
+                    <?= $this->Html->link('<i class="nav-icon fas fa-user-cog"></i>
+                        <p>
+                            Feedback
+                        </p>','/Feedbacks',['class'=>'nav-link '.$active,'escape'=>false]) ?>
+                </li>
+                <li class="nav-item">
+                <?= $this->Html->link(
+                    '<i class="nav-icon fas fa-user-alt"></i><p>Profile</p>',
+                    '/Profile',
+                    ['class' => 'nav-link '.($title == 'Profile' ? 'active' : ''),'escape' => false])?>
+                </li>
             </ul>
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview">
                 <li class="nav-item">

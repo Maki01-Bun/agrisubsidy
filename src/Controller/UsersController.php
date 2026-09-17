@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Authentication\PasswordHasher\DefaultPasswordHasher;
+
 /**
  * Users Controller
  *
@@ -220,6 +222,333 @@ class UsersController extends AppController
             );
         }
         return $this->redirect($this->Auth->logout());
+    }
+    
+    /* =========================================================
+   EDIT LOGGED-IN USER ACCOUNT
+   ========================================================= */
+
+    public function editAccount()
+    {
+        /*
+         * =====================================================
+         * GET CURRENTLY LOGGED-IN USER
+         * =====================================================
+         */
+        $currentUser = $this->request->getAttribute('identity');
+    
+        if (!$currentUser) {
+    
+            $this->Flash->error(
+                'You must be logged in to edit your account.'
+            );
+    
+            return $this->redirect([
+                'action' => 'login'
+            ]);
+        }
+    
+    
+        /*
+         * =====================================================
+         * GET CURRENT USER ID
+         * =====================================================
+         */
+        $userId = $currentUser->getIdentifier();
+    
+        if (empty($userId)) {
+    
+            $this->Flash->error(
+                'Unable to identify your account.'
+            );
+    
+            return $this->redirect([
+                'action' => 'profile'
+            ]);
+        }
+    
+    
+        /*
+         * =====================================================
+         * LOAD ONLY CURRENT USER
+         * =====================================================
+         */
+        try {
+    
+            $user = $this->Users->get($userId);
+    
+        } catch (\Exception $e) {
+    
+            $this->Flash->error(
+                'Your account could not be found.'
+            );
+    
+            return $this->redirect([
+                'action' => 'profile'
+            ]);
+        }
+    
+    
+        /*
+         * =====================================================
+         * PROCESS FORM
+         * =====================================================
+         */
+        if ($this->request->is(['post', 'put', 'patch'])) {
+    
+            $data = $this->request->getData();
+    
+    
+            /*
+             * =================================================
+             * USERNAME
+             * =================================================
+             */
+            $username = trim(
+                (string)($data['username'] ?? '')
+            );
+    
+    
+            /*
+             * USERNAME REQUIRED
+             * ================================================
+             */
+            if ($username === '') {
+    
+                $this->Flash->error(
+                    'Username is required.'
+                );
+    
+                return $this->redirect([
+                    'action' => 'profile'
+                ]);
+            }
+    
+    
+            /*
+             * =================================================
+             * CHECK USERNAME LENGTH
+             * =================================================
+             */
+            if (strlen($username) < 3) {
+    
+                $this->Flash->error(
+                    'Username must be at least 3 characters long.'
+                );
+    
+                return $this->redirect([
+                    'action' => 'profile'
+                ]);
+            }
+    
+    
+            /*
+             * =================================================
+             * CHECK DUPLICATE USERNAME
+             * =================================================
+             */
+            $existingUser = $this->Users->find()
+                ->where([
+                    'Users.username' => $username,
+                    'Users.id !=' => $userId
+                ])
+                ->first();
+    
+    
+            if ($existingUser) {
+    
+                $this->Flash->error(
+                    'That username is already being used by another account.'
+                );
+    
+                return $this->redirect([
+                    'action' => 'profile'
+                ]);
+            }
+    
+    
+            /*
+             * =================================================
+             * UPDATE USERNAME
+             * =================================================
+             */
+            $user->username = $username;
+    
+    
+            /*
+             * =================================================
+             * PASSWORD DATA
+             * =================================================
+             */
+            $currentPassword = (string)(
+                $data['current_password'] ?? ''
+            );
+    
+            $newPassword = (string)(
+                $data['new_password'] ?? ''
+            );
+    
+            $confirmPassword = (string)(
+                $data['confirm_password'] ?? ''
+            );
+    
+    
+            /*
+             * =================================================
+             * PASSWORD CHANGE
+             *
+             * Only process if new password was entered.
+             * =================================================
+             */
+            if ($newPassword !== '') {
+    
+    
+                /*
+                 * =============================================
+                 * CURRENT PASSWORD REQUIRED
+                 * =============================================
+                 */
+                if ($currentPassword === '') {
+    
+                    $this->Flash->error(
+                        'Please enter your current password.'
+                    );
+    
+                    return $this->redirect([
+                        'action' => 'profile'
+                    ]);
+                }
+    
+    
+                /*
+                 * =============================================
+                 * VERIFY CURRENT PASSWORD
+                 * =============================================
+                 */
+                $hasher = new DefaultPasswordHasher();
+    
+    
+                if (
+                    empty($user->password) ||
+                    !$hasher->check(
+                        $currentPassword,
+                        $user->password
+                    )
+                ) {
+    
+                    $this->Flash->error(
+                        'The current password is incorrect.'
+                    );
+    
+                    return $this->redirect([
+                        'action' => 'profile'
+                    ]);
+                }
+    
+    
+                /*
+                 * =============================================
+                 * PASSWORD CONFIRMATION
+                 * =============================================
+                 */
+                if ($newPassword !== $confirmPassword) {
+    
+                    $this->Flash->error(
+                        'The new passwords do not match.'
+                    );
+    
+                    return $this->redirect([
+                        'action' => 'profile'
+                    ]);
+                }
+    
+    
+                /*
+                 * =============================================
+                 * PASSWORD LENGTH
+                 * =============================================
+                 */
+                if (strlen($newPassword) < 8) {
+    
+                    $this->Flash->error(
+                        'New password must be at least 8 characters long.'
+                    );
+    
+                    return $this->redirect([
+                        'action' => 'profile'
+                    ]);
+                }
+    
+    
+                /*
+                 * =============================================
+                 * PREVENT SAME PASSWORD
+                 * =============================================
+                 */
+                if (
+                    $hasher->check(
+                        $newPassword,
+                        $user->password
+                    )
+                ) {
+    
+                    $this->Flash->error(
+                        'Your new password must be different from your current password.'
+                    );
+    
+                    return $this->redirect([
+                        'action' => 'profile'
+                    ]);
+                }
+    
+    
+                /*
+                 * =============================================
+                 * SET NEW PASSWORD
+                 *
+                 * UsersTable beforeSave() should hash this.
+                 * =============================================
+                 */
+                $user->password = $newPassword;
+            }
+    
+    
+            /*
+             * =================================================
+             * SAVE USER
+             * =================================================
+             */
+            if ($this->Users->save($user)) {
+    
+                $this->Flash->success(
+                    'Your account has been updated successfully.'
+                );
+    
+                return $this->redirect([
+                    'action' => 'profile'
+                ]);
+            }
+    
+    
+            /*
+             * =================================================
+             * SAVE FAILED
+             * =================================================
+             */
+            $this->Flash->error(
+                'Unable to update your account. Please check your information and try again.'
+            );
+        }
+    
+    
+        /*
+         * =====================================================
+         * FALLBACK REDIRECT
+         * =====================================================
+         */
+        return $this->redirect([
+            'action' => 'profile'
+        ]);
     }
 
 }

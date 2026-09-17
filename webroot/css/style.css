@@ -6971,7 +6971,7 @@ side-bar logout part
    ========================================================= */
 
 .admin-actions-dropdown {
-    position: relative;
+    position: relative !important;
 }
 
 
@@ -6983,9 +6983,9 @@ side-bar logout part
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 7px;
+    gap: 7px !important;
 
-    height: 40px;
+    height: 40px !important;
     padding: 5px 13px !important;
 
     border-radius: 8px !important;
@@ -6994,23 +6994,25 @@ side-bar logout part
     font-weight: 600 !important;
     line-height: 1 !important;
 
-    box-shadow: 0 2px 6px rgba(0, 0, 0, .08);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
 
     transition:
-        transform .2s ease,
-        box-shadow .2s ease,
-        background-color .2s ease;
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease !important;
 }
 
 .admin-dropdown-btn:hover {
-    transform: translateY(-1px);
+    transform: translateY(-1px) !important;
 
     box-shadow:
-        0 4px 12px rgba(0, 0, 0, .12);
+        0 4px 12px rgba(0, 0, 0, 0.12) !important;
 }
 
 
-/* Button Icon */
+/* =========================================================
+   BUTTON ICON
+   ========================================================= */
 
 .admin-dropdown-btn-icon {
     width: 26px !important;
@@ -7023,7 +7025,7 @@ side-bar logout part
 
     border-radius: 6px !important;
 
-    background: rgba(255, 255, 255, .18);
+    background: rgba(255, 255, 255, 0.18) !important;
 
     flex-shrink: 0 !important;
 }
@@ -7046,6 +7048,8 @@ side-bar logout part
    ========================================================= */
 
 .admin-dropdown-menu {
+    position: absolute !important;
+
     width: 370px !important;
     max-width: calc(100vw - 20px) !important;
 
@@ -7058,7 +7062,7 @@ side-bar logout part
     background: #ffffff !important;
 
     box-shadow:
-        0 10px 28px rgba(0, 0, 0, .13) !important;
+        0 10px 28px rgba(0, 0, 0, 0.13) !important;
 
     overflow: hidden !important;
 
@@ -7082,7 +7086,9 @@ side-bar logout part
 }
 
 
-/* Header Icon */
+/* =========================================================
+   HEADER ICON
+   ========================================================= */
 
 .admin-dropdown-header-icon {
     width: 38px !important;
@@ -7116,7 +7122,9 @@ side-bar logout part
 }
 
 
-/* Header Content */
+/* =========================================================
+   HEADER CONTENT
+   ========================================================= */
 
 .admin-dropdown-header-content {
     position: static !important;
@@ -7129,7 +7137,9 @@ side-bar logout part
 }
 
 
-/* Header Title */
+/* =========================================================
+   HEADER TITLE
+   ========================================================= */
 
 .admin-dropdown-header-title {
     display: block !important;
@@ -7146,7 +7156,9 @@ side-bar logout part
 }
 
 
-/* Header Subtitle */
+/* =========================================================
+   HEADER SUBTITLE
+   ========================================================= */
 
 .admin-dropdown-header-subtitle {
     display: block !important;
@@ -7189,7 +7201,7 @@ side-bar logout part
     display: flex !important;
     align-items: center !important;
 
-    gap: 6px;
+    gap: 6px !important;
 
     width: 100% !important;
 
@@ -7203,7 +7215,7 @@ side-bar logout part
     font-size: 9px !important;
     font-weight: 700 !important;
 
-    letter-spacing: .7px !important;
+    letter-spacing: 0.7px !important;
 
     line-height: 1.2 !important;
 }
@@ -7260,7 +7272,9 @@ side-bar logout part
 }
 
 
-/* Action Hover */
+/* =========================================================
+   ACTION HOVER
+   ========================================================= */
 
 .admin-dropdown-action:hover,
 .admin-dropdown-action:focus {
@@ -7342,7 +7356,9 @@ side-bar logout part
 }
 
 
-/* Action Title */
+/* =========================================================
+   ACTION TITLE
+   ========================================================= */
 
 .admin-dropdown-action-title {
     display: block !important;
@@ -7365,7 +7381,9 @@ side-bar logout part
 }
 
 
-/* Action Description */
+/* =========================================================
+   ACTION DESCRIPTION
+   ========================================================= */
 
 .admin-dropdown-action-description {
     display: block !important;
@@ -7415,8 +7433,8 @@ side-bar logout part
     transform: none !important;
 
     transition:
-        transform .2s ease,
-        color .2s ease;
+        transform 0.2s ease,
+        color 0.2s ease !important;
 }
 
 .admin-dropdown-action-arrow i {
@@ -7428,8 +7446,10 @@ side-bar logout part
     padding: 0 !important;
 }
 
-.admin-dropdown-action:hover
-.admin-dropdown-action-arrow {
+
+/* FIXED SELECTOR */
+.admin-dropdown-action:hover .admin-dropdown-action-arrow,
+.admin-dropdown-action:focus .admin-dropdown-action-arrow {
     color: #6c757d !important;
 
     transform: translateX(3px) !important;
@@ -7564,4 +7584,2782 @@ side-bar logout part
         padding-left: 6px !important;
         padding-right: 6px !important;
     }
+}
+/* =========================================================
+   LOCATION EXPORT SECTION
+   ========================================================= */
+
+.admin-dropdown-location-section {
+    padding: 12px 14px;
+}
+
+
+/* =========================================================
+   LOCATION TITLE
+   ========================================================= */
+
+.admin-dropdown-location-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+
+.admin-dropdown-location-title-icon {
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #f1f8f4;
+    color: #198754;
+
+    border-radius: 8px;
+
+    flex-shrink: 0;
+}
+
+
+.admin-dropdown-location-title-icon i {
+    font-size: 14px;
+}
+
+
+.admin-dropdown-location-title-text {
+    font-size: 13px;
+    font-weight: 700;
+    color: #343a40;
+}
+
+
+.admin-dropdown-location-subtitle {
+    margin-top: 2px;
+
+    font-size: 11px;
+    line-height: 1.3;
+
+    color: #8a8f98;
+}
+
+
+/* =========================================================
+   SELECT + DOWNLOAD
+   ========================================================= */
+
+.admin-location-select-wrapper {
+    display: flex;
+    align-items: stretch;
+    gap: 7px;
+}
+
+
+.admin-location-select {
+    min-width: 0;
+    height: 38px;
+
+    border: 1px solid #dfe3e8;
+    border-radius: 7px;
+
+    font-size: 12px;
+    color: #495057;
+
+    background-color: #fff;
+
+    padding: 6px 9px;
+
+    outline: none;
+}
+
+
+.admin-location-select:focus {
+    border-color: #198754;
+
+    box-shadow:
+        0 0 0 2px rgba(25, 135, 84, 0.10);
+}
+
+
+/* =========================================================
+   DOWNLOAD BUTTON
+   ========================================================= */
+
+.admin-location-download-btn {
+    height: 38px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 6px;
+
+    padding: 6px 11px;
+
+    border: none;
+    border-radius: 7px;
+
+    background: #198754;
+    color: #fff;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    white-space: nowrap;
+
+    transition:
+        background-color 0.15s ease,
+        transform 0.15s ease;
+}
+
+
+.admin-location-download-btn:hover {
+    background: #157347;
+    color: #fff;
+
+    text-decoration: none;
+}
+
+
+.admin-location-download-btn:active {
+    transform: translateY(1px);
+}
+
+
+.admin-location-download-btn i {
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   DROPDOWN LOCATION OPTIONS
+   ========================================================= */
+
+.admin-location-select option {
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 576px) {
+
+    .admin-dropdown-location-section {
+        padding: 12px;
+    }
+
+
+    .admin-location-select-wrapper {
+        flex-direction: column;
+    }
+
+
+    .admin-location-select {
+        width: 100%;
+    }
+
+
+    .admin-location-download-btn {
+        width: 100%;
+    }
+
+}
+
+/* =========================================================
+   FEATURE IMPORTANCE CARD
+========================================================= */
+
+.feature-importance-card {
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+
+/* =========================================================
+   CHART WRAPPER
+========================================================= */
+
+.feature-chart-wrapper {
+    position: relative;
+    width: 100%;
+    height: 420px;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.feature-empty-state {
+    min-height: 220px;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+
+    padding: 35px 20px;
+}
+
+
+/* =========================================================
+   EMPTY ICON
+========================================================= */
+
+.feature-empty-icon {
+    width: 64px;
+    height: 64px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #f1f5f9;
+
+    color: #6c757d;
+
+    font-size: 26px;
+
+    margin-bottom: 15px;
+}
+
+
+/* =========================================================
+   EMPTY TITLE
+========================================================= */
+
+.feature-empty-state h5 {
+    margin: 0 0 8px;
+
+    font-size: 18px;
+
+    font-weight: 600;
+
+    color: #343a40;
+}
+
+
+/* =========================================================
+   EMPTY DESCRIPTION
+========================================================= */
+
+.feature-empty-state p {
+    margin: 0;
+
+    max-width: 600px;
+
+    font-size: 14px;
+
+    line-height: 1.6;
+
+    color: #6c757d;
+}
+
+
+/* =========================================================
+   EMPTY NOTE
+========================================================= */
+
+.feature-empty-note {
+    display: inline-flex;
+
+    align-items: center;
+
+    margin-top: 15px;
+
+    padding: 7px 12px;
+
+    border-radius: 20px;
+
+    background: #f8f9fa;
+
+    color: #6c757d;
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 768px) {
+
+    .feature-chart-wrapper {
+        height: 350px;
+    }
+
+    .feature-empty-state {
+        min-height: 200px;
+
+        padding: 25px 15px;
+    }
+
+    .feature-empty-state h5 {
+        font-size: 16px;
+    }
+
+    .feature-empty-state p {
+        font-size: 13px;
+    }
+
+}
+
+/* =========================================================
+   PROFILE ACCOUNT ACTIONS
+========================================================= */
+
+.profile-account-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    margin-top: 18px;
+    margin-bottom: 20px;
+}
+
+.profile-edit-account-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+
+    padding: 9px 18px !important;
+
+    border-radius: 8px !important;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    background: #087f23 !important;
+    border-color: #087f23 !important;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
+}
+
+.profile-edit-account-btn:hover {
+    background: #066b1e !important;
+    border-color: #066b1e !important;
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 5px 12px rgba(0, 0, 0, 0.12);
+}
+
+.profile-edit-account-btn:focus,
+.profile-edit-account-btn:active {
+    background: #066b1e !important;
+    border-color: #066b1e !important;
+
+    box-shadow:
+        0 0 0 0.15rem rgba(8, 127, 35, 0.20) !important;
+}
+
+
+
+/* =========================================================
+   EDIT ACCOUNT MODAL
+========================================================= */
+
+#editAccountModal {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+#editAccountModal .modal-dialog {
+    width: 100%;
+
+    max-width: 625px;
+
+    margin: 1.75rem auto;
+}
+
+.edit-account-modal {
+    width: 100%;
+
+    border: none !important;
+
+    border-radius: 16px !important;
+
+    overflow: hidden;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 18px 50px rgba(0, 0, 0, 0.20) !important;
+}
+
+
+
+/* =========================================================
+   MODAL HEADER
+========================================================= */
+
+.edit-account-modal .modal-header {
+    position: relative;
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    min-height: 105px;
+
+    padding: 24px 28px !important;
+
+    background: #ffffff !important;
+
+    border: none !important;
+
+    border-bottom: 1px solid #e9ecef !important;
+}
+
+
+/*
+ * GREEN ACCENT LINE
+ */
+
+.edit-account-modal .modal-header::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 4px;
+
+    background: #087f23;
+}
+
+
+
+/* =========================================================
+   MODAL TITLE AREA
+========================================================= */
+
+.edit-account-modal .modal-header > div {
+    padding-top: 2px;
+}
+
+.edit-account-modal .modal-title {
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    font-size: 21px !important;
+
+    line-height: 1.3;
+
+    font-weight: 700 !important;
+
+    color: #1f2937 !important;
+}
+
+.edit-account-modal .modal-title i {
+    color: #087f23 !important;
+
+    margin-right: 7px;
+}
+
+.edit-account-modal .modal-header small {
+    display: block;
+
+    margin-top: 5px;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+
+    color: #6c757d !important;
+}
+
+
+
+/* =========================================================
+   CLOSE BUTTON
+========================================================= */
+
+.edit-account-modal .modal-header .close {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 36px;
+    height: 36px;
+
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    border: none;
+
+    border-radius: 7px;
+
+    background: transparent;
+
+    color: #6c757d !important;
+
+    font-size: 25px;
+
+    line-height: 1;
+
+    opacity: 1;
+
+    transition:
+        color 0.2s ease,
+        background-color 0.2s ease;
+}
+
+.edit-account-modal .modal-header .close:hover {
+    color: #dc3545 !important;
+
+    background: #f8f9fa;
+}
+
+.edit-account-modal .modal-header .close:focus {
+    outline: none;
+
+    box-shadow: none;
+}
+
+
+
+/* =========================================================
+   MODAL BODY
+========================================================= */
+
+.edit-account-modal .modal-body {
+    padding: 25px 28px 20px !important;
+
+    background: #ffffff;
+}
+
+.edit-account-modal .form-group {
+    margin-bottom: 20px;
+}
+
+
+
+/* =========================================================
+   FORM LABEL
+========================================================= */
+
+.edit-account-modal label {
+    display: flex;
+    align-items: center;
+
+    margin-bottom: 8px !important;
+
+    font-size: 14px;
+
+    line-height: 1.4;
+
+    font-weight: 600;
+
+    color: #343a40 !important;
+}
+
+.edit-account-modal label i {
+    color: #087f23 !important;
+
+    width: 18px;
+
+    font-size: 14px;
+
+    text-align: center;
+}
+
+
+
+/* =========================================================
+   FORM CONTROL
+========================================================= */
+
+.edit-account-modal .form-control {
+    width: 100%;
+
+    height: 46px !important;
+
+    min-height: 46px !important;
+
+    padding: 9px 14px !important;
+
+    border: 1px solid #d7dce1 !important;
+
+    border-radius: 9px !important;
+
+    background: #ffffff !important;
+
+    color: #343a40 !important;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+
+    box-shadow: none !important;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.edit-account-modal .form-control:hover {
+    border-color: #b8c0c8 !important;
+}
+
+.edit-account-modal .form-control:focus {
+    border-color: #087f23 !important;
+
+    background: #ffffff !important;
+
+    box-shadow:
+        0 0 0 3px rgba(8, 127, 35, 0.10) !important;
+
+    outline: none !important;
+}
+
+.edit-account-modal .form-control::placeholder {
+    color: #9aa3ad;
+
+    opacity: 1;
+}
+
+
+
+/* =========================================================
+   PASSWORD INPUT WRAPPER
+========================================================= */
+
+.password-input-wrapper {
+    position: relative;
+
+    width: 100%;
+}
+
+.password-input-wrapper .form-control {
+    padding-right: 48px !important;
+}
+
+
+
+/* =========================================================
+   PASSWORD TOGGLE
+========================================================= */
+
+.password-toggle {
+    position: absolute;
+
+    top: 50%;
+    right: 8px;
+
+    transform: translateY(-50%);
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 34px;
+    height: 34px;
+
+    padding: 0 !important;
+
+    border: none !important;
+
+    border-radius: 7px;
+
+    background: transparent !important;
+
+    color: #6c757d !important;
+
+    cursor: pointer;
+
+    z-index: 5;
+
+    transition:
+        color 0.2s ease,
+        background-color 0.2s ease;
+}
+
+.password-toggle:hover {
+    color: #087f23 !important;
+
+    background: rgba(8, 127, 35, 0.07) !important;
+}
+
+.password-toggle:focus {
+    outline: none !important;
+
+    box-shadow: none !important;
+
+    color: #087f23 !important;
+}
+
+.password-toggle i {
+    font-size: 15px;
+}
+
+
+
+/* =========================================================
+   FORM HELP TEXT
+========================================================= */
+
+.edit-account-modal .form-text {
+    display: block;
+
+    margin-top: 6px !important;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+
+    color: #6c757d !important;
+}
+
+
+
+/* =========================================================
+   PASSWORD SECTION DIVIDER
+========================================================= */
+
+.account-section-divider {
+    display: flex;
+
+    align-items: center;
+
+    width: 100%;
+
+    margin: 24px 0 20px;
+
+    gap: 14px;
+}
+
+.account-section-divider::before,
+.account-section-divider::after {
+    content: "";
+
+    flex: 1;
+
+    height: 1px;
+
+    background: #dee2e6;
+}
+
+.account-section-divider span {
+    flex-shrink: 0;
+
+    white-space: nowrap;
+
+    font-size: 12px;
+
+    line-height: 1;
+
+    font-weight: 700;
+
+    letter-spacing: 0.5px;
+
+    text-transform: uppercase;
+
+    color: #6c757d;
+}
+
+
+
+/* =========================================================
+   MODAL FOOTER
+========================================================= */
+
+.edit-account-modal .modal-footer {
+    display: flex;
+
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    padding: 17px 28px !important;
+
+    background: #ffffff !important;
+
+    border-top: 1px solid #e9ecef !important;
+}
+
+
+
+/* =========================================================
+   FOOTER BUTTONS
+========================================================= */
+
+.edit-account-modal .modal-footer .btn {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+
+    padding: 9px 17px !important;
+
+    border-radius: 8px !important;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    line-height: 1.4;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
+}
+
+
+
+/* =========================================================
+   CANCEL BUTTON
+========================================================= */
+
+.edit-account-modal .modal-footer .btn-secondary {
+    background: #6c757d !important;
+
+    border-color: #6c757d !important;
+
+    color: #ffffff !important;
+}
+
+.edit-account-modal .modal-footer .btn-secondary:hover {
+    background: #5a6268 !important;
+
+    border-color: #545b62 !important;
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+.edit-account-modal .modal-footer .btn-secondary:focus {
+    box-shadow:
+        0 0 0 3px rgba(108, 117, 125, 0.15) !important;
+}
+
+
+
+/* =========================================================
+   SAVE BUTTON
+========================================================= */
+
+.edit-account-modal .modal-footer .btn-success {
+    background: #087f23 !important;
+
+    border-color: #087f23 !important;
+
+    color: #ffffff !important;
+}
+
+.edit-account-modal .modal-footer .btn-success:hover {
+    background: #066b1e !important;
+
+    border-color: #066b1e !important;
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+.edit-account-modal .modal-footer .btn-success:focus {
+    background: #066b1e !important;
+
+    border-color: #066b1e !important;
+
+    box-shadow:
+        0 0 0 3px rgba(8, 127, 35, 0.15) !important;
+}
+
+
+
+/* =========================================================
+   MODAL BACKDROP
+========================================================= */
+
+.modal-backdrop.show {
+    opacity: 0.55;
+}
+
+
+
+/* =========================================================
+   MOBILE RESPONSIVE
+========================================================= */
+
+@media (max-width: 767.98px) {
+
+    #editAccountModal .modal-dialog {
+        max-width: calc(100% - 24px);
+
+        margin: 12px auto;
+    }
+
+    .edit-account-modal {
+        border-radius: 13px !important;
+    }
+
+    .edit-account-modal .modal-header {
+        min-height: 95px;
+
+        padding: 20px !important;
+    }
+
+    .edit-account-modal .modal-body {
+        padding: 21px 20px 16px !important;
+    }
+
+    .edit-account-modal .modal-footer {
+        padding: 15px 20px !important;
+    }
+
+}
+
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 575.98px) {
+
+    .profile-account-actions {
+        display: block;
+
+        margin-top: 15px;
+
+        margin-bottom: 18px;
+    }
+
+    .profile-edit-account-btn {
+        width: 100%;
+    }
+
+
+    #editAccountModal .modal-dialog {
+        max-width: calc(100% - 16px);
+
+        margin: 8px auto;
+    }
+
+
+    .edit-account-modal .modal-header {
+        min-height: 90px;
+
+        padding: 18px !important;
+    }
+
+    .edit-account-modal .modal-title {
+        font-size: 19px !important;
+    }
+
+    .edit-account-modal .modal-header small {
+        font-size: 12px;
+    }
+
+
+    .edit-account-modal .modal-body {
+        padding: 19px 18px 14px !important;
+    }
+
+
+    .edit-account-modal .form-group {
+        margin-bottom: 17px;
+    }
+
+
+    .edit-account-modal .form-control {
+        height: 44px !important;
+
+        min-height: 44px !important;
+    }
+
+
+    .account-section-divider {
+        margin-top: 21px;
+
+        margin-bottom: 18px;
+
+        gap: 9px;
+    }
+
+
+    .edit-account-modal .modal-footer {
+        padding: 14px 18px !important;
+
+        gap: 8px;
+    }
+
+
+    .edit-account-modal .modal-footer .btn {
+        flex: 1;
+
+        min-height: 42px;
+
+        padding-left: 12px !important;
+
+        padding-right: 12px !important;
+    }
+
+}
+
+
+
+/* =========================================================
+   EXTRA SMALL DEVICES
+========================================================= */
+
+@media (max-width: 375px) {
+
+    .edit-account-modal .modal-header {
+        padding: 16px !important;
+    }
+
+    .edit-account-modal .modal-body {
+        padding: 17px 16px 12px !important;
+    }
+
+    .edit-account-modal .modal-footer {
+        padding: 12px 16px !important;
+    }
+
+    .edit-account-modal .modal-title {
+        font-size: 18px !important;
+    }
+
+    .edit-account-modal .modal-footer .btn {
+        font-size: 13px;
+    }
+
+}
+
+/* =========================================================
+   FARM INFORMATION
+   MODERN RESPONSIVE DESIGN
+========================================================= */
+
+
+/* =========================================================
+   FARM SECTION
+========================================================= */
+
+#farm {
+    padding-top: 8px;
+}
+
+
+/* =========================================================
+   FARM SECTION HEADER
+========================================================= */
+
+.farm-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+
+    padding: 20px 22px;
+
+    margin-bottom: 22px;
+
+    background: #ffffff;
+
+    border: 1px solid #e9ecef;
+
+    border-radius: 16px;
+
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.04);
+
+    transition:
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+.farm-section-header:hover {
+    box-shadow:
+        0 7px 22px rgba(0, 0, 0, 0.06);
+}
+
+
+/* =========================================================
+   SECTION HEADING
+========================================================= */
+
+.farm-section-header .section-heading {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    margin: 0 !important;
+}
+
+
+/* =========================================================
+   FARM SECTION ICON
+========================================================= */
+
+.farm-section-header .section-icon.farm-icon {
+    width: 50px;
+    height: 50px;
+
+    min-width: 50px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: linear-gradient(
+        135deg,
+        #eaf8ef,
+        #f4fbf6
+    );
+
+    color: #28a745;
+
+    border-radius: 14px;
+
+    font-size: 21px;
+
+    border: 1px solid #d8efdf;
+}
+
+
+.farm-section-header .section-heading h5 {
+    margin: 0 0 4px;
+
+    font-size: 19px;
+
+    font-weight: 700;
+
+    color: #243447;
+
+    line-height: 1.3;
+}
+
+
+.farm-section-header .section-heading p {
+    margin: 0;
+
+    font-size: 13px;
+
+    color: #7b8794;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   RIGHT SIDE ACTIONS
+========================================================= */
+
+.farm-section-actions {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-end;
+
+    gap: 12px;
+
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
+   FARM COUNT
+========================================================= */
+
+.farm-count {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 38px;
+
+    padding: 7px 13px;
+
+    background: #f6f8fa;
+
+    border: 1px solid #e3e7eb;
+
+    border-radius: 10px;
+
+    color: #59636e;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+
+.farm-count i {
+    color: #28a745;
+}
+
+
+/* =========================================================
+   ADD FARM BUTTON
+========================================================= */
+
+.add-farm-btn {
+    display: inline-flex !important;
+
+    align-items: center !important;
+
+    justify-content: center !important;
+
+    gap: 5px;
+
+    min-height: 40px;
+
+    padding: 8px 17px !important;
+
+    border: none !important;
+
+    border-radius: 10px !important;
+
+    background: linear-gradient(
+        135deg,
+        #28a745,
+        #218838
+    ) !important;
+
+    color: #ffffff !important;
+
+    font-size: 13px !important;
+
+    font-weight: 600 !important;
+
+    box-shadow:
+        0 4px 10px rgba(40, 167, 69, 0.20);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+
+.add-farm-btn:hover {
+    background: linear-gradient(
+        135deg,
+        #218838,
+        #1e7e34
+    ) !important;
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 6px 15px rgba(40, 167, 69, 0.27);
+}
+
+
+.add-farm-btn:active {
+    transform: translateY(0);
+}
+
+
+.add-farm-btn:focus {
+    box-shadow:
+        0 0 0 3px rgba(40, 167, 69, 0.15) !important;
+}
+
+
+/* =========================================================
+   FARM CARDS
+========================================================= */
+
+.farm-card {
+    height: 100%;
+
+    overflow: hidden;
+
+    background: #ffffff;
+
+    border: 1px solid #e7ebef;
+
+    border-radius: 17px;
+
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.045);
+
+    transition:
+        transform 0.22s ease,
+        box-shadow 0.22s ease,
+        border-color 0.22s ease;
+}
+
+
+.farm-card:hover {
+    transform: translateY(-3px);
+
+    border-color: #d5e9da;
+
+    box-shadow:
+        0 10px 28px rgba(0, 0, 0, 0.08);
+}
+
+
+/* =========================================================
+   FARM CARD HEADER
+========================================================= */
+
+.farm-card-header {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 18px 19px;
+
+    background: linear-gradient(
+        180deg,
+        #ffffff 0%,
+        #fbfcfc 100%
+    );
+
+    border-bottom: 1px solid #edf0f2;
+}
+
+
+/* =========================================================
+   FARM TITLE WRAPPER
+========================================================= */
+
+.farm-title-wrapper {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    min-width: 0;
+}
+
+
+/* =========================================================
+   FARM ICON CIRCLE
+========================================================= */
+
+.farm-icon-circle {
+    width: 45px;
+    height: 45px;
+
+    min-width: 45px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #edf8f0;
+
+    color: #28a745;
+
+    border-radius: 13px;
+
+    font-size: 19px;
+
+    border: 1px solid #d9efdf;
+}
+
+
+/* =========================================================
+   FARM TITLE
+========================================================= */
+
+.farm-title {
+    min-width: 0;
+}
+
+
+.farm-title > span {
+    display: block;
+
+    margin-bottom: 2px;
+
+    color: #8a949e;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.5px;
+}
+
+
+.farm-title h5 {
+    margin: 0;
+
+    color: #263746;
+
+    font-size: 16px;
+
+    font-weight: 700;
+
+    line-height: 1.35;
+
+    word-break: break-word;
+}
+
+
+/* =========================================================
+   REGISTERED BADGE
+========================================================= */
+
+.farm-badge {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 6px 10px;
+
+    border-radius: 20px;
+
+    background: #edf8f0;
+
+    border: 1px solid #d7efde;
+
+    color: #218838;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
+
+.farm-badge i {
+    font-size: 10px;
+}
+
+
+/* =========================================================
+   FARM CARD BODY
+========================================================= */
+
+.farm-card-body {
+    padding: 20px;
+}
+
+
+/* =========================================================
+   FARM DETAIL GRID
+========================================================= */
+
+.farm-detail-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 15px;
+}
+
+
+/* =========================================================
+   FARM DETAIL
+========================================================= */
+
+.farm-detail {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 11px;
+
+    min-width: 0;
+}
+
+
+.farm-detail-icon {
+    width: 38px;
+    height: 38px;
+
+    min-width: 38px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 10px;
+
+    font-size: 15px;
+}
+
+
+/* =========================================================
+   FARM DETAIL ICON COLORS
+========================================================= */
+
+.farm-detail-icon.size {
+    background: #eef5ff;
+
+    color: #3973c7;
+}
+
+
+.farm-detail-icon.location {
+    background: #fff1f2;
+
+    color: #dc3545;
+}
+
+
+.farm-detail-icon.yield {
+    background: #fff8e5;
+
+    color: #d99a00;
+}
+
+
+/* =========================================================
+   FARM DETAIL TEXT
+========================================================= */
+
+.farm-detail-label {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #8a949e;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.35px;
+}
+
+
+.farm-detail strong {
+    display: block;
+
+    color: #2d3e50;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    line-height: 1.4;
+
+    word-break: break-word;
+}
+
+
+.farm-detail strong small {
+    font-size: 11px;
+
+    color: #7b8794;
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   LOCATION TEXT
+========================================================= */
+
+.location-text {
+    max-width: 100%;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   AVERAGE YIELD DETAIL
+========================================================= */
+
+.farm-card-body > .farm-detail.mt-3 {
+    margin-top: 18px !important;
+
+    padding: 13px;
+
+    background: #fafcfb;
+
+    border: 1px solid #edf2ee;
+
+    border-radius: 12px;
+}
+
+
+/* =========================================================
+   FARM DIVIDER
+========================================================= */
+
+.farm-divider {
+    width: 100%;
+
+    height: 1px;
+
+    margin: 18px 0 14px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            #e9ecef 15%,
+            #e9ecef 85%,
+            transparent
+        );
+}
+
+
+/* =========================================================
+   FARM DATE
+========================================================= */
+
+.farm-date {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    color: #89939d;
+
+    font-size: 12px;
+}
+
+
+.farm-date > i {
+    color: #28a745;
+
+    font-size: 14px;
+}
+
+
+.farm-date strong {
+    color: #536170;
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   EMPTY FARM STATE
+========================================================= */
+
+.empty-farm-state {
+    position: relative;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 290px;
+
+    padding: 45px 25px;
+
+    margin-top: 10px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fffdf8 0%,
+            #fffaf0 100%
+        );
+
+    border: 1px dashed #efc46b;
+
+    border-radius: 18px;
+
+    text-align: center;
+
+    overflow: hidden;
+}
+
+
+/* Decorative background */
+
+.empty-farm-state::before {
+    content: "";
+
+    position: absolute;
+
+    width: 170px;
+    height: 170px;
+
+    top: -80px;
+    right: -60px;
+
+    background: rgba(255, 193, 7, 0.08);
+
+    border-radius: 50%;
+}
+
+
+.empty-farm-state::after {
+    content: "";
+
+    position: absolute;
+
+    width: 120px;
+    height: 120px;
+
+    bottom: -65px;
+    left: -40px;
+
+    background: rgba(255, 193, 7, 0.06);
+
+    border-radius: 50%;
+}
+
+
+/* =========================================================
+   EMPTY FARM ICON
+========================================================= */
+
+.empty-farm-icon {
+    position: relative;
+
+    z-index: 1;
+
+    width: 78px;
+    height: 78px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    margin-bottom: 18px;
+
+    background: #fff3cd;
+
+    color: #d99a00;
+
+    border: 1px solid #ffe7a0;
+
+    border-radius: 50%;
+
+    font-size: 30px;
+
+    box-shadow:
+        0 6px 18px rgba(217, 154, 0, 0.10);
+}
+
+
+.empty-farm-state h5 {
+    position: relative;
+
+    z-index: 1;
+
+    margin: 0 0 7px;
+
+    color: #6f5200;
+
+    font-size: 19px;
+
+    font-weight: 700;
+}
+
+
+.empty-farm-state p {
+    position: relative;
+
+    z-index: 1;
+
+    max-width: 470px;
+
+    margin: 0 auto 20px;
+
+    color: #977b37;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   EMPTY STATE ADD BUTTON
+========================================================= */
+
+.farm-empty-add-btn {
+    position: relative;
+
+    z-index: 1;
+
+    display: inline-flex !important;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 5px;
+
+    min-height: 40px;
+
+    padding: 8px 18px !important;
+
+    border: none !important;
+
+    border-radius: 10px !important;
+
+    background: #28a745 !important;
+
+    color: #ffffff !important;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    box-shadow:
+        0 4px 12px rgba(40, 167, 69, 0.18);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.farm-empty-add-btn:hover {
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 7px 16px rgba(40, 167, 69, 0.25);
+}
+
+
+/* =========================================================
+   ADD FARM MODAL
+========================================================= */
+
+#addFarmModal .modal-dialog {
+    max-width: 680px;
+
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+
+.add-farm-modal {
+    overflow: hidden;
+
+    border: none !important;
+
+    border-radius: 18px !important;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 20px 55px rgba(0, 0, 0, 0.18);
+}
+
+
+/* =========================================================
+   MODAL HEADER
+========================================================= */
+
+.add-farm-modal-header {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 20px 23px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f5fbf7 0%,
+            #ffffff 100%
+        );
+
+    border-bottom: 1px solid #e7eee9 !important;
+}
+
+
+.add-farm-title {
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+    min-width: 0;
+}
+
+
+/* =========================================================
+   MODAL ICON
+========================================================= */
+
+.add-farm-icon {
+    width: 48px;
+    height: 48px;
+
+    min-width: 48px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #eaf7ee;
+
+    color: #28a745;
+
+    border: 1px solid #d5eddb;
+
+    border-radius: 13px;
+
+    font-size: 20px;
+}
+
+
+.add-farm-title .modal-title {
+    margin: 0 0 3px;
+
+    color: #263746;
+
+    font-size: 18px;
+
+    font-weight: 700;
+}
+
+
+.add-farm-title small {
+    display: block;
+
+    color: #7d8995;
+
+    font-size: 12px;
+
+    line-height: 1.4;
+}
+
+
+/* =========================================================
+   MODAL CLOSE BUTTON
+========================================================= */
+
+.add-farm-modal-header .close {
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    margin: 0;
+
+    padding: 0;
+
+    border-radius: 10px;
+
+    color: #6c757d;
+
+    opacity: 0.8;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+
+.add-farm-modal-header .close:hover {
+    background: #f0f2f4;
+
+    color: #343a40;
+
+    opacity: 1;
+}
+
+
+/* =========================================================
+   MODAL BODY
+========================================================= */
+
+.add-farm-modal-body {
+    padding: 25px;
+}
+
+
+/* =========================================================
+   FORM GROUP
+========================================================= */
+
+.add-farm-modal-body .form-group {
+    margin-bottom: 21px;
+}
+
+
+.add-farm-modal-body label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #344454;
+
+    font-size: 13px;
+
+    font-weight: 600;
+}
+
+
+.add-farm-modal-body label i {
+    color: #28a745;
+}
+
+
+.add-farm-modal-body label .text-danger {
+    color: #dc3545 !important;
+
+    margin-left: 2px;
+}
+
+
+/* =========================================================
+   FORM CONTROL
+========================================================= */
+
+.add-farm-modal-body .form-control {
+    height: 44px;
+
+    padding: 9px 13px;
+
+    border: 1px solid #dce2e7;
+
+    border-radius: 9px;
+
+    color: #344454;
+
+    font-size: 13px;
+
+    background: #ffffff;
+
+    box-shadow: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+
+.add-farm-modal-body .form-control:hover {
+    border-color: #cbd3da;
+}
+
+
+.add-farm-modal-body .form-control:focus {
+    border-color: #52b96a;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 0 0 3px rgba(40, 167, 69, 0.10);
+}
+
+
+.add-farm-modal-body .form-control::placeholder {
+    color: #a1aab3;
+}
+
+
+/* =========================================================
+   INPUT GROUP
+========================================================= */
+
+.add-farm-modal-body .input-group {
+    display: flex;
+}
+
+
+.add-farm-modal-body .input-group .form-control {
+    position: relative;
+
+    z-index: 1;
+}
+
+
+.add-farm-modal-body .input-group-append {
+    margin-left: -1px;
+}
+
+
+.add-farm-modal-body .input-group-text {
+    display: flex;
+
+    align-items: center;
+
+    padding: 0 13px;
+
+    border: 1px solid #dce2e7;
+
+    border-radius: 0 9px 9px 0;
+
+    background: #f7f9fa;
+
+    color: #687583;
+
+    font-size: 12px;
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   READONLY AVERAGE YIELD
+========================================================= */
+
+#average-yield {
+    background: #f7faf8;
+
+    color: #218838;
+
+    font-weight: 700;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   FORM HELP TEXT
+========================================================= */
+
+.add-farm-modal-body .form-text {
+    margin-top: 6px;
+
+    color: #89939d !important;
+
+    font-size: 11px;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   YIELD PREVIEW
+========================================================= */
+
+.farm-yield-preview {
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+    margin-top: -4px;
+
+    margin-bottom: 20px;
+
+    padding: 14px 16px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f0faf3,
+            #f8fcf9
+        );
+
+    border: 1px solid #d9eddf;
+
+    border-radius: 12px;
+}
+
+
+.farm-yield-icon {
+    width: 40px;
+    height: 40px;
+
+    min-width: 40px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #ffffff;
+
+    color: #28a745;
+
+    border: 1px solid #d8ebdd;
+
+    border-radius: 10px;
+
+    font-size: 15px;
+}
+
+
+.farm-yield-preview span {
+    display: block;
+
+    margin-bottom: 2px;
+
+    color: #72807a;
+
+    font-size: 11px;
+
+    font-weight: 600;
+}
+
+
+.farm-yield-preview strong {
+    display: block;
+
+    color: #218838;
+
+    font-size: 15px;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   INFORMATION NOTICE
+========================================================= */
+
+.farm-form-notice {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 12px;
+
+    padding: 14px 15px;
+
+    margin-top: 5px;
+
+    background: #f8f9fa;
+
+    border: 1px solid #e7eaed;
+
+    border-radius: 12px;
+}
+
+
+.farm-form-notice-icon {
+    width: 34px;
+    height: 34px;
+
+    min-width: 34px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #eef2f5;
+
+    color: #6c757d;
+
+    border-radius: 9px;
+
+    font-size: 13px;
+}
+
+
+.farm-form-notice strong {
+    display: block;
+
+    margin-bottom: 2px;
+
+    color: #495057;
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+
+.farm-form-notice p {
+    margin: 0;
+
+    color: #7c8791;
+
+    font-size: 11px;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   MODAL FOOTER
+========================================================= */
+
+.add-farm-modal-footer {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-end;
+
+    gap: 9px;
+
+    padding: 16px 23px;
+
+    background: #fafbfb;
+
+    border-top: 1px solid #edf0f2 !important;
+}
+
+
+/* =========================================================
+   MODAL BUTTONS
+========================================================= */
+
+.add-farm-modal-footer .btn {
+    min-height: 40px;
+
+    padding: 8px 16px;
+
+    border-radius: 9px;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.add-farm-modal-footer .btn-light {
+    background: #ffffff;
+
+    border: 1px solid #dfe3e7;
+
+    color: #66727e;
+}
+
+
+.add-farm-modal-footer .btn-light:hover {
+    background: #f5f6f7;
+
+    border-color: #d3d8dd;
+}
+
+
+.add-farm-modal-footer .btn-success {
+    border: none;
+
+    background: linear-gradient(
+        135deg,
+        #28a745,
+        #218838
+    );
+
+    color: #ffffff;
+
+    box-shadow:
+        0 4px 10px rgba(40, 167, 69, 0.18);
+}
+
+
+.add-farm-modal-footer .btn-success:hover {
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 6px 14px rgba(40, 167, 69, 0.25);
+}
+
+
+/* =========================================================
+   SAVE BUTTON LOADING STATE
+========================================================= */
+
+#saveFarmBtn:disabled {
+    cursor: wait;
+
+    opacity: 0.75;
+
+    transform: none;
+
+    box-shadow: none;
+}
+
+
+/* =========================================================
+   MODAL BACKDROP
+========================================================= */
+
+.modal-backdrop.show {
+    opacity: 0.55;
+}
+
+
+/* =========================================================
+   RESPONSIVE - TABLET
+========================================================= */
+
+@media (max-width: 991.98px) {
+
+    .farm-section-header {
+        padding: 18px;
+
+        gap: 15px;
+    }
+
+
+    .farm-section-header .section-heading h5 {
+        font-size: 17px;
+    }
+
+
+    .farm-section-header .section-heading p {
+        font-size: 12px;
+    }
+
+
+    .farm-detail-grid {
+        gap: 13px;
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE - MOBILE
+========================================================= */
+
+@media (max-width: 767.98px) {
+
+    /* -----------------------------------------
+       SECTION HEADER
+    ------------------------------------------ */
+
+    .farm-section-header {
+        flex-direction: column;
+
+        align-items: stretch;
+
+        padding: 17px;
+
+        border-radius: 14px;
+    }
+
+
+    .farm-section-header .section-heading {
+        align-items: flex-start;
+
+        width: 100%;
+    }
+
+
+    .farm-section-actions {
+        width: 100%;
+
+        justify-content: space-between;
+    }
+
+
+    .farm-count {
+        flex: 1;
+    }
+
+
+    .add-farm-btn {
+        flex: 1;
+
+        min-width: 120px;
+    }
+
+
+    /* -----------------------------------------
+       FARM CARDS
+    ------------------------------------------ */
+
+    .farm-card-header {
+        align-items: flex-start;
+
+        padding: 16px;
+    }
+
+
+    .farm-card-body {
+        padding: 17px;
+    }
+
+
+    .farm-badge {
+        padding: 5px 8px;
+
+        font-size: 10px;
+    }
+
+
+    .farm-detail-grid {
+        grid-template-columns: 1fr;
+
+        gap: 14px;
+    }
+
+
+    /* -----------------------------------------
+       EMPTY STATE
+    ------------------------------------------ */
+
+    .empty-farm-state {
+        min-height: 270px;
+
+        padding: 35px 20px;
+
+        border-radius: 15px;
+    }
+
+
+    .empty-farm-icon {
+        width: 68px;
+        height: 68px;
+
+        font-size: 26px;
+    }
+
+
+    .empty-farm-state h5 {
+        font-size: 17px;
+    }
+
+
+    /* -----------------------------------------
+       MODAL
+    ------------------------------------------ */
+
+    #addFarmModal .modal-dialog {
+        width: auto;
+
+        margin: 12px;
+    }
+
+
+    .add-farm-modal {
+        border-radius: 15px !important;
+    }
+
+
+    .add-farm-modal-header {
+        padding: 17px;
+    }
+
+
+    .add-farm-modal-body {
+        padding: 19px;
+    }
+
+
+    .add-farm-modal-footer {
+        padding: 14px 17px;
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE - SMALL MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+
+    /* -----------------------------------------
+       FARM HEADER
+    ------------------------------------------ */
+
+    .farm-section-header .section-heading {
+        gap: 10px;
+    }
+
+
+    .farm-section-header .section-icon.farm-icon {
+        width: 44px;
+        height: 44px;
+
+        min-width: 44px;
+
+        border-radius: 11px;
+
+        font-size: 18px;
+    }
+
+
+    .farm-section-header .section-heading h5 {
+        font-size: 16px;
+    }
+
+
+    .farm-section-header .section-heading p {
+        font-size: 11px;
+    }
+
+
+    /* -----------------------------------------
+       ACTIONS
+    ------------------------------------------ */
+
+    .farm-section-actions {
+        flex-direction: column;
+
+        align-items: stretch;
+
+        gap: 8px;
+    }
+
+
+    .farm-count,
+    .add-farm-btn {
+        width: 100%;
+
+        flex: none;
+    }
+
+
+    /* -----------------------------------------
+       FARM CARD
+    ------------------------------------------ */
+
+    .farm-card-header {
+        flex-direction: column;
+
+        gap: 11px;
+    }
+
+
+    .farm-badge {
+        align-self: flex-start;
+    }
+
+
+    .farm-title h5 {
+        font-size: 15px;
+    }
+
+
+    /* -----------------------------------------
+       MODAL
+    ------------------------------------------ */
+
+    .add-farm-title {
+        gap: 10px;
+    }
+
+
+    .add-farm-icon {
+        width: 42px;
+        height: 42px;
+
+        min-width: 42px;
+
+        font-size: 17px;
+    }
+
+
+    .add-farm-title .modal-title {
+        font-size: 16px;
+    }
+
+
+    .add-farm-title small {
+        font-size: 10px;
+    }
+
+
+    .add-farm-modal-body {
+        padding: 16px;
+    }
+
+
+    .add-farm-modal-footer {
+        flex-direction: column-reverse;
+
+        align-items: stretch;
+    }
+
+
+    .add-farm-modal-footer .btn {
+        width: 100%;
+    }
+
+
+    .farm-form-notice {
+        padding: 12px;
+    }
+
+}
+
+
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
+
+.add-farm-btn:focus-visible,
+.farm-empty-add-btn:focus-visible,
+.add-farm-modal-footer .btn:focus-visible {
+    outline: 3px solid rgba(40, 167, 69, 0.20);
+
+    outline-offset: 2px;
+}
+
+
+/* =========================================================
+   REDUCE MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .farm-card,
+    .farm-section-header,
+    .add-farm-btn,
+    .farm-empty-add-btn,
+    .add-farm-modal-footer .btn {
+        transition: none;
+    }
+
 }

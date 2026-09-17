@@ -15,6 +15,22 @@
                 Monitor and review system activities
             </small>
         </div>
+        
+         <div>
+
+        <a
+            href="<?= $this->Url->build([
+                'controller' => 'AuditLogs',
+                'action' => 'downloadSummary'
+            ]) ?>"
+            class="btn btn-success"
+            title="Download Audit Log Summary"
+        >
+            <i class="fas fa-file-excel mr-1"></i>
+            Download Summary
+        </a>
+
+    </div>
 
     </div>
 

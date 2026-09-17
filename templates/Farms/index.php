@@ -10,22 +10,20 @@
                         id="farmsDropdown"
                         data-toggle="dropdown"
                         aria-haspopup="true"
-                        aria-expanded="false"
-                    >
+                        aria-expanded="false">
                         <span class="admin-dropdown-btn-icon">
                             <i class="fas fa-tractor"></i>
                         </span>
 
                         <span class="admin-dropdown-btn-label">
-                            Farms
+                            Export/Import
                         </span>
                     </button>
 
 
                     <div
                         class="dropdown-menu dropdown-menu-right admin-dropdown-menu"
-                        aria-labelledby="farmsDropdown"
-                    >
+                        aria-labelledby="farmsDropdown">
 
                         <!-- HEADER -->
                         <div class="admin-dropdown-header">
@@ -100,8 +98,7 @@
                                 'controller' => 'Farms',
                                 'action' => 'downloadFarmExcelTemplate'
                             ]) ?>"
-                            class="admin-dropdown-action"
-                        >
+                            class="admin-dropdown-action">
 
                             <div class="admin-dropdown-action-icon admin-icon-blue">
                                 <i class="fas fa-file-download"></i>
@@ -183,7 +180,7 @@
                         <th>LGU RSBSA Number</th>
                         <th>Farm Size</th>
                         <th>Location</th>
-                        <th>Average Yield (bags/ha)</th>
+                        <th>Average Yield (tons/ha)</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -216,7 +213,7 @@
                     <?= $this->Form->control('location',['class'=>'form-control','label'=>false])?>
                 </div>
                 <div class="form-group">
-                    <label for="average_yield">Average Yield (bags/ha)</label>
+                    <label for="average_yield">Average Yield (tons/ha)</label>
                     <?= $this->Form->control('average_yield',['class'=>'form-control','label'=>false])?>
                 </div>
             </div>
