@@ -1,32 +1,40 @@
 <div class="container mt-4">
     <div class="card shadow">
-        <div class="card-header text-white" style="background:#4E944F !important;">
+        <div class="card-header text-white"
+             style="background:#4E944F !important;">
             <h4 class="mb-0">
                 <i class="fas fa-clipboard-check me-2"></i>
                 Subsidy Effectiveness Evaluation Survey
             </h4>
         </div>
         <?= $this->Form->create(null, [
-            'url' => ['controller' => 'Feedbacks', 'action' => 'survey'],
+            'url' => [
+                'controller' => 'Feedbacks',
+                'action' => 'survey'
+            ],
             'id' => 'evaluations-form'
         ]) ?>
         <div class="card-body">
-            <!-- BASIC INFORMATION -->
             <h5 class="text-success mb-3">
-                <i class="fas fa-user me-2"></i>Basic Information
+                <i class="fas fa-user me-2"></i>
+                Basic Information
             </h5>
             <div class="row">
+                <!-- FARMER NAME -->
                 <div class="col-md-3 mb-3">
                     <label>Farmer Name</label>
-                    <?= $this->Form->control('farmerName', [
+                    <?= $this->Form->control('farmer_name', [
                         'value' => $farmerName ?? '',
                         'class' => 'form-control',
                         'label' => false,
                         'readonly' => true
                     ]) ?>
                 </div>
+                <!-- SCHEDULE -->
                 <div class="col-md-3 mb-3">
-                    <label for="schedule_id">Schedule</label>
+                    <label for="schedule_id">
+                        Schedule
+                    </label>
                     <?= $this->Form->control('schedule_id', [
                         'type' => 'select',
                         'options' => $schedules,
@@ -36,8 +44,11 @@
                         'id' => 'schedule_id'
                     ]) ?>
                 </div>
+                <!-- FARM -->
                 <div class="col-md-3 mb-3">
-                    <label>Farm</label>
+                    <label for="farm_id">
+                        Farm
+                    </label>
                     <?= $this->Form->control('farm_id', [
                         'options' => $farms,
                         'empty' => '-- Select Farm --',
@@ -46,57 +57,84 @@
                         'id' => 'farm_id'
                     ]) ?>
                 </div>
+                <!-- RICE TYPE -->
                 <div class="col-md-3 mb-3">
-                    <label>Average Yield (tons/ha)</label>
-                    <?= $this->Form->control('average_yield', [
+                    <label for="rice_type">
+                        Rice Type
+                    </label>
+                    <?= $this->Form->control('rice_type', [
+                        'options' => $rice_type,
+                        'empty' => '-- Select Rice Type --',
                         'class' => 'form-control',
-                        'label' => false
+                        'label' => false,
+                        'id' => 'rice_type'
                     ]) ?>
                 </div>
             </div>
             <div class="row">
+                <!-- AVERAGE YIELD -->
                 <div class="col-md-3 mb-3">
-                    <label>Rice Type</label>
-                    <?= $this->Form->control('rice_type', [
-                        'options' => $rice_type,
-                        'empty' => '-- Select Seed Type --',
+                    <label for="average_yield">
+                        Average Yield (tons/ha)
+                    </label>
+                    <?= $this->Form->control('average_yield', [
                         'class' => 'form-control',
                         'label' => false,
-                        'id' => 'Rice Type'
+                        'id' => 'average_yield',
+                        'readonly' => true,
+                        'placeholder' => 'Automatically calculated'
                     ]) ?>
                 </div>
+                <!-- CROP YIELD AFTER -->
                 <div class="col-md-3 mb-3">
-                    <label>Crop Yield After (tons/ha)</label>
+                    <label for="crop_yield_after">
+                        Crop Yield After (tons/ha)
+                    </label>
                     <?= $this->Form->control('crop_yield_after', [
                         'class' => 'form-control',
-                        'label' => false
+                        'label' => false,
+                        'id' => 'crop_yield_after',
+                        'type' => 'number',
+                        'step' => '0.01',
+                        'min' => '0'
                     ]) ?>
                 </div>
+                <!-- SUBSIDY RECEIVED -->
                 <div class="col-md-3 mb-3">
-                    <label>Subsidy Received</label>
+                    <label for="subsidy_received">
+                        Subsidy Received
+                    </label>
                     <?= $this->Form->control('subsidy_received', [
                         'type' => 'select',
                         'options' => [
                             'Yes' => 'Yes',
                             'No' => 'No'
-                        ],  
+                        ],
                         'empty' => 'Select Yes or No',
                         'class' => 'form-control',
-                        'label' => false
+                        'label' => false,
+                        'id' => 'subsidy_received'
                     ]) ?>
                 </div>
+                <!-- SELLING PRICE -->
                 <div class="col-md-3 mb-3">
-                    <label>Selling Price (₱/kg)</label>
+                    <label for="selling_price">
+                        Selling Price (₱/kg)
+                    </label>
                     <?= $this->Form->control('selling_price', [
                         'class' => 'form-control',
-                        'label' => false
+                        'label' => false,
+                        'id' => 'selling_price',
+                        'type' => 'number',
+                        'step' => '0.01',
+                        'min' => '0'
                     ]) ?>
                 </div>
             </div>
             <hr>
-            <!-- SURVEY -->
             <h5 class="text-success mb-3">
-                <i class="fas fa-list-check me-2"></i>Survey Questionnaire
+                <i class="fas fa-list-check me-2"></i>
+                Survey Questionnaire
             </h5>
             <p class="text-muted">
                 Please rate each statement by selecting one response.
@@ -105,12 +143,34 @@
                 <table class="table table-bordered table-hover align-middle">
                     <thead class="table-success text-center">
                         <tr>
-                            <th style="width:45%">Statement</th>
-                            <th>1<br><small>Strongly Disagree</small></th>
-                            <th>2<br><small>Disagree</small></th>
-                            <th>3<br><small>Neutral</small></th>
-                            <th>4<br><small>Agree</small></th>
-                            <th>5<br><small>Strongly Agree</small></th>
+                            <th style="width:45%">
+                                Statement
+                            </th>
+                            <th>
+                                1
+                                <br>
+                                <small>Strongly Disagree</small>
+                            </th>
+                            <th>
+                                2
+                                <br>
+                                <small>Disagree</small>
+                            </th>
+                            <th>
+                                3
+                                <br>
+                                <small>Neutral</small>
+                            </th>
+                            <th>
+                                4
+                                <br>
+                                <small>Agree</small>
+                            </th>
+                            <th>
+                                5
+                                <br>
+                                <small>Strongly Agree</small>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -123,10 +183,13 @@
                         'The subsidy helped reduce farming expenses.',
                         'Overall, I am satisfied with the subsidy program.'
                     ];
+
                     foreach ($questions as $index => $question):
                     ?>
                         <tr>
-                            <td><?= h($question) ?></td>
+                            <td>
+                                <?= h($question) ?>
+                            </td>
                             <?php for ($i = 1; $i <= 5; $i++): ?>
                                 <td class="text-center">
                                     <input
@@ -142,7 +205,6 @@
                 </table>
             </div>
             <hr>
-            <!-- COMMENT -->
             <div class="mb-4">
                 <label class="fw-bold">
                     Additional Comments
@@ -150,14 +212,16 @@
                 <?= $this->Form->textarea('comment', [
                     'class' => 'form-control',
                     'rows' => 4,
-                    'placeholder' => 'Share your comments or suggestions...'
+                    'placeholder' =>
+                        'Share your comments or suggestions...'
                 ]) ?>
             </div>
         </div>
         <div class="card-footer bg-white text-end">
             <?= $this->Form->hidden('id') ?>
-            <button type="submit"
-                    class="btn btn-success btn-lg px-5 rounded-pill">
+            <button
+                type="submit"
+                class="btn btn-success btn-lg px-5 rounded-pill">
                 <i class="fas fa-paper-plane me-2"></i>
                 Submit Evaluation
             </button>
@@ -165,19 +229,26 @@
         <?= $this->Form->end() ?>
     </div>
 </div>
-<!-- Success Modal -->
-<div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+<div
+    class="modal fade"
+    id="successModal"
+    tabindex="-1"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
+            <!-- HEADER -->
             <div class="modal-header bg-success text-white">
                 <h5 class="modal-title">
                     <i class="fas fa-check-circle me-2"></i>
                     Submission Successful
                 </h5>
             </div>
+            <!-- BODY -->
             <div class="modal-body text-center">
-                <i class="fas fa-check-circle text-success"
-                   style="font-size:70px;"></i>
+                <i
+                    class="fas fa-check-circle text-success"
+                    style="font-size:70px;">
+                </i>
                 <h4 class="mt-3">
                     Thank you!
                 </h4>
@@ -185,22 +256,93 @@
                     Your feedback has been submitted successfully.
                 </p>
             </div>
+            <!-- FOOTER -->
             <div class="modal-footer">
-                <button class="btn btn-success"
-                        id="successOk">
+                <button
+                    type="button"
+                    class="btn btn-success"
+                    id="successOk">
                     OK
                 </button>
             </div>
         </div>
     </div>
 </div>
+
 <?php if ($this->request->getQuery('submitted')): ?>
 <script>
 $(document).ready(function () {
     $('#successModal').modal('show');
     $('#successOk').click(function () {
-        window.location.href = "<?= $this->Url->build(['controller' => 'Schedules', 'action' => 'announcements']) ?>";
+        window.location.href =
+            "<?= $this->Url->build(['controller' => 'Schedules', 'action' => 'announcements'])?>";
     });
 });
 </script>
 <?php endif; ?>
+<script>
+$(document).ready(function () {
+    const farmSizes = <?= json_encode(
+        $farmSizes ?? [],
+        JSON_NUMERIC_CHECK
+    ) ?>;
+    function calculateAverageYield() {
+        const riceType =
+            $('#rice_type').val();
+        const farmId =
+            $('#farm_id').val();
+        if (
+            !farmId ||
+            riceType === ''
+        ) {
+            $('#average_yield').val('');
+            return;
+        }
+        const farmSize =
+            parseFloat(
+                farmSizes[String(farmId)]
+            );
+        if (
+            isNaN(farmSize) ||
+            farmSize <= 0
+        ) {
+            $('#average_yield').val('');
+            return;
+        }
+        let yieldRate = 0;
+        if (String(riceType) === '0') {
+            // Inbred
+            yieldRate = 6;
+        }
+        else if (String(riceType) === '1') {
+            // Hybrid
+            yieldRate = 5.5;
+
+        }
+        if (yieldRate > 0) {
+            const averageYield =
+                farmSize * yieldRate;
+            $('#average_yield').val(
+                averageYield.toFixed(2)
+            );
+        }
+        else {
+            $('#average_yield').val('');
+        }
+    }
+    $('#farm_id').on(
+        'change',
+        function () {
+            calculateAverageYield();
+        }
+    );
+
+    $('#rice_type').on(
+        'change',
+        function () {
+            calculateAverageYield();
+        }
+    );
+    calculateAverageYield();
+});
+</script>

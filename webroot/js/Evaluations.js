@@ -193,116 +193,140 @@ function getEvaluations()
 });
 function viewFeedback(evaluationId)
 {
-
     /*
      * Show modal
      */
-
     $('#feedbackModal').modal('show');
 
     /*
      * Reset modal fields
      */
-
-    $('#farmer_name').text('Loading...');
+    $('#rice_type').text('Loading...');
+    $('#average_yield').text('Loading...');
     $('#crop_yield_after').text('Loading...');
-    $('selling_price').text('Loading...');
+    $('#selling_price').text('Loading...');
     $('#subsidy_received').text('Loading...');
     $('#feedback_rating').text('Loading...');
     $('#feedback_comments').text('Loading...');
 
     $.ajax({
-        url: 'Evaluations/getFeedback/' + evaluationId,
+        url: BASE_URL + '/Evaluations/getFeedback/' + evaluationId,
         type: 'GET',
         dataType: 'json',
-
 
         /*
          * SUCCESS
          */
-
         success: function (response) {
-            console.log(
-                'Feedback Response:',
-                response
-            );
 
-            if (
-                response &&
-                response.success
-            ) {
+            console.log('Feedback Response:', response);
+
+            if (response && response.success && response.data) {
 
                 /*
-                 * Farmer Name
+                 * Rice Type
                  */
-
-                $('#farmer_name').text(
-                    response.data.farmer_name ||
-                    'N/A'
+                $('#rice_type').text(
+                    response.data.rice_type !== null &&
+                    response.data.rice_type !== undefined &&
+                    response.data.rice_type !== ''
+                        ? response.data.rice_type
+                        : 'N/A'
                 );
 
-                $('#selling_price').text(
-                    response.data.selling_price ||
-                    'N/A'
-                );
-
-                $('#subsidy_received').text(
-                    response.data.subsidy_received ||
-                    'N/A'
+                /*
+                 * Average Yield
+                 */
+                $('#average_yield').text(
+                    response.data.average_yield !== null &&
+                    response.data.average_yield !== undefined &&
+                    response.data.average_yield !== ''
+                        ? response.data.average_yield
+                        : 'N/A'
                 );
 
                 /*
                  * Yield After
                  */
-
                 $('#crop_yield_after').text(
-                    response.data.crop_yield_after ||
-                    'N/A'
+                    response.data.crop_yield_after !== null &&
+                    response.data.crop_yield_after !== undefined &&
+                    response.data.crop_yield_after !== ''
+                        ? response.data.crop_yield_after
+                        : 'N/A'
                 );
+
+                /*
+                 * Selling Price
+                 */
+                $('#selling_price').text(
+                    response.data.selling_price !== null &&
+                    response.data.selling_price !== undefined &&
+                    response.data.selling_price !== ''
+                        ? response.data.selling_price
+                        : 'N/A'
+                );
+
+                /*
+                 * Subsidy Received
+                 */
+                $('#subsidy_received').text(
+                    response.data.subsidy_received !== null &&
+                    response.data.subsidy_received !== undefined &&
+                    response.data.subsidy_received !== ''
+                        ? response.data.subsidy_received
+                        : 'N/A'
+                );
+
                 /*
                  * Rating
                  */
+                var rating = response.data.feedback_rating;
+
+                console.log('Rating:', rating);
 
                 if (
-                    response.data.feedback_rating !== null &&
-                    response.data.feedback_rating !== undefined &&
-                    response.data.feedback_rating !== ''
+                    rating !== null &&
+                    rating !== undefined &&
+                    rating !== ''
                 ) {
 
                     $('#feedback_rating').html(
                         '<span class="badge badge-primary" ' +
                         'style="font-size:16px;">' +
-                        response.data.feedback_rating +
+                        rating +
                         '</span>'
                     );
 
                 } else {
 
-                    $('#feedback_rating').text(
-                        'N/A'
-                    );
+                    $('#feedback_rating').text('N/A');
                 }
 
                 /*
                  * Comments
                  */
-
                 $('#feedback_comments').text(
-                    response.data.comments ||
-                    'No comments provided.'
+                    response.data.comments !== null &&
+                    response.data.comments !== undefined &&
+                    response.data.comments !== ''
+                        ? response.data.comments
+                        : 'No comments provided.'
                 );
 
-            }
+            } else {
 
-            else {
-                $('#farmer_name').text('N/A');
+                $('#rice_type').text('N/A');
+                $('#average_yield').text('N/A');
                 $('#crop_yield_after').text('N/A');
                 $('#selling_price').text('N/A');
                 $('#subsidy_received').text('N/A');
                 $('#feedback_rating').text('N/A');
+
                 $('#feedback_comments').text(
-                    response.message ||
-                    'Feedback not found.'
+                    response && response.message
+                        ? response.message
+                        : 'Feedback not found.'
                 );
             }
         },
@@ -311,30 +335,22 @@ function viewFeedback(evaluationId)
          * ERROR
          */
         error: function (xhr) {
+
             console.error(
                 'Feedback AJAX Error:',
                 xhr.responseText
             );
 
-            $('#farmer_name').text(
-                'Unable to load'
-            );
-            $('#crop_yield_after').text(
-                'Unable to load'
-            );
-            $('#selling_price').text(
-                'Unable to load'
-            );
-            $('#subsidy_received').text(
-                'Unable to load'
-            );
-            $('#feedback_rating').text(
-                'Unable to load'
-            );
+            $('#rice_type').text('Unable to load');
+            $('#average_yield').text('Unable to load');
+            $('#crop_yield_after').text('Unable to load');
+            $('#selling_price').text('Unable to load');
+            $('#subsidy_received').text('Unable to load');
+            $('#feedback_rating').text('Unable to load');
+
             $('#feedback_comments').text(
                 'Unable to load feedback. Please try again.'
             );
         }
-
     });
 }

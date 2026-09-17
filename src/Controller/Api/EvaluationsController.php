@@ -292,4 +292,106 @@ class EvaluationsController extends AppController
         return $this->response->withType('application/json')
             ->withStringBody(json_encode($result));
     }
+
+    public function getFeedback($id = null)
+{
+    $this->request->allowMethod(['get']);
+
+    $this->autoRender = false;
+
+    try {
+
+        if ($id === null) {
+            return $this->response
+                ->withStatus(400)
+                ->withType('application/json')
+                ->withStringBody(json_encode([
+                    'success' => false,
+                    'message' => 'Evaluation ID is required.'
+                ]));
+        }
+
+        $evaluation = $this->Evaluations->get($id);
+
+        /*
+         * Get the feedback associated with this evaluation.
+         */
+        $feedback = null;
+
+        if (!empty($evaluation->feedback_id)) {
+            $this->loadModel('Feedbacks');
+
+            $feedback = $this->Feedbacks->find()
+                ->where([
+                    'Feedbacks.id' => $evaluation->feedback_id
+                ])
+                ->first();
+        }
+
+        /*
+         * If evaluation has no feedback_id,
+         * try finding feedback using evaluation_id.
+         */
+        if ($feedback === null) {
+            $this->loadModel('Feedbacks');
+
+            $feedback = $this->Feedbacks->find()
+                ->where([
+                    'Feedbacks.evaluation_id' => $evaluation->id
+                ])
+                ->first();
+        }
+
+        /*
+         * Return evaluation values even if feedback
+         * is not found.
+         */
+        $data = [
+            'id' => $evaluation->id,
+
+            'rice_type' =>
+                $evaluation->rice_type ?? null,
+
+            'average_yield' =>
+                $evaluation->average_yield ?? null,
+
+            'crop_yield_after' =>
+                $evaluation->crop_yield_after ?? null,
+
+            'selling_price' =>
+                $evaluation->selling_price ?? null,
+
+            'subsidy_received' =>
+                $evaluation->subsidy_received ?? null,
+
+            'feedback_rating' =>
+                $feedback->rating ?? null,
+
+            'comments' =>
+                $feedback->comments ?? null
+        ];
+
+        return $this->response
+            ->withType('application/json')
+            ->withStringBody(json_encode([
+                'success' => true,
+                'data' => $data
+            ]));
+
+    } catch (\Throwable $e) {
+
+        $this->log(
+            'Get Feedback Error: ' . $e->getMessage(),
+            'error'
+        );
+
+        return $this->response
+            ->withStatus(500)
+            ->withType('application/json')
+            ->withStringBody(json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]));
+    }
+}
 }

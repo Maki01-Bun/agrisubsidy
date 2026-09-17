@@ -225,330 +225,593 @@ class UsersController extends AppController
     }
     
     /* =========================================================
-   EDIT LOGGED-IN USER ACCOUNT
-   ========================================================= */
-
+    * EDIT LOGGED-IN USER ACCOUNT
+    * Username + Email + Password
+    * ========================================================= */
     public function editAccount()
     {
         /*
-         * =====================================================
-         * GET CURRENTLY LOGGED-IN USER
-         * =====================================================
-         */
-        $currentUser = $this->request->getAttribute('identity');
-    
-        if (!$currentUser) {
-    
+        * =========================================================
+        * GET PAGE TO RETURN TO
+        * =========================================================
+        */
+        $returnUrl = $this->request->referer();
+
+        if (empty($returnUrl)) {
+            $returnUrl = '/';
+        }
+
+
+        /*
+        * =========================================================
+        * GET CURRENTLY LOGGED-IN USER
+        *
+        * This application uses $this->Auth.
+        * =========================================================
+        */
+        $authUser = $this->Auth->user();
+
+        if (!$authUser) {
+
             $this->Flash->error(
                 'You must be logged in to edit your account.'
             );
-    
+
             return $this->redirect([
                 'action' => 'login'
             ]);
         }
-    
-    
+
+
         /*
-         * =====================================================
-         * GET CURRENT USER ID
-         * =====================================================
-         */
-        $userId = $currentUser->getIdentifier();
-    
+        * =========================================================
+        * GET USER ID
+        * =========================================================
+        */
+        $userId = $authUser['id'] ?? null;
+
         if (empty($userId)) {
-    
+
             $this->Flash->error(
                 'Unable to identify your account.'
             );
-    
-            return $this->redirect([
-                'action' => 'profile'
-            ]);
+
+            return $this->redirect($returnUrl);
         }
-    
-    
+
+
         /*
-         * =====================================================
-         * LOAD ONLY CURRENT USER
-         * =====================================================
-         */
+        * =========================================================
+        * ONLY ALLOW POST / PUT / PATCH
+        * =========================================================
+        */
+        if (!$this->request->is(['post', 'put', 'patch'])) {
+
+            return $this->redirect($returnUrl);
+        }
+
+
+        /*
+        * =========================================================
+        * LOAD USER FROM DATABASE
+        * =========================================================
+        */
         try {
-    
+
             $user = $this->Users->get($userId);
-    
-        } catch (\Exception $e) {
-    
+
+        } catch (\Throwable $e) {
+
             $this->Flash->error(
                 'Your account could not be found.'
             );
-    
-            return $this->redirect([
-                'action' => 'profile'
-            ]);
+
+            return $this->redirect($returnUrl);
         }
-    
-    
+
+
         /*
-         * =====================================================
-         * PROCESS FORM
-         * =====================================================
-         */
-        if ($this->request->is(['post', 'put', 'patch'])) {
-    
-            $data = $this->request->getData();
-    
-    
-            /*
-             * =================================================
-             * USERNAME
-             * =================================================
-             */
-            $username = trim(
-                (string)($data['username'] ?? '')
+        * =========================================================
+        * GET FORM DATA
+        * =========================================================
+        */
+        $data = $this->request->getData();
+
+
+        /*
+        * =========================================================
+        * ORIGINAL VALUES
+        *
+        * We keep these so we know exactly what changed.
+        * =========================================================
+        */
+        $originalUsername = (string)$user->username;
+        $originalEmail    = (string)$user->email;
+
+
+        /*
+        * =========================================================
+        * GET USERNAME
+        * =========================================================
+        */
+        $username = trim(
+            (string)($data['username'] ?? '')
+        );
+
+        if ($username === '') {
+
+            $this->Flash->error(
+                'Username is required.'
             );
-    
-    
+
+            return $this->redirect($returnUrl);
+        }
+
+
+        if (strlen($username) < 3) {
+
+            $this->Flash->error(
+                'Username must be at least 3 characters long.'
+            );
+
+            return $this->redirect($returnUrl);
+        }
+
+
+        /*
+        * =========================================================
+        * GET EMAIL
+        * =========================================================
+        */
+        $email = trim(
+            (string)($data['email'] ?? '')
+        );
+
+        if ($email === '') {
+
+            $this->Flash->error(
+                'Email address is required.'
+            );
+
+            return $this->redirect($returnUrl);
+        }
+
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+
+            $this->Flash->error(
+                'Please enter a valid email address.'
+            );
+
+            return $this->redirect($returnUrl);
+        }
+
+
+        /*
+        * =========================================================
+        * CHECK DUPLICATE USERNAME
+        * =========================================================
+        */
+        $existingUsername = $this->Users->find()
+            ->where([
+                'Users.username' => $username,
+                'Users.id !=' => $userId
+            ])
+            ->first();
+
+        if ($existingUsername) {
+
+            $this->Flash->error(
+                'That username is already being used by another account.'
+            );
+
+            return $this->redirect($returnUrl);
+        }
+
+
+        /*
+        * =========================================================
+        * CHECK DUPLICATE EMAIL
+        * =========================================================
+        */
+        $existingEmail = $this->Users->find()
+            ->where([
+                'Users.email' => $email,
+                'Users.id !=' => $userId
+            ])
+            ->first();
+
+        if ($existingEmail) {
+
+            $this->Flash->error(
+                'That email address is already being used by another account.'
+            );
+
+            return $this->redirect($returnUrl);
+        }
+
+
+        /*
+        * =========================================================
+        * PASSWORD DATA
+        * =========================================================
+        */
+        $currentPassword = (string)(
+            $data['current_password'] ?? ''
+        );
+
+        $newPassword = (string)(
+            $data['new_password'] ?? ''
+        );
+
+        $confirmPassword = (string)(
+            $data['confirm_password'] ?? ''
+        );
+
+
+        /*
+        * =========================================================
+        * DETERMINE IF PASSWORD IS BEING CHANGED
+        * =========================================================
+        */
+        $changingPassword = ($newPassword !== '');
+
+
+        /*
+        * =========================================================
+        * DETERMINE WHICH INFORMATION CHANGED
+        * =========================================================
+        */
+        $usernameChanged = (
+            $username !== $originalUsername
+        );
+
+        $emailChanged = (
+            strtolower($email) !== strtolower($originalEmail)
+        );
+
+        $passwordChanged = false;
+
+
+        /*
+        * =========================================================
+        * PASSWORD CHANGE
+        * =========================================================
+        */
+        if ($changingPassword) {
+
             /*
-             * USERNAME REQUIRED
-             * ================================================
-             */
-            if ($username === '') {
-    
+            * -----------------------------------------------------
+            * CURRENT PASSWORD REQUIRED
+            * -----------------------------------------------------
+            */
+            if ($currentPassword === '') {
+
                 $this->Flash->error(
-                    'Username is required.'
+                    'Please enter your current password.'
                 );
-    
-                return $this->redirect([
-                    'action' => 'profile'
-                ]);
+
+                return $this->redirect($returnUrl);
             }
-    
-    
+
+
             /*
-             * =================================================
-             * CHECK USERNAME LENGTH
-             * =================================================
-             */
-            if (strlen($username) < 3) {
-    
+            * -----------------------------------------------------
+            * PASSWORD HASHER
+            *
+            * IMPORTANT:
+            * User.php already hashes password through _setPassword().
+            * -----------------------------------------------------
+            */
+            $hasher = new \Cake\Auth\DefaultPasswordHasher();
+
+
+            /*
+            * -----------------------------------------------------
+            * VERIFY CURRENT PASSWORD
+            * -----------------------------------------------------
+            */
+            if (
+                empty($user->password) ||
+                !$hasher->check(
+                    $currentPassword,
+                    $user->password
+                )
+            ) {
+
                 $this->Flash->error(
-                    'Username must be at least 3 characters long.'
+                    'The current password is incorrect.'
                 );
-    
-                return $this->redirect([
-                    'action' => 'profile'
-                ]);
+
+                return $this->redirect($returnUrl);
             }
-    
-    
+
+
             /*
-             * =================================================
-             * CHECK DUPLICATE USERNAME
-             * =================================================
-             */
-            $existingUser = $this->Users->find()
-                ->where([
-                    'Users.username' => $username,
-                    'Users.id !=' => $userId
-                ])
-                ->first();
-    
-    
-            if ($existingUser) {
-    
+            * -----------------------------------------------------
+            * PASSWORD REQUIREMENTS
+            *
+            * At least:
+            * 8 characters
+            * 1 uppercase
+            * 1 special character
+            * -----------------------------------------------------
+            */
+            if (!preg_match(
+                '/^(?=.*[A-Z])(?=.*[\W_]).{8,}$/',
+                $newPassword
+            )) {
+
                 $this->Flash->error(
-                    'That username is already being used by another account.'
+                    'New password must be at least 8 characters and contain at least one capital letter and one special character.'
                 );
-    
-                return $this->redirect([
-                    'action' => 'profile'
-                ]);
+
+                return $this->redirect($returnUrl);
             }
-    
-    
+
+
             /*
-             * =================================================
-             * UPDATE USERNAME
-             * =================================================
-             */
-            $user->username = $username;
-    
-    
+            * -----------------------------------------------------
+            * CONFIRM PASSWORD
+            * -----------------------------------------------------
+            */
+            if ($confirmPassword === '') {
+
+                $this->Flash->error(
+                    'Please confirm your new password.'
+                );
+
+                return $this->redirect($returnUrl);
+            }
+
+
+            if ($newPassword !== $confirmPassword) {
+
+                $this->Flash->error(
+                    'The new passwords do not match.'
+                );
+
+                return $this->redirect($returnUrl);
+            }
+
+
             /*
-             * =================================================
-             * PASSWORD DATA
-             * =================================================
-             */
-            $currentPassword = (string)(
-                $data['current_password'] ?? ''
-            );
-    
-            $newPassword = (string)(
-                $data['new_password'] ?? ''
-            );
-    
-            $confirmPassword = (string)(
-                $data['confirm_password'] ?? ''
-            );
-    
-    
+            * -----------------------------------------------------
+            * PREVENT SAME PASSWORD
+            * -----------------------------------------------------
+            */
+            if ($hasher->check(
+                $newPassword,
+                $user->password
+            )) {
+
+                $this->Flash->error(
+                    'Your new password must be different from your current password.'
+                );
+
+                return $this->redirect($returnUrl);
+            }
+
+
             /*
-             * =================================================
-             * PASSWORD CHANGE
-             *
-             * Only process if new password was entered.
-             * =================================================
-             */
-            if ($newPassword !== '') {
-    
-    
-                /*
-                 * =============================================
-                 * CURRENT PASSWORD REQUIRED
-                 * =============================================
-                 */
-                if ($currentPassword === '') {
-    
-                    $this->Flash->error(
-                        'Please enter your current password.'
-                    );
-    
-                    return $this->redirect([
-                        'action' => 'profile'
-                    ]);
-                }
-    
-    
-                /*
-                 * =============================================
-                 * VERIFY CURRENT PASSWORD
-                 * =============================================
-                 */
-                $hasher = new DefaultPasswordHasher();
-    
-    
+            * -----------------------------------------------------
+            * SET NEW PASSWORD
+            *
+            * DO NOT HASH MANUALLY.
+            *
+            * User.php:
+            * _setPassword()
+            * automatically hashes the password.
+            * -----------------------------------------------------
+            */
+            $user->password = $newPassword;
+
+            /*
+            * Force CakePHP to save the password field.
+            */
+            $user->setDirty('password', true);
+
+            $passwordChanged = true;
+        }
+
+
+        /*
+        * =========================================================
+        * UPDATE USERNAME
+        * =========================================================
+        */
+        $user->username = $username;
+
+
+        /*
+        * =========================================================
+        * UPDATE EMAIL
+        * =========================================================
+        */
+        $user->email = $email;
+
+
+        /*
+        * =========================================================
+        * SAVE USER
+        * =========================================================
+        */
+        $saved = $this->Users->save(
+            $user,
+            [
+                'checkRules' => true,
+                'checkExisting' => true
+            ]
+        );
+
+
+        /*
+        * =========================================================
+        * SAVE SUCCESS
+        * =========================================================
+        */
+        if ($saved) {
+
+            /*
+            * -----------------------------------------------------
+            * VERIFY PASSWORD WAS ACTUALLY STORED
+            * -----------------------------------------------------
+            */
+            if ($passwordChanged) {
+
+                $savedUser = $this->Users->get($userId);
+
                 if (
-                    empty($user->password) ||
+                    empty($savedUser->password) ||
                     !$hasher->check(
-                        $currentPassword,
-                        $user->password
-                    )
-                ) {
-    
-                    $this->Flash->error(
-                        'The current password is incorrect.'
-                    );
-    
-                    return $this->redirect([
-                        'action' => 'profile'
-                    ]);
-                }
-    
-    
-                /*
-                 * =============================================
-                 * PASSWORD CONFIRMATION
-                 * =============================================
-                 */
-                if ($newPassword !== $confirmPassword) {
-    
-                    $this->Flash->error(
-                        'The new passwords do not match.'
-                    );
-    
-                    return $this->redirect([
-                        'action' => 'profile'
-                    ]);
-                }
-    
-    
-                /*
-                 * =============================================
-                 * PASSWORD LENGTH
-                 * =============================================
-                 */
-                if (strlen($newPassword) < 8) {
-    
-                    $this->Flash->error(
-                        'New password must be at least 8 characters long.'
-                    );
-    
-                    return $this->redirect([
-                        'action' => 'profile'
-                    ]);
-                }
-    
-    
-                /*
-                 * =============================================
-                 * PREVENT SAME PASSWORD
-                 * =============================================
-                 */
-                if (
-                    $hasher->check(
                         $newPassword,
-                        $user->password
+                        $savedUser->password
                     )
                 ) {
-    
+
                     $this->Flash->error(
-                        'Your new password must be different from your current password.'
+                        'The account was saved, but the new password was not stored correctly.'
                     );
-    
-                    return $this->redirect([
-                        'action' => 'profile'
-                    ]);
+
+                    return $this->redirect($returnUrl);
                 }
-    
-    
-                /*
-                 * =============================================
-                 * SET NEW PASSWORD
-                 *
-                 * UsersTable beforeSave() should hash this.
-                 * =============================================
-                 */
-                $user->password = $newPassword;
             }
-    
-    
+
+
             /*
-             * =================================================
-             * SAVE USER
-             * =================================================
-             */
-            if ($this->Users->save($user)) {
-    
-                $this->Flash->success(
-                    'Your account has been updated successfully.'
+            * =====================================================
+            * UPDATE CURRENT AUTH SESSION
+            *
+            * This prevents the username/email from becoming stale
+            * in the current session.
+            * =====================================================
+            */
+            $currentAuthUser = $this->Auth->user();
+
+            if ($currentAuthUser) {
+
+                $currentAuthUser['username'] = $user->username;
+                $currentAuthUser['email']    = $user->email;
+
+                $this->Auth->setUser($currentAuthUser);
+            }
+
+
+            /*
+            * =====================================================
+            * BUILD SUCCESS CONFIRMATION
+            * =====================================================
+            */
+            $updatedItems = [];
+
+            if ($usernameChanged) {
+                $updatedItems[] = 'Username';
+            }
+
+            if ($emailChanged) {
+                $updatedItems[] = 'Email address';
+            }
+
+            if ($passwordChanged) {
+                $updatedItems[] = 'Password';
+            }
+
+
+            /*
+            * =====================================================
+            * SUCCESS MESSAGE
+            * =====================================================
+            */
+            if (!empty($updatedItems)) {
+
+                $message = implode(
+                    ', ',
+                    $updatedItems
+                ) . (
+                    count($updatedItems) === 1
+                        ? ' has been updated successfully.'
+                        : ' have been updated successfully.'
                 );
-    
-                return $this->redirect([
-                    'action' => 'profile'
-                ]);
+
+            } else {
+
+                $message = 'Your account information is already up to date.';
             }
-    
-    
+
+
             /*
-             * =================================================
-             * SAVE FAILED
-             * =================================================
-             */
+            * =====================================================
+            * STORE SUCCESS MESSAGE FOR SWEETALERT
+            *
+            * The profile page will display this after redirect.
+            * =====================================================
+            */
+            $this->request
+                ->getSession()
+                ->write(
+                    'EditAccountSuccess',
+                    [
+                        'message' => $message,
+                        'usernameChanged' => $usernameChanged,
+                        'emailChanged' => $emailChanged,
+                        'passwordChanged' => $passwordChanged
+                    ]
+                );
+
+
+            /*
+            * =====================================================
+            * ALSO KEEP FLASH MESSAGE
+            * =====================================================
+            */
+            $this->Flash->success($message);
+
+
+            /*
+            * =====================================================
+            * RETURN TO PROFILE
+            * =====================================================
+            */
+            return $this->redirect($returnUrl);
+        }
+
+
+        /*
+        * =========================================================
+        * SAVE FAILED
+        * =========================================================
+        */
+        $errors = $user->getErrors();
+
+        if (!empty($errors)) {
+
+            foreach ($errors as $field => $fieldErrors) {
+
+                foreach ($fieldErrors as $error) {
+
+                    $message = is_array($error)
+                        ? implode(', ', $error)
+                        : (string)$error;
+
+                    $this->Flash->error(
+                        ucfirst($field) . ': ' . $message
+                    );
+                }
+            }
+
+        } else {
+
             $this->Flash->error(
                 'Unable to update your account. Please check your information and try again.'
             );
         }
-    
-    
-        /*
-         * =====================================================
-         * FALLBACK REDIRECT
-         * =====================================================
-         */
-        return $this->redirect([
-            'action' => 'profile'
-        ]);
-    }
 
+
+        /*
+        * =========================================================
+        * RETURN TO PROFILE
+        * =========================================================
+        */
+        return $this->redirect($returnUrl);
+    }
 }

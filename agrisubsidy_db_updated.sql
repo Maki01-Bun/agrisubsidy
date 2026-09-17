@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 14, 2026 at 05:07 AM
+-- Generation Time: Sep 17, 2026 at 04:04 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -51,7 +51,6 @@ INSERT INTO `audit_logs` (`id`, `user_id`, `action`, `subject_type`, `subject_id
 (3, 1, 'created', 'Farm', 184, 'Farm record imported from Excel', '{\"source\":\"Excel import\",\"excel_row\":4,\"farm_name\":\"Farm 3\",\"farmer_id\":220,\"farmer_name\":\"Farmer 3\",\"farm_size\":0.6666,\"location\":\"MABINI, SANTIAGO CITY\",\"average_yield\":89.5}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
 (4, 1, 'created', 'Farm', 185, 'Farm record imported from Excel', '{\"source\":\"Excel import\",\"excel_row\":5,\"farm_name\":\"Farm 4\",\"farmer_id\":221,\"farmer_name\":\"Farmer 4\",\"farm_size\":1.5,\"location\":\"BALUARTE, SANTIAGO CITY\",\"average_yield\":140}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
 (5, 1, 'created', 'Farm', 186, 'Farm record imported from Excel', '{\"source\":\"Excel import\",\"excel_row\":6,\"farm_name\":\"Farm 5\",\"farmer_id\":222,\"farmer_name\":\"Farmer 5\",\"farm_size\":0.95,\"location\":\"SAN ISIDRO, SANTIAGO CITY\",\"average_yield\":160}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(6, 39, 'login', 'User', 39, 'User logged in successfully', '{\"username\":\"Farmer1\",\"role\":\"farmer\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-13 12:52:46', '0000-00-00 00:00:00'),
 (7, 17, 'login', 'User', 17, 'User logged in successfully', '{\"username\":\"superadmin\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-13 12:53:58', '0000-00-00 00:00:00'),
 (9, 17, 'login', 'User', 17, 'User logged in successfully', '{\"username\":\"superadmin\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-13 12:55:56', '0000-00-00 00:00:00'),
 (10, 17, 'logout', 'User', 17, 'User logged out successfully', '{\"username\":\"superadmin\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-13 12:58:08', '0000-00-00 00:00:00'),
@@ -83,7 +82,6 @@ INSERT INTO `audit_logs` (`id`, `user_id`, `action`, `subject_type`, `subject_id
 (36, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:09:13', '0000-00-00 00:00:00'),
 (37, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:10:19', '0000-00-00 00:00:00'),
 (38, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:10:30', '0000-00-00 00:00:00'),
-(39, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:10:32', '0000-00-00 00:00:00'),
 (40, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:12:46', '0000-00-00 00:00:00'),
 (41, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:17:02', '0000-00-00 00:00:00'),
 (42, 1, 'created', 'Record', 202, 'Seed Subsidy record imported from Excel', '{\"source\":\"Excel import\",\"excel_row\":2,\"farmer_id\":218,\"farmer_name\":\"Farmer 1\",\"schedule_id\":31,\"program_code\":\"SD-1\",\"schedule_start_date\":\"2026-09-11\",\"subsidy_item\":\"Seed Subsidy\",\"quantity\":\"130\",\"received_date\":\"2026-08-20\",\"status\":\"Received\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:17:12', '0000-00-00 00:00:00'),
@@ -100,7 +98,86 @@ INSERT INTO `audit_logs` (`id`, `user_id`, `action`, `subject_type`, `subject_id
 (53, 1, 'Import Record', NULL, NULL, 'Imported Seed Subsidy record for farmer \'Farmer 4\' (Schedule ID: 32, Program Code: SD-2, Quantity: 100, Status: Cancelled)', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:25:30', '0000-00-00 00:00:00'),
 (54, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:30:18', '0000-00-00 00:00:00'),
 (55, 17, 'login', 'User', 17, 'User logged in successfully', '{\"username\":\"superadmin\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:30:37', '0000-00-00 00:00:00'),
-(56, 17, 'logout', 'User', 17, 'User logged out successfully', '{\"username\":\"superadmin\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:31:17', '0000-00-00 00:00:00');
+(56, 17, 'logout', 'User', 17, 'User logged out successfully', '{\"username\":\"superadmin\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-14 02:31:17', '0000-00-00 00:00:00'),
+(57, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-15 02:10:21', '0000-00-00 00:00:00'),
+(58, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-15 02:10:56', '0000-00-00 00:00:00'),
+(61, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-15 02:16:49', '0000-00-00 00:00:00'),
+(62, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-15 02:27:36', '0000-00-00 00:00:00'),
+(63, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-15 02:27:42', '0000-00-00 00:00:00'),
+(64, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-15 03:14:43', '0000-00-00 00:00:00'),
+(65, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-15 05:50:25', '0000-00-00 00:00:00'),
+(66, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-15 06:26:23', '0000-00-00 00:00:00'),
+(69, 17, 'login', 'User', 17, 'User logged in successfully', '{\"username\":\"superadmin\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-15 06:27:27', '0000-00-00 00:00:00'),
+(70, 17, 'logout', 'User', 17, 'User logged out successfully', '{\"username\":\"superadmin\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-15 06:32:22', '0000-00-00 00:00:00'),
+(73, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-15 06:32:47', '0000-00-00 00:00:00'),
+(74, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"admin\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-15 06:58:46', '0000-00-00 00:00:00'),
+(75, 17, 'login', 'User', 17, 'User logged in successfully', '{\"username\":\"superadmin\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-15 06:58:51', '0000-00-00 00:00:00'),
+(76, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-15 07:40:06', '0000-00-00 00:00:00'),
+(77, 17, 'login', 'User', 17, 'User logged in successfully', '{\"username\":\"DA-Admin2026\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-16 00:24:31', '0000-00-00 00:00:00'),
+(78, 17, 'logout', 'User', 17, 'User logged out successfully', '{\"username\":\"DA-Admin2026\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-16 00:28:00', '0000-00-00 00:00:00'),
+(79, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-16 00:28:16', '0000-00-00 00:00:00'),
+(80, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-16 01:03:57', '0000-00-00 00:00:00'),
+(83, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-16 01:05:21', '0000-00-00 00:00:00'),
+(84, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-16 01:14:58', '0000-00-00 00:00:00'),
+(85, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-16 01:17:24', '0000-00-00 00:00:00'),
+(86, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-16 05:54:05', '0000-00-00 00:00:00'),
+(87, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-16 07:59:24', '0000-00-00 00:00:00'),
+(88, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-16 07:59:50', '0000-00-00 00:00:00'),
+(89, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-16 08:26:22', '0000-00-00 00:00:00'),
+(90, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-16 08:26:40', '0000-00-00 00:00:00'),
+(91, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-16 08:29:24', '0000-00-00 00:00:00'),
+(92, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-16 08:29:51', '0000-00-00 00:00:00'),
+(93, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 06:06:51', '0000-00-00 00:00:00'),
+(94, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Linux; Android 14; SM-A556B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36', '2026-09-17 06:55:47', '0000-00-00 00:00:00'),
+(95, 17, 'login', 'User', 17, 'User logged in successfully', '{\"username\":\"DA-Admin2026\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Linux; Android 14; SM-A556B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36', '2026-09-17 06:56:03', '0000-00-00 00:00:00'),
+(96, 17, 'logout', 'User', 17, 'User logged out successfully', '{\"username\":\"DA-Admin2026\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 07:01:50', '0000-00-00 00:00:00'),
+(97, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 07:02:19', '0000-00-00 00:00:00'),
+(98, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 07:02:39', '0000-00-00 00:00:00'),
+(99, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 07:04:38', '0000-00-00 00:00:00'),
+(100, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 07:20:56', '0000-00-00 00:00:00'),
+(101, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 07:24:51', '0000-00-00 00:00:00'),
+(102, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 07:39:54', '0000-00-00 00:00:00'),
+(103, 17, 'login', 'User', 17, 'User logged in successfully', '{\"username\":\"DA-Admin2026\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 07:43:11', '0000-00-00 00:00:00'),
+(104, 17, 'logout', 'User', 17, 'User logged out successfully', '{\"username\":\"DA-Admin2026\",\"role\":\"admin\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 07:44:24', '0000-00-00 00:00:00'),
+(105, 163, 'login', 'User', 163, 'User logged in successfully', '{\"username\":\"Farmer1\",\"role\":\"farmer\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 07:44:36', '0000-00-00 00:00:00'),
+(106, 163, 'login', 'User', 163, 'User logged in successfully', '{\"username\":\"Farmer1\",\"role\":\"farmer\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 08:01:37', '0000-00-00 00:00:00'),
+(107, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 08:02:24', '0000-00-00 00:00:00'),
+(108, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 08:03:52', '0000-00-00 00:00:00'),
+(109, 163, 'login', 'User', 163, 'User logged in successfully', '{\"username\":\"Farmer1\",\"role\":\"farmer\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 08:04:07', '0000-00-00 00:00:00'),
+(110, 163, 'logout', 'User', 163, 'User logged out successfully', '{\"username\":\"Farmer1\",\"role\":\"farmer\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 08:12:35', '0000-00-00 00:00:00'),
+(111, 163, 'login', 'User', 163, 'User logged in successfully', '{\"username\":\"Farmer1\",\"role\":\"farmer\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 08:12:53', '0000-00-00 00:00:00'),
+(112, 163, 'logout', 'User', 163, 'User logged out successfully', '{\"username\":\"Farmer1\",\"role\":\"farmer\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 08:14:52', '0000-00-00 00:00:00'),
+(113, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 08:15:35', '0000-00-00 00:00:00'),
+(114, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 08:16:15', '0000-00-00 00:00:00'),
+(115, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 08:16:49', '0000-00-00 00:00:00'),
+(116, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 09:11:28', '0000-00-00 00:00:00'),
+(117, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 09:21:06', '0000-00-00 00:00:00'),
+(118, 163, 'login', 'User', 163, 'User logged in successfully', '{\"username\":\"Farmer1\",\"role\":\"farmer\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 09:21:20', '0000-00-00 00:00:00'),
+(119, 163, 'logout', 'User', 163, 'User logged out successfully', '{\"username\":\"Farmer1\",\"role\":\"farmer\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 09:21:46', '0000-00-00 00:00:00'),
+(120, 163, 'login', 'User', 163, 'User logged in successfully', '{\"username\":\"Farmer1\",\"role\":\"farmer\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 09:26:43', '0000-00-00 00:00:00'),
+(121, 163, 'login', 'User', 163, 'User logged in successfully', '{\"username\":\"Farmer1\",\"role\":\"farmer\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 10:47:39', '0000-00-00 00:00:00'),
+(122, 163, 'login', 'User', 163, 'User logged in successfully', '{\"username\":\"Farmer1\",\"role\":\"farmer\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 10:51:30', '0000-00-00 00:00:00'),
+(123, 163, 'login', 'User', 163, 'User logged in successfully', '{\"username\":\"Farmer1\",\"role\":\"farmer\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 10:53:10', '0000-00-00 00:00:00'),
+(124, 163, 'logout', 'User', 163, 'User logged out successfully', '{\"username\":\"Farmer1\",\"role\":\"farmer\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 11:51:52', '0000-00-00 00:00:00'),
+(125, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 11:52:08', '0000-00-00 00:00:00'),
+(126, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 12:37:40', '0000-00-00 00:00:00'),
+(127, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 12:41:25', '0000-00-00 00:00:00'),
+(128, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 12:51:41', '0000-00-00 00:00:00'),
+(129, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 12:55:39', '0000-00-00 00:00:00'),
+(130, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 13:00:20', '0000-00-00 00:00:00'),
+(131, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 13:09:28', '0000-00-00 00:00:00'),
+(132, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 13:09:53', '0000-00-00 00:00:00'),
+(133, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 13:15:03', '0000-00-00 00:00:00'),
+(134, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 13:15:21', '0000-00-00 00:00:00'),
+(135, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 13:21:14', '0000-00-00 00:00:00'),
+(136, 163, 'login', 'User', 163, 'User logged in successfully', '{\"username\":\"Farmer1\",\"role\":\"farmer\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 13:21:29', '0000-00-00 00:00:00'),
+(137, 163, 'logout', 'User', 163, 'User logged out successfully', '{\"username\":\"Farmer1\",\"role\":\"farmer\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 13:22:18', '0000-00-00 00:00:00'),
+(138, 163, 'login', 'User', 163, 'User logged in successfully', '{\"username\":\"Farmer1\",\"role\":\"farmer\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 13:22:30', '0000-00-00 00:00:00'),
+(139, 163, 'logout', 'User', 163, 'User logged out successfully', '{\"username\":\"Farmer1\",\"role\":\"farmer\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 13:22:31', '0000-00-00 00:00:00'),
+(140, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 13:22:48', '0000-00-00 00:00:00'),
+(141, 1, 'logout', 'User', 1, 'User logged out successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 13:23:03', '0000-00-00 00:00:00'),
+(142, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 13:27:46', '0000-00-00 00:00:00'),
+(143, 1, 'login', 'User', 1, 'User logged in successfully', '{\"username\":\"DA-Agrisubsidy2026\",\"role\":\"staff\"}', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', '2026-09-17 13:58:35', '0000-00-00 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -111,6 +188,8 @@ INSERT INTO `audit_logs` (`id`, `user_id`, `action`, `subject_type`, `subject_id
 CREATE TABLE `evaluations` (
   `id` int(11) NOT NULL,
   `farm_id` int(11) NOT NULL,
+  `average_yield` decimal(10,2) NOT NULL,
+  `rice_type` enum('Hybrid','Inbred','','') NOT NULL,
   `crop_yield_after` decimal(10,2) NOT NULL,
   `subsidy_received` enum('Yes','No','','') NOT NULL,
   `selling_price` decimal(10,2) NOT NULL,
@@ -121,6 +200,13 @@ CREATE TABLE `evaluations` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `evaluations`
+--
+
+INSERT INTO `evaluations` (`id`, `farm_id`, `average_yield`, `rice_type`, `crop_yield_after`, `subsidy_received`, `selling_price`, `effectiveness_label`, `feedback_id`, `farmer_id`, `schedule_id`, `created`, `modified`) VALUES
+(170, 1, 25.80, 'Inbred', 28.50, 'Yes', 22.20, 'Effective', 132, 250, 31, '2026-09-17 11:51:09', '2026-09-17 11:51:09');
 
 -- --------------------------------------------------------
 
@@ -148,12 +234,9 @@ CREATE TABLE `farmers` (
 --
 
 INSERT INTO `farmers` (`id`, `farmer_no`, `first_name`, `last_name`, `middle_name`, `birthdate`, `gender`, `address`, `contact_no`, `user_id`, `created`, `modified`) VALUES
-(218, '02-31-35-003-000414', 'Farmer', '1', 'Beneficiary', '1991-03-15', 'Male', 'BALINTOCATOC, SANTIAGO CITY', '9123456750', 39, '2026-09-12 12:14:37', '2026-09-12 12:14:37'),
-(219, '02-31-35-007-000046', 'Farmer', '2', 'Beneficiary', '1989-07-22', 'Male', 'BUENAVISTA, SANTIAGO CITY', '9234567894', 40, '2026-09-12 12:14:37', '2026-09-12 12:15:17'),
-(220, '02-31-35-019-000078', 'Farmer', '3', 'Beneficiary', '1996-11-08', 'Male', 'MABINI, SANTIAGO CITY', '09345678900', 41, '2026-09-12 12:14:37', '2026-09-12 14:10:54'),
-(221, '02-31-35-008-000081', 'Farmer', '4', 'Beneficiary', '1998-06-06', 'Female', 'RIZAL, SANTIAGO CITY', '9876543217', 42, '2026-09-12 12:14:37', '2026-09-12 12:14:58'),
-(222, '02-31-35-002-000069', 'Farmer', '5', 'Beneficiary', '1989-09-05', 'Female', 'BATAL, SANTIAGO CITY', '9876543218', 43, '2026-09-12 12:14:37', '2026-09-12 14:10:37'),
-(223, '02-31-35-028-000048', 'Farmer', '6', 'Beneficiary', '1998-06-23', 'Male', 'SALVADOR, SANTIAGO CITY', '09876654321', NULL, '2026-09-12 14:05:15', '2026-09-12 14:05:46');
+(250, '02-31-35-003-000414', 'Tres', 'Cruz', 'Dela', '1991-03-15', 'Male', 'BALINTOCATOC', '09123456750', 163, '2026-09-16 08:44:18', '2026-09-16 08:44:18'),
+(251, '02-31-35-007-000046', 'Maria', 'Garcia', 'Santos', '1989-07-22', 'Male', 'BUENAVISTA', '09234567894', NULL, '2026-09-16 08:44:18', '2026-09-16 08:44:18'),
+(252, '02-31-35-019-000078', 'John', 'Doe', 'Reyes', '1996-11-08', 'Male', 'MABINI', '09345678900', NULL, '2026-09-16 08:44:18', '2026-09-16 08:44:18');
 
 -- --------------------------------------------------------
 
@@ -164,10 +247,8 @@ INSERT INTO `farmers` (`id`, `farmer_no`, `first_name`, `last_name`, `middle_nam
 CREATE TABLE `farms` (
   `id` int(11) NOT NULL,
   `farmer_id` int(11) NOT NULL,
-  `farm_name` varchar(150) NOT NULL,
   `farm_size` decimal(10,2) NOT NULL,
   `location` varchar(255) NOT NULL,
-  `average_yield` decimal(10,2) NOT NULL,
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -176,12 +257,8 @@ CREATE TABLE `farms` (
 -- Dumping data for table `farms`
 --
 
-INSERT INTO `farms` (`id`, `farmer_id`, `farm_name`, `farm_size`, `location`, `average_yield`, `created`, `modified`) VALUES
-(182, 218, 'Farm 1', 1.00, 'NABBUAN, SANTIAGO CITY', 100.00, '2026-09-13 12:27:30', '2026-09-13 12:27:30'),
-(183, 219, 'Farm 2', 0.51, 'CABULAY, SANTIAGO CITY', 120.00, '2026-09-13 12:27:30', '2026-09-13 12:27:30'),
-(184, 220, 'Farm 3', 0.67, 'MABINI, SANTIAGO CITY', 89.50, '2026-09-13 12:27:30', '2026-09-13 12:27:30'),
-(185, 221, 'Farm 4', 1.50, 'BALUARTE, SANTIAGO CITY', 140.00, '2026-09-13 12:27:30', '2026-09-13 12:27:30'),
-(186, 222, 'Farm 5', 0.95, 'SAN ISIDRO, SANTIAGO CITY', 160.00, '2026-09-13 12:27:30', '2026-09-13 12:27:30');
+INSERT INTO `farms` (`id`, `farmer_id`, `farm_size`, `location`, `created`, `modified`) VALUES
+(1, 250, 4.30, 'SINSAYON', '2026-09-17 13:00:37', '2026-09-17 13:00:37');
 
 -- --------------------------------------------------------
 
@@ -196,6 +273,13 @@ CREATE TABLE `feedbacks` (
   `comment` text NOT NULL,
   `feedback_date` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `feedbacks`
+--
+
+INSERT INTO `feedbacks` (`id`, `farmer_id`, `rating`, `comment`, `feedback_date`) VALUES
+(132, 250, 4.3, '', '2026-09-17 11:51:09');
 
 -- --------------------------------------------------------
 
@@ -220,7 +304,7 @@ CREATE TABLE `notifications` (
 --
 
 INSERT INTO `notifications` (`id`, `user_id`, `title`, `message`, `type`, `status`, `data`, `created`, `modified`) VALUES
-(54, NULL, 'New Farmer Registration', 'A new farmer registration requires approval.', 'registration', 'pending', '{\"farmer\":{\"farmer_no\":\"02-31-35-028-000048\",\"first_name\":\"Farmer\",\"middle_name\":\"Beneficiary\",\"last_name\":\"6\",\"gender\":\"Male\",\"contact_no\":\"09876654321\",\"address\":\"SALVADOR, SANTIAGO CITY\",\"birthdate\":\"1998-06-23\"},\"user\":{\"username\":\"Farmer6\",\"password\":\"Farmer@06\",\"confirm_password\":\"Farmer@06\",\"role\":\"farmer\"}}', '2026-09-12 14:08:10', '2026-09-12 14:08:10');
+(58, NULL, 'New Farmer Registration', 'A new farmer registration requires approval.', 'registration', 'pending', '{\"farmer\":{\"farmer_no\":\"FRM-007\",\"first_name\":\"Rona\",\"middle_name\":\"Valdez\",\"last_name\":\"Mauro\",\"gender\":\"Female\",\"contact_no\":\"09876543216\",\"address\":\"BALINTOCATOC\",\"birthdate\":\"2005-07-10\"},\"user\":{\"username\":\"Farmer2\",\"email\":\"Example04@gmail.com\",\"password\":\"Farmer@02\",\"confirm_password\":\"Farmer@02\",\"role\":\"farmer\"}}', '2026-09-17 13:25:36', '2026-09-17 13:25:36');
 
 -- --------------------------------------------------------
 
@@ -255,17 +339,6 @@ CREATE TABLE `records` (
   `modified_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `records`
---
-
-INSERT INTO `records` (`id`, `farmer_id`, `subsidy_item`, `quantity`, `received_date`, `status`, `schedule_id`, `confirmed_at`, `created_at`, `modified_at`) VALUES
-(201, 219, 'Seed Subsidy', 120.00, '2026-09-12 16:48:32', 'Received', 32, '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(206, 218, 'Seed Subsidy', 130.00, '2026-08-20 09:00:00', 'Received', 31, '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(207, 222, 'Seed Subsidy', 120.00, NULL, 'Not Received', 31, '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(208, 220, 'Seed Subsidy', 150.00, '2026-08-21 09:59:59', 'Received', 32, '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(209, 221, 'Seed Subsidy', 100.00, NULL, 'Cancelled', 32, '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00');
-
 -- --------------------------------------------------------
 
 --
@@ -290,7 +363,8 @@ CREATE TABLE `schedules` (
 
 INSERT INTO `schedules` (`id`, `program_code`, `program_name`, `description`, `barangay`, `start_date`, `end_date`, `start_time`, `end_time`) VALUES
 (31, 'SD-1', 'Seed Subsidy Distribution', 'G-5', 'Rizal', '2026-09-11', '2026-09-11', '10:20:24', '16:30:00'),
-(32, 'SD-2', 'Seed Subsidy Distribution', 'G-5', 'Rizal', '2026-09-12', '2026-09-12', '07:00:00', '17:00:00');
+(32, 'SD-2', 'Seed Subsidy Distribution', 'G-5', 'Rizal', '2026-09-12', '2026-09-12', '07:00:00', '17:00:00'),
+(35, 'SD-3', 'Seed Subsidy Distribution', 'G-6', 'Balintocatoc', '2026-09-22', '2026-09-22', '07:00:00', '16:00:00');
 
 -- --------------------------------------------------------
 
@@ -302,6 +376,7 @@ CREATE TABLE `users` (
   `id` int(11) NOT NULL,
   `username` varchar(150) NOT NULL,
   `password` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
   `role` enum('farmer','admin','staff') NOT NULL,
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
@@ -314,14 +389,10 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `password`, `role`, `created`, `modified`, `status`, `failed_attempts`, `locked_until`) VALUES
-(1, 'admin', '$2y$10$mOsQfa7o.YJXIKkzMQa/iOCMpMay0vaZWOmXDE2Z2oT.r7Yl8kRP2', 'staff', '2026-06-17 05:17:00', '2026-09-14 02:18:00', 'pending', 0, NULL),
-(17, 'superadmin', '$2y$10$6LlYegtiDE46XLuhzPnJoe8ii32u7yYbHyf1GSkjY3kK.3eHf8tOK', 'admin', '2026-06-30 01:07:50', '2026-09-14 02:30:37', 'pending', 0, NULL),
-(39, 'Farmer1', '$2y$10$My45YbsX7Mr9IybpQhSkRuW0cdYOrfbhIJBA2dxyk1JlYyYjOlQla', 'farmer', '2026-09-12 12:49:59', '2026-09-13 12:52:46', 'pending', 0, NULL),
-(40, 'Farmer2', '$2y$10$bi0ADL4UdCJFdqEFYn4GTuzUorWkZ5T2K5OF6BdBCdRiKUN0bWvz2', 'farmer', '2026-09-12 12:51:07', '2026-09-12 12:56:45', 'pending', 0, NULL),
-(41, 'Farmer3', '$2y$10$.OdBgKjEyYClQBRt1.j3W.Bo3C7WD78XEdKldHKFbc/df43zaXm/i', 'farmer', '2026-09-12 12:51:44', '2026-09-12 12:57:11', 'pending', 0, NULL),
-(42, 'Farmer4', '$2y$10$JQ7RcaTbRWKzpNHbT2qtuuvJDyEECbHpqiLPL88H1CX0P9a863BAW', 'farmer', '2026-09-12 12:52:10', '2026-09-12 12:57:45', 'pending', 0, NULL),
-(43, 'Farmer5', '$2y$10$g1.zgMTXn9e2SBBNaOo8yeRKXfqvwGMDK2cPOkX61hybCWMaoBvkW', 'farmer', '2026-09-12 12:52:47', '2026-09-12 12:58:00', 'pending', 0, NULL);
+INSERT INTO `users` (`id`, `username`, `password`, `email`, `role`, `created`, `modified`, `status`, `failed_attempts`, `locked_until`) VALUES
+(1, 'DA-Agrisubsidy2026', '$2y$10$bcBgSJ4BCsCBKg9zlz7ozuNMOhzR/jZ3ie/4O7JfGu/jUhwCY81t6', 'example02@gmail.com', 'staff', '2026-06-17 05:17:00', '2026-09-17 13:58:35', 'pending', 0, NULL),
+(17, 'DA-Admin2026', '$2y$10$b2QxJv4bUY01brrdj0PVsekb04C0d96.GRru.jI9/vcRdRXvrG38G', 'example01@gmail.com', 'admin', '2026-06-30 01:07:50', '2026-09-17 07:43:11', 'pending', 0, NULL),
+(163, 'Farmer1', '$2y$10$2kJB0v3yPv5USF51k9fknub6u5htjgWzmkZ2iYdRnhGQSDg57LeNS', 'Example03@gmail.com', 'farmer', '2026-09-17 07:43:57', '2026-09-17 13:22:30', 'pending', 0, NULL);
 
 --
 -- Indexes for dumped tables
@@ -407,55 +478,55 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_logs`
 --
 ALTER TABLE `audit_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=144;
 
 --
 -- AUTO_INCREMENT for table `evaluations`
 --
 ALTER TABLE `evaluations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=169;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=171;
 
 --
 -- AUTO_INCREMENT for table `farmers`
 --
 ALTER TABLE `farmers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=238;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=253;
 
 --
 -- AUTO_INCREMENT for table `farms`
 --
 ALTER TABLE `farms`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=187;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=190;
 
 --
 -- AUTO_INCREMENT for table `feedbacks`
 --
 ALTER TABLE `feedbacks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=131;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=133;
 
 --
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
 
 --
 -- AUTO_INCREMENT for table `records`
 --
 ALTER TABLE `records`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=210;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=211;
 
 --
 -- AUTO_INCREMENT for table `schedules`
 --
 ALTER TABLE `schedules`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=164;
 
 --
 -- Constraints for dumped tables

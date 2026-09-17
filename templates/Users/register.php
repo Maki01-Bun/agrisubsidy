@@ -62,6 +62,15 @@
                     </div>
                 </div>
                 <div class="input-group mb-3">
+                    <?= $this->Form->control('email', ['class' => 'form-control',
+                    'placeholder' => 'Email','label' => false,'required']) ?>
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-user"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group mb-3">
                     <?= $this->Form->control('password', [
                         'type' => 'password',
                         'class' => 'form-control',

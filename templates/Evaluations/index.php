@@ -3,7 +3,7 @@
         <div class="card-header">
             <h3 class="card-title text-dark">Evaluations</h3>
             <div class="card-tools evaluation-card-tools">
-                <!--<div class="dropdown effectiveness-dropdown">-->
+                <!-- <div class="dropdown effectiveness-dropdown">-->
                 <!--    <button class="btn btn-outline-primary dropdown-toggle effectiveness-btn" type="button" id="effectivenessDropdown" data-toggle="dropdown"-->
                 <!--    aria-haspopup="true" aria-expanded="false">-->
                 <!--        <i class="fas fa-filter"></i>-->
@@ -90,10 +90,6 @@
             <div class="modal-body">
                 <table class="table table-bordered">
                     <tr>
-                        <th width="30%">Farmer Name</th>
-                        <td id="farmer_name"></td>
-                    </tr>
-                    <tr>
                         <th width="30%">Average Yield (tons/ha)</th>
                         <td id="average_yield">N/A</td>
                     </tr>
@@ -102,7 +98,7 @@
                         <td id="rice_type">N/A</td>
                     </tr>
                     <tr>
-                        <th width="30%">Yield After (tons/ha)</th>
+                        <th width="30%">Yield After (tons)</th>
                         <td id="crop_yield_after">N/A</td>
                     </tr>
                     <tr>

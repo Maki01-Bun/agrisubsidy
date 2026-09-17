@@ -16,103 +16,130 @@ class FeedbacksController extends AppController
      * @return \Cake\Http\Response|null|void Renders view
      */
     public function index()
-    {
-        $this->loadModel('Farmers');
-        $this->loadModel('Farms');
-        $this->loadModel('Schedules');
+{
+    $this->loadModel('Farmers');
+    $this->loadModel('Farms');
+    $this->loadModel('Schedules');
 
-        // =========================================================
-        // GET LOGGED-IN USER
-        // =========================================================
+    // =========================================================
+    // GET LOGGED-IN USER
+    // =========================================================
 
-        $user = $this->request
-            ->getSession()
-            ->read('Auth.User');
+    $user = $this->request
+        ->getSession()
+        ->read('Auth.User');
 
-        // Default values
-        $farms = [];
-        $schedules = [];
-        $farmerName = '';
+    $farms = [];
+    $farmSizes = [];
+    $schedules = [];
+    $farmerName = '';
 
-        // =========================================================
-        // CHECK USER
-        // =========================================================
+    // =========================================================
+    // CHECK USER
+    // =========================================================
 
-        if (
-            empty($user) ||
-            empty($user['id'])
-        ) {
-            $this->Flash->error(
-                'User session not found.'
-            );
+    if (
+        empty($user) ||
+        empty($user['id'])
+    ) {
+        $this->Flash->error('User session not found.');
 
-            return $this->redirect([
-                'action' => 'index'
-            ]);
-        }
+        return $this->redirect([
+            'action' => 'index'
+        ]);
+    }
 
-        // =========================================================
-        // FIND FARMER
-        // =========================================================
+    // =========================================================
+    // FIND FARMER
+    // =========================================================
 
-        $farmer = $this->Farmers->find()
-            ->where([
-                'Farmers.user_id' => $user['id']
-            ])
-            ->first();
+    $farmer = $this->Farmers->find()
+        ->where([
+            'Farmers.user_id' => $user['id']
+        ])
+        ->first();
 
-        if ($farmer) {
+    if ($farmer) {
 
-            // =====================================================
-            // FARMER NAME
-            // =====================================================
+        // =====================================================
+        // FARMER NAME
+        // =====================================================
 
-            $farmerName = trim(
-                ($farmer->first_name ?? '') . ' ' .
-                ($farmer->middle_name ?? '') . ' ' .
-                ($farmer->last_name ?? '')
-            );
+        $farmerName = trim(
+            ($farmer->first_name ?? '') . ' ' .
+            ($farmer->middle_name ?? '') . ' ' .
+            ($farmer->last_name ?? '')
+        );
 
-            // =====================================================
-            // FARM LIST
-            // =====================================================
+        // =====================================================
+        // GET FARM SIZES
+        // =====================================================
 
-            $farms = $this->Farms->find('list', [
-                'keyField' => 'id',
-                'valueField' => 'farm_name'
+        $farmsData = $this->Farms->find()
+            ->select([
+                'id',
+                'farm_size'
             ])
             ->where([
                 'Farms.farmer_id' => $farmer->id
             ])
-            ->toArray();
+            ->order([
+                'Farms.id' => 'ASC'
+            ])
+            ->all();
+
+        // =====================================================
+        // FARM DROPDOWN
+        // =====================================================
+
+        $farmNumber = 1;
+        foreach ($farmsData as $farm) {
+            // Get farm size
+            $farmSize = (float)$farm->farm_size;
+            // Dropdown label
+            $farms[$farm->id] =
+                'Farm ' . $farmNumber . ': ' .
+                number_format($farmSize, 2) . ' ha';
+            // Keep actual farm size for calculation
+            $farmSizes[$farm->id] = $farmSize;
+            $farmNumber++;
         }
-
-        // =========================================================
-        // SCHEDULE LIST
-        // =========================================================
-
-        $schedules = $this->Schedules->find(
-            'list',
-            [
-                'keyField' => 'id',
-                'valueField' => 'program_code'
-            ]
-        )
-        ->order([
-            'Schedules.start_date' => 'ASC'
-        ])
-        ->toArray();
-
-        // =========================================================
-        // SEND TO VIEW
-        // =========================================================
-
-        $this->set(compact(
-            'farms',
-            'farmerName',
-            'schedules'
-        ));
     }
+
+    // =========================================================
+    // SCHEDULE LIST
+    // =========================================================
+
+    $schedules = $this->Schedules->find('list', [
+        'keyField' => 'id',
+        'valueField' => 'program_code'
+    ])
+    ->order([
+        'Schedules.start_date' => 'ASC'
+    ])
+    ->toArray();
+
+    // =========================================================
+    // RICE TYPE
+    // =========================================================
+
+    $rice_type = [
+        0 => 'Inbred',
+        1 => 'Hybrid'
+    ];
+
+    // =========================================================
+    // SEND TO VIEW
+    // =========================================================
+
+    $this->set(compact(
+        'farms',
+        'farmSizes',
+        'farmerName',
+        'schedules',
+        'rice_type'
+    ));
+}
 
     public function survey()
     {

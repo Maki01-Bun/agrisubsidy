@@ -416,28 +416,24 @@
                                                 <i class="fas fa-tractor"></i>
 
                                             </div>
-
-
                                             <div class="farm-title">
-
                                                 <span>
                                                     Registered Farm
                                                 </span>
-
-                                                <h5>
-
-                                                    <?= h(
-                                                        !empty($farm->farm_name)
-                                                            ? $farm->farm_name
-                                                            : 'Unnamed Farm'
-                                                    ) ?>
-
-                                                </h5>
-
+                                                <div class="farm-location">
+                                                    <div class="farm-detail-icon location">
+                                                        <i class="fas fa-map-marker-alt"></i>
+                                                    </div>
+                                                    <h5>
+                                                        <?= h(
+                                                            !empty($farm->location)
+                                                                ? $farm->location
+                                                                : 'Unknown Farm Location'
+                                                        ) ?>
+                                                    </h5>
+                                                </div>
                                             </div>
-
                                         </div>
-
 
                                         <span class="farm-badge">
 
@@ -488,42 +484,8 @@
                                                     </strong>
 
                                                 </div>
-
                                             </div>
-
-
-
-                                            <!-- LOCATION -->
-                                            <div class="farm-detail">
-
-                                                <div class="farm-detail-icon location">
-
-                                                    <i class="fas fa-map-marker-alt"></i>
-
-                                                </div>
-
-
-                                                <div>
-
-                                                    <span class="farm-detail-label">
-                                                        Location
-                                                    </span>
-
-                                                    <strong class="location-text">
-
-                                                        <?= h(
-                                                            $farm->location ?? 'N/A'
-                                                        ) ?>
-
-                                                    </strong>
-
-                                                </div>
-
-                                            </div>
-
                                         </div>
-
-
                                         <!-- DIVIDER -->
                                         <div class="farm-divider"></div>
 
@@ -614,10 +576,10 @@
 </div>
 
 
-
 <!-- =========================================================
      EDIT ACCOUNT MODAL
 ========================================================== -->
+
 <div class="modal fade"
      id="editAccountModal"
      tabindex="-1"
@@ -625,15 +587,15 @@
      aria-labelledby="editAccountModalLabel"
      aria-hidden="true">
 
-    <div class="modal-dialog modal-dialog-centered"
+    <div class="modal-dialog modal-dialog-centered modal-lg"
          role="document">
 
         <div class="modal-content edit-account-modal">
 
-
             <!-- =================================================
                  MODAL HEADER
             ================================================== -->
+
             <div class="modal-header">
 
                 <div>
@@ -647,15 +609,11 @@
 
                     </h5>
 
-
                     <small class="text-muted">
-
-                        Update your username or password.
-
+                        Update your username, email, or password.
                     </small>
 
                 </div>
-
 
                 <button type="button"
                         class="close"
@@ -671,62 +629,113 @@
             </div>
 
 
-
             <!-- =================================================
                  FORM
             ================================================== -->
+
             <?= $this->Form->create($user, [
                 'url' => [
                     'controller' => 'Users',
                     'action' => 'editAccount'
                 ],
-                'class' => 'edit-account-form'
+                'class' => 'edit-account-form',
+                'id' => 'editAccountForm',
+                'autocomplete' => 'off'
             ]) ?>
 
 
             <!-- =================================================
                  MODAL BODY
             ================================================== -->
+
             <div class="modal-body">
 
+                <!-- =================================================
+                     USERNAME + EMAIL
+                ================================================== -->
 
-                <!-- =============================================
-                     USERNAME
-                ============================================== -->
-                <div class="form-group">
+                <div class="row">
 
-                    <label for="username">
+                    <!-- USERNAME -->
 
-                        <i class="fas fa-at mr-1"></i>
+                    <div class="col-12 col-md-6">
 
-                        Username
+                        <div class="form-group">
 
-                    </label>
+                            <label for="username">
+
+                                <i class="fas fa-at mr-1"></i>
+
+                                Username
+
+                            </label>
+
+                            <?= $this->Form->control('username', [
+
+                                'label' => false,
+
+                                'class' => 'form-control',
+
+                                'id' => 'username',
+
+                                'value' => $user->username ?? '',
+
+                                'required' => true,
+
+                                'autocomplete' => 'username'
+
+                            ]) ?>
+
+                        </div>
+
+                    </div>
 
 
-                    <?= $this->Form->control('username', [
+                    <!-- EMAIL -->
 
-                        'label' => false,
+                    <div class="col-12 col-md-6">
 
-                        'class' => 'form-control',
+                        <div class="form-group">
 
-                        'id' => 'username',
+                            <label for="email">
 
-                        'value' => $user->username ?? '',
+                                <i class="fas fa-envelope mr-1"></i>
 
-                        'required' => true,
+                                Email Address
 
-                        'autocomplete' => 'username'
+                            </label>
 
-                    ]) ?>
+                            <?= $this->Form->control('email', [
+
+                                'label' => false,
+
+                                'type' => 'email',
+
+                                'class' => 'form-control',
+
+                                'id' => 'email',
+
+                                'value' => $user->email ?? '',
+
+                                'required' => true,
+
+                                'placeholder' => 'Enter your email address',
+
+                                'autocomplete' => 'email'
+
+                            ]) ?>
+
+                        </div>
+
+                    </div>
 
                 </div>
 
 
+                <!-- =================================================
+                     PASSWORD DIVIDER
+                ================================================== -->
 
-                <!-- =============================================
-                     PASSWORD SECTION
-                ============================================== -->
                 <div class="account-section-divider">
 
                     <span>
@@ -736,10 +745,10 @@
                 </div>
 
 
-
-                <!-- =============================================
+                <!-- =================================================
                      CURRENT PASSWORD
-                ============================================== -->
+                ================================================== -->
+
                 <div class="form-group">
 
                     <label for="current_password">
@@ -772,7 +781,8 @@
                         <button type="button"
                                 class="password-toggle"
                                 data-target="current_password"
-                                title="Show password">
+                                title="Show password"
+                                aria-label="Show password">
 
                             <i class="fas fa-eye"></i>
 
@@ -790,10 +800,10 @@
                 </div>
 
 
-
-                <!-- =============================================
+                <!-- =================================================
                      NEW PASSWORD
-                ============================================== -->
+                ================================================== -->
+
                 <div class="form-group">
 
                     <label for="new_password">
@@ -826,7 +836,8 @@
                         <button type="button"
                                 class="password-toggle"
                                 data-target="new_password"
-                                title="Show password">
+                                title="Show password"
+                                aria-label="Show password">
 
                             <i class="fas fa-eye"></i>
 
@@ -837,17 +848,19 @@
 
                     <small class="form-text text-muted">
 
-                        Leave blank if you only want to change your username.
+                        At least 8 characters,
+                        one capital letter,
+                        and one special character.
 
                     </small>
 
                 </div>
 
 
-
-                <!-- =============================================
+                <!-- =================================================
                      CONFIRM PASSWORD
-                ============================================== -->
+                ================================================== -->
+
                 <div class="form-group mb-0">
 
                     <label for="confirm_password">
@@ -880,7 +893,8 @@
                         <button type="button"
                                 class="password-toggle"
                                 data-target="confirm_password"
-                                title="Show password">
+                                title="Show password"
+                                aria-label="Show password">
 
                             <i class="fas fa-eye"></i>
 
@@ -893,10 +907,10 @@
             </div>
 
 
-
             <!-- =================================================
                  MODAL FOOTER
             ================================================== -->
+
             <div class="modal-footer">
 
                 <button type="button"
@@ -911,7 +925,8 @@
 
 
                 <button type="submit"
-                        class="btn btn-success">
+                        class="btn btn-success"
+                        id="saveAccountButton">
 
                     <i class="fas fa-save mr-1"></i>
 
@@ -929,126 +944,376 @@
     </div>
 
 </div>
+
+
+<!-- =========================================================
+     EDIT ACCOUNT JAVASCRIPT
+========================================================== -->
+
 <script>
-/* =========================================================
-   EDIT ACCOUNT
-   PASSWORD VISIBILITY
-========================================================= */
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    /* =====================================================
+
+    /* =========================================================
        PASSWORD SHOW / HIDE
-    ===================================================== */
+    ========================================================== */
 
-    const passwordToggles =
-        document.querySelectorAll('.password-toggle');
+    document
+        .querySelectorAll('.password-toggle')
+        .forEach(function (button) {
 
-    passwordToggles.forEach(function (button) {
+            button.addEventListener('click', function (e) {
 
-        button.addEventListener('click', function (e) {
+                e.preventDefault();
 
-            e.preventDefault();
-            e.stopPropagation();
+                const targetId =
+                    button.getAttribute('data-target');
 
-            const targetId =
-                button.getAttribute('data-target');
+                const input =
+                    document.getElementById(targetId);
 
-            const input =
-                document.getElementById(targetId);
+                if (!input) {
+                    return;
+                }
 
-            if (!input) {
-                console.error(
-                    'Password input not found:',
-                    targetId
-                );
+                const icon =
+                    button.querySelector('i');
 
-                return;
-            }
 
-            const icon =
-                button.querySelector('i');
+                if (input.type === 'password') {
 
-            if (input.type === 'password') {
+                    input.type = 'text';
 
-                /* =========================================
-                   SHOW PASSWORD
-                ========================================== */
+                    if (icon) {
 
-                input.type = 'text';
+                        icon.classList.remove(
+                            'fa-eye'
+                        );
 
-                if (icon) {
+                        icon.classList.add(
+                            'fa-eye-slash'
+                        );
+                    }
 
-                    icon.classList.remove(
-                        'fa-eye'
+                    button.setAttribute(
+                        'title',
+                        'Hide password'
                     );
 
-                    icon.classList.add(
-                        'fa-eye-slash'
+                    button.setAttribute(
+                        'aria-label',
+                        'Hide password'
+                    );
+
+                } else {
+
+                    input.type = 'password';
+
+                    if (icon) {
+
+                        icon.classList.remove(
+                            'fa-eye-slash'
+                        );
+
+                        icon.classList.add(
+                            'fa-eye'
+                        );
+                    }
+
+                    button.setAttribute(
+                        'title',
+                        'Show password'
+                    );
+
+                    button.setAttribute(
+                        'aria-label',
+                        'Show password'
                     );
                 }
 
-                button.setAttribute(
-                    'title',
-                    'Hide password'
-                );
-
-                button.setAttribute(
-                    'aria-label',
-                    'Hide password'
-                );
-
-            } else {
-
-                /* =========================================
-                   HIDE PASSWORD
-                ========================================== */
-
-                input.type = 'password';
-
-                if (icon) {
-
-                    icon.classList.remove(
-                        'fa-eye-slash'
-                    );
-
-                    icon.classList.add(
-                        'fa-eye'
-                    );
-                }
-
-                button.setAttribute(
-                    'title',
-                    'Show password'
-                );
-
-                button.setAttribute(
-                    'aria-label',
-                    'Show password'
-                );
-            }
+            });
 
         });
+
+
+    /* =========================================================
+       FORM
+    ========================================================== */
+
+    const form =
+        document.getElementById('editAccountForm');
+
+    if (!form) {
+        return;
+    }
+
+
+    /* =========================================================
+       FORM SUBMIT VALIDATION
+    ========================================================== */
+
+    form.addEventListener('submit', function (e) {
+
+        const username =
+            document.getElementById('username');
+
+        const email =
+            document.getElementById('email');
+
+        const currentPassword =
+            document.getElementById('current_password');
+
+        const newPassword =
+            document.getElementById('new_password');
+
+        const confirmPassword =
+            document.getElementById('confirm_password');
+
+
+        const usernameValue =
+            username
+                ? username.value.trim()
+                : '';
+
+
+        const emailValue =
+            email
+                ? email.value.trim()
+                : '';
+
+
+        const currentValue =
+            currentPassword
+                ? currentPassword.value
+                : '';
+
+
+        const newValue =
+            newPassword
+                ? newPassword.value
+                : '';
+
+
+        const confirmValue =
+            confirmPassword
+                ? confirmPassword.value
+                : '';
+
+
+        /* =====================================================
+           USERNAME
+        ====================================================== */
+
+        if (usernameValue === '') {
+
+            e.preventDefault();
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Username Required',
+                text: 'Please enter your username.',
+                confirmButtonColor: '#087f23'
+            });
+
+            return;
+        }
+
+
+        if (usernameValue.length < 3) {
+
+            e.preventDefault();
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Invalid Username',
+                text: 'Username must be at least 3 characters long.',
+                confirmButtonColor: '#087f23'
+            });
+
+            return;
+        }
+
+
+        /* =====================================================
+           EMAIL
+        ====================================================== */
+
+        if (emailValue === '') {
+
+            e.preventDefault();
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Email Required',
+                text: 'Please enter your email address.',
+                confirmButtonColor: '#087f23'
+            });
+
+            return;
+        }
+
+
+        /*
+         * CORRECT EMAIL REGEX
+         */
+        const emailPattern =
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
+        if (!emailPattern.test(emailValue)) {
+
+            e.preventDefault();
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Invalid Email',
+                text: 'Please enter a valid email address.',
+                confirmButtonColor: '#087f23'
+            });
+
+            return;
+        }
+
+
+        /* =====================================================
+           NO PASSWORD CHANGE
+        ====================================================== */
+
+        if (newValue === '') {
+
+            return true;
+        }
+
+
+        /* =====================================================
+           CURRENT PASSWORD
+        ====================================================== */
+
+        if (currentValue === '') {
+
+            e.preventDefault();
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Current Password Required',
+                text: 'Please enter your current password before changing your password.',
+                confirmButtonColor: '#087f23'
+            });
+
+            return;
+        }
+
+
+        /* =====================================================
+           PASSWORD REQUIREMENTS
+        ====================================================== */
+
+        /*
+         * CORRECT PASSWORD REGEX
+         */
+        const passwordPattern =
+            /^(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
+
+
+        if (!passwordPattern.test(newValue)) {
+
+            e.preventDefault();
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Invalid Password',
+                text: 'New password must be at least 8 characters and contain at least one capital letter and one special character.',
+                confirmButtonColor: '#087f23'
+            });
+
+            return;
+        }
+
+
+        /* =====================================================
+           CONFIRM PASSWORD
+        ====================================================== */
+
+        if (confirmValue === '') {
+
+            e.preventDefault();
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Confirm Password',
+                text: 'Please confirm your new password.',
+                confirmButtonColor: '#087f23'
+            });
+
+            return;
+        }
+
+
+        if (newValue !== confirmValue) {
+
+            e.preventDefault();
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Password Mismatch',
+                text: 'The new passwords do not match.',
+                confirmButtonColor: '#087f23'
+            });
+
+            return;
+        }
+
+
+        /* =====================================================
+           SAME PASSWORD
+        ====================================================== */
+
+        if (newValue === currentValue) {
+
+            e.preventDefault();
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Same Password',
+                text: 'Your new password must be different from your current password.',
+                confirmButtonColor: '#087f23'
+            });
+
+            return;
+        }
+
+
+        /* =====================================================
+           DISABLE BUTTON WHILE SUBMITTING
+        ====================================================== */
+
+        const saveButton =
+            document.getElementById('saveAccountButton');
+
+        if (saveButton) {
+
+            saveButton.disabled = true;
+
+            saveButton.innerHTML =
+                '<i class="fas fa-spinner fa-spin mr-1"></i> Saving...';
+        }
+
+
+        return true;
 
     });
 
 
+    /* =========================================================
+       RESET PASSWORD FIELDS WHEN MODAL CLOSES
+    ========================================================== */
 
-    /* =====================================================
-       EDIT ACCOUNT FORM
-    ===================================================== */
+    if (typeof window.jQuery !== 'undefined') {
 
-    const editAccountForm =
-        document.querySelector('.edit-account-form');
-
-    if (editAccountForm) {
-
-        editAccountForm.addEventListener(
-            'submit',
-            function (e) {
-
-                const username =
-                    document.getElementById('username');
+        $('#editAccountModal').on(
+            'hidden.bs.modal',
+            function () {
 
                 const currentPassword =
                     document.getElementById(
@@ -1066,147 +1331,68 @@ document.addEventListener('DOMContentLoaded', function () {
                     );
 
 
-                /* =========================================
-                   USERNAME VALIDATION
-                ========================================== */
+                if (currentPassword) {
 
-                if (
-                    !username ||
-                    username.value.trim() === ''
-                ) {
+                    currentPassword.value = '';
 
-                    e.preventDefault();
-
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Username Required',
-                        text: 'Please enter your username.',
-                        confirmButtonColor: '#087f23'
-                    });
-
-                    return false;
+                    currentPassword.type =
+                        'password';
                 }
 
 
-                /* =========================================
-                   GET PASSWORD VALUES
-                ========================================== */
+                if (newPassword) {
 
-                const currentValue =
-                    currentPassword
-                        ? currentPassword.value
-                        : '';
+                    newPassword.value = '';
 
-                const newValue =
-                    newPassword
-                        ? newPassword.value
-                        : '';
-
-                const confirmValue =
-                    confirmPassword
-                        ? confirmPassword.value
-                        : '';
+                    newPassword.type =
+                        'password';
+                }
 
 
-                /* =========================================
-                   PASSWORD CHANGE
-                ========================================== */
+                if (confirmPassword) {
+
+                    confirmPassword.value = '';
+
+                    confirmPassword.type =
+                        'password';
+                }
+
 
                 /*
-                 * If new password is empty:
-                 *
-                 * Username will be updated only.
-                 *
-                 * No current password is required.
+                 * RESET EYE ICONS
                  */
+                document
+                    .querySelectorAll(
+                        '#editAccountModal .password-toggle i'
+                    )
+                    .forEach(function (icon) {
 
-                if (newValue === '') {
+                        icon.classList.remove(
+                            'fa-eye-slash'
+                        );
 
-                    return true;
-                }
+                        icon.classList.add(
+                            'fa-eye'
+                        );
 
-
-                /* =========================================
-                   CURRENT PASSWORD REQUIRED
-                ========================================== */
-
-                if (currentValue === '') {
-
-                    e.preventDefault();
-
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Current Password Required',
-                        text: 'Please enter your current password before changing your password.',
-                        confirmButtonColor: '#087f23'
                     });
 
-                    return false;
+
+                /*
+                 * RESET SAVE BUTTON
+                 */
+                const saveButton =
+                    document.getElementById(
+                        'saveAccountButton'
+                    );
+
+                if (saveButton) {
+
+                    saveButton.disabled = false;
+
+                    saveButton.innerHTML =
+                        '<i class="fas fa-save mr-1"></i> Save Changes';
                 }
-
-
-                /* =========================================
-                   PASSWORD LENGTH
-                ========================================== */
-
-                if (newValue.length < 8) {
-
-                    e.preventDefault();
-
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Password Too Short',
-                        text: 'Your new password must be at least 8 characters long.',
-                        confirmButtonColor: '#087f23'
-                    });
-
-                    return false;
-                }
-
-
-                /* =========================================
-                   PASSWORD MATCH
-                ========================================== */
-
-                if (newValue !== confirmValue) {
-
-                    e.preventDefault();
-
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Password Mismatch',
-                        text: 'The new passwords do not match.',
-                        confirmButtonColor: '#087f23'
-                    });
-
-                    return false;
-                }
-
-
-                /* =========================================
-                   PREVENT SAME PASSWORD
-                ========================================== */
-
-                if (newValue === currentValue) {
-
-                    e.preventDefault();
-
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Same Password',
-                        text: 'Your new password must be different from your current password.',
-                        confirmButtonColor: '#087f23'
-                    });
-
-                    return false;
-                }
-
-
-                /* =========================================
-                   ALLOW SUBMISSION
-                ========================================== */
-
-                return true;
 
             }
         );
@@ -1214,88 +1400,83 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
+    /* =========================================================
+       SUCCESS CONFIRMATION AFTER REDIRECT
+    ========================================================== */
 
-    /* =====================================================
-       CLEAR PASSWORD FIELDS WHEN MODAL CLOSES
-    ===================================================== */
+    <?php
 
-    const editAccountModal =
-        document.getElementById(
-            'editAccountModal'
-        );
+    $editAccountSuccess =
+        $this->request
+            ->getSession()
+            ->consume('EditAccountSuccess');
 
-    if (editAccountModal) {
+    ?>
 
-        /*
-         * Bootstrap 4 uses jQuery events.
-         */
+    <?php if (!empty($editAccountSuccess)): ?>
 
-        if (
-            typeof window.jQuery !== 'undefined'
-        ) {
+        Swal.fire({
 
-            $('#editAccountModal').on(
-                'hidden.bs.modal',
-                function () {
+            icon: 'success',
 
-                    const currentPassword =
-                        document.getElementById(
-                            'current_password'
-                        );
+            title: 'Account Updated',
 
-                    const newPassword =
-                        document.getElementById(
-                            'new_password'
-                        );
+            html:
+                '<div style="text-align:left;">' +
 
-                    const confirmPassword =
-                        document.getElementById(
-                            'confirm_password'
-                        );
+                <?php if (!empty($editAccountSuccess['usernameChanged'])): ?>
+
+                    '<div class="mb-2">' +
+                        '<i class="fas fa-check-circle text-success mr-2"></i>' +
+                        '<strong>Username</strong> has been updated.' +
+                    '</div>' +
+
+                <?php endif; ?>
 
 
-                    if (currentPassword) {
-                        currentPassword.value = '';
-                        currentPassword.type = 'password';
-                    }
+                <?php if (!empty($editAccountSuccess['emailChanged'])): ?>
 
-                    if (newPassword) {
-                        newPassword.value = '';
-                        newPassword.type = 'password';
-                    }
+                    '<div class="mb-2">' +
+                        '<i class="fas fa-check-circle text-success mr-2"></i>' +
+                        '<strong>Email address</strong> has been updated.' +
+                    '</div>' +
 
-                    if (confirmPassword) {
-                        confirmPassword.value = '';
-                        confirmPassword.type = 'password';
-                    }
+                <?php endif; ?>
 
 
-                    /*
-                     * Reset all eye icons
-                     */
+                <?php if (!empty($editAccountSuccess['passwordChanged'])): ?>
 
-                    document
-                        .querySelectorAll(
-                            '.password-toggle i'
-                        )
-                        .forEach(function (icon) {
+                    '<div class="mb-2">' +
+                        '<i class="fas fa-check-circle text-success mr-2"></i>' +
+                        '<strong>Password</strong> has been updated.' +
+                    '</div>' +
 
-                            icon.classList.remove(
-                                'fa-eye-slash'
-                            );
+                <?php endif; ?>
 
-                            icon.classList.add(
-                                'fa-eye'
-                            );
 
-                        });
+                <?php if (
+                    empty($editAccountSuccess['usernameChanged']) &&
+                    empty($editAccountSuccess['emailChanged']) &&
+                    empty($editAccountSuccess['passwordChanged'])
+                ): ?>
 
-                }
-            );
+                    '<div class="mb-2">' +
+                        '<i class="fas fa-info-circle text-info mr-2"></i>' +
+                        'Your account information is already up to date.' +
+                    '</div>' +
 
-        }
+                <?php endif; ?>
 
-    }
+                '</div>',
+
+            confirmButtonColor: '#087f23',
+
+            confirmButtonText: 'OK'
+
+        });
+
+    <?php endif; ?>
 
 });
+
 </script>

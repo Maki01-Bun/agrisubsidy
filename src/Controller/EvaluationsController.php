@@ -40,7 +40,7 @@ class EvaluationsController extends AppController
         ]);
 
         $this->set(compact('evaluation'));
-    }
+    }   
 
     /**
      * Add method
@@ -702,6 +702,121 @@ class EvaluationsController extends AppController
             return $this->redirect([
                 'action' => 'index'
             ]);
+        }
+    }
+
+    public function getFeedback($id = null)
+    {
+        $this->request->allowMethod(['get']);
+        $this->autoRender = false;
+
+        try {
+
+            if ($id === null) {
+                return $this->response
+                    ->withStatus(400)
+                    ->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'success' => false,
+                        'message' => 'Evaluation ID is required.'
+                    ]));
+            }
+
+            /*
+            * Get evaluation together with Feedbacks.
+            */
+            $evaluation = $this->Evaluations->get($id, [
+                'contain' => ['Feedbacks']
+            ]);
+
+            /*
+            * Default rating.
+            */
+            $feedbackRating = null;
+
+            /*
+            * Get the rating from the related feedback.
+            */
+            if (!empty($evaluation->feedbacks)) {
+
+                foreach ($evaluation->feedbacks as $feedback) {
+
+                    if (!$feedback) {
+                        continue;
+                    }
+
+                    /*
+                    * Check the possible rating field names.
+                    */
+                    if (
+                        isset($feedback->feedback_score) &&
+                        $feedback->feedback_score !== '' &&
+                        $feedback->feedback_score !== null
+                    ) {
+                        $feedbackRating = $feedback->feedback_score;
+                    }
+                    elseif (
+                        isset($feedback->rating) &&
+                        $feedback->rating !== '' &&
+                        $feedback->rating !== null
+                    ) {
+                        $feedbackRating = $feedback->rating;
+                    }
+                    elseif (
+                        isset($feedback->score) &&
+                        $feedback->score !== '' &&
+                        $feedback->score !== null
+                    ) {
+                        $feedbackRating = $feedback->score;
+                    }
+
+                    /*
+                    * We only need the first feedback.
+                    */
+                    break;
+                }
+            }
+
+            /*
+            * Return evaluation data.
+            */
+            $data = [
+                'id' => $evaluation->id,
+
+                'rice_type' => $evaluation->rice_type ?? null,
+
+                'average_yield' => $evaluation->average_yield ?? null,
+
+                'crop_yield_after' => $evaluation->crop_yield_after ?? null,
+
+                'selling_price' => $evaluation->selling_price ?? null,
+
+                'subsidy_received' => $evaluation->subsidy_received ?? null,
+
+                'feedback_rating' => $feedbackRating
+            ];
+
+            return $this->response
+                ->withType('application/json')
+                ->withStringBody(json_encode([
+                    'success' => true,
+                    'data' => $data
+                ]));
+
+        } catch (\Throwable $e) {
+
+            $this->log(
+                'Get Feedback Error: ' . $e->getMessage(),
+                'error'
+            );
+
+            return $this->response
+                ->withStatus(500)
+                ->withType('application/json')
+                ->withStringBody(json_encode([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ]));
         }
     }
 }
