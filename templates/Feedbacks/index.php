@@ -16,7 +16,7 @@
                 <i class="fas fa-user me-2"></i>Basic Information
             </h5>
             <div class="row">
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
                     <label>Farmer Name</label>
                     <?= $this->Form->control('farmerName', [
                         'value' => $farmerName ?? '',
@@ -25,7 +25,7 @@
                         'readonly' => true
                     ]) ?>
                 </div>
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
                     <label for="schedule_id">Schedule</label>
                     <?= $this->Form->control('schedule_id', [
                         'type' => 'select',
@@ -36,7 +36,7 @@
                         'id' => 'schedule_id'
                     ]) ?>
                 </div>
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
                     <label>Farm</label>
                     <?= $this->Form->control('farm_id', [
                         'options' => $farms,
@@ -46,16 +46,33 @@
                         'id' => 'farm_id'
                     ]) ?>
                 </div>
+                <div class="col-md-3 mb-3">
+                    <label>Average Yield (tons/ha)</label>
+                    <?= $this->Form->control('average_yield', [
+                        'class' => 'form-control',
+                        'label' => false
+                    ]) ?>
+                </div>
             </div>
             <div class="row">
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
+                    <label>Rice Type</label>
+                    <?= $this->Form->control('rice_type', [
+                        'options' => $rice_type,
+                        'empty' => '-- Select Seed Type --',
+                        'class' => 'form-control',
+                        'label' => false,
+                        'id' => 'Rice Type'
+                    ]) ?>
+                </div>
+                <div class="col-md-3 mb-3">
                     <label>Crop Yield After (tons/ha)</label>
                     <?= $this->Form->control('crop_yield_after', [
                         'class' => 'form-control',
                         'label' => false
                     ]) ?>
                 </div>
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
                     <label>Subsidy Received</label>
                     <?= $this->Form->control('subsidy_received', [
                         'type' => 'select',
@@ -68,7 +85,7 @@
                         'label' => false
                     ]) ?>
                 </div>
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
                     <label>Selling Price (₱/kg)</label>
                     <?= $this->Form->control('selling_price', [
                         'class' => 'form-control',
