@@ -401,9 +401,11 @@ public function bulkApprove()
 {
     $this->request->allowMethod(['post']);
 
-    $notificationIds =
-        $this->request->getData('notification_ids');
+    $notificationsTable = $this->getTableLocator()->get('Notifications');
+    $usersTable = $this->getTableLocator()->get('Users');
+    $farmersTable = $this->getTableLocator()->get('Farmers');
 
+    $notificationIds = $this->request->getData('notification_ids');
 
     /*
      * Make sure IDs were selected
@@ -412,9 +414,8 @@ public function bulkApprove()
         empty($notificationIds) ||
         !is_array($notificationIds)
     ) {
-
         $this->Flash->error(
-            'Please select at least one registration request.'
+            __('Please select at least one registration request.')
         );
 
         return $this->redirect(
@@ -422,26 +423,24 @@ public function bulkApprove()
         );
     }
 
-
     $approved = 0;
     $failed = 0;
 
-
     foreach ($notificationIds as $notificationId) {
+
+        $connection = $usersTable->getConnection();
 
         try {
 
             /*
-             * Get notification
+             * Get registration notification
              */
-            $notification =
-                $this->Notifications->get(
-                    $notificationId
-                );
-
+            $notification = $notificationsTable->get(
+                $notificationId
+            );
 
             /*
-             * Only approve pending requests
+             * Only process pending registrations
              */
             if (
                 strtolower(
@@ -453,59 +452,208 @@ public function bulkApprove()
                 continue;
             }
 
+            /*
+             * Decode registration data
+             */
+            $data = json_decode(
+                $notification->data,
+                true
+            );
+
+            if (
+                !is_array($data) ||
+                empty($data['user']) ||
+                empty($data['farmer'])
+            ) {
+                $failed++;
+                continue;
+            }
 
             /*
-             * Change notification status
+             * Start transaction
+             */
+            $connection->begin();
+
+            /*
+             * ==========================================
+             * CHECK USERNAME
+             * ==========================================
+             */
+            $existingUser = $usersTable->find()
+                ->where([
+                    'username' =>
+                        $data['user']['username']
+                ])
+                ->first();
+
+            if ($existingUser) {
+
+                throw new \Exception(
+                    'Username already exists: ' .
+                    $data['user']['username']
+                );
+            }
+
+            /*
+             * ==========================================
+             * CREATE USER
+             * ==========================================
+             */
+            $user = $usersTable->newEntity(
+                $data['user']
+            );
+
+            if (
+                !$usersTable->save($user)
+            ) {
+
+                throw new \Exception(
+                    'Unable to create user account.'
+                );
+            }
+
+            /*
+             * ==========================================
+             * CHECK EXISTING FARMER
+             * ==========================================
+             */
+            $existingFarmer = $farmersTable->find()
+                ->where([
+                    'first_name' =>
+                        $data['farmer']['first_name'],
+
+                    'middle_name' =>
+                        $data['farmer']['middle_name'],
+
+                    'last_name' =>
+                        $data['farmer']['last_name']
+                ])
+                ->first();
+
+            /*
+             * ==========================================
+             * LINK EXISTING FARMER
+             * ==========================================
+             */
+            if ($existingFarmer) {
+
+                $existingFarmer->user_id =
+                    $user->id;
+
+                if (
+                    !$farmersTable->save(
+                        $existingFarmer
+                    )
+                ) {
+
+                    throw new \Exception(
+                        'Unable to link existing farmer to user account.'
+                    );
+                }
+
+            } else {
+
+                /*
+                 * ======================================
+                 * CREATE FARMER
+                 * ======================================
+                 */
+                $data['farmer']['user_id'] =
+                    $user->id;
+
+                $farmer =
+                    $farmersTable->newEntity(
+                        $data['farmer']
+                    );
+
+                if (
+                    !$farmersTable->save($farmer)
+                ) {
+
+                    throw new \Exception(
+                        'Unable to create farmer record.'
+                    );
+                }
+            }
+
+            /*
+             * ==========================================
+             * APPROVE NOTIFICATION
+             * ==========================================
              */
             $notification->status =
                 'approved';
 
+            $notification->is_read = 1;
 
-            /*
-             * Save
-             */
             if (
-                $this->Notifications->save(
+                !$notificationsTable->save(
                     $notification
                 )
             ) {
 
-                $approved++;
-
-            } else {
-
-                $failed++;
+                throw new \Exception(
+                    'Unable to update registration request.'
+                );
             }
 
+            /*
+             * ==========================================
+             * COMMIT TRANSACTION
+             * ==========================================
+             */
+            $connection->commit();
 
-        } catch (\Exception $e) {
+            $approved++;
+
+        } catch (\Throwable $e) {
+
+            /*
+             * Roll back this registration only
+             */
+            if (
+                $connection->inTransaction()
+            ) {
+                $connection->rollback();
+            }
 
             $failed++;
+
+            /*
+             * Log the actual error
+             */
+            \Cake\Log\Log::error(
+                'Bulk registration approval failed: ' .
+                $e->getMessage()
+            );
         }
     }
 
-
     /*
-     * Success message
+     * ==============================================
+     * FLASH MESSAGES
+     * ==============================================
      */
+
     if ($approved > 0) {
 
         $this->Flash->success(
-            "{$approved} registration request(s) approved successfully."
+            __(
+                '{0} registration request(s) approved successfully.',
+                $approved
+            )
         );
     }
 
-
-    /*
-     * Failed message
-     */
     if ($failed > 0) {
 
         $this->Flash->error(
-            "{$failed} registration request(s) could not be approved."
+            __(
+                '{0} registration request(s) could not be approved.',
+                $failed
+            )
         );
     }
-
 
     return $this->redirect(
         $this->referer()
