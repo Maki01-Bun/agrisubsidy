@@ -180,7 +180,6 @@
                         <th>LGU RSBSA Number</th>
                         <th>Farm Size</th>
                         <th>Location</th>
-                        <th>Average Yield (tons/ha)</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -211,10 +210,6 @@
                 <div class="form-group">
                     <label for="location">Location</label>
                     <?= $this->Form->control('location',['class'=>'form-control','label'=>false])?>
-                </div>
-                <div class="form-group">
-                    <label for="average_yield">Average Yield (tons/ha)</label>
-                    <?= $this->Form->control('average_yield',['class'=>'form-control','label'=>false])?>
                 </div>
             </div>
             <div class="modal-footer">

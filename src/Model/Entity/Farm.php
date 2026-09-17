@@ -11,7 +11,6 @@ use Cake\ORM\Entity;
  * @property int $id
  * @property float $farm_size
  * @property string $location
- * @property float $average_yield
  * @property \Cake\I18n\FrozenTime $created
  * @property \Cake\I18n\FrozenTime $modified
  */
@@ -29,7 +28,6 @@ class Farm extends Entity
     protected $_accessible = [
         'farm_size' => true,
         'location' => true,
-        'average_yield' => true,
         'created' => true,
         'modified' => true,
         'farmer_id' => true,

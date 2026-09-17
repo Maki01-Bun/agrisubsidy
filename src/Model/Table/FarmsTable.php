@@ -71,10 +71,6 @@ class FarmsTable extends Table
             ->notEmptyString('location');
 
         $validator
-            ->decimal('average_yield')
-            ->allowEmptyString('average_yield');
-
-        $validator
             ->integer('farmer_id')
             ->notEmptyString('farmer_id');
 

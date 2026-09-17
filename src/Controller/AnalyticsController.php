@@ -1168,7 +1168,7 @@ class AnalyticsController extends AppController
                         $yieldQuery
                             ->func()
                             ->avg(
-                                'Farms.average_yield'
+                                'Evaluations.average_yield'
                             ),
 
                     'avg_yield_after' =>
@@ -1328,7 +1328,7 @@ class AnalyticsController extends AppController
                             $programYieldQuery
                                 ->func()
                                 ->avg(
-                                    'Farms.average_yield'
+                                    'Evaluations.average_yield'
                                 ),
 
                         'avg_yield_after' =>

@@ -74,6 +74,16 @@ class EvaluationsTable extends Table
         $validator
             ->integer('schedule_id')
             ->allowEmptyString('schedule_id');
+
+        $validator
+            ->decimal('average_yield')
+            ->requirePresence('average_yield', 'create')
+            ->notEmptyString('average_yield');
+        
+        $validator
+            ->scalar('rice_type')
+            ->requirePresence('rice_type', 'create')
+            ->notEmptyString('rice_type');
     
         $validator
             ->decimal('crop_yield_after')

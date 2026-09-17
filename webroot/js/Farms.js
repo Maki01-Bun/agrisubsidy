@@ -20,7 +20,6 @@ $(function(){
                     $('#farmer-id').val(data.farmer_id);
                 	$('#farm-size').val(data.farm_size);
                     $('#location').val(data.location);
-                    $('#average-yield').val(data.average_yield);
                 	$('#id').val(data.id);
                     $('#farms-modal').modal('show');
                 }
@@ -114,7 +113,6 @@ function getFarms()
             {data:"farmer_no"},
             {data:"farm_size"},
             {data:"location"},
-            {data:"average_yield"},
             { data: null,render: function(data){
                     var option = '<div style="text-align:center;"><a href="" class="edit" data-toggle="tooltip" + ' +
                         'data-placement="bottom" title="Edit Personnel" data-id="'+ data.id +'"><i' +

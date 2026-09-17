@@ -94,6 +94,14 @@
                         <td id="farmer_name"></td>
                     </tr>
                     <tr>
+                        <th width="30%">Average Yield (tons/ha)</th>
+                        <td id="average_yield">N/A</td>
+                    </tr>
+                    <tr>
+                        <th width="30%">Rice Type</th>
+                        <td id="rice_type">N/A</td>
+                    </tr>
+                    <tr>
                         <th width="30%">Yield After (tons/ha)</th>
                         <td id="crop_yield_after">N/A</td>
                     </tr>

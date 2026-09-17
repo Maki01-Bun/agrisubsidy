@@ -203,7 +203,6 @@ class FarmsController extends AppController
                         'farmer_id' => $farm->farmer_id,
                         'farm_size' => $farm->farm_size,
                         'location' => $farm->location,
-                        'average_yield' => $farm->average_yield,
                     ]
                 );
 
@@ -250,7 +249,6 @@ class FarmsController extends AppController
         $farmerId = $farm->farmer_id;
         $farmSize = $farm->farm_size;
         $location = $farm->location;
-        $averageYield = $farm->average_yield;
 
         if ($this->Farms->delete($farm)) {
 
@@ -267,7 +265,6 @@ class FarmsController extends AppController
                     'farmer_id' => $farmerId,
                     'farm_size' => $farmSize,
                     'location' => $location,
-                    'average_yield' => $averageYield,
                 ]
             );
 
@@ -441,7 +438,6 @@ class FarmsController extends AppController
             | A = LGU RSBSA Number
             | B = FARM SIZE
             | C = LOCATION
-            | D = AVERAGE YIELD
             |
             */
 
@@ -457,10 +453,6 @@ class FarmsController extends AppController
                 (string)($row['C'] ?? '')
             );
 
-            $averageYield = trim(
-                (string)($row['D'] ?? '')
-            );
-
             /*
             |--------------------------------------------------------------------------
             | CHECK EMPTY ROW
@@ -469,8 +461,7 @@ class FarmsController extends AppController
             if (
                 $farmerNo === '' &&
                 $farmSize === '' &&
-                $location === '' &&
-                $averageYield === ''
+                $location === ''
             ) {
                 continue;
             }
@@ -585,13 +576,6 @@ class FarmsController extends AppController
                 : null;
 
             $farm->location = $location;
-
-            $farm->average_yield = (
-                $averageYield !== '' &&
-                is_numeric($averageYield)
-            )
-                ? (float)$averageYield
-                : null;
 
             /*
             |--------------------------------------------------------------------------
@@ -747,7 +731,6 @@ public function downloadFarmExcelTemplate()
         'LGU RSBSA Number',
         'FARM SIZE (ha)',
         'LOCATION',
-        'AVERAGE YIELD (bags/ha)',
     ];
 
     foreach ($headers as $index => $header) {
@@ -771,8 +754,7 @@ public function downloadFarmExcelTemplate()
     $widths = [
         'A' => 28,
         'B' => 20,
-        'C' => 35,
-        'D' => 25
+        'C' => 35
     ];
 
     foreach ($widths as $column => $width) {
@@ -810,7 +792,7 @@ public function downloadFarmExcelTemplate()
     |--------------------------------------------------------------------------
     */
     $headerStyle =
-        $sheet->getStyle('A1:D1');
+        $sheet->getStyle('A1:C1');
 
     $headerStyle
         ->getFill()
@@ -991,8 +973,7 @@ public function downloadFarmsExcel()
     $headers = [
         'LGU RSBSA Number',
         'FARM SIZE (ha)',
-        'LOCATION',
-        'AVERAGE YIELD (bags/ha)'
+        'LOCATION'
     ];
 
     foreach ($headers as $index => $header) {
@@ -1057,16 +1038,6 @@ public function downloadFarmsExcel()
             $farm->location ?? ''
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | AVERAGE YIELD
-        |--------------------------------------------------------------------------
-        */
-        $sheet->setCellValue(
-            'D' . $rowNumber,
-            $farm->average_yield ?? ''
-        );
-
         $rowNumber++;
     }
 
@@ -1088,8 +1059,7 @@ public function downloadFarmsExcel()
     $widths = [
         'A' => 28,
         'B' => 20,
-        'C' => 35,
-        'D' => 25
+        'C' => 35
     ];
 
     foreach ($widths as $column => $width) {
@@ -1152,7 +1122,7 @@ public function downloadFarmsExcel()
     if ($lastRow >= 2) {
 
         $sheet
-            ->getStyle("A2:D{$lastRow}")
+            ->getStyle("A2:C{$lastRow}")
             ->getBorders()
             ->getAllBorders()
             ->setBorderStyle(
@@ -1204,7 +1174,7 @@ public function downloadFarmsExcel()
     if ($lastRow >= 2) {
 
         $sheet
-            ->getStyle("A2:D{$lastRow}")
+            ->getStyle("A2:C{$lastRow}")
             ->getAlignment()
             ->setVertical(
                 \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
@@ -1224,7 +1194,7 @@ public function downloadFarmsExcel()
     |--------------------------------------------------------------------------
     */
     $sheet->setAutoFilter(
-        "A1:D{$lastRow}"
+        "A1:C{$lastRow}"
     );
 
     /*
