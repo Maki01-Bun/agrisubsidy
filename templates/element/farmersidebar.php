@@ -14,20 +14,51 @@
         </div>
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column h-100" data-widget="treeview" role="menu" data-accordion="false">
+               <?php
+                    $announcementActive =
+                        $this->request->getParam('controller') === 'Schedules' &&
+                        $this->request->getParam('action') === 'announcements'
+                            ? 'active'
+                            : '';
+                    ?>
+                    
+                    <li class="nav-item">
+                        <?= $this->Html->link(
+                            '<i class="nav-icon fas fa-bullhorn"></i>
+                            <p>Subsidy Announcements</p>',
+                            [
+                                'controller' => 'Schedules',
+                                'action' => 'announcements'
+                            ],
+                            [
+                                'escape' => false,
+                                'class' => 'nav-link ' . $announcementActive
+                            ]
+                        ) ?>
+                    </li>
+                
+                <?php
+                $currentController = $this->request->getParam('controller');
+                $currentAction = $this->request->getParam('action');
+                
+                $feedbackActive = (
+                    $currentController === 'Feedbacks'
+                ) ? 'active' : '';
+                ?>
+                
                 <li class="nav-item">
                     <?= $this->Html->link(
-                        '<i class="nav-icon fas fa-bullhorn"></i>
-                        <p>Subsidy Announcements</p>',
-                        ['controller' => 'Schedules','action' => 'announcements'],
-                        ['escape' => false,'class' => 'nav-link']
+                        '<i class="nav-icon fas fa-user-cog"></i>
+                        <p>Feedback</p>',
+                        [
+                            'controller' => 'Feedbacks',
+                            'action' => 'index'
+                        ],
+                        [
+                            'class' => 'nav-link ' . $feedbackActive,
+                            'escape' => false
+                        ]
                     ) ?>
-                </li>
-                <li class="nav-item">
-                    <?php $active = $title=='Feedback'?'active':'' ?>
-                    <?= $this->Html->link('<i class="nav-icon fas fa-user-cog"></i>
-                        <p>
-                            Feedback
-                        </p>','/Feedbacks',['class'=>'nav-link '.$active,'escape'=>false]) ?>
                 </li>
                 <li class="nav-item">
                 <?= $this->Html->link(

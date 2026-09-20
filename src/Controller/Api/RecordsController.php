@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace App\Controller\Api;
 
 use App\Controller\AppController;
-
+use Carbon\Carbon;
 /**
  * Records Controller
  *
@@ -41,75 +41,476 @@ class RecordsController extends AppController
         $this->set(compact('record'));
     }
 
+  
+ /**
+     * =========================================================
+     * FORMAT DATE ONLY
+     * =========================================================
+     *
+     * Used for schedule start_date.
+     *
+     * Example:
+     *
+     * 2026-09-11
+     */
+    private function formatDateOnly($date): ?string
+    {
+        if ($date === null || $date === '') {
+            return null;
+        }
+
+        try {
+
+            /*
+             * CakePHP Date / DateTime objects
+             */
+            if ($date instanceof \DateTimeInterface) {
+                return $date->format('Y-m-d');
+            }
+
+
+            /*
+             * Carbon object
+             */
+            if ($date instanceof Carbon) {
+                return $date->format('Y-m-d');
+            }
+
+
+            /*
+             * String
+             */
+            return Carbon::parse((string)$date)
+                ->format('Y-m-d');
+
+        } catch (\Throwable $e) {
+
+            return null;
+        }
+    }
+
+
+    /**
+     * =========================================================
+     * FORMAT DATE AND TIME
+     * =========================================================
+     *
+     * Used for received_date.
+     *
+     * Example:
+     *
+     * 2026-09-11 16:30:09
+     */
+    private function formatDateTime($date): ?string
+    {
+        if ($date === null || $date === '') {
+            return null;
+        }
+
+        try {
+
+            /*
+             * CakePHP DateTime object
+             */
+            if ($date instanceof \DateTimeInterface) {
+                return $date->format('Y-m-d H:i:s');
+            }
+
+
+            /*
+             * Carbon object
+             */
+            if ($date instanceof Carbon) {
+                return $date->format('Y-m-d H:i:s');
+            }
+
+
+            /*
+             * String datetime
+             */
+            return Carbon::parse((string)$date)
+                ->format('Y-m-d H:i:s');
+
+        } catch (\Throwable $e) {
+
+            return null;
+        }
+    }
+
+
+    /**
+     * =========================================================
+     * FORMAT TIME ONLY
+     * =========================================================
+     *
+     * Used for Schedules.start_time.
+     *
+     * Example:
+     *
+     * 16:30:00
+     */
+    private function formatTimeOnly($time): ?string
+    {
+        if ($time === null || $time === '') {
+            return null;
+        }
+
+        try {
+
+            /*
+             * CakePHP Time object
+             */
+            if ($time instanceof \DateTimeInterface) {
+                return $time->format('H:i:s');
+            }
+
+
+            /*
+             * Carbon object
+             */
+            if ($time instanceof Carbon) {
+                return $time->format('H:i:s');
+            }
+
+
+            /*
+             * String time
+             */
+            return Carbon::parse((string)$time)
+                ->format('H:i:s');
+
+        } catch (\Throwable $e) {
+
+            return null;
+        }
+    }
+
+
+    /**
+     * =========================================================
+     * GET RECORDS
+     * =========================================================
+     *
+     * Used by DataTables.
+     */
     public function getRecords()
     {
         $records = $this->Records->find()
             ->select([
-                'id' => 'Records.id',
-                'farmer_id' => 'Records.farmer_id',
-                'schedule_id' => 'Records.schedule_id',
-                'first_name' => 'Farmers.first_name',
-                'last_name' => 'Farmers.last_name',
 
-                'subsidy_item' => 'Records.subsidy_item',
-                'quantity' => 'Records.quantity',
+                /*
+                 * =================================================
+                 * RECORD IDS
+                 * =================================================
+                 */
+                'id' =>
+                    'Records.id',
 
-                // Distribution date comes from Schedules
-                'distribution_date' => 'Schedules.start_date',
-                'distribution_time' => 'Schedules.start_time',
-                'program_code' => 'Schedules.program_code',
+                'farmer_id' =>
+                    'Records.farmer_id',
 
-                // These come from Records
-                'received_date' => 'Records.received_date',
-                'status' => 'Records.status',
-                'confirmed_at' => 'Records.confirmed_at',
+                'schedule_id' =>
+                    'Records.schedule_id',
+
+
+                /*
+                 * =================================================
+                 * FARMER
+                 * =================================================
+                 */
+                'first_name' =>
+                    'Farmers.first_name',
+
+                'last_name' =>
+                    'Farmers.last_name',
+
+
+                /*
+                 * =================================================
+                 * RECORD INFORMATION
+                 * =================================================
+                 */
+                'subsidy_item' =>
+                    'Records.subsidy_item',
+
+                'quantity' =>
+                    'Records.quantity',
+
+
+                /*
+                 * =================================================
+                 * SCHEDULE INFORMATION
+                 * =================================================
+                 */
+                'distribution_date' =>
+                    'Schedules.start_date',
+
+                'distribution_time' =>
+                    'Schedules.start_time',
+
+                'program_code' =>
+                    'Schedules.program_code',
+
+                'barangay' =>
+                    'Schedules.barangay',
+
+
+                /*
+                 * =================================================
+                 * RECORD INFORMATION
+                 * =================================================
+                 */
+                'received_date' =>
+                    'Records.received_date',
+
+                'status' =>
+                    'Records.status',
+
+                'confirmed_at' =>
+                    'Records.confirmed_at',
             ])
+
+
+            /*
+             * =====================================================
+             * FARMER JOIN
+             * =====================================================
+             */
             ->join([
                 'Farmers' => [
                     'table' => 'farmers',
+
                     'type' => 'LEFT',
+
                     'conditions' => [
                         'Farmers.id = Records.farmer_id'
                     ]
                 ],
+
+
+                /*
+                 * =================================================
+                 * SCHEDULE JOIN
+                 * =================================================
+                 */
                 'Schedules' => [
                     'table' => 'schedules',
+
                     'type' => 'LEFT',
+
                     'conditions' => [
                         'Schedules.id = Records.schedule_id'
                     ]
                 ]
             ])
+
+
+            /*
+             * Return arrays instead of entities
+             */
             ->enableHydration(false)
+
             ->all();
+
+
+        /*
+         * =========================================================
+         * BUILD DATA TABLE RESPONSE
+         * =========================================================
+         */
+
         $data = [];
+
+
         foreach ($records as $record) {
+
+            /*
+             * =====================================================
+             * FARMER NAME
+             * =====================================================
+             */
+
+            $farmerName = trim(
+                ($record['first_name'] ?? '') .
+                ' ' .
+                ($record['last_name'] ?? '')
+            );
+
+
+            /*
+             * =====================================================
+             * RECEIVED DATE + TIME
+             * =====================================================
+             *
+             * Example:
+             *
+             * 2026-09-11 16:30:09
+             */
+
+            $receivedDate =
+                $this->formatDateTime(
+                    $record['received_date'] ?? null
+                );
+
+
+            /*
+             * =====================================================
+             * DISTRIBUTION DATE
+             * =====================================================
+             *
+             * Comes from:
+             *
+             * Schedules.start_date
+             */
+
+            $distributionDate =
+                $this->formatDateOnly(
+                    $record['distribution_date'] ?? null
+                );
+
+
+            /*
+             * =====================================================
+             * DISTRIBUTION TIME
+             * =====================================================
+             *
+             * Comes from:
+             *
+             * Schedules.start_time
+             */
+
+            $distributionTime =
+                $this->formatTimeOnly(
+                    $record['distribution_time'] ?? null
+                );
+
+
+            /*
+             * =====================================================
+             * ADD DATA
+             * =====================================================
+             */
+
             $data[] = [
-                'id' => $record['id'],
-                'farmer_id' => $record['farmer_id'],
-                'schedule_id' => $record['schedule_id'],
 
-                'farmer_name' => trim(
-                    ($record['first_name'] ?? '') . ' ' .
-                    ($record['last_name'] ?? '')
-                ),
-                'subsidy_item' => $record['subsidy_item'],
-                'quantity' => $record['quantity'],
-                // From schedules table
-                'distribution_date' => $record['distribution_date'],
-                'distribution_time' => $record['distribution_time'],
-                'program_code' => $record['program_code'],
+                /*
+                 * Record IDs
+                 */
+                'id' =>
+                    $record['id'] ?? null,
 
-                // From records table
-                'received_date' => $record['received_date'],
-                'status' => $record['status'],
-                'confirmed_at' => $record['confirmed_at'],
+                'farmer_id' =>
+                    $record['farmer_id'] ?? null,
+
+                'schedule_id' =>
+                    $record['schedule_id'] ?? null,
+
+
+                /*
+                 * Farmer
+                 */
+                'farmer_name' =>
+                    $farmerName !== ''
+                        ? $farmerName
+                        : 'N/A',
+
+
+                /*
+                 * Record
+                 */
+                'subsidy_item' =>
+                    $record['subsidy_item']
+                    ?? 'Seed Subsidy',
+
+                'quantity' =>
+                    $record['quantity']
+                    ?? 0,
+
+
+                /*
+                 * Schedule
+                 */
+                'program_code' =>
+                    $record['program_code']
+                    ?? 'N/A',
+
+                'barangay' =>
+                    !empty($record['barangay'])
+                        ? $record['barangay']
+                        : 'N/A',
+
+
+                /*
+                 * Distribution
+                 */
+                'distribution_date' =>
+                    $distributionDate,
+
+                'distribution_time' =>
+                    $distributionTime,
+
+
+                /*
+                 * Combined distribution datetime
+                 *
+                 * Example:
+                 *
+                 * 2026-09-11 16:30:00
+                 */
+                'distribution_datetime' =>
+                    $distributionDate
+                    ? (
+                        $distributionDate .
+                        (
+                            $distributionTime
+                                ? ' ' . $distributionTime
+                                : ''
+                        )
+                    )
+                    : null,
+
+
+                /*
+                 * Received
+                 */
+                'received_date' =>
+                    $receivedDate,
+
+
+                /*
+                 * Status
+                 */
+                'status' =>
+                    $record['status']
+                    ?? 'N/A',
+
+
+                /*
+                 * Confirmation
+                 */
+                'confirmed_at' =>
+                    $record['confirmed_at']
+                    ?? null,
             ];
         }
+
+
+        /*
+         * =========================================================
+         * DATATABLES JSON RESPONSE
+         * =========================================================
+         */
+
         return $this->response
             ->withType('application/json')
-            ->withStringBody(json_encode(['data' => $data]));
+            ->withStringBody(
+                json_encode([
+                    'data' => $data
+                ])
+            );
     }
+
+
 
     /**
      * Add method

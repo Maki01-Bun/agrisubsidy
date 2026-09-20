@@ -1,130 +1,745 @@
-<div class="col-12">
-    <div class="card card-primary">
-        <div class="card-header">
-            <h3 class="card-title text-dark">Evaluations</h3>
-            <div class="card-tools evaluation-card-tools">
-                <!-- <div class="dropdown effectiveness-dropdown">-->
-                <!--    <button class="btn btn-outline-primary dropdown-toggle effectiveness-btn" type="button" id="effectivenessDropdown" data-toggle="dropdown"-->
-                <!--    aria-haspopup="true" aria-expanded="false">-->
-                <!--        <i class="fas fa-filter"></i>-->
-                <!--        <span id="effectivenessLabel">-->
-                <!--            Filter Subsidy Type-->
-                <!--        </span>-->
-                <!--    </button>-->
-                <!--    <div class="dropdown-menu dropdown-menu-right subsidy-type-menu"-->
-                <!--        aria-labelledby="subsidyTypeDropdown">-->
-                <!--        <div class="dropdown-header subsidy-type-header">-->
-                <!--            <span class="subsidy-type-header-icon">-->
-                <!--                <i class="fas fa-seedling"></i>-->
-                <!--            </span>-->
+<!-- ============================================================
+     EVALUATIONS
+============================================================ -->
 
-                <!--            <span>-->
-                <!--                Filter by Subsidy Type-->
-                <!--            </span>-->
-                <!--        </div>-->
-                <!--        <div class="dropdown-divider"></div>-->
-                <!--        <a href="#"-->
-                <!--        class="dropdown-item subsidy-type-filter"-->
-                <!--        data-value="Corn Seeds">-->
-                <!--            <span class="subsidy-type-text">-->
-                <!--                Corn Seeds-->
-                <!--            </span>-->
-                <!--        </a>-->
-                <!--        <a href="#"-->
-                <!--        class="dropdown-item subsidy-type-filter"-->
-                <!--        data-value="Rice Seeds">-->
-                <!--            <span class="subsidy-type-text">-->
-                <!--                Rice Seeds-->
-                <!--            </span>-->
-                <!--        </a>-->
-                <!--        <div class="dropdown-divider"></div>-->
-                <!--        <a href="#"-->
-                <!--        class="dropdown-item subsidy-type-filter clear-subsidy-type">-->
-                <!--            <span class="subsidy-type-icon">-->
-                <!--                <i class="fas fa-times"></i>-->
-                <!--            </span>-->
-                <!--            <span class="subsidy-type-text">-->
-                <!--                Clear Filter-->
-                <!--            </span>-->
-                <!--        </a>-->
-                <!--    </div>-->
-                <!--</div> -->
-                <!-- Download Button-->
-                <a href="<?= $this->Url->build([ 'controller' => 'Evaluations', 'action' => 'downloadSummary' ]) ?>"
-                class="btn btn-success evaluation-download-btn" title="Download Evaluation Summary">
-                    <i class="fas fa-file-excel"></i>
-                    <span>Download Evaluation Summary</span>
+<div class="col-12">
+
+    <div class="card card-primary shadow-sm">
+
+        <!-- ====================================================
+             CARD HEADER
+        ===================================================== -->
+
+        <div class="card-header d-flex align-items-center justify-content-between">
+
+            <h3 class="card-title text-dark mb-0">
+                <i class="fas fa-clipboard-check mr-2"></i>
+                Evaluations
+            </h3>
+
+            <div class="card-tools evaluation-card-tools">
+
+                <!-- Download Button -->
+                <a
+                    href="<?= $this->Url->build([
+                        'controller' => 'Evaluations',
+                        'action' => 'downloadSummary'
+                    ]) ?>"
+                    class="btn btn-success evaluation-download-btn"
+                    title="Download Evaluation Summary"
+                >
+
+                    <i class="fas fa-file-excel mr-1"></i>
+
+                    <span>
+                        Download Evaluation Summary
+                    </span>
+
                 </a>
+
             </div>
+
         </div>
-        <div class="card-body"> 
-            <table id="evaluations-table" class="table table-bordered table-hover">
-                <thead>
-                    <tr>
-                        <th>Program Name</th>
-                        <th>Farm Size (ha)</th> 
-                        <th>Yield After (tons/ha)</th> 
-                        <th>Effectiveness Label</th> 
-                        <th>Action</th>
-                    </tr>
-                </thead>
-            </table>
-        </div>
-    </div>
-</div>
-<!-- View Feedback Modal -->
-<div class="modal fade" id="feedbackModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title">
-                    <i class="fas fa-comment-dots"></i>
-                    Farmer Feedback Details
-                </h5>
-                <button type="button" 
-                        class="close text-white" 
-                        data-dismiss="modal">
-                    &times;
-                </button>
-            </div>
-            <div class="modal-body">
-                <table class="table table-bordered">
-                    <tr>
-                        <th width="30%">Average Yield (tons/ha)</th>
-                        <td id="average_yield">N/A</td>
-                    </tr>
-                    <tr>
-                        <th width="30%">Rice Type</th>
-                        <td id="rice_type">N/A</td>
-                    </tr>
-                    <tr>
-                        <th width="30%">Yield After (tons)</th>
-                        <td id="crop_yield_after">N/A</td>
-                    </tr>
-                    <tr>
-                        <th>Selling Price (₱/bags)</th>
-                        <td id="selling_price"></td>
-                    </tr>
-                    <tr>
-                        <th>Subsidy Received</th>
-                        <td id="subsidy_received"></td>
-                    </tr>
-                    <tr>
-                        <th>Rating</th>
-                        <td id="feedback_rating"></td>
-                    </tr>
-                    <tr>
-                        <th>Comments</th>
-                        <td id="feedback_comments"></td>
-                    </tr>
+
+
+        <!-- ====================================================
+             CARD BODY
+        ===================================================== -->
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table
+                    id="evaluations-table"
+                    class="table table-bordered table-hover w-100 evaluation-summary-table"
+                >
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                <i class="fas fa-layer-group mr-1"></i>
+                                Program Name
+                            </th>
+
+                            <th class="text-center">
+                                <i class="fas fa-ruler-combined mr-1"></i>
+                                Farm Size (ha)
+                            </th>
+
+                            <th class="text-center">
+                                <i class="fas fa-seedling mr-1"></i>
+                                Yield After (tons/ha)
+                            </th>
+
+                            <th class="text-center">
+                                <i class="fas fa-chart-line mr-1"></i>
+                                Effectiveness Label
+                            </th>
+
+                            <th class="text-center">
+                                <i class="fas fa-cogs mr-1"></i>
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
                 </table>
+
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" 
-                        data-dismiss="modal">
-                    Close
-                </button>
-            </div>
+
         </div>
+
     </div>
+
+</div>
+
+<!-- ============================================================
+     FEEDBACK SUMMARY BY QUESTION
+============================================================ -->
+
+<div class="col-12 mt-3">
+
+    <div class="card card-primary shadow-sm feedback-summary-card">
+
+        <!-- ====================================================
+             CARD HEADER
+        ===================================================== -->
+
+        <div class="card-header feedback-summary-header">
+
+            <div class="feedback-header-content">
+
+                <div class="feedback-header-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+
+                <div>
+
+                    <h3 class="card-title mb-1">
+                        Feedback Summary by Question
+                    </h3>
+
+                    <div class="feedback-header-subtitle">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Distribution of farmer responses for each survey question
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ====================================================
+             CARD BODY
+        ===================================================== -->
+
+        <div class="card-body feedback-summary-body">
+
+
+            <!-- =================================================
+                 RATING SCALE
+            ================================================== -->
+
+            <div class="feedback-scale-wrapper">
+
+                <div class="feedback-scale-header">
+
+                    <div class="feedback-scale-title">
+
+                        <i class="fas fa-sliders-h mr-2"></i>
+
+                        <span>
+                            Rating Scale
+                        </span>
+
+                    </div>
+
+                    <div class="feedback-scale-description">
+                        Higher ratings indicate stronger agreement.
+                    </div>
+
+                </div>
+
+
+                <div class="feedback-rating-scale">
+
+
+                    <!-- =================================================
+                         RATING 1
+                    ================================================== -->
+
+                    <div class="rating-scale-item rating-one">
+
+                        <div class="rating-number">
+                            1
+                        </div>
+
+                        <div class="rating-scale-content">
+
+                            <div class="rating-label">
+                                Strongly Disagree
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         RATING 2
+                    ================================================== -->
+
+                    <div class="rating-scale-item rating-two">
+
+                        <div class="rating-number">
+                            2
+                        </div>
+
+                        <div class="rating-scale-content">
+
+                            <div class="rating-label">
+                                Disagree
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         RATING 3
+                    ================================================== -->
+
+                    <div class="rating-scale-item rating-three">
+
+                        <div class="rating-number">
+                            3
+                        </div>
+
+                        <div class="rating-scale-content">
+
+                            <div class="rating-label">
+                                Neutral
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         RATING 4
+                    ================================================== -->
+
+                    <div class="rating-scale-item rating-four">
+
+                        <div class="rating-number">
+                            4
+                        </div>
+
+                        <div class="rating-scale-content">
+
+                            <div class="rating-label">
+                                Agree
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         RATING 5
+                    ================================================== -->
+
+                    <div class="rating-scale-item rating-five">
+
+                        <div class="rating-number">
+                            5
+                        </div>
+
+                        <div class="rating-scale-content">
+
+                            <div class="rating-label">
+                                Strongly Agree
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 SUMMARY TABLE
+            ================================================== -->
+
+            <div class="feedback-table-wrapper">
+                    <div class="table-responsive">
+
+                        <table
+                            id="feedback-summary-table"
+                            class="table table-hover feedback-summary-table"
+                        >
+
+                            <thead>
+
+                                <tr>
+
+                                    <th class="question-column">
+                                        Question
+                                    </th>
+
+                                    <th class="rating-column text-center">
+
+                                        <span class="table-rating-header rating-header-1">
+                                            1
+                                        </span>
+
+                                    </th>
+
+                                    <th class="rating-column text-center">
+
+                                        <span class="table-rating-header rating-header-2">
+                                            2
+                                        </span>
+
+                                    </th>
+
+                                    <th class="rating-column text-center">
+
+                                        <span class="table-rating-header rating-header-3">
+                                            3
+                                        </span>
+
+                                    </th>
+
+                                    <th class="rating-column text-center">
+
+                                        <span class="table-rating-header rating-header-4">
+                                            4
+                                        </span>
+
+                                    </th>
+
+                                    <th class="rating-column text-center">
+
+                                        <span class="table-rating-header rating-header-5">
+                                            5
+                                        </span>
+
+                                    </th>
+
+                                    <th class="average-column text-center">
+                                        Average
+                                    </th>
+
+                                    <th class="label-column text-center">
+                                        Result
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                <?php if (!empty($questionSummary)): ?>
+
+                                    <?php foreach ($questionSummary as $index => $question): ?>
+
+                                        <?php
+
+                                        /*
+                                         * ==================================================
+                                         * QUESTION NUMBER
+                                         * ==================================================
+                                         */
+
+                                        $questionNumber = $index + 1;
+
+
+                                        /*
+                                         * ==================================================
+                                         * AVERAGE
+                                         * ==================================================
+                                         */
+
+                                        $average = (float)(
+                                            $question['average'] ?? 0
+                                        );
+
+
+                                        /*
+                                         * ==================================================
+                                         * LABEL
+                                         * ==================================================
+                                         */
+
+                                        $label = $question['label']
+                                            ?? 'No Response';
+
+
+                                        /*
+                                         * ==================================================
+                                         * BADGE
+                                         * ==================================================
+                                         */
+
+                                        switch ($label) {
+
+                                            case 'Strongly Agree':
+
+                                                $badge = 'badge-success';
+                                                $labelIcon = 'fa-thumbs-up';
+
+                                                break;
+
+                                            case 'Agree':
+
+                                                $badge = 'badge-primary';
+                                                $labelIcon = 'fa-check';
+
+                                                break;
+
+                                            case 'Neutral':
+
+                                                $badge = 'badge-warning';
+                                                $labelIcon = 'fa-minus';
+
+                                                break;
+
+                                            case 'Disagree':
+
+                                                $badge = 'badge-danger';
+                                                $labelIcon = 'fa-times';
+
+                                                break;
+
+                                            case 'Strongly Disagree':
+
+                                                $badge = 'badge-danger';
+                                                $labelIcon = 'fa-thumbs-down';
+
+                                                break;
+
+                                            default:
+
+                                                $badge = 'badge-secondary';
+                                                $labelIcon = 'fa-minus-circle';
+
+                                                break;
+                                        }
+
+
+                                        /*
+                                         * ==================================================
+                                         * TOTAL RESPONSES
+                                         * ==================================================
+                                         */
+
+                                        $totalResponses = (int)(
+                                            $question['total'] ?? 0
+                                        );
+
+
+                                        /*
+                                         * ==================================================
+                                         * AVERAGE PERCENTAGE
+                                         * ==================================================
+                                         */
+
+                                        $averagePercent = 0;
+
+                                        if ($average > 0) {
+
+                                            $averagePercent = min(
+                                                100,
+                                                ($average / 5) * 100
+                                            );
+
+                                        }
+
+                                        ?>
+
+
+                                        <tr>
+
+
+                                            <!-- =============================================
+                                                 QUESTION
+                                            ============================================== -->
+
+                                            <td class="question-cell">
+
+                                                <div class="question-content">
+
+                                                    <div class="question-number">
+
+                                                        <?= $questionNumber ?>
+
+                                                    </div>
+
+
+                                                    <div class="question-icon">
+
+                                                        <i class="fas fa-question"></i>
+
+                                                    </div>
+
+
+                                                    <div class="question-text">
+
+                                                        <?= h(
+                                                            $question['question'] ?? ''
+                                                        ) ?>
+
+                                                    </div>
+
+                                                </div>
+
+
+                                                <div class="question-response-count">
+
+                                                    <i class="fas fa-users mr-1"></i>
+
+                                                    <?= number_format(
+                                                        $totalResponses
+                                                    ) ?>
+
+                                                    response<?= $totalResponses == 1 ? '' : 's' ?>
+
+                                                </div>
+
+                                            </td>
+
+
+                                            <!-- =============================================
+                                                 RATING 1
+                                            ============================================== -->
+
+                                            <td class="text-center rating-cell">
+
+                                                <span class="rating-count rating-count-1">
+
+                                                    <?= (int)(
+                                                        $question['rating_1'] ?? 0
+                                                    ) ?>
+
+                                                </span>
+
+                                            </td>
+
+
+                                            <!-- =============================================
+                                                 RATING 2
+                                            ============================================== -->
+
+                                            <td class="text-center rating-cell">
+
+                                                <span class="rating-count rating-count-2">
+
+                                                    <?= (int)(
+                                                        $question['rating_2'] ?? 0
+                                                    ) ?>
+
+                                                </span>
+
+                                            </td>
+
+
+                                            <!-- =============================================
+                                                 RATING 3
+                                            ============================================== -->
+
+                                            <td class="text-center rating-cell">
+
+                                                <span class="rating-count rating-count-3">
+
+                                                    <?= (int)(
+                                                        $question['rating_3'] ?? 0
+                                                    ) ?>
+
+                                                </span>
+
+                                            </td>
+
+
+                                            <!-- =============================================
+                                                 RATING 4
+                                            ============================================== -->
+
+                                            <td class="text-center rating-cell">
+
+                                                <span class="rating-count rating-count-4">
+
+                                                    <?= (int)(
+                                                        $question['rating_4'] ?? 0
+                                                    ) ?>
+
+                                                </span>
+
+                                            </td>
+
+
+                                            <!-- =============================================
+                                                 RATING 5
+                                            ============================================== -->
+
+                                            <td class="text-center rating-cell">
+
+                                                <span class="rating-count rating-count-5">
+
+                                                    <?= (int)(
+                                                        $question['rating_5'] ?? 0
+                                                    ) ?>
+
+                                                </span>
+
+                                            </td>
+
+
+                                            <!-- =============================================
+                                                 AVERAGE
+                                            ============================================== -->
+
+                                            <td class="text-center">
+
+                                                <div class="average-wrapper">
+
+
+                                                    <div class="average-main">
+
+                                                        <span class="average-value">
+
+                                                            <?= number_format(
+                                                                $average,
+                                                                2
+                                                            ) ?>
+
+                                                        </span>
+
+                                                        <i class="fas fa-star average-star"></i>
+
+                                                    </div>
+
+
+                                                    <?php if ($average > 0): ?>
+
+                                                        <div class="average-progress">
+
+                                                            <div
+                                                                class="average-progress-bar"
+                                                                style="width: <?= $averagePercent ?>%;"
+                                                            ></div>
+
+                                                        </div>
+
+                                                        <div class="average-scale">
+                                                            <?= number_format($averagePercent, 0) ?>% of maximum
+                                                        </div>
+
+                                                    <?php else: ?>
+
+                                                        <div class="average-no-response">
+                                                            No rating
+                                                        </div>
+
+                                                    <?php endif; ?>
+
+                                                </div>
+
+                                            </td>
+
+
+                                            <!-- =============================================
+                                                 RESULT
+                                            ============================================== -->
+
+                                            <td class="text-center">
+
+                                                <span
+                                                    class="feedback-label <?= h($badge) ?>"
+                                                >
+
+                                                    <i
+                                                        class="fas <?= h($labelIcon) ?> mr-1"
+                                                    ></i>
+
+                                                    <?= h($label) ?>
+
+                                                </span>
+
+                                            </td>
+
+
+                                        </tr>
+
+
+                                    <?php endforeach; ?>
+
+
+                                <?php else: ?>
+
+
+                                    <!-- =============================================
+                                         EMPTY STATE
+                                    ============================================== -->
+
+                                    <tr>
+
+                                        <td
+                                            colspan="8"
+                                            class="feedback-empty-state"
+                                        >
+
+                                            <div class="empty-feedback-icon">
+
+                                                <i class="fas fa-comment-slash"></i>
+
+                                            </div>
+
+
+                                            <div class="empty-feedback-title">
+
+                                                No Feedback Responses
+
+                                            </div>
+
+
+                                            <div class="empty-feedback-text">
+
+                                                No farmer feedback responses are available yet.
+
+                                            </div>
+
+                                        </td>
+
+                                    </tr>
+
+
+                                <?php endif; ?>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+        </div>
+
+    </div>
+
 </div>

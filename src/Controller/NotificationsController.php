@@ -344,7 +344,10 @@ class NotificationsController extends AppController
                 'farmer_no' => $existingFarmer->farmer_no ?? null,
                 'first_name' => $existingFarmer->first_name ?? null,
                 'middle_name' => $existingFarmer->middle_name ?? null,
-                'last_name' => $existingFarmer->last_name ?? null
+                'last_name' => $existingFarmer->last_name ?? null,
+                'contact_no' => $existingFarmer->contact_no ?? null,
+                'birthdate' => $existingFarmer->birthdate ?? null
+                
             ];
         }
 

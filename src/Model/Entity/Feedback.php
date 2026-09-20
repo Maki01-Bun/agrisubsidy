@@ -11,6 +11,7 @@ use Cake\ORM\Entity;
  * @property int $id
  * @property int|null $rating
  * @property string|null $comment
+ * @property string|null $answer
  * @property \Cake\I18n\FrozenTime|null $feedback_date
  *
  * @property \App\Model\Entity\User $user
@@ -31,6 +32,7 @@ class Feedback extends Entity
         'rating' => true,
         'comment' => true,
         'feedback_date' => true,
+        'answer' => true,
         'user' => true,
     ];
 }

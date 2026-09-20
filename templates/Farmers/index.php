@@ -38,7 +38,7 @@
                                 </div>
 
                                 <div class="admin-dropdown-header-subtitle">
-                                    Import or export beneficiary data
+                                    Import or export farmer data
                                 </div>
 
                             </div>
@@ -65,11 +65,11 @@
 
                             <div class="admin-dropdown-action-content">
                                 <div class="admin-dropdown-action-title">
-                                    Download Beneficiaries
+                                    Download Farmers
                                 </div>
 
                                 <div class="admin-dropdown-action-description">
-                                    Export all beneficiary records
+                                    Export all farmer records
                                 </div>
                             </div>
 
@@ -99,7 +99,7 @@
                                 </div>
 
                                 <div class="admin-dropdown-action-description">
-                                    Get the Excel import template
+                                    Get the official Farmer Excel import template
                                 </div>
                             </div>
 
@@ -129,8 +129,7 @@
                             type="button"
                             class="admin-dropdown-action"
                             data-toggle="modal"
-                            data-target="#excelUploadModal"
-                        >
+                            data-target="#excelUploadModal">
 
                             <div class="admin-dropdown-action-icon admin-icon-orange">
                                 <i class="fas fa-cloud-upload-alt"></i>
@@ -139,11 +138,11 @@
                             <div class="admin-dropdown-action-content">
 
                                 <div class="admin-dropdown-action-title">
-                                    Upload Beneficiaries
+                                    Upload Farmer Excel
                                 </div>
 
                                 <div class="admin-dropdown-action-description">
-                                    Import beneficiaries from Excel
+                                    Import farmers from Excel
                                 </div>
 
                             </div>
@@ -167,7 +166,7 @@
                         <div class="modal-header">
                             <h5 class="modal-title" id="excelUploadModalLabel">
                                 <i class="fas fa-file-excel mr-2"></i>
-                                Upload Beneficiaries
+                                Upload Farmer Excel
                             </h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
@@ -180,10 +179,16 @@
                                         Select Excel File
                                     </label>
                                     <?= $this->Form->control('excel_file', ['type' => 'file', 'class' => 'form-control',
-                                    'label' => false, 'required' => true, 'accept' => '.xlsx,.xls'])?>
+                                    'label' => false, 'required' => true, 'accept' => '.xlsx'])?>
                                     <small class="form-text text-muted">
-                                        Please upload an Excel file (.xlsx or .xls).
+                                        Only the official Farmer Excel template (.xlsx) is accepted.
                                     </small>
+                                    <div class="alert alert-warning mt-3 mb-0" role="alert">
+                                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                                        <strong>Important:</strong>
+                                        Only the official Farmer Excel format is accepted.
+                                        Other Excel files, including Farms Excel files, will be rejected.
+                                    </div>
                                 </div>
                             </div>
                             <!-- Modal Footer -->
@@ -284,7 +289,7 @@
                 <h5 class="modal-title"
                     id="excelUploadModalLabel">
                     <i class="fas fa-file-excel mr-2"></i>
-                    Upload Beneficiaries
+                    Upload Farmer Excel
                 </h5>
                 <button type="button"
                         class="close"
@@ -304,15 +309,19 @@
                         'class' => 'form-control',
                         'label' => false,
                         'required' => true,
-                        'accept' => '.xlsx,.xls'
+                        'accept' => '.xlsx'
                     ]) ?>
 
                     <small class="form-text text-muted">
 
-                        Accepted files:
-                        <strong>.xlsx</strong> and
-                        <strong>.xls</strong>
+                        Only the official <strong>Farmer Excel template (.xlsx)</strong> is accepted.
                     </small>
+                    <div class="alert alert-warning mt-3 mb-0" role="alert">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                        <strong>Important:</strong>
+                        Only the official Farmer Excel format is accepted.
+                        Other Excel files, including Farms Excel files, will be rejected.
+                    </div>
                 </div>
             </div>
             <!-- FOOTER -->
@@ -320,7 +329,7 @@
                 <button type="submit"
                         class="btn btn-success">
                     <i class="fas fa-upload mr-1"></i>
-                    Upload & Import
+                    Upload Farmer Excel
                 </button>
             </div>
             <?= $this->Form->end() ?>
@@ -528,133 +537,167 @@ $importResult = $this->request->getSession()->consume('ExcelImportResult');
 
 </div>
 <script>
+
 $(document).ready(function () {
+
+    /* ============================================================
+       FARMER EXCEL FILE SELECTION
+    ============================================================ */
+
+    $(document).on(
+        'change.farmerExcel',
+        '#excelUploadForm input[type="file"]',
+        function () {
+
+            const fileInput = $(this);
+
+            const file =
+                fileInput[0] &&
+                fileInput[0].files &&
+                fileInput[0].files[0];
+
+            if (!file) {
+                return;
+            }
+
+            const filename =
+                String(file.name || '').toLowerCase();
+
+            if (!filename.endsWith('.xlsx')) {
+
+                alert(
+                    'Wrong Excel Format\n\n' +
+                    'Please select only the official Farmer Excel template (.xlsx).\n\n' +
+                    'Other Excel files will not be accepted.'
+                );
+
+                fileInput.val('');
+
+                return;
+            }
+        }
+    );
+
+
+    /* ============================================================
+       IMPORT RESULT
+    ============================================================ */
 
     <?php if (!empty($importResult)): ?>
 
-        var importResult = <?= json_encode($importResult) ?>;
+    const importResult =
+        <?= json_encode($importResult) ?>;
 
-        /*
-         * ============================================
-         * GET IMPORT RESULT
-         * ============================================
-         */
+    const resultType =
+        importResult.type || 'success';
 
-        var resultType = importResult.type || 'success';
-        var resultTitle = importResult.title || 'Import Completed';
-        var resultMessage = importResult.message || '';
+    const resultTitle =
+        importResult.title || 'Import Completed';
 
-        var successCount = parseInt(importResult.success || 0);
-        var duplicateCount = parseInt(importResult.duplicate || 0);
-        var failedCount = parseInt(importResult.failed || 0);
+    const resultMessage =
+        importResult.message || '';
 
+    const successCount =
+        parseInt(
+            importResult.success || 0,
+            10
+        );
 
-        /*
-         * ============================================
-         * SET MESSAGE
-         * ============================================
-         */
+    const duplicateCount =
+        parseInt(
+            importResult.duplicate || 0,
+            10
+        );
 
-        $('#importResultModalLabel').text(resultTitle);
+    const failedCount =
+        parseInt(
+            importResult.failed || 0,
+            10
+        );
 
-        $('#importResultMessage').text(resultMessage);
+    $('#importResultModalLabel')
+        .text(resultTitle);
 
+    $('#importResultMessage')
+        .text(resultMessage);
 
-        /*
-         * ============================================
-         * SET COUNTS
-         * ============================================
-         */
+    $('#importSuccessCount')
+        .text(successCount);
 
-        $('#importSuccessCount').text(successCount);
-        $('#importDuplicateCount').text(duplicateCount);
-        $('#importFailedCount').text(failedCount);
+    $('#importDuplicateCount')
+        .text(duplicateCount);
 
-        $('#importResultSummary').show();
+    $('#importFailedCount')
+        .text(failedCount);
 
+    if (resultType === 'error') {
 
-        /*
-         * ============================================
-         * RESET MODAL CLASSES
-         * ============================================
-         */
+        $('#importResultSummary')
+            .hide();
+
+    } else {
+
+        $('#importResultSummary')
+            .show();
+    }
+
+    $('.import-result-modal')
+        .removeClass(
+            'result-success result-warning result-error'
+        );
+
+    $('.import-ok-btn')
+        .removeClass(
+            'btn-success btn-warning btn-danger'
+        );
+
+    if (resultType === 'success') {
 
         $('.import-result-modal')
-            .removeClass('result-success result-warning result-error');
+            .addClass('result-success');
 
+        $('.import-result-icon')
+            .html(
+                '<i class="fas fa-check"></i>'
+            );
 
-        /*
-         * ============================================
-         * SUCCESS
-         * ============================================
-         */
+        $('.import-ok-btn')
+            .addClass('btn-success');
 
-        if (resultType === 'success') {
+    }
+    else if (resultType === 'warning') {
 
-            $('.import-result-modal')
-                .addClass('result-success');
+        $('.import-result-modal')
+            .addClass('result-warning');
 
-            $('.import-result-icon')
-                .html('<i class="fas fa-check"></i>');
+        $('.import-result-icon')
+            .html(
+                '<i class="fas fa-exclamation-triangle"></i>'
+            );
 
-            $('.import-ok-btn')
-                .removeClass('btn-warning btn-danger')
-                .addClass('btn-success');
-        }
+        $('.import-ok-btn')
+            .addClass('btn-warning');
 
+    }
+    else {
 
-        /*
-         * ============================================
-         * WARNING / ALREADY UPLOADED
-         * ============================================
-         */
+        $('.import-result-modal')
+            .addClass('result-error');
 
-        else if (resultType === 'warning') {
+        $('.import-result-icon')
+            .html(
+                '<i class="fas fa-times-circle"></i>'
+            );
 
-            $('.import-result-modal')
-                .addClass('result-warning');
+        $('.import-ok-btn')
+            .addClass('btn-danger');
+    }
 
-            $('.import-result-icon')
-                .html('<i class="fas fa-exclamation-triangle"></i>');
-
-            $('.import-ok-btn')
-                .removeClass('btn-success btn-danger')
-                .addClass('btn-warning');
-        }
-
-
-        /*
-         * ============================================
-         * ERROR
-         * ============================================
-         */
-
-        else {
-
-            $('.import-result-modal')
-                .addClass('result-error');
-
-            $('.import-result-icon')
-                .html('<i class="fas fa-times"></i>');
-
-            $('.import-ok-btn')
-                .removeClass('btn-success btn-warning')
-                .addClass('btn-danger');
-        }
-
-
-        /*
-         * ============================================
-         * SHOW RESULT MODAL
-         * ============================================
-         */
-
-        $('#importResultModal').modal({
-            backdrop: 'static',
-            keyboard: false
-        });
+    $('#importResultModal').modal({
+        backdrop: 'static',
+        keyboard: false
+    });
 
     <?php endif; ?>
-
 });
 </script>

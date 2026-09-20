@@ -248,6 +248,7 @@ function viewRecord(recordId)
     $('#view_subsidy_item').text('Loading...');
     $('#view_quantity').text('Loading...');
     $('#view_distribution_date').text('Loading...');
+    $('#view_barangay').text('Loading...');
     $('#view_received_date').text('Loading...');
     $('#view_status').text('Loading...');
 
@@ -317,6 +318,10 @@ function viewRecord(recordId)
                     response.data.distribution_date ||
                     'None'
                 );
+                $('#view_barangay').text(
+                    response.data.barangay ||
+                    'None'
+                );
 
                 $('#view_received_date').text(
                     response.data.received_date ||
@@ -369,6 +374,10 @@ function viewRecord(recordId)
             $('#view_distribution_date').text(
                 'Unable to load'
             );
+            $('#view_barangay').text(
+                'Unable to load'
+            );
+            
             $('#view_received_date').text(
                 'Unable to load'
             );

@@ -15,18 +15,19 @@ class AnalyticsController extends AppController
      *
      * @return \Cake\Http\Response|null|void
      */
-    public function index()
+       public function index()
     {
         /*
          * ============================================================
          * LOAD REQUIRED MODELS
-         * =======================================================  =====
+         * ============================================================
          */
 
         $this->loadModel('Evaluations');
         $this->loadModel('Farms');
         $this->loadModel('Feedbacks');
         $this->loadModel('Schedules');
+        $this->loadModel('Records');
 
 
         /*
@@ -82,11 +83,8 @@ class AnalyticsController extends AppController
          */
 
         $effectiveRate = 0;
-
         $moderatelyEffectiveRate = 0;
-
         $notEffectiveRate = 0;
-
 
         if ($totalEvaluations > 0) {
 
@@ -99,7 +97,6 @@ class AnalyticsController extends AppController
                     2
                 );
 
-
             $moderatelyEffectiveRate =
                 round(
                     (
@@ -108,7 +105,6 @@ class AnalyticsController extends AppController
                     ) * 100,
                     2
                 );
-
 
             $notEffectiveRate =
                 round(
@@ -135,9 +131,6 @@ class AnalyticsController extends AppController
             $programFeedbackQuery
                 ->select([
 
-                    /*
-                     * Evaluation
-                     */
                     'evaluation_id' =>
                         'Evaluations.id',
 
@@ -150,30 +143,15 @@ class AnalyticsController extends AppController
                     'effectiveness_label' =>
                         'Evaluations.effectiveness_label',
 
-
-                    /*
-                     * Program
-                     */
                     'program_code' =>
                         'Schedules.program_code',
 
                     'program_name' =>
                         'Schedules.program_name',
 
-
-                    /*
-                     * Feedback
-                     */
                     'feedback_rating' =>
                         'Feedbacks.rating'
                 ])
-
-
-                /*
-                 * ====================================================
-                 * JOIN FEEDBACK
-                 * ====================================================
-                 */
 
                 ->leftJoin(
                     ['Feedbacks' => 'feedbacks'],
@@ -182,26 +160,12 @@ class AnalyticsController extends AppController
                     ]
                 )
 
-
-                /*
-                 * ====================================================
-                 * JOIN SCHEDULE
-                 * ====================================================
-                 */
-
                 ->innerJoin(
                     ['Schedules' => 'schedules'],
                     [
                         'Schedules.id = Evaluations.schedule_id'
                     ]
                 )
-
-
-                /*
-                 * ====================================================
-                 * NO FEEDBACK FILTER HERE
-                 * ====================================================
-                 */
 
                 ->enableHydration(false)
 
@@ -221,12 +185,6 @@ class AnalyticsController extends AppController
             $programFeedbacks as $evaluation
         ) {
 
-            /*
-             * --------------------------------------------------------
-             * PROGRAM CODE
-             * --------------------------------------------------------
-             */
-
             $programCode =
                 trim(
                     (string)(
@@ -236,12 +194,6 @@ class AnalyticsController extends AppController
                 );
 
 
-            /*
-             * --------------------------------------------------------
-             * PROGRAM NAME
-             * --------------------------------------------------------
-             */
-
             $programName =
                 trim(
                     (string)(
@@ -250,12 +202,6 @@ class AnalyticsController extends AppController
                     )
                 );
 
-
-            /*
-             * --------------------------------------------------------
-             * IGNORE EVALUATION IF PROGRAM IS UNKNOWN
-             * --------------------------------------------------------
-             */
 
             if ($programCode === '') {
                 continue;
@@ -267,33 +213,17 @@ class AnalyticsController extends AppController
             }
 
 
-            /*
-             * --------------------------------------------------------
-             * PROGRAM KEY
-             * --------------------------------------------------------
-             */
-
             $programKey =
                 $programCode;
 
 
-            /*
-             * --------------------------------------------------------
-             * INITIALIZE PROGRAM
-             * --------------------------------------------------------
-             */
-
             if (
                 !isset(
-                    $programGroups[
-                        $programKey
-                    ]
+                    $programGroups[$programKey]
                 )
             ) {
 
-                $programGroups[
-                    $programKey
-                ] = [
+                $programGroups[$programKey] = [
 
                     'program_code' =>
                         $programCode,
@@ -301,27 +231,15 @@ class AnalyticsController extends AppController
                     'program_name' =>
                         $programName,
 
-
-                    /*
-                     * ALL EVALUATIONS
-                     */
                     'total_evaluations' =>
                         0,
 
-
-                    /*
-                     * FEEDBACK
-                     */
                     'total_feedbacks' =>
                         0,
 
                     'total_rating' =>
                         0,
 
-
-                    /*
-                     * EFFECTIVENESS LABELS
-                     */
                     'effective_count' =>
                         0,
 
@@ -335,20 +253,15 @@ class AnalyticsController extends AppController
 
 
             /*
-             * ========================================================
-             * COUNT ALL EVALUATIONS
-             * ========================================================
+             * Count evaluation.
              */
 
-            $programGroups[
-                $programKey
-            ]['total_evaluations']++;
+            $programGroups[$programKey]
+                ['total_evaluations']++;
 
 
             /*
-             * ========================================================
-             * EFFECTIVENESS LABEL
-             * ========================================================
+             * Effectiveness label.
              */
 
             $label =
@@ -364,10 +277,6 @@ class AnalyticsController extends AppController
                 );
 
 
-            /*
-             * Normalize possible variations.
-             */
-
             $label =
                 preg_replace(
                     '/\s+/',
@@ -380,32 +289,27 @@ class AnalyticsController extends AppController
                 $label === 'effective'
             ) {
 
-                $programGroups[
-                    $programKey
-                ]['effective_count']++;
+                $programGroups[$programKey]
+                    ['effective_count']++;
 
             } elseif (
                 $label === 'moderately effective'
             ) {
 
-                $programGroups[
-                    $programKey
-                ]['moderately_effective_count']++;
+                $programGroups[$programKey]
+                    ['moderately_effective_count']++;
 
             } elseif (
                 $label === 'not effective'
             ) {
 
-                $programGroups[
-                    $programKey
-                ]['not_effective_count']++;
+                $programGroups[$programKey]
+                    ['not_effective_count']++;
             }
 
 
             /*
-             * ========================================================
-             * FEEDBACK RATING
-             * ========================================================
+             * Feedback rating.
              */
 
             $ratingValue =
@@ -427,10 +331,6 @@ class AnalyticsController extends AppController
                 (float)$ratingValue;
 
 
-            /*
-             * Only accept valid 1-5 ratings.
-             */
-
             if (
                 $rating < 1 ||
                 $rating > 5
@@ -439,22 +339,12 @@ class AnalyticsController extends AppController
             }
 
 
-            /*
-             * Count feedback response.
-             */
-
-            $programGroups[
-                $programKey
-            ]['total_feedbacks']++;
+            $programGroups[$programKey]
+                ['total_feedbacks']++;
 
 
-            /*
-             * Add feedback rating.
-             */
-
-            $programGroups[
-                $programKey
-            ]['total_rating'] += $rating;
+            $programGroups[$programKey]
+                ['total_rating'] += $rating;
         }
 
 
@@ -471,12 +361,6 @@ class AnalyticsController extends AppController
             $programGroups as $program
         ) {
 
-            /*
-             * --------------------------------------------------------
-             * TOTAL EVALUATIONS
-             * --------------------------------------------------------
-             */
-
             $totalProgramEvaluations =
                 (int)(
                     $program[
@@ -484,12 +368,6 @@ class AnalyticsController extends AppController
                     ]
                 );
 
-
-            /*
-             * --------------------------------------------------------
-             * TOTAL FEEDBACK
-             * --------------------------------------------------------
-             */
 
             $totalFeedbacks =
                 (int)(
@@ -499,12 +377,6 @@ class AnalyticsController extends AppController
                 );
 
 
-            /*
-             * --------------------------------------------------------
-             * TOTAL RATING
-             * --------------------------------------------------------
-             */
-
             $totalRating =
                 (float)(
                     $program[
@@ -512,12 +384,6 @@ class AnalyticsController extends AppController
                     ]
                 );
 
-
-            /*
-             * --------------------------------------------------------
-             * AVERAGE FEEDBACK RATING
-             * --------------------------------------------------------
-             */
 
             $averageRating = 0;
 
@@ -535,12 +401,6 @@ class AnalyticsController extends AppController
             }
 
 
-            /*
-             * --------------------------------------------------------
-             * EFFECTIVE COUNT
-             * --------------------------------------------------------
-             */
-
             $effectiveCount =
                 (int)(
                     $program[
@@ -548,12 +408,6 @@ class AnalyticsController extends AppController
                     ]
                 );
 
-
-            /*
-             * --------------------------------------------------------
-             * MODERATELY EFFECTIVE COUNT
-             * --------------------------------------------------------
-             */
 
             $moderatelyEffectiveCount =
                 (int)(
@@ -563,12 +417,6 @@ class AnalyticsController extends AppController
                 );
 
 
-            /*
-             * --------------------------------------------------------
-             * NOT EFFECTIVE COUNT
-             * --------------------------------------------------------
-             */
-
             $notEffectiveCount =
                 (int)(
                     $program[
@@ -576,12 +424,6 @@ class AnalyticsController extends AppController
                     ]
                 );
 
-
-            /*
-             * --------------------------------------------------------
-             * EFFECTIVE PERCENTAGE
-             * --------------------------------------------------------
-             */
 
             $effectivePercentage = 0;
 
@@ -601,12 +443,6 @@ class AnalyticsController extends AppController
             }
 
 
-            /*
-             * --------------------------------------------------------
-             * STORE PROGRAM
-             * --------------------------------------------------------
-             */
-
             $programEffectiveness[] = [
 
                 'program_code' =>
@@ -619,17 +455,9 @@ class AnalyticsController extends AppController
                         'program_name'
                     ],
 
-
-                /*
-                 * ALL EVALUATIONS
-                 */
                 'total_evaluations' =>
                     $totalProgramEvaluations,
 
-
-                /*
-                 * FEEDBACK
-                 */
                 'total_feedbacks' =>
                     $totalFeedbacks,
 
@@ -639,10 +467,6 @@ class AnalyticsController extends AppController
                 'effectiveness_rating' =>
                     $averageRating,
 
-
-                /*
-                 * EFFECTIVENESS RESULTS
-                 */
                 'effective_count' =>
                     $effectiveCount,
 
@@ -652,10 +476,6 @@ class AnalyticsController extends AppController
                 'not_effective_count' =>
                     $notEffectiveCount,
 
-
-                /*
-                 * EFFECTIVE %
-                 */
                 'effective_percentage' =>
                     $effectivePercentage
             ];
@@ -674,12 +494,6 @@ class AnalyticsController extends AppController
                 $a,
                 $b
             ) {
-
-                /*
-                 * ====================================================
-                 * 1. HIGHEST AVERAGE FEEDBACK RATING
-                 * ====================================================
-                 */
 
                 $ratingA =
                     (float)(
@@ -710,12 +524,6 @@ class AnalyticsController extends AppController
                 }
 
 
-                /*
-                 * ====================================================
-                 * 2. MORE EFFECTIVE EVALUATIONS
-                 * ====================================================
-                 */
-
                 $effectiveA =
                     (int)(
                         $a[
@@ -744,12 +552,6 @@ class AnalyticsController extends AppController
                         $effectiveA;
                 }
 
-
-                /*
-                 * ====================================================
-                 * 3. HIGHER EFFECTIVE PERCENTAGE
-                 * ====================================================
-                 */
 
                 $effectivePercentageA =
                     (float)(
@@ -782,12 +584,6 @@ class AnalyticsController extends AppController
                 }
 
 
-                /*
-                 * ====================================================
-                 * 4. FEWER NOT EFFECTIVE EVALUATIONS
-                 * ====================================================
-                 */
-
                 $notEffectiveA =
                     (int)(
                         $a[
@@ -819,12 +615,6 @@ class AnalyticsController extends AppController
                 }
 
 
-                /*
-                 * ====================================================
-                 * 5. MORE FEEDBACK RESPONSES
-                 * ====================================================
-                 */
-
                 $feedbackA =
                     (int)(
                         $a[
@@ -855,12 +645,6 @@ class AnalyticsController extends AppController
                         $feedbackA;
                 }
 
-
-                /*
-                 * ====================================================
-                 * 6. MORE TOTAL EVALUATIONS
-                 * ====================================================
-                 */
 
                 $evaluationsA =
                     (int)(
@@ -941,10 +725,6 @@ class AnalyticsController extends AppController
                 );
 
 
-            /*
-             * Check program name.
-             */
-
             if (
                 str_contains(
                     $programName,
@@ -963,10 +743,6 @@ class AnalyticsController extends AppController
                 break;
             }
 
-
-            /*
-             * Check program code.
-             */
 
             if (
                 str_contains(
@@ -990,27 +766,17 @@ class AnalyticsController extends AppController
          */
 
         $seedTotalEvaluations = 0;
-
         $seedTotalFeedbacks = 0;
-
         $seedFeedbackRating = 0;
-
         $seedEffective = 0;
-
         $seedModeratelyEffective = 0;
-
         $seedNotEffective = 0;
-
         $seedEffectivenessRate = 0;
 
 
         if (
             $seedProgram !== null
         ) {
-
-            /*
-             * Total evaluations
-             */
 
             $seedTotalEvaluations =
                 (int)(
@@ -1021,10 +787,6 @@ class AnalyticsController extends AppController
                 );
 
 
-            /*
-             * Feedback responses
-             */
-
             $seedTotalFeedbacks =
                 (int)(
                     $seedProgram[
@@ -1033,10 +795,6 @@ class AnalyticsController extends AppController
                     ?? 0
                 );
 
-
-            /*
-             * Average feedback rating
-             */
 
             $seedFeedbackRating =
                 (float)(
@@ -1047,10 +805,6 @@ class AnalyticsController extends AppController
                 );
 
 
-            /*
-             * Effective
-             */
-
             $seedEffective =
                 (int)(
                     $seedProgram[
@@ -1059,10 +813,6 @@ class AnalyticsController extends AppController
                     ?? 0
                 );
 
-
-            /*
-             * Moderately Effective
-             */
 
             $seedModeratelyEffective =
                 (int)(
@@ -1073,10 +823,6 @@ class AnalyticsController extends AppController
                 );
 
 
-            /*
-             * Not Effective
-             */
-
             $seedNotEffective =
                 (int)(
                     $seedProgram[
@@ -1085,10 +831,6 @@ class AnalyticsController extends AppController
                     ?? 0
                 );
 
-
-            /*
-             * Effectiveness rate is based on ALL evaluations.
-             */
 
             if (
                 $seedTotalEvaluations > 0
@@ -1188,7 +930,6 @@ class AnalyticsController extends AppController
 
 
         $avgYieldBefore = 0;
-
         $avgYieldAfter = 0;
 
 
@@ -1292,11 +1033,8 @@ class AnalyticsController extends AppController
          */
 
         $seedAvgYieldBefore = 0;
-
         $seedAvgYieldAfter = 0;
-
         $seedAvgSellingPrice = 0;
-
         $seedYieldImprovement = 0;
 
 
@@ -1309,12 +1047,6 @@ class AnalyticsController extends AppController
                     'program_code'
                 ];
 
-
-            /*
-             * --------------------------------------------------------
-             * PROGRAM YIELD QUERY
-             * --------------------------------------------------------
-             */
 
             $programYieldQuery =
                 $this->Evaluations->find();
@@ -1346,22 +1078,12 @@ class AnalyticsController extends AppController
                                 )
                     ])
 
-
-                    /*
-                     * Join Farms
-                     */
-
                     ->innerJoin(
                         ['Farms' => 'farms'],
                         [
                             'Farms.id = Evaluations.farm_id'
                         ]
                     )
-
-
-                    /*
-                     * Join Schedules
-                     */
 
                     ->innerJoin(
                         ['Schedules' => 'schedules'],
@@ -1370,25 +1092,13 @@ class AnalyticsController extends AppController
                         ]
                     )
 
-
-                    /*
-                     * Match Seed program
-                     */
-
                     ->where([
                         'Schedules.program_code' =>
                             $seedProgramCode
                     ])
 
-
                     ->first();
 
-
-            /*
-             * --------------------------------------------------------
-             * GET SEED VALUES
-             * --------------------------------------------------------
-             */
 
             if (
                 $programYieldData
@@ -1418,12 +1128,6 @@ class AnalyticsController extends AppController
                     );
             }
 
-
-            /*
-             * --------------------------------------------------------
-             * SEED YIELD IMPROVEMENT
-             * --------------------------------------------------------
-             */
 
             if (
                 $seedAvgYieldBefore > 0
@@ -1459,45 +1163,531 @@ class AnalyticsController extends AppController
         $modelStatus =
             'Active';
 
-
         $modelName =
             'Random Forest Classifier';
 
 
-        $modelAccuracy =
-            93.5;
+        /*
+         * ============================================================
+         * RECEIVED SUBSIDY DISTRIBUTION RECORDS
+         * ============================================================
+         *
+         * IMPORTANT:
+         *
+         * Records.status = Received
+         *
+         * Farmer information comes from Farmers.
+         *
+         * Program/location/date/time come from Schedules.
+         *
+         * Received date/status come from Records.
+         *
+         * ============================================================
+         */
+
+        $receivedRecordsQuery =
+            $this->Records
+                ->find()
+                ->select([
+
+                    /*
+                     * Record
+                     */
+                    'record_id' =>
+                        'Records.id',
+
+                    'farmer_id' =>
+                        'Records.farmer_id',
+
+                    'schedule_id' =>
+                        'Records.schedule_id',
+
+                    'subsidy_item' =>
+                        'Records.subsidy_item',
+
+                    'quantity' =>
+                        'Records.quantity',
+
+                    'received_date' =>
+                        'Records.received_date',
+
+                    'status' =>
+                        'Records.status',
 
 
-        $lastTrained =
-            'July 22, 2026 11:30 PM';
+                    /*
+                     * Farmer
+                     */
+                    'farmer_no' =>
+                        'Farmers.farmer_no',
+
+                    'first_name' =>
+                        'Farmers.first_name',
+
+                    'last_name' =>
+                        'Farmers.last_name',
+
+
+                    /*
+                     * Schedule
+                     */
+                    'program_code' =>
+                        'Schedules.program_code',
+
+                    'barangay' =>
+                        'Schedules.barangay',
+
+                    'distribution_date' =>
+                        'Schedules.start_date',
+
+                    'distribution_time' =>
+                        'Schedules.start_time'
+                ])
+
+
+                /*
+                 * ====================================================
+                 * JOIN FARMERS
+                 * ====================================================
+                 */
+
+                ->leftJoin(
+                    ['Farmers' => 'farmers'],
+                    [
+                        'Farmers.id = Records.farmer_id'
+                    ]
+                )
+
+
+                /*
+                 * ====================================================
+                 * JOIN SCHEDULES
+                 * ====================================================
+                 */
+
+                ->leftJoin(
+                    ['Schedules' => 'schedules'],
+                    [
+                        'Schedules.id = Records.schedule_id'
+                    ]
+                )
+
+
+                /*
+                 * ====================================================
+                 * RECEIVED ONLY
+                 * ====================================================
+                 */
+
+                ->where([
+                    'Records.status' => 'Received'
+                ])
+
+
+                /*
+                 * ====================================================
+                 * ORDER
+                 * ====================================================
+                 */
+
+                ->order([
+                    'Schedules.start_date' =>
+                        'DESC',
+
+                    'Schedules.start_time' =>
+                        'DESC',
+
+                    'Records.id' =>
+                        'DESC'
+                ])
+
+
+                ->enableHydration(false)
+
+                ->all();
 
 
         /*
          * ============================================================
-         * FEATURE IMPORTANCE
+         * FORMAT RECEIVED RECORDS
          * ============================================================
          */
 
-        $featureImportance = [
+        $receivedRecords = [];
 
-            'Crop Yield Increase' =>
-                round(
-                    abs($yieldImprovement),
-                    2
-                ),
 
-            'Subsidy Utilization' =>
-                42,
+        foreach (
+            $receivedRecordsQuery as $record
+        ) {
 
-            'Distribution Timeliness' =>
-                34,
+            /*
+             * --------------------------------------------------------
+             * FARMER NAME
+             * --------------------------------------------------------
+             */
 
-            'Farmer Feedback' =>
-                20,
+            $farmerName =
+                trim(
+                    ($record['first_name'] ?? '') .
+                    ' ' .
+                    ($record['last_name'] ?? '')
+                );
 
-            'Selling Price' =>
-                25
-        ];
+
+            if (
+                $farmerName === ''
+            ) {
+
+                $farmerName = '-';
+            }
+
+
+            /*
+             * --------------------------------------------------------
+             * DISTRIBUTION DATE
+             * --------------------------------------------------------
+             */
+
+            $distributionDate = '-';
+
+
+            if (
+                !empty(
+                    $record['distribution_date']
+                )
+            ) {
+
+                try {
+
+                    $date =
+                        $record[
+                            'distribution_date'
+                        ];
+
+
+                    if (
+                        $date instanceof
+                        \Cake\I18n\FrozenDate
+                        ||
+                        $date instanceof
+                        \Cake\I18n\FrozenTime
+                    ) {
+
+                        $distributionDate =
+                            $date->format(
+                                'M d, Y'
+                            );
+
+                    } else {
+
+                        $timestamp =
+                            strtotime(
+                                (string)$date
+                            );
+
+
+                        if (
+                            $timestamp !== false
+                        ) {
+
+                            $distributionDate =
+                                date(
+                                    'M d, Y',
+                                    $timestamp
+                                );
+                        }
+                    }
+
+                } catch (
+                    \Throwable $e
+                ) {
+
+                    $distributionDate =
+                        '-';
+                }
+            }
+
+
+            /*
+             * --------------------------------------------------------
+             * DISTRIBUTION TIME
+             * --------------------------------------------------------
+             */
+
+            $distributionTime = '-';
+
+
+            if (
+                !empty(
+                    $record['distribution_time']
+                )
+            ) {
+
+                try {
+
+                    $time =
+                        $record[
+                            'distribution_time'
+                        ];
+
+
+                    if (
+                        $time instanceof
+                        \Cake\I18n\FrozenTime
+                    ) {
+
+                        $distributionTime =
+                            $time->format(
+                                'h:i A'
+                            );
+
+                    } else {
+
+                        $timestamp =
+                            strtotime(
+                                (string)$time
+                            );
+
+
+                        if (
+                            $timestamp !== false
+                        ) {
+
+                            $distributionTime =
+                                date(
+                                    'h:i A',
+                                    $timestamp
+                                );
+                        }
+                    }
+
+                } catch (
+                    \Throwable $e
+                ) {
+
+                    $distributionTime =
+                        '-';
+                }
+            }
+
+
+            /*
+             * --------------------------------------------------------
+             * RECEIVED DATE
+             * --------------------------------------------------------
+             */
+
+            $receivedDate = '-';
+
+
+            if (
+                !empty(
+                    $record['received_date']
+                )
+            ) {
+
+                try {
+
+                    $date =
+                        $record[
+                            'received_date'
+                        ];
+
+
+                    if (
+                        $date instanceof
+                        \Cake\I18n\FrozenDate
+                        ||
+                        $date instanceof
+                        \Cake\I18n\FrozenTime
+                    ) {
+
+                        $receivedDate =
+                            $date->format(
+                                'M d, Y'
+                            );
+
+                    } else {
+
+                        $timestamp =
+                            strtotime(
+                                (string)$date
+                            );
+
+
+                        if (
+                            $timestamp !== false
+                        ) {
+
+                            $receivedDate =
+                                date(
+                                    'M d, Y',
+                                    $timestamp
+                                );
+                        }
+                    }
+
+                } catch (
+                    \Throwable $e
+                ) {
+
+                    $receivedDate =
+                        '-';
+                }
+            }
+
+
+            /*
+             * --------------------------------------------------------
+             * LOCATION
+             * --------------------------------------------------------
+             */
+
+            $barangay =
+                trim(
+                    (string)(
+                        $record['barangay']
+                        ?? ''
+                    )
+                );
+
+
+            if (
+                $barangay === ''
+            ) {
+
+                $barangay =
+                    'N/A';
+            }
+
+
+            /*
+             * --------------------------------------------------------
+             * QUANTITY
+             * --------------------------------------------------------
+             */
+
+            $quantity =
+                $record['quantity']
+                ?? 0;
+
+
+            /*
+             * --------------------------------------------------------
+             * SAVE RECORD
+             * --------------------------------------------------------
+             */
+
+            $receivedRecords[] = [
+
+                'record_id' =>
+                    $record['record_id']
+                    ?? null,
+
+                'farmer_id' =>
+                    $record['farmer_id']
+                    ?? null,
+
+                'schedule_id' =>
+                    $record['schedule_id']
+                    ?? null,
+
+                'farmer_no' =>
+                    $record['farmer_no']
+                    ?? '-',
+
+                'farmer_name' =>
+                    $farmerName,
+
+                'program_code' =>
+                    $record['program_code']
+                    ?? '-',
+
+                'subsidy_item' =>
+                    $record['subsidy_item']
+                    ?? 'Seed Subsidy',
+
+                'quantity' =>
+                    $quantity,
+
+                'barangay' =>
+                    $barangay,
+
+                'distribution_date' =>
+                    $distributionDate,
+
+                'distribution_time' =>
+                    $distributionTime,
+
+                'received_date' =>
+                    $receivedDate,
+
+                'status' =>
+                    $record['status']
+                    ?? 'Received'
+            ];
+        }
+
+
+        /*
+         * ============================================================
+         * GET UNIQUE RECEIVED LOCATIONS
+         * ============================================================
+         */
+
+        $receivedLocations = [];
+
+
+        foreach (
+            $receivedRecords as $record
+        ) {
+
+            $location =
+                trim(
+                    (string)(
+                        $record['barangay']
+                        ?? ''
+                    )
+                );
+
+
+            if (
+                $location !== ''
+                &&
+                $location !== 'N/A'
+            ) {
+
+                $receivedLocations[] =
+                    $location;
+            }
+        }
+
+
+        /*
+         * Remove duplicates.
+         */
+
+        $receivedLocations =
+            array_values(
+                array_unique(
+                    $receivedLocations
+                )
+            );
+
+
+        /*
+         * Sort alphabetically.
+         */
+
+        natcasesort(
+            $receivedLocations
+        );
+
+
+        $receivedLocations =
+            array_values(
+                $receivedLocations
+            );
 
 
         /*
@@ -1509,128 +1699,79 @@ class AnalyticsController extends AppController
         $this->set(compact(
 
             /*
-             * --------------------------------------------------------
              * Overall
-             * --------------------------------------------------------
              */
-
             'totalEvaluations',
-
             'effective',
-
             'moderatelyEffective',
-
             'notEffective',
 
             'effectiveRate',
-
             'moderatelyEffectiveRate',
-
             'notEffectiveRate',
 
 
             /*
-             * --------------------------------------------------------
              * Program effectiveness
-             * --------------------------------------------------------
              */
-
             'programEffectiveness',
-
             'mostEffectiveProgram',
 
 
             /*
-             * --------------------------------------------------------
-             * Seed Subsidy
-             * --------------------------------------------------------
+             * Seed subsidy
              */
-
             'seedProgram',
-
             'seedTotalEvaluations',
-
             'seedTotalFeedbacks',
-
             'seedFeedbackRating',
-
             'seedEffective',
-
             'seedModeratelyEffective',
-
             'seedNotEffective',
-
             'seedEffectivenessRate',
 
 
             /*
-             * --------------------------------------------------------
              * Feedback
-             * --------------------------------------------------------
              */
-
             'feedbackAverage',
 
 
             /*
-             * --------------------------------------------------------
              * Yield
-             * --------------------------------------------------------
              */
-
             'avgYieldBefore',
-
             'avgYieldAfter',
-
             'yieldImprovement',
 
 
             /*
-             * --------------------------------------------------------
              * Selling price
-             * --------------------------------------------------------
              */
-
             'avgSellingPrice',
 
 
             /*
-             * --------------------------------------------------------
              * Seed yield
-             * --------------------------------------------------------
              */
-
             'seedAvgYieldBefore',
-
             'seedAvgYieldAfter',
-
             'seedAvgSellingPrice',
-
             'seedYieldImprovement',
 
 
             /*
-             * --------------------------------------------------------
              * Machine learning
-             * --------------------------------------------------------
              */
-
             'modelStatus',
-
             'modelName',
-
-            'modelAccuracy',
-
-            'lastTrained',
 
 
             /*
-             * --------------------------------------------------------
-             * Feature importance
-             * --------------------------------------------------------
+             * Received subsidy records
              */
-
-            'featureImportance'
+            'receivedRecords',
+            'receivedLocations'
         ));
     }
 }

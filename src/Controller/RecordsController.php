@@ -8,6 +8,11 @@ use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 /**
  * Records Controller
@@ -2249,444 +2254,1160 @@ public function downloadExcelTemplate()
         }
     }
 
-    /**
-     * ================================================================
-     * GET SINGLE RECORD JSON
-     * ================================================================
+  /**
+ * ================================================================
+ * GET SINGLE RECORD JSON
+ * ================================================================
+ */
+/**
+ * ================================================================
+ * GET SINGLE RECORD JSON
+ * ================================================================
+ */
+public function getRecord($recordId)
+{
+    $this->request->allowMethod(['get']);
+
+    $record = $this->Records->get($recordId, [
+        'contain' => [
+            'Farmers',
+            'Schedules'
+        ]
+    ]);
+
+    $schedule = $record->schedule ?? null;
+    $farmer = $record->farmer ?? null;
+
+    $programName = 'N/A';
+
+    if ($schedule) {
+        $programName = $schedule->program_name ?? 'N/A';
+    }
+
+    $data = [
+        'id' => $record->id,
+
+        'farmer_id' => $record->farmer_id,
+
+        'farmer_name' => $farmer
+            ? trim(
+                ($farmer->firstname ?? '') . ' ' .
+                ($farmer->middlename ?? '') . ' ' .
+                ($farmer->lastname ?? '')
+            )
+            : 'N/A',
+
+        'schedule_id' => $record->schedule_id,
+
+        'program_name' => $programName,
+
+        'subsidy_item' => $record->subsidy_item,
+
+        'quantity' => $record->quantity,
+
+        'distribution_date' => $record->distribution_date
+            ? $record->distribution_date->format('Y-m-d')
+            : null,
+
+        'received_date' => $record->received_date
+            ? $record->received_date->format('Y-m-d')
+            : null,
+
+        'status' => $record->status,
+
+        'confirmed_at' => $record->confirmed_at
+            ? $record->confirmed_at->format('Y-m-d H:i:s')
+            : null,
+
+        'created' => $record->created
+            ? $record->created->format('Y-m-d H:i:s')
+            : null,
+
+        'modified' => $record->modified
+            ? $record->modified->format('Y-m-d H:i:s')
+            : null,
+    ];
+
+    return $this->response
+        ->withType('application/json')
+        ->withStringBody(json_encode([
+            'success' => true,
+            'data' => $data
+        ]));
+}
+
+/**
+ * Download received subsidy records as Excel
+ *
+ * Uses the same Excel format as the previous Records export.
+ *
+ * Supports location filtering through:
+ *
+ * ?location=ALL
+ * ?location=Rizal
+ * ?location=Balintocatoc
+ */
+public function downloadReceivedSubsidyExcel()
+{
+    $this->request->allowMethod(['get']);
+
+    /*
+     * =========================================================
+     * GET LOCATION FILTER
+     * =========================================================
      */
-    public function getRecord($recordId = null)
-    {
-        $this->request->allowMethod(['get']);
 
-        $this->autoRender = false;
+    $location =
+        trim(
+            (string)$this->request->getQuery('location')
+        );
 
-        if (!$recordId) {
+
+    if (
+        $location === ''
+    ) {
+
+        $location = 'ALL';
+
+    }
+
+
+    /*
+     * =========================================================
+     * BUILD QUERY
+     * =========================================================
+     */
+
+    $query =
+        $this->Records
+            ->find()
+            ->select([
+
+                /*
+                 * Farmer
+                 */
+                'farmer_no' =>
+                    'Farmers.farmer_no',
+
+                /*
+                 * Distribution
+                 */
+                'program_code' =>
+                    'Schedules.program_code',
+
+                /*
+                 * Subsidy
+                 */
+                'subsidy_item' =>
+                    'Records.subsidy_item',
+
+                'quantity' =>
+                    'Records.quantity',
+
+                /*
+                 * Received
+                 */
+                'received_date' =>
+                    'Records.received_date',
+
+                'status' =>
+                    'Records.status',
+
+                /*
+                 * Location
+                 */
+                'barangay' =>
+                    'Schedules.barangay'
+            ])
+            ->leftJoin(
+                [
+                    'Farmers' => 'farmers'
+                ],
+                [
+                    'Farmers.id = Records.farmer_id'
+                ]
+            )
+            ->leftJoin(
+                [
+                    'Schedules' => 'schedules'
+                ],
+                [
+                    'Schedules.id = Records.schedule_id'
+                ]
+            )
+            ->where([
+                'Records.status' => 'Received'
+            ]);
+
+
+    /*
+     * =========================================================
+     * LOCATION FILTER
+     * =========================================================
+     */
+
+    if (
+        strtoupper($location) !== 'ALL'
+    ) {
+
+        $query =
+            $query->where([
+                'Schedules.barangay' =>
+                    $location
+            ]);
+
+    }
+
+
+    /*
+     * =========================================================
+     * GET RECORDS
+     * =========================================================
+     */
+
+    $records =
+        $query
+            ->order([
+                'Records.received_date' =>
+                    'DESC'
+            ])
+            ->enableHydration(false)
+            ->all()
+            ->toArray();
+
+
+    /*
+     * =========================================================
+     * CHECK RECORDS
+     * =========================================================
+     */
+
+    if (
+        empty($records)
+    ) {
+
+        $this->Flash->warning(
+            'No received subsidy records were found for the selected location.'
+        );
+
+        return $this->redirect(
+            [
+                'action' => 'index'
+            ]
+        );
+
+    }
+
+
+    /*
+     * =========================================================
+     * CREATE SPREADSHEET
+     * =========================================================
+     */
+
+    $spreadsheet =
+        new Spreadsheet();
+
+
+    /*
+     * =========================================================
+     * ACTIVE SHEET
+     * =========================================================
+     */
+
+    $sheet =
+        $spreadsheet->getActiveSheet();
+
+
+    $sheet->setTitle(
+        'Distribution Records'
+    );
+
+
+    /*
+     * =========================================================
+     * EXCEL HEADERS
+     * =========================================================
+     *
+     * Same format as previous Records Excel.
+     */
+
+    $headers = [
+
+        'A1' =>
+            'LGU RSBSA Number',
+
+        'B1' =>
+            'Distribution Code',
+
+        'C1' =>
+            'Subsidy Item',
+
+        'D1' =>
+            'Quantity',
+
+        'E1' =>
+            'Received Date',
+
+        'F1' =>
+            'Status'
+    ];
+
+
+    foreach (
+        $headers as $cell => $value
+    ) {
+
+        $sheet
+            ->setCellValue(
+                $cell,
+                $value
+            );
+
+    }
+
+
+    /*
+     * =========================================================
+     * HEADER STYLE
+     * =========================================================
+     */
+
+    $headerStyle = [
+
+        'font' => [
+
+            'bold' =>
+                true
+        ],
+
+        'fill' => [
+
+            'fillType' =>
+                Fill::FILL_SOLID,
+
+            'startColor' => [
+
+                'rgb' =>
+                    'FFFF00'
+            ]
+        ],
+
+        'alignment' => [
+
+            'horizontal' =>
+                Alignment::HORIZONTAL_CENTER,
+
+            'vertical' =>
+                Alignment::VERTICAL_CENTER,
+
+            'wrapText' =>
+                true
+        ],
+
+        'borders' => [
+
+            'allBorders' => [
+
+                'borderStyle' =>
+                    Border::BORDER_THIN,
+
+                'color' => [
+
+                    'rgb' =>
+                        '808080'
+                ]
+            ]
+        ]
+    ];
+
+
+    $sheet
+        ->getStyle(
+            'A1:F1'
+        )
+        ->applyFromArray(
+            $headerStyle
+        );
+
+
+    /*
+     * =========================================================
+     * HEADER HEIGHT
+     * =========================================================
+     */
+
+    $sheet
+        ->getRowDimension(1)
+        ->setRowHeight(32);
+
+
+    /*
+     * =========================================================
+     * WRITE DATA
+     * =========================================================
+     */
+
+    $row =
+        2;
+
+
+    foreach (
+        $records as $record
+    ) {
+
+        /*
+         * -----------------------------------------------------
+         * FARMER NUMBER
+         * -----------------------------------------------------
+         */
+
+        $farmerNo =
+            trim(
+                (string)(
+                    $record['farmer_no']
+                    ?? ''
+                )
+            );
+
+
+        if (
+            $farmerNo === ''
+        ) {
+
+            $farmerNo =
+                '-';
+
+        }
+
+
+        /*
+         * -----------------------------------------------------
+         * DISTRIBUTION CODE
+         * -----------------------------------------------------
+         */
+
+        $programCode =
+            trim(
+                (string)(
+                    $record['program_code']
+                    ?? ''
+                )
+            );
+
+
+        if (
+            $programCode === ''
+        ) {
+
+            $programCode =
+                '-';
+
+        }
+
+
+        /*
+         * -----------------------------------------------------
+         * SUBSIDY ITEM
+         * -----------------------------------------------------
+         */
+
+        $subsidyItem =
+            trim(
+                (string)(
+                    $record['subsidy_item']
+                    ?? ''
+                )
+            );
+
+
+        if (
+            $subsidyItem === ''
+        ) {
+
+            $subsidyItem =
+                'Seed Subsidy';
+
+        }
+
+
+        /*
+         * -----------------------------------------------------
+         * QUANTITY
+         * -----------------------------------------------------
+         */
+
+        $quantity =
+            $record['quantity']
+            ?? 0;
+
+
+        /*
+         * -----------------------------------------------------
+         * RECEIVED DATE
+         * -----------------------------------------------------
+         */
+
+        $receivedDate =
+            $record['received_date']
+            ?? null;
+
+
+        $formattedReceivedDate =
+            '';
+
+
+        if (
+            !empty($receivedDate)
+        ) {
+
+            if (
+                $receivedDate instanceof
+                \Cake\I18n\FrozenDate
+                ||
+                $receivedDate instanceof
+                \Cake\I18n\FrozenTime
+            ) {
+
+                $formattedReceivedDate =
+                    $receivedDate->format(
+                        'M d, Y'
+                    );
+
+            } else {
+
+                $timestamp =
+                    strtotime(
+                        (string)$receivedDate
+                    );
+
+
+                if (
+                    $timestamp !== false
+                ) {
+
+                    $formattedReceivedDate =
+                        date(
+                            'M d, Y',
+                            $timestamp
+                        );
+
+                }
+
+            }
+
+        }
+
+
+        /*
+         * -----------------------------------------------------
+         * STATUS
+         * -----------------------------------------------------
+         */
+
+        $status =
+            trim(
+                (string)(
+                    $record['status']
+                    ?? 'Received'
+                )
+            );
+
+
+        if (
+            $status === ''
+        ) {
+
+            $status =
+                'Received';
+
+        }
+
+
+        /*
+         * =====================================================
+         * WRITE EXCEL CELLS
+         * =====================================================
+         */
+
+        $sheet->setCellValueExplicit(
+            'A' . $row,
+            $farmerNo,
+            \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING
+        );
+
+
+        $sheet->setCellValueExplicit(
+            'B' . $row,
+            $programCode,
+            \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING
+        );
+
+
+        $sheet->setCellValue(
+            'C' . $row,
+            $subsidyItem
+        );
+
+
+        $sheet->setCellValue(
+            'D' . $row,
+            (float)$quantity
+        );
+
+
+        $sheet->setCellValue(
+            'E' . $row,
+            $formattedReceivedDate
+        );
+
+
+        $sheet->setCellValueExplicit(
+            'F' . $row,
+            $status,
+            \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING
+        );
+
+
+        /*
+         * =====================================================
+         * ROW HEIGHT
+         * =====================================================
+         */
+
+        $sheet
+            ->getRowDimension($row)
+            ->setRowHeight(22);
+
+
+        $row++;
+
+    }
+
+
+    /*
+     * =========================================================
+     * DATA BORDER
+     * =========================================================
+     */
+
+    $lastRow =
+        $row - 1;
+
+
+    $dataRange =
+        'A1:F' . $lastRow;
+
+
+    $sheet
+        ->getStyle($dataRange)
+        ->getBorders()
+        ->getAllBorders()
+        ->setBorderStyle(
+            Border::BORDER_THIN
+        );
+
+
+    /*
+     * =========================================================
+     * QUANTITY FORMAT
+     * =========================================================
+     */
+
+    if (
+        $lastRow >= 2
+    ) {
+
+        $sheet
+            ->getStyle(
+                'D2:D' . $lastRow
+            )
+            ->getNumberFormat()
+            ->setFormatCode(
+                '0.00'
+            );
+
+    }
+
+
+    /*
+     * =========================================================
+     * TEXT FORMAT
+     * =========================================================
+     */
+
+    if (
+        $lastRow >= 2
+    ) {
+
+        $sheet
+            ->getStyle(
+                'A2:A' . $lastRow
+            )
+            ->getNumberFormat()
+            ->setFormatCode(
+                '@'
+            );
+
+
+        $sheet
+            ->getStyle(
+                'B2:B' . $lastRow
+            )
+            ->getNumberFormat()
+            ->setFormatCode(
+                '@'
+            );
+
+
+        $sheet
+            ->getStyle(
+                'F2:F' . $lastRow
+            )
+            ->getNumberFormat()
+            ->setFormatCode(
+                '@'
+            );
+
+    }
+
+
+    /*
+     * =========================================================
+     * COLUMN WIDTHS
+     * =========================================================
+     */
+
+    $sheet
+        ->getColumnDimension('A')
+        ->setWidth(28);
+
+
+    $sheet
+        ->getColumnDimension('B')
+        ->setWidth(22);
+
+
+    $sheet
+        ->getColumnDimension('C')
+        ->setWidth(22);
+
+
+    $sheet
+        ->getColumnDimension('D')
+        ->setWidth(15);
+
+
+    $sheet
+        ->getColumnDimension('E')
+        ->setWidth(20);
+
+
+    $sheet
+        ->getColumnDimension('F')
+        ->setWidth(20);
+
+
+    /*
+     * =========================================================
+     * ALIGNMENT
+     * =========================================================
+     */
+
+    $sheet
+        ->getStyle(
+            'A1:F' . $lastRow
+        )
+        ->getAlignment()
+        ->setVertical(
+            Alignment::VERTICAL_CENTER
+        );
+
+
+    /*
+     * =========================================================
+     * FREEZE HEADER
+     * =========================================================
+     */
+
+    $sheet
+        ->freezePane(
+            'A2'
+        );
+
+
+    /*
+     * =========================================================
+     * AUTO FILTER
+     * =========================================================
+     */
+
+    $sheet
+        ->setAutoFilter(
+            'A1:F' . $lastRow
+        );
+
+
+    /*
+     * =========================================================
+     * PAGE SETUP
+     * =========================================================
+     */
+
+    $sheet
+        ->getPageSetup()
+        ->setOrientation(
+            \PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE
+        );
+
+
+    $sheet
+        ->getPageSetup()
+        ->setPaperSize(
+            \PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4
+        );
+
+
+    $sheet
+        ->getPageSetup()
+        ->setFitToWidth(1);
+
+
+    $sheet
+        ->getPageSetup()
+        ->setFitToHeight(0);
+
+
+    $sheet
+        ->getPageSetup()
+        ->setFitToPage(true);
+
+
+    /*
+     * =========================================================
+     * FILE NAME
+     * =========================================================
+     */
+
+    $safeLocation =
+        strtolower(
+            trim(
+                $location
+            )
+        );
+
+
+    if (
+        $safeLocation === ''
+        ||
+        $safeLocation === 'all'
+    ) {
+
+        $safeLocation =
+            'all';
+
+    } else {
+
+        $safeLocation =
+            preg_replace(
+                '/[^a-zA-Z0-9_-]+/',
+                '_',
+                $safeLocation
+            );
+
+
+        $safeLocation =
+            trim(
+                $safeLocation,
+                '_'
+            );
+
+    }
+
+
+    /*
+     * =========================================================
+     * DATE/TIME
+     * =========================================================
+     */
+
+    $timestamp =
+        date(
+            'Y-m-d_H-i-s'
+        );
+
+
+    $filename =
+        'records_'
+        .
+        $safeLocation
+        .
+        '_'
+        .
+        $timestamp
+        .
+        '.xlsx';
+
+
+    /*
+     * =========================================================
+     * WRITE XLSX
+     * =========================================================
+     */
+
+    $writer =
+        new Xlsx(
+            $spreadsheet
+        );
+
+
+    /*
+     * =========================================================
+     * RESPONSE
+     * =========================================================
+     */
+
+    ob_start();
+
+
+    $writer->save(
+        'php://output'
+    );
+
+
+    $excelFile =
+        ob_get_clean();
+
+
+    return $this->response
+
+        ->withType(
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+
+        ->withHeader(
+            'Content-Disposition',
+            'attachment; filename="' . $filename . '"'
+        )
+
+        ->withHeader(
+            'Content-Length',
+            (string)strlen($excelFile)
+        )
+
+        ->withStringBody(
+            $excelFile
+        );
+}
+public function getFarmerRecords($farmerId = null)
+{
+    $this->request->allowMethod(['get']);
+
+    try {
+        /*
+         * ========================================================
+         * VALIDATE FARMER ID
+         * ========================================================
+         */
+        if ($farmerId === null || !is_numeric($farmerId)) {
             return $this->response
                 ->withStatus(400)
                 ->withType('application/json')
-                ->withStringBody(
-                    json_encode([
-                        'success' => false,
-                        'message' =>
-                            'Invalid record ID.'
-                    ])
-                );
+                ->withStringBody(json_encode([
+                    'success' => false,
+                    'message' => 'Invalid farmer ID.'
+                ]));
         }
 
-        try {
-            $record =
-                $this->Records->get(
-                    $recordId,
-                    [
-                        'contain' => [
-                            'Farmers',
-                            'Schedules'
-                        ]
-                    ]
-                );
+        $farmerId = (int)$farmerId;
 
-            /*
-             * Farmer
-             */
-            $farmerName = 'N/A';
+        /*
+         * ========================================================
+         * LOAD FARMERS MODEL
+         * ========================================================
+         */
+        $this->loadModel('Farmers');
 
-            if (!empty($record->farmer)) {
-                $farmerName =
-                    trim(
-                        ($record->farmer->first_name ?? '') .
-                        ' ' .
-                        ($record->farmer->last_name ?? '')
-                    );
-            }
+        /*
+         * ========================================================
+         * FIND FARMER
+         * ========================================================
+         */
+        $farmer = $this->Farmers->find()
+            ->select([
+                'id',
+                'first_name',
+                'last_name'
+            ])
+            ->where([
+                'Farmers.id' => $farmerId
+            ])
+            ->first();
 
-            /*
-             * Schedule
-             */
-            $distributionDate =
-                'N/A';
+        if (!$farmer) {
+            return $this->response
+                ->withStatus(404)
+                ->withType('application/json')
+                ->withStringBody(json_encode([
+                    'success' => false,
+                    'message' => 'Farmer not found.'
+                ]));
+        }
 
-            $distributionTime =
-                'N/A';
-
-            $programCode =
-                'N/A';
-
-            if (!empty($record->schedule)) {
-                $schedule =
-                    $record->schedule;
+        /*
+         * ========================================================
+         * FETCH RECORDS + SCHEDULE
+         * ========================================================
+         *
+         * Records.schedule_id
+         *          ↓
+         * Schedules.id
+         *
+         * Program is taken from:
+         * Schedules.program_code
+         *
+         * Distribution date is taken from:
+         * Schedules.start_date
+         */
+        $records = $this->Records->find()
+            ->select([
+                'record_id' => 'Records.id',
+                'farmer_id' => 'Records.farmer_id',
+                'schedule_id' => 'Records.schedule_id',
 
                 /*
-                 * IMPORTANT:
-                 * schedules table uses start_date.
+                 * Records table
                  */
-                if (
-                    !empty(
-                        $schedule->start_date
-                    )
-                ) {
-                    $distributionDate =
-                        $schedule->start_date;
-                }
+                'subsidy_item' => 'Records.subsidy_item',
+                'quantity' => 'Records.quantity',
+                'received_date' => 'Records.received_date',
+                'status' => 'Records.status',
 
-                if (
-                    !empty(
-                        $schedule->start_time
-                    )
-                ) {
-                    $distributionTime =
-                        $schedule->start_time;
-                }
+                /*
+                 * Schedules table
+                 */
+                'program_code' => 'Schedules.program_code',
+                'program' => 'Schedules.program_code',
+                'distribution_date' => 'Schedules.start_date'
+            ])
+            ->innerJoin(
+                ['Schedules' => 'schedules'],
+                [
+                    'Schedules.id = Records.schedule_id'
+                ]
+            )
+            ->where([
+                'Records.farmer_id' => $farmerId
+            ])
+            ->order([
+                'Schedules.start_date' => 'DESC',
+                'Records.id' => 'DESC'
+            ])
+            ->enableHydration(false)
+            ->toArray();
 
-                if (
-                    !empty(
-                        $schedule->program_code
-                    )
-                ) {
-                    $programCode =
-                        $schedule->program_code;
-                }
+        /*
+         * ========================================================
+         * FORMAT DATES
+         * ========================================================
+         */
+        foreach ($records as &$record) {
+
+            /*
+             * Distribution date
+             */
+            if (
+                isset($record['distribution_date']) &&
+                $record['distribution_date'] instanceof \DateTimeInterface
+            ) {
+                $record['distribution_date'] =
+                    $record['distribution_date']->format('Y-m-d');
             }
-
-            /*
-             * Subsidy item
-             */
-            $subsidyItem =
-                !empty(
-                    $record->subsidy_item
-                )
-                    ? $record->subsidy_item
-                    : 'N/A';
-
-            /*
-             * Quantity
-             */
-            $quantity =
-                isset($record->quantity)
-                    ? $record->quantity
-                    : 'N/A';
 
             /*
              * Received date
              */
-            $receivedDate =
-                !empty(
-                    $record->received_date
-                )
-                    ? $record->received_date
-                    : 'N/A';
+            if (
+                isset($record['received_date']) &&
+                $record['received_date'] instanceof \DateTimeInterface
+            ) {
+                $record['received_date'] =
+                    $record['received_date']->format('Y-m-d');
+            }
 
             /*
-             * Status
-             */
-            $status =
-                !empty($record->status)
-                    ? $record->status
-                    : 'N/A';
-
-            return $this->response
-                ->withStatus(200)
-                ->withType('application/json')
-                ->withStringBody(
-                    json_encode(
-                        [
-                            'success' => true,
-
-                            'data' => [
-                                'id' =>
-                                    $record->id,
-
-                                'farmer_id' =>
-                                    $record->farmer_id,
-
-                                'schedule_id' =>
-                                    $record->schedule_id,
-
-                                'farmer_name' =>
-                                    $farmerName,
-
-                                'program_code' =>
-                                    $programCode,
-
-                                'subsidy_item' =>
-                                    $subsidyItem,
-
-                                'quantity' =>
-                                    $quantity,
-
-                                'distribution_date' =>
-                                    $distributionDate,
-
-                                'distribution_time' =>
-                                    $distributionTime,
-
-                                'received_date' =>
-                                    $receivedDate,
-
-                                'status' =>
-                                    $status
-                            ]
-                        ],
-                        JSON_UNESCAPED_UNICODE
-                    )
-                );
-        } catch (\Throwable $e) {
-            return $this->response
-                ->withStatus(500)
-                ->withType('application/json')
-                ->withStringBody(
-                    json_encode([
-                        'success' => false,
-                        'message' =>
-                            $e->getMessage()
-                    ])
-                );
-        }
-    }
-
-    /**
-     * ================================================================
-     * GET ALL FARMER DISTRIBUTION RECORDS
-     * ================================================================
-     */
-    public function getFarmerRecords($farmerId = null)
-    {
-        $this->request->allowMethod(['get']);
-
-        try {
-            /*
-             * ========================================================
-             * VALIDATE FARMER ID
-             * ========================================================
+             * Make sure program always exists in the JSON
              */
             if (
-                $farmerId === null ||
-                !is_numeric($farmerId)
+                !isset($record['program']) ||
+                $record['program'] === null
             ) {
-                return $this->response
-                    ->withStatus(400)
-                    ->withType('application/json')
-                    ->withStringBody(
-                        json_encode([
-                            'success' => false,
-                            'message' =>
-                                'Invalid farmer ID.'
-                        ])
-                    );
+                $record['program'] = '';
             }
 
-            $farmerId =
-                (int)$farmerId;
-
-            /*
-             * ========================================================
-             * FARMERS MODEL
-             * ========================================================
-             */
-            $this->loadModel(
-                'Farmers'
-            );
-
-            /*
-             * ========================================================
-             * FIND FARMER
-             * ========================================================
-             */
-            $farmer =
-                $this->Farmers->find()
-                    ->select([
-                        'id',
-                        'first_name',
-                        'last_name'
-                    ])
-                    ->where([
-                        'Farmers.id' =>
-                            $farmerId
-                    ])
-                    ->first();
-
-            if (!$farmer) {
-                return $this->response
-                    ->withStatus(404)
-                    ->withType('application/json')
-                    ->withStringBody(
-                        json_encode([
-                            'success' => false,
-                            'message' =>
-                                'Farmer not found.'
-                        ])
-                    );
-            }
-
-            $records =
-                $this->Records->find()
-                    ->select([
-                        'record_id' =>
-                            'Records.id',
-
-                        'farmer_id' =>
-                            'Records.farmer_id',
-
-                        'schedule_id' =>
-                            'Records.schedule_id',
-
-                        'subsidy_item' =>
-                            'Records.subsidy_item',
-
-                        'quantity' =>
-                            'Records.quantity',
-
-                        'received_date' =>
-                            'Records.received_date',
-
-                        'status' =>
-                            'Records.status',
-
-                        /*
-                         * Program comes from Schedules
-                         */
-                        'program_code' =>
-                            'Schedules.program_code',
-                        'distribution_date' =>
-                            'Schedules.start_date'
-                    ])
-                    ->innerJoin(
-                        [
-                            'Schedules' =>
-                                'schedules'
-                        ],
-                        [
-                            'Schedules.id = Records.schedule_id'
-                        ]
-                    )
-                    ->where([
-                        'Records.farmer_id' =>
-                            $farmerId
-                    ])
-                    ->order([
-                        'Schedules.start_date' =>
-                            'DESC',
-
-                        'Records.id' =>
-                            'DESC'
-                    ])
-                    ->enableHydration(false)
-                    ->toArray();
-
-            /*
-             * ========================================================
-             * FORMAT DATES
-             * ========================================================
-             */
-            foreach (
-                $records as &$record
+            if (
+                !isset($record['program_code']) ||
+                $record['program_code'] === null
             ) {
-                if (
-                    isset(
-                        $record[
-                            'distribution_date'
-                        ]
-                    ) &&
-                    $record[
-                        'distribution_date'
-                    ] instanceof
-                        \DateTimeInterface
-                ) {
-                    $record[
-                        'distribution_date'
-                    ] =
-                        $record[
-                            'distribution_date'
-                        ]->format(
-                            'Y-m-d'
-                        );
-                }
-
-                if (
-                    isset(
-                        $record[
-                            'received_date'
-                        ]
-                    ) &&
-                    $record[
-                        'received_date'
-                    ] instanceof
-                        \DateTimeInterface
-                ) {
-                    $record[
-                        'received_date'
-                    ] =
-                        $record[
-                            'received_date'
-                        ]->format(
-                            'Y-m-d'
-                        );
-                }
+                $record['program_code'] = '';
             }
-
-            unset($record);
-
-            /*
-             * ========================================================
-             * FARMER RESPONSE
-             * ========================================================
-             */
-            $farmerData = [
-                'id' =>
-                    $farmer->id,
-
-                'first_name' =>
-                    $farmer->first_name ?? '',
-
-                'last_name' =>
-                    $farmer->last_name ?? ''
-            ];
-
-            /*
-             * ========================================================
-             * JSON RESPONSE
-             * ========================================================
-             */
-            return $this->response
-                ->withStatus(200)
-                ->withType('application/json')
-                ->withStringBody(
-                    json_encode(
-                        [
-                            'success' =>
-                                true,
-
-                            'farmer' =>
-                                $farmerData,
-
-                            'records' =>
-                                $records
-                        ],
-                        JSON_UNESCAPED_UNICODE
-                    )
-                );
-        } catch (\Throwable $e) {
-            /*
-             * ========================================================
-             * LOG ERROR
-             * ========================================================
-             */
-            \Cake\Log\Log::error(
-                'RecordsController::getFarmerRecords(): ' .
-                $e->getMessage() .
-                "\n" .
-                $e->getTraceAsString()
-            );
-
-            return $this->response
-                ->withStatus(500)
-                ->withType('application/json')
-                ->withStringBody(
-                    json_encode([
-                        'success' => false,
-                        'message' =>
-                            $e->getMessage()
-                    ])
-                );
         }
+
+        unset($record);
+
+        /*
+         * ========================================================
+         * FARMER DATA
+         * ========================================================
+         */
+        $farmerData = [
+            'id' => $farmer->id,
+            'first_name' => $farmer->first_name ?? '',
+            'last_name' => $farmer->last_name ?? ''
+        ];
+
+        /*
+         * ========================================================
+         * JSON RESPONSE
+         * ========================================================
+         */
+        return $this->response
+            ->withStatus(200)
+            ->withType('application/json')
+            ->withStringBody(
+                json_encode(
+                    [
+                        'success' => true,
+                        'farmer' => $farmerData,
+                        'records' => $records
+                    ],
+                    JSON_UNESCAPED_UNICODE
+                )
+            );
+
+    } catch (\Throwable $e) {
+
+        /*
+         * ========================================================
+         * LOG ERROR
+         * ========================================================
+         */
+        \Cake\Log\Log::error(
+            'RecordsController::getFarmerRecords(): ' .
+            $e->getMessage() .
+            "\n" .
+            $e->getTraceAsString()
+        );
+
+        return $this->response
+            ->withStatus(500)
+            ->withType('application/json')
+            ->withStringBody(
+                json_encode([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ])
+            );
     }
+}
 }

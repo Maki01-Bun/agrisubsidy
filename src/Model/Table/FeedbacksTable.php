@@ -69,6 +69,9 @@ class FeedbacksTable extends Table
         $validator
             ->scalar('comment')
             ->maxLength('comment', 255);
+        
+        $validator
+            ->scalar('answer');
 
         $validator
             ->dateTime('feedback_date')

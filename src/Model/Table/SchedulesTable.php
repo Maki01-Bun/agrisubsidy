@@ -100,6 +100,12 @@ class SchedulesTable extends Table
             ->time('end_time')
             ->requirePresence('end_time', 'create')
             ->notEmptyTime('end_time');
+            
+        $validator
+            ->scalar('status')
+            ->requirePresence('status', 'create')
+            ->notEmptyString('status');
+
 
         return $validator;
     }

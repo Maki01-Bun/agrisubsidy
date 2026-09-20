@@ -144,7 +144,7 @@ class FarmersController extends AppController
         return $this->response->withType('application/json')
             ->withStringBody(json_encode($result));
     }
-    public function viewRecord()
+ public function viewRecord()
     {
 
         $this->request->allowMethod(['get']);

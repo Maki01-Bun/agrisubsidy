@@ -20,15 +20,10 @@
                 Basic Information
             </h5>
             <div class="row">
-                <!-- FARMER NAME -->
                 <div class="col-md-3 mb-3">
-                    <label>Farmer Name</label>
-                    <?= $this->Form->control('farmer_name', [
-                        'value' => $farmerName ?? '',
-                        'class' => 'form-control',
-                        'label' => false,
-                        'readonly' => true
-                    ]) ?>
+                    <label for="farmer_name">Farmer Name</label>
+                    <input type="text" id="farmer_name" name="farmer_name" class="form-control"
+                    value="<?= h($farmerName) ?>" readonly>
                 </div>
                 <!-- SCHEDULE -->
                 <div class="col-md-3 mb-3">

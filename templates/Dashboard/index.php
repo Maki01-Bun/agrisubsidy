@@ -119,7 +119,6 @@
 
     <div class="row g-4">
 
-
         <!-- ========================================================
              EFFECTIVENESS EVALUATION
         ========================================================= -->
@@ -128,7 +127,6 @@
 
             <div class="dashboard-card h-100">
 
-                <!-- HEADER -->
                 <div class="dashboard-card-header">
 
                     <div class="d-flex align-items-center">
@@ -146,15 +144,13 @@
                             </h5>
 
                             <p>
-                                Overall subsidy program effectiveness
+                                Overall seed subsidy program effectiveness
                             </p>
 
                         </div>
 
                     </div>
 
-
-                    <!-- ANALYTICS BADGE -->
                     <?php if (!empty($labels) && !empty($totals)) : ?>
 
                         <span class="analytics-badge">
@@ -170,7 +166,6 @@
                 </div>
 
 
-                <!-- BODY -->
                 <div class="dashboard-card-body">
 
                     <?php if (!empty($labels) && !empty($totals)) : ?>
@@ -222,7 +217,6 @@
 
             <div class="dashboard-card h-100">
 
-                <!-- HEADER -->
                 <div class="dashboard-card-header">
 
                     <div>
@@ -250,10 +244,10 @@
                 </div>
 
 
-                <!-- BODY -->
                 <div class="dashboard-card-body">
 
                     <!-- Average Rating -->
+
                     <div class="rating-box">
 
                         <div class="rating-circle">
@@ -297,10 +291,10 @@
                     </div>
 
 
-                    <!-- Feedback Breakdown -->
+                    <!-- Feedback -->
+
                     <div class="feedback-list">
 
-                        <!-- Positive -->
                         <div class="feedback-item">
 
                             <div class="feedback-info">
@@ -326,15 +320,12 @@
                             </div>
 
                             <span class="feedback-count positive-count">
-
                                 <?= $positive ?? 0 ?>
-
                             </span>
 
                         </div>
 
 
-                        <!-- Neutral -->
                         <div class="feedback-item">
 
                             <div class="feedback-info">
@@ -360,15 +351,12 @@
                             </div>
 
                             <span class="feedback-count neutral-count">
-
                                 <?= $neutral ?? 0 ?>
-
                             </span>
 
                         </div>
 
 
-                        <!-- Negative -->
                         <div class="feedback-item">
 
                             <div class="feedback-info">
@@ -394,9 +382,7 @@
                             </div>
 
                             <span class="feedback-count negative-count">
-
                                 <?= $negative ?? 0 ?>
-
                             </span>
 
                         </div>
@@ -404,7 +390,8 @@
                     </div>
 
 
-                    <!-- Beneficiary Statistics -->
+                    <!-- Beneficiaries -->
+
                     <div class="mini-statistics">
 
                         <div class="mini-stat">
@@ -480,7 +467,6 @@
 
                 <div class="dashboard-card-header registration-header">
 
-                    <!-- LEFT -->
                     <div class="registration-header-left">
 
                         <div class="section-icon registration-section-icon">
@@ -504,7 +490,6 @@
                     </div>
 
 
-                    <!-- RIGHT -->
                     <?php if (!empty($notifications)) : ?>
 
                         <div class="registration-header-actions">
@@ -556,6 +541,7 @@
                                 <tr>
 
                                     <!-- SELECT ALL -->
+
                                     <th
                                         class="checkbox-column text-center"
                                         width="55"
@@ -576,24 +562,28 @@
 
 
                                     <!-- MESSAGE -->
+
                                     <th>
                                         MESSAGE
                                     </th>
 
 
                                     <!-- DATE -->
+
                                     <th>
                                         DATE
                                     </th>
 
 
                                     <!-- STATUS -->
+
                                     <th>
                                         STATUS
                                     </th>
 
 
                                     <!-- ACTION -->
+
                                     <th
                                         width="100"
                                         class="text-center"
@@ -615,6 +605,7 @@
                                         <tr>
 
                                             <!-- CHECKBOX -->
+
                                             <td class="checkbox-column text-center">
 
                                                 <div class="checkbox-wrapper">
@@ -624,6 +615,11 @@
                                                         class="form-check-input notif-checkbox"
                                                         value="<?= h($notif->id) ?>"
                                                         id="notif-<?= h($notif->id) ?>"
+                                                        <?= in_array(
+                                                            strtolower((string)$notif->status),
+                                                            ['approved', 'declined'],
+                                                            true
+                                                        ) ? 'disabled' : '' ?>
                                                     >
 
                                                 </div>
@@ -632,6 +628,7 @@
 
 
                                             <!-- MESSAGE -->
+
                                             <td>
 
                                                 <div class="request-message">
@@ -645,15 +642,11 @@
                                                     <div class="request-message-content">
 
                                                         <span>
-
                                                             <?= h($notif->message) ?>
-
                                                         </span>
 
                                                         <small>
-
                                                             Registration request
-
                                                         </small>
 
                                                     </div>
@@ -664,21 +657,48 @@
 
 
                                             <!-- DATE -->
+
                                             <td>
 
                                                 <?php if ($notif->created) : ?>
 
-                                                    <span class="date-text">
+                                                    <?php
+                                                    /*
+                                                     * Notifications.created is a database timestamp.
+                                                     *
+                                                     * Use the Unix timestamp as the absolute moment.
+                                                     * Then convert that moment to Philippine time for
+                                                     * the exact date/time displayed below.
+                                                     *
+                                                     * This fixes the 8-hour difference visible when the
+                                                     * database/CakePHP value is UTC but the application
+                                                     * is being viewed in the Philippines.
+                                                     */
+                                                    $createdTimestamp = $notif->created->getTimestamp();
 
-                                                        <i class="far fa-calendar mr-1"></i>
+                                                    $createdPhilippine =
+                                                        (new \DateTimeImmutable('@' . $createdTimestamp))
+                                                            ->setTimezone(
+                                                                new \DateTimeZone('Asia/Manila')
+                                                            );
+                                                    ?>
 
-                                                        <?= $notif->created->format('M d, Y') ?>
+                                                    <span
+                                                        class="date-text realtime-registration-time"
+                                                        data-created="<?= h($createdTimestamp) ?>"
+                                                    >
+
+                                                        <i class="far fa-clock mr-1"></i>
+
+                                                        <span class="relative-time">
+                                                            Just now
+                                                        </span>
 
                                                     </span>
 
-                                                    <small class="d-block text-muted">
+                                                    <small class="d-block text-muted exact-registration-time">
 
-                                                        <?= $notif->created->format('h:i A') ?>
+                                                        <?= h($createdPhilippine->format('M d, Y h:i A')) ?>
 
                                                     </small>
 
@@ -694,13 +714,19 @@
 
 
                                             <!-- STATUS -->
+
                                             <td>
 
                                                 <?php
 
-                                                $badgeClass = 'status-pending';
+                                                $badgeClass =
+                                                    'status-pending';
 
-                                                switch ($notif->status) {
+                                                switch (
+                                                    strtolower(
+                                                        (string)$notif->status
+                                                    )
+                                                ) {
 
                                                     case 'approved':
 
@@ -716,8 +742,6 @@
 
                                                         break;
 
-                                                    case 'pending':
-
                                                     default:
 
                                                         $badgeClass =
@@ -729,19 +753,22 @@
 
                                                 ?>
 
-
                                                 <span
-                                                    class="status-badge <?= $badgeClass ?>"
+                                                    class="status-badge <?= h($badgeClass) ?>"
                                                 >
 
                                                     <?php if (
-                                                        $notif->status === 'approved'
+                                                        strtolower(
+                                                            (string)$notif->status
+                                                        ) === 'approved'
                                                     ) : ?>
 
                                                         <i class="fas fa-check-circle"></i>
 
                                                     <?php elseif (
-                                                        $notif->status === 'declined'
+                                                        strtolower(
+                                                            (string)$notif->status
+                                                        ) === 'declined'
                                                     ) : ?>
 
                                                         <i class="fas fa-times-circle"></i>
@@ -753,14 +780,22 @@
                                                     <?php endif; ?>
 
 
-                                                    <?= ucfirst(h($notif->status)) ?>
+                                                    <?= ucfirst(
+                                                        h(
+                                                            $notif->status ?: 'pending'
+                                                        )
+                                                    ) ?>
 
                                                 </span>
 
                                             </td>
 
 
-                                            <!-- ACTION -->
+                                            <!-- =================================================
+                                                 VIEW
+                                                 DO NOT REMOVE
+                                            ================================================== -->
+
                                             <td class="text-center">
 
                                                 <button
@@ -784,7 +819,6 @@
 
                                 <?php else : ?>
 
-                                    <!-- EMPTY STATE -->
                                     <tr>
 
                                         <td
@@ -853,9 +887,7 @@
             <div class="modal-content registration-modal">
 
 
-                <!-- =================================================
-                     MODAL HEADER
-                ================================================== -->
+                <!-- HEADER -->
 
                 <div class="modal-header registration-modal-header">
 
@@ -901,16 +933,12 @@
                 </div>
 
 
-                <!-- =================================================
-                     MODAL BODY
-                ================================================== -->
+                <!-- BODY -->
 
                 <div class="modal-body registration-modal-body">
 
 
-                    <!-- =================================================
-                         LOADING
-                    ================================================== -->
+                    <!-- LOADING -->
 
                     <div
                         id="registrationLoading"
@@ -935,9 +963,7 @@
                     </div>
 
 
-                    <!-- =================================================
-                         CONTENT
-                    ================================================== -->
+                    <!-- CONTENT -->
 
                     <div
                         id="registrationModalContent"
@@ -946,6 +972,7 @@
 
 
                         <!-- DUPLICATE FARMER -->
+
                         <div
                             id="duplicateFarmerAlert"
                             class="registration-alert registration-alert-warning"
@@ -986,6 +1013,7 @@
 
 
                         <!-- NO DUPLICATE -->
+
                         <div
                             id="noDuplicateFarmerAlert"
                             class="registration-alert registration-alert-success"
@@ -1014,9 +1042,7 @@
                         </div>
 
 
-                        <!-- =================================================
-                             USER INFORMATION
-                        ================================================== -->
+                        <!-- USER INFORMATION -->
 
                         <div class="registration-section">
 
@@ -1081,9 +1107,7 @@
                         </div>
 
 
-                        <!-- =================================================
-                             FARMER INFORMATION
-                        ================================================== -->
+                        <!-- FARMER INFORMATION -->
 
                         <div class="registration-section">
 
@@ -1121,9 +1145,7 @@
                     </div>
 
 
-                    <!-- =================================================
-                         ERROR
-                    ================================================== -->
+                    <!-- ERROR -->
 
                     <div
                         id="registrationModalError"
@@ -1142,8 +1164,10 @@
                         </h5>
 
                         <p id="registrationErrorMessage">
+
                             Something went wrong while loading
                             the registration details.
+
                         </p>
 
                         <button
@@ -1151,7 +1175,9 @@
                             class="btn btn-outline-secondary btn-sm"
                             data-dismiss="modal"
                         >
+
                             Close
+
                         </button>
 
                     </div>
@@ -1159,9 +1185,7 @@
                 </div>
 
 
-                <!-- =================================================
-                     MODAL FOOTER
-                ================================================== -->
+                <!-- FOOTER -->
 
                 <div
                     class="modal-footer registration-modal-footer"
@@ -1170,6 +1194,7 @@
                 >
 
                     <!-- CLOSE -->
+
                     <button
                         type="button"
                         class="btn btn-light"
@@ -1183,24 +1208,18 @@
                     </button>
 
 
-                    <!-- =================================================
-                         DECLINE REGISTRATION
-                    ================================================== -->
+                    <!-- DECLINE FORM -->
 
                     <?= $this->Form->create(null, [
                         'id' => 'declineRegistrationForm',
-                        'url' => [
-                            'controller' => 'Notifications',
-                            'action' => 'declineRegistration'
-                        ],
+                        'url' => '#',
                         'style' => 'display:inline; margin:0;'
                     ]) ?>
 
                         <button
-                            type="submit"
+                            type="button"
                             id="modalDeclineBtn"
                             class="btn btn-danger"
-                            onclick="return confirm('Are you sure you want to decline this registration?');"
                         >
 
                             <i class="fas fa-times mr-1"></i>
@@ -1212,24 +1231,18 @@
                     <?= $this->Form->end() ?>
 
 
-                    <!-- =================================================
-                         APPROVE REGISTRATION
-                    ================================================== -->
+                    <!-- APPROVE FORM -->
 
                     <?= $this->Form->create(null, [
                         'id' => 'approveRegistrationForm',
-                        'url' => [
-                            'controller' => 'Notifications',
-                            'action' => 'approveRegistration'
-                        ],
+                        'url' => '#',
                         'style' => 'display:inline; margin:0;'
                     ]) ?>
 
                         <button
-                            type="submit"
+                            type="button"
                             id="modalApproveBtn"
                             class="btn btn-success"
-                            onclick="return confirm('Are you sure you want to approve this registration?');"
                         >
 
                             <i class="fas fa-check mr-1"></i>
@@ -1248,67 +1261,606 @@
 
     </div>
 
+
+    <!-- ============================================================
+         APPROVE / DECLINE CONFIRMATION MODAL
+    ============================================================= -->
+
+    <div
+        class="modal fade"
+        id="registrationConfirmModal"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="registrationConfirmModalLabel"
+        aria-hidden="true"
+    >
+
+        <div
+            class="modal-dialog modal-dialog-centered"
+            role="document"
+        >
+
+            <div class="modal-content">
+
+
+                <div class="modal-header">
+
+                    <h5
+                        class="modal-title"
+                        id="registrationConfirmModalLabel"
+                    >
+                        Confirm Action
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-label="Close"
+                    >
+
+                        <span aria-hidden="true">
+                            &times;
+                        </span>
+
+                    </button>
+
+                </div>
+
+
+                <div class="modal-body text-center py-4">
+
+                    <div
+                        id="registrationConfirmIcon"
+                        class="mb-3"
+                    >
+
+                        <i
+                            class="fas fa-question-circle text-primary"
+                            style="font-size:65px;"
+                        ></i>
+
+                    </div>
+
+
+                    <h4
+                        id="registrationConfirmTitle"
+                        class="mb-2"
+                    >
+                        Confirm Action
+                    </h4>
+
+
+                    <p
+                        id="registrationConfirmMessage"
+                        class="text-muted mb-0"
+                    >
+                        Are you sure you want to continue?
+                    </p>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal"
+                        id="cancelRegistrationActionBtn"
+                    >
+
+                        <i class="fas fa-times mr-1"></i>
+
+                        Cancel
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="confirmRegistrationActionBtn"
+                        class="btn btn-primary"
+                    >
+
+                        Continue
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ============================================================
+         REGISTRATION RESULT MODAL
+    ============================================================= -->
+
+    <div
+        class="modal fade"
+        id="registrationResultModal"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="registrationResultModalLabel"
+        aria-hidden="true"
+    >
+
+        <div
+            class="modal-dialog modal-dialog-centered"
+            role="document"
+        >
+
+            <div class="modal-content">
+
+
+                <div class="modal-header">
+
+                    <h5
+                        class="modal-title"
+                        id="registrationResultModalLabel"
+                    >
+                        Registration Status
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-label="Close"
+                    >
+
+                        <span aria-hidden="true">
+                            &times;
+                        </span>
+
+                    </button>
+
+                </div>
+
+
+                <div class="modal-body text-center py-4">
+
+                    <div
+                        id="registrationResultIcon"
+                        class="mb-3"
+                    >
+
+                        <i
+                            class="fas fa-check-circle text-success"
+                            style="font-size:65px;"
+                        ></i>
+
+                    </div>
+
+
+                    <h4
+                        id="registrationResultTitle"
+                        class="mb-2"
+                    >
+                        Registration Approved
+                    </h4>
+
+
+                    <p
+                        id="registrationResultMessage"
+                        class="text-muted mb-0"
+                    >
+                        The farmer registration has been approved successfully.
+                    </p>
+
+                </div>
+
+
+                <div class="modal-footer justify-content-center">
+
+                    <button
+                        type="button"
+                        class="btn btn-primary px-4"
+                        data-dismiss="modal"
+                    >
+
+                        <i class="fas fa-check mr-1"></i>
+
+                        OK
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ============================================================
+         BULK APPROVE CONFIRMATION MODAL
+    ============================================================= -->
+
+    <div
+        class="modal fade"
+        id="bulkApproveConfirmModal"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="bulkApproveConfirmModalLabel"
+        aria-hidden="true"
+    >
+
+        <div
+            class="modal-dialog modal-dialog-centered"
+            role="document"
+        >
+
+            <div class="modal-content">
+
+
+                <div class="modal-header">
+
+                    <h5
+                        class="modal-title"
+                        id="bulkApproveConfirmModalLabel"
+                    >
+                        Confirm Bulk Approval
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-label="Close"
+                    >
+
+                        <span aria-hidden="true">
+                            &times;
+                        </span>
+
+                    </button>
+
+                </div>
+
+
+                <div class="modal-body text-center py-4">
+
+                    <div class="mb-3">
+
+                        <i
+                            class="fas fa-users-cog text-success"
+                            style="font-size:65px;"
+                        ></i>
+
+                    </div>
+
+
+                    <h4 class="mb-2">
+                        Approve Selected Registrations?
+                    </h4>
+
+
+                    <p class="text-muted mb-0">
+
+                        You are about to approve
+
+                        <strong
+                            id="bulkApproveCount"
+                            class="text-success"
+                        >
+                            0
+                        </strong>
+
+                        selected registration(s).
+
+                    </p>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal"
+                    >
+
+                        <i class="fas fa-times mr-1"></i>
+
+                        Cancel
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="confirmBulkApproveBtn"
+                        class="btn btn-success"
+                    >
+
+                        <i class="fas fa-check-double mr-1"></i>
+
+                        Approve Selected
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ============================================================
+         BULK APPROVE RESULT MODAL
+    ============================================================= -->
+
+    <div
+        class="modal fade"
+        id="bulkApproveResultModal"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="bulkApproveResultModalLabel"
+        aria-hidden="true"
+    >
+
+        <div
+            class="modal-dialog modal-dialog-centered"
+            role="document"
+        >
+
+            <div class="modal-content">
+
+
+                <div class="modal-header">
+
+                    <h5
+                        class="modal-title"
+                        id="bulkApproveResultModalLabel"
+                    >
+                        Bulk Approval
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-label="Close"
+                    >
+
+                        <span aria-hidden="true">
+                            &times;
+                        </span>
+
+                    </button>
+
+                </div>
+
+
+                <div class="modal-body text-center py-4">
+
+                    <div
+                        id="bulkResultIcon"
+                        class="mb-3"
+                    >
+
+                        <i
+                            class="fas fa-check-circle text-success"
+                            style="font-size:65px;"
+                        ></i>
+
+                    </div>
+
+
+                    <h4 id="bulkResultTitle">
+                        Bulk Approval Successful
+                    </h4>
+
+
+                    <p
+                        id="bulkResultMessage"
+                        class="text-muted mb-0"
+                    >
+                        The selected farmer registrations have been approved successfully.
+                    </p>
+
+                </div>
+
+
+                <div class="modal-footer justify-content-center">
+
+                    <button
+                        type="button"
+                        class="btn btn-success px-4"
+                        data-dismiss="modal"
+                    >
+
+                        <i class="fas fa-check mr-1"></i>
+
+                        OK
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 
-<!-- ============================================================
-     CHART JS
-============================================================ -->
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-
-
+<!-- ================================================================
+     JAVASCRIPT
+================================================================ -->
 <script>
+$(document).ready(function () {
 
-document.addEventListener('DOMContentLoaded', function () {
+    'use strict';
 
 
-    /* =========================================================
+    /* ============================================================
        EFFECTIVENESS EVALUATION CHART
-    ========================================================= */
+       ============================================================ */
 
-    const labels =
-        <?= json_encode($labels ?? []) ?>;
-
-    const totals =
-        <?= json_encode($totals ?? []) ?>;
-
+    const labels = <?= json_encode($labels ?? []) ?>;
+    const totals = <?= json_encode($totals ?? []) ?>;
 
     const effectivenessCanvas =
-        document.getElementById(
-            'effectivenessChart'
-        );
+        document.getElementById('effectivenessChart');
 
 
-    /*
-     * Only create chart when:
-     *
-     * 1. Canvas exists
-     * 2. Evaluation data exists
-     */
+    /* ============================================================
+       EFFECTIVENESS CHART COLOR FUNCTION
+       ============================================================ */
+
+    function getEffectivenessColor(label) {
+
+        const normalized =
+            String(label || '')
+                .trim()
+                .toLowerCase();
+
+        if (
+            normalized === 'effective' ||
+            normalized === '2'
+        ) {
+            return '#28a745';
+        }
+
+        if (
+            normalized === 'moderately effective' ||
+            normalized === 'moderate effective' ||
+            normalized === 'moderately-effective' ||
+            normalized === 'moderate' ||
+            normalized === '1'
+        ) {
+            return '#ffc107';
+        }
+
+        if (
+            normalized === 'not effective' ||
+            normalized === 'not-effective' ||
+            normalized === '0'
+        ) {
+            return '#dc3545';
+        }
+
+        return '#6c757d';
+    }
+
+
+    /* ============================================================
+       CREATE EFFECTIVENESS CHART
+       ============================================================ */
 
     if (
         effectivenessCanvas &&
+        typeof Chart !== 'undefined' &&
+        Array.isArray(labels) &&
+        Array.isArray(totals) &&
         labels.length > 0 &&
         totals.length > 0
     ) {
 
-        const ctx =
-            effectivenessCanvas.getContext('2d');
+        console.log(
+            'Effectiveness Labels:',
+            labels
+        );
 
-
-        Chart.register(
-            ChartDataLabels
+        console.log(
+            'Effectiveness Totals:',
+            totals
         );
 
 
+        /* --------------------------------------------------------
+           DESTROY EXISTING CHART
+           -------------------------------------------------------- */
+
+        if (
+            typeof Chart.getChart === 'function'
+        ) {
+
+            const oldChart =
+                Chart.getChart(
+                    effectivenessCanvas
+                );
+
+            if (oldChart) {
+                oldChart.destroy();
+            }
+        }
+
+
+        /* --------------------------------------------------------
+           CONVERT DATA TO NUMBERS
+           -------------------------------------------------------- */
+
+        const chartValues =
+            totals.map(function (value) {
+
+                const number =
+                    Number(value);
+
+                return Number.isFinite(number)
+                    ? number
+                    : 0;
+            });
+
+
+        /* --------------------------------------------------------
+           CALCULATE TOTAL
+           -------------------------------------------------------- */
+
+        const chartTotal =
+            chartValues.reduce(
+                function (sum, value) {
+                    return sum + value;
+                },
+                0
+            );
+
+
+        /* --------------------------------------------------------
+           COLORS
+           -------------------------------------------------------- */
+
+        const chartColors =
+            labels.map(function (label) {
+
+                return getEffectivenessColor(
+                    label
+                );
+
+            });
+
+
+        console.log(
+            'Effectiveness Colors:',
+            chartColors
+        );
+
+
+        /* --------------------------------------------------------
+           CREATE CHART
+           -------------------------------------------------------- */
+
         new Chart(
-            ctx,
+            effectivenessCanvas,
             {
 
                 type: 'pie',
+
 
                 data: {
 
@@ -1318,19 +1870,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         {
 
-                            label: 'Evaluations',
+                            data: chartValues,
 
-                            data: totals,
+                            backgroundColor:
+                                chartColors,
 
-                            backgroundColor: [
-                                '#28a745',
-                                '#ffc107',
-                                '#dc3545'
-                            ],
+                            borderColor:
+                                '#ffffff',
 
-                            borderColor: '#ffffff',
+                            borderWidth:
+                                3,
 
-                            borderWidth: 2
+                            hoverOffset:
+                                8
 
                         }
 
@@ -1346,173 +1898,275 @@ document.addEventListener('DOMContentLoaded', function () {
                     maintainAspectRatio: false,
 
 
+                    animation: {
+
+                        duration: 800
+
+                    },
+
+
                     plugins: {
 
 
-                        /* ==========================
+                        /* =================================================
                            LEGEND
-                        ========================== */
+                           ================================================= */
 
                         legend: {
 
+                            display: true,
+
                             position: 'bottom',
+
+                            align: 'center',
 
                             labels: {
 
+                                padding: 18,
+
+                                usePointStyle: true,
+
+                                pointStyle: 'circle',
+
                                 font: {
-                                    size: 13
+
+                                    size: 13,
+
+                                    weight: '600'
+
                                 },
 
-                                padding: 15
+                                generateLabels:
+                                    function (chart) {
+
+                                        const dataset =
+                                            chart.data.datasets[0];
+
+                                        return chart.data.labels.map(
+                                            function (
+                                                label,
+                                                index
+                                            ) {
+
+                                                return {
+
+                                                    text:
+                                                        label,
+
+                                                    fillStyle:
+                                                        dataset.backgroundColor[index],
+
+                                                    strokeStyle:
+                                                        '#ffffff',
+
+                                                    lineWidth:
+                                                        2,
+
+                                                    hidden:
+                                                        false,
+
+                                                    index:
+                                                        index
+
+                                                };
+
+                                            }
+                                        );
+
+                                    }
 
                             }
 
                         },
 
 
-                        /* ==========================
+                        /* =================================================
                            TOOLTIP
-                        ========================== */
+                           ================================================= */
 
                         tooltip: {
 
+                            enabled: true,
+
                             callbacks: {
 
-                                label: function (context) {
+                                label:
+                                    function (
+                                        context
+                                    ) {
 
-                                    const value =
-                                        Number(
-                                            context.raw
-                                        ) || 0;
+                                        const value =
+                                            Number(
+                                                context.raw || 0
+                                            );
 
 
-                                    const data =
-                                        context.dataset.data;
+                                        const percentage =
+                                            chartTotal > 0
+
+                                                ? (
+                                                    value /
+                                                    chartTotal *
+                                                    100
+                                                ).toFixed(1)
+
+                                                : '0.0';
 
 
-                                    const total =
-                                        data.reduce(
-                                            function (
-                                                a,
-                                                b
-                                            ) {
-
-                                                return (
-                                                    Number(a) +
-                                                    Number(b)
-                                                );
-
-                                            },
-                                            0
+                                        return (
+                                            context.label +
+                                            ': ' +
+                                            value +
+                                            ' (' +
+                                            percentage +
+                                            '%)'
                                         );
 
-
-                                    const percentage =
-                                        total > 0
-                                            ? (
-                                                (
-                                                    value /
-                                                    total
-                                                ) *
-                                                100
-                                            ).toFixed(1)
-                                            : 0;
-
-
-                                    return (
-                                        context.label +
-                                        ': ' +
-                                        value +
-                                        ' (' +
-                                        percentage +
-                                        '%)'
-                                    );
-
-                                }
+                                    }
 
                             }
 
                         },
 
 
-                        /* ==========================
+                        /* =================================================
                            DATA LABELS
-                        ========================== */
+                           ================================================= */
 
-                        datalabels: {
+                        datalabels:
 
-                            color: '#fff',
+                            typeof ChartDataLabels !==
+                            'undefined'
 
-                            font: {
+                                ? {
 
-                                weight: 'bold',
-
-                                size: 14
-
-                            },
-
-
-                            formatter: function (
-                                value,
-                                context
-                            ) {
-
-                                const data =
-                                    context.chart
-                                        .data
-                                        .datasets[0]
-                                        .data;
-
-
-                                const total =
-                                    data.reduce(
+                                    display:
                                         function (
-                                            a,
-                                            b
+                                            context
                                         ) {
 
-                                            return (
-                                                Number(a) +
-                                                Number(b)
-                                            );
+                                            const value =
+                                                Number(
+                                                    context.dataset.data[
+                                                        context.dataIndex
+                                                    ] || 0
+                                                );
+
+                                            return value > 0;
 
                                         },
-                                        0
-                                    );
 
 
-                                if (total <= 0) {
-                                    return '';
+                                    color:
+                                        function (
+                                            context
+                                        ) {
+
+                                            const label =
+                                                context.chart
+                                                    .data
+                                                    .labels[
+                                                        context.dataIndex
+                                                    ];
+
+
+                                            const normalized =
+                                                String(
+                                                    label || ''
+                                                )
+                                                .trim()
+                                                .toLowerCase();
+
+
+                                            /*
+                                             * Dark text for yellow
+                                             */
+
+                                            if (
+                                                normalized ===
+                                                'moderately effective' ||
+
+                                                normalized ===
+                                                'moderate effective' ||
+
+                                                normalized ===
+                                                'moderately-effective' ||
+
+                                                normalized ===
+                                                'moderate' ||
+
+                                                normalized ===
+                                                '1'
+                                            ) {
+
+                                                return '#212529';
+
+                                            }
+
+
+                                            return '#ffffff';
+
+                                        },
+
+
+                                    font: {
+
+                                        weight:
+                                            'bold',
+
+                                        size:
+                                            14
+
+                                    },
+
+
+                                    formatter:
+                                        function (
+                                            value
+                                        ) {
+
+                                            if (
+                                                !chartTotal ||
+                                                !value
+                                            ) {
+
+                                                return '';
+
+                                            }
+
+
+                                            const percentage =
+                                                (
+                                                    Number(value) /
+                                                    chartTotal *
+                                                    100
+                                                ).toFixed(1);
+
+
+                                            return (
+                                                percentage +
+                                                '%'
+                                            );
+
+                                        }
+
                                 }
 
-
-                                const percentage =
-                                    (
-                                        (
-                                            value /
-                                            total
-                                        ) *
-                                        100
-                                    ).toFixed(1);
-
-
-                                return (
-                                    percentage +
-                                    '%'
-                                );
-
-                            }
-
-                        }
+                                : {}
 
                     }
 
                 },
 
 
-                plugins: [
-                    ChartDataLabels
-                ]
+                plugins:
+
+                    typeof ChartDataLabels !==
+                    'undefined'
+
+                        ? [ChartDataLabels]
+
+                        : []
 
             }
         );
@@ -1520,298 +2174,1207 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
+    /* ============================================================
+       EFFECTIVENESS CHART - NO DATA
+       ============================================================ */
 
-    /* =========================================================
-       REGISTRATION REQUESTS
-    ========================================================= */
+    else {
 
-    const selectAll =
-        document.getElementById(
-            'selectAllNotifications'
+        console.log(
+            'No effectiveness evaluation data.'
         );
 
-
-    const checkboxes =
-        document.querySelectorAll(
-            '.notif-checkbox'
-        );
-
-
-    const bulkApproveBtn =
-        document.getElementById(
-            'bulkApproveBtn'
-        );
+    }
 
 
 
-    /* =========================================================
-       REGISTRATION MODAL ELEMENTS
-    ========================================================= */
-
-    const loading =
-        document.getElementById(
-            'registrationLoading'
-        );
-
-
-    const modalContent =
-        document.getElementById(
-            'registrationModalContent'
-        );
-
-
-    const errorBox =
-        document.getElementById(
-            'registrationModalError'
-        );
-
-
-    const errorMessage =
-        document.getElementById(
-            'registrationErrorMessage'
-        );
-
-
-    const modalFooter =
-        document.getElementById(
-            'registrationModalFooter'
-        );
-
-
-    const username =
-        document.getElementById(
-            'registrationUsername'
-        );
-
-
-    const role =
-        document.getElementById(
-            'registrationRole'
-        );
-
-
-    const farmerGrid =
-        document.getElementById(
-            'farmerInformationGrid'
-        );
-
-
-    const duplicateAlert =
-        document.getElementById(
-            'duplicateFarmerAlert'
-        );
-
-
-    const noDuplicateAlert =
-        document.getElementById(
-            'noDuplicateFarmerAlert'
-        );
-
-
-    const existingFarmerNumber =
-        document.getElementById(
-            'existingFarmerNumber'
-        );
-
-
-    /* =========================================================
-       APPROVE / DECLINE ELEMENTS
-    ========================================================= */
-
-    const approveBtn =
-        document.getElementById(
-            'modalApproveBtn'
-        );
-
-
-    const declineBtn =
-        document.getElementById(
-            'modalDeclineBtn'
-        );
-
-
-    const approveForm =
-        document.getElementById(
-            'approveRegistrationForm'
-        );
-
-
-    const declineForm =
-        document.getElementById(
-            'declineRegistrationForm'
-        );
-
+    /* ============================================================
+       REGISTRATION VARIABLES
+       ============================================================ */
 
     let currentNotificationId = null;
 
+    let pendingRegistrationId = null;
 
+    let pendingRegistrationAction = null;
 
-    /* =========================================================
-       SET REGISTRATION FORM ACTIONS
-    ========================================================= */
+    let isSubmittingRegistrationAction = false;
 
-    function setRegistrationFormActions(id) {
-
-        if (!id) {
-            return;
-        }
-
-
-        /*
-         * APPROVE
-         */
-
-        if (approveForm) {
-
-            approveForm.action =
-                '<?= $this->Url->build([
-                    'controller' => 'Notifications',
-                    'action' => 'approveRegistration'
-                ]) ?>/' +
-                encodeURIComponent(id);
-
-        }
-
-
-        /*
-         * DECLINE
-         */
-
-        if (declineForm) {
-
-            declineForm.action =
-                '<?= $this->Url->build([
-                    'controller' => 'Notifications',
-                    'action' => 'declineRegistration'
-                ]) ?>/' +
-                encodeURIComponent(id);
-
-        }
-
-    }
+    let isSubmittingBulkApproval = false;
 
 
 
-    /* =========================================================
-       UPDATE BULK APPROVE BUTTON
-    ========================================================= */
+    /* ============================================================
+       CAKEPHP URLS
+       ============================================================ */
 
-    function updateBulkButton() {
-
-        const selected =
-            document.querySelectorAll(
-                '.notif-checkbox:checked'
-            );
-
-
-        if (!bulkApproveBtn) {
-            return;
-        }
+    const registrationDetailsBaseUrl =
+        '<?= $this->Url->build([
+            'controller' => 'Notifications',
+            'action' => 'getRegistrationDetails'
+        ]) ?>';
 
 
-        bulkApproveBtn.disabled =
-            selected.length === 0;
+    const approveBaseUrl =
+        '<?= $this->Url->build([
+            'controller' => 'Notifications',
+            'action' => 'approveRegistration'
+        ]) ?>';
 
 
-        if (selected.length > 0) {
+    const declineBaseUrl =
+        '<?= $this->Url->build([
+            'controller' => 'Notifications',
+            'action' => 'declineRegistration'
+        ]) ?>';
 
-            bulkApproveBtn.innerHTML =
-                '<i class="fas fa-check-double mr-1"></i> ' +
-                'Approve Selected (' +
-                selected.length +
-                ')';
 
-        } else {
+    const bulkApproveUrl =
+        '<?= $this->Url->build([
+            'controller' => 'Notifications',
+            'action' => 'bulkApprove'
+        ]) ?>';
 
-            bulkApproveBtn.innerHTML =
-                '<i class="fas fa-check-double mr-1"></i> ' +
-                'Approve Selected';
 
-        }
+
+    /* ============================================================
+       REAL-TIME REGISTRATION REQUEST TIME
+
+       The notification timestamp is handled as an absolute Unix
+       timestamp. This means the browser never guesses the timezone.
+
+       PHP provides the current server epoch time when the page loads.
+       JavaScript then keeps that server clock moving using elapsed
+       browser time. The relative age therefore does not depend on the
+       Windows/browser timezone or clock being correct.
+
+       The exact timestamp under the relative time is rendered by PHP
+       in Asia/Manila time.
+       ============================================================ */
+
+    const serverNowAtLoad =
+        <?= time() * 1000 ?>;
+
+    const browserNowAtLoad =
+        Date.now();
+
+
+    function getCurrentServerTime() {
+
+        return (
+            serverNowAtLoad +
+            (Date.now() - browserNowAtLoad)
+        );
 
     }
 
 
+    function updateRegistrationTimes() {
 
-    /* =========================================================
-       SELECT ALL CHECKBOX
-    ========================================================= */
+        $('.realtime-registration-time').each(function () {
 
-    if (selectAll) {
+            const element = $(this);
 
-        selectAll.addEventListener(
-            'change',
-            function () {
-
-                checkboxes.forEach(
-                    function (checkbox) {
-
-                        checkbox.checked =
-                            selectAll.checked;
-
-                    }
+            const createdTimestamp =
+                Number(
+                    element.attr('data-created')
                 );
 
 
-                selectAll.indeterminate =
-                    false;
+            if (
+                !Number.isFinite(createdTimestamp) ||
+                createdTimestamp <= 0
+            ) {
 
+                element
+                    .find('.relative-time')
+                    .text('Unknown');
 
-                updateBulkButton();
+                return;
 
             }
+
+
+            const createdMillis =
+                createdTimestamp * 1000;
+
+
+            let differenceSeconds =
+                Math.floor(
+                    (
+                        getCurrentServerTime() -
+                        createdMillis
+                    ) / 1000
+                );
+
+
+            /*
+             * Prevent negative values from appearing if the server
+             * and database clocks differ by a small amount.
+             */
+            if (differenceSeconds < 0) {
+                differenceSeconds = 0;
+            }
+
+
+            let text = '';
+
+
+            /* --------------------------------------------------------
+               UNDER 1 MINUTE
+            --------------------------------------------------------- */
+
+            if (differenceSeconds < 60) {
+
+                text = 'Just now';
+
+            }
+
+
+            /* --------------------------------------------------------
+               UNDER 1 HOUR
+            --------------------------------------------------------- */
+
+            else if (differenceSeconds < 3600) {
+
+                const minutes =
+                    Math.floor(
+                        differenceSeconds / 60
+                    );
+
+                text =
+                    minutes === 1
+                        ? '1 minute ago'
+                        : minutes + ' minutes ago';
+
+            }
+
+
+            /* --------------------------------------------------------
+               UNDER 1 DAY
+            --------------------------------------------------------- */
+
+            else if (differenceSeconds < 86400) {
+
+                const hours =
+                    Math.floor(
+                        differenceSeconds / 3600
+                    );
+
+                const minutes =
+                    Math.floor(
+                        (differenceSeconds % 3600) / 60
+                    );
+
+                if (minutes === 0) {
+
+                    text =
+                        hours === 1
+                            ? '1 hour ago'
+                            : hours + ' hours ago';
+
+                } else {
+
+                    const hourText =
+                        hours === 1
+                            ? '1 hour'
+                            : hours + ' hours';
+
+                    const minuteText =
+                        minutes === 1
+                            ? '1 minute'
+                            : minutes + ' minutes';
+
+                    text =
+                        hourText +
+                        ' ' +
+                        minuteText +
+                        ' ago';
+
+                }
+
+            }
+
+
+            /* --------------------------------------------------------
+               1 DAY OR OLDER
+            --------------------------------------------------------- */
+
+            else {
+
+                const days =
+                    Math.floor(
+                        differenceSeconds / 86400
+                    );
+
+                const hours =
+                    Math.floor(
+                        (differenceSeconds % 86400) / 3600
+                    );
+
+                if (
+                    days === 1 &&
+                    hours === 0
+                ) {
+
+                    text = 'Yesterday';
+
+                }
+
+                else if (hours === 0) {
+
+                    text =
+                        days === 1
+                            ? '1 day ago'
+                            : days + ' days ago';
+
+                }
+
+                else {
+
+                    const dayText =
+                        days === 1
+                            ? '1 day'
+                            : days + ' days';
+
+                    const hourText =
+                        hours === 1
+                            ? '1 hour'
+                            : hours + ' hours';
+
+                    text =
+                        dayText +
+                        ' ' +
+                        hourText +
+                        ' ago';
+
+                }
+
+            }
+
+
+            element
+                .find('.relative-time')
+                .text(text);
+
+        });
+
+    }
+
+
+    /*
+     * Update immediately when the dashboard opens.
+     */
+    updateRegistrationTimes();
+
+
+    /*
+     * Keep the displayed age current.
+     */
+    setInterval(
+        updateRegistrationTimes,
+        1000
+    );
+
+
+
+    /* ============================================================
+       CSRF TOKEN
+       ============================================================ */
+
+    function getCsrfToken() {
+
+        let token =
+            $('input[name="_csrfToken"]')
+                .first()
+                .val();
+
+
+        if (!token) {
+
+            token =
+                $('meta[name="csrfToken"]')
+                    .attr('content');
+
+        }
+
+
+        return token || '';
+
+    }
+
+
+
+    /* ============================================================
+       ADD FARMER FIELD
+       ============================================================ */
+
+    function addFarmerField(
+        container,
+        label,
+        value
+    ) {
+
+        let displayValue =
+            value;
+
+
+        if (
+            displayValue === null ||
+            displayValue === undefined ||
+            displayValue === ''
+        ) {
+
+            displayValue = '—';
+
+        }
+
+
+        const item =
+            $('<div>')
+                .addClass(
+                    'registration-info-item'
+                );
+
+
+        $('<span>')
+            .addClass(
+                'registration-label'
+            )
+            .text(
+                label
+            )
+            .appendTo(
+                item
+            );
+
+
+        $('<span>')
+            .addClass(
+                'registration-value'
+            )
+            .text(
+                displayValue
+            )
+            .appendTo(
+                item
+            );
+
+
+        container.append(
+            item
         );
 
     }
 
 
 
-    /* =========================================================
-       INDIVIDUAL CHECKBOXES
-    ========================================================= */
+    /* ============================================================
+       RESET REGISTRATION MODAL
+       ============================================================ */
 
-    checkboxes.forEach(
-        function (checkbox) {
+    function resetRegistrationModal() {
 
-            checkbox.addEventListener(
-                'change',
-                function () {
-
-                    const total =
-                        checkboxes.length;
+        $('#registrationLoading')
+            .show();
 
 
-                    const selected =
-                        document.querySelectorAll(
-                            '.notif-checkbox:checked'
-                        ).length;
+        $('#registrationModalContent')
+            .hide();
 
 
-                    if (selectAll) {
-
-                        /*
-                         * All selected
-                         */
-
-                        selectAll.checked =
-                            total > 0 &&
-                            selected === total;
+        $('#registrationModalError')
+            .hide();
 
 
-                        /*
-                         * Some selected
-                         */
+        $('#registrationModalFooter')
+            .hide();
 
-                        selectAll.indeterminate =
-                            selected > 0 &&
-                            selected < total;
+
+        $('#duplicateFarmerAlert')
+            .hide();
+
+
+        $('#noDuplicateFarmerAlert')
+            .hide();
+
+
+        $('#modalApproveBtn')
+            .hide();
+
+
+        $('#modalDeclineBtn')
+            .hide();
+
+
+        $('#registrationUsername')
+            .text('—');
+
+
+        $('#registrationRole')
+            .text('—');
+
+
+        $('#existingFarmerNumber')
+            .text('—');
+
+
+        $('#registrationErrorMessage')
+            .text('');
+
+
+        $('#farmerInformationGrid')
+            .empty();
+
+    }
+
+
+
+    /* ============================================================
+       SHOW REGISTRATION ERROR
+       ============================================================ */
+
+    function showRegistrationError(
+        message
+    ) {
+
+        $('#registrationLoading')
+            .hide();
+
+
+        $('#registrationModalContent')
+            .hide();
+
+
+        $('#registrationModalFooter')
+            .hide();
+
+
+        $('#registrationErrorMessage')
+            .text(
+                message ||
+                'Unable to load registration details.'
+            );
+
+
+        $('#registrationModalError')
+            .show();
+
+    }
+
+
+
+    /* ============================================================
+       SHOW REGISTRATION RESULT
+       ============================================================ */
+
+    function showRegistrationResult(
+        type,
+        title,
+        message
+    ) {
+
+        $('#registrationResultTitle')
+            .text(
+                title
+            );
+
+
+        $('#registrationResultMessage')
+            .text(
+                message
+            );
+
+
+        const icon =
+            $('#registrationResultIcon');
+
+
+        icon.empty();
+
+
+        if (
+            type === 'success'
+        ) {
+
+            icon.html(
+                '<i class="fas fa-check-circle text-success" ' +
+                'style="font-size:65px;"></i>'
+            );
+
+        }
+
+        else if (
+            type === 'warning'
+        ) {
+
+            icon.html(
+                '<i class="fas fa-exclamation-triangle text-warning" ' +
+                'style="font-size:65px;"></i>'
+            );
+
+        }
+
+        else {
+
+            icon.html(
+                '<i class="fas fa-times-circle text-danger" ' +
+                'style="font-size:65px;"></i>'
+            );
+
+        }
+
+
+        $('#registrationResultModal')
+            .modal({
+                backdrop: 'static',
+                keyboard: false
+            });
+
+    }
+
+
+
+    /* ============================================================
+       SHOW BULK RESULT
+       ============================================================ */
+
+    function showBulkResult(
+        type,
+        title,
+        message
+    ) {
+
+        $('#bulkResultTitle')
+            .text(
+                title
+            );
+
+
+        $('#bulkResultMessage')
+            .text(
+                message
+            );
+
+
+        const icon =
+            $('#bulkResultIcon');
+
+
+        icon.empty();
+
+
+        if (
+            type === 'success'
+        ) {
+
+            icon.html(
+                '<i class="fas fa-check-circle text-success" ' +
+                'style="font-size:65px;"></i>'
+            );
+
+        }
+
+        else if (
+            type === 'warning'
+        ) {
+
+            icon.html(
+                '<i class="fas fa-exclamation-triangle text-warning" ' +
+                'style="font-size:65px;"></i>'
+            );
+
+        }
+
+        else {
+
+            icon.html(
+                '<i class="fas fa-times-circle text-danger" ' +
+                'style="font-size:65px;"></i>'
+            );
+
+        }
+
+
+        $('#bulkApproveResultModal')
+            .modal({
+                backdrop: 'static',
+                keyboard: false
+            });
+
+    }
+
+
+
+    /* ============================================================
+       VIEW REGISTRATION
+       ============================================================ */
+
+    $(document).on(
+        'click',
+        '.view-registration-btn',
+        function (e) {
+
+            e.preventDefault();
+
+
+            const id =
+                $(this).data('id');
+
+
+            console.log(
+                'VIEW REGISTRATION ID:',
+                id
+            );
+
+
+            if (!id) {
+
+                showRegistrationError(
+                    'Registration ID is missing.'
+                );
+
+
+                $('#registrationDetailsModal')
+                    .modal('show');
+
+
+                return;
+
+            }
+
+
+            currentNotificationId =
+                id;
+
+
+            resetRegistrationModal();
+
+
+            $('#registrationDetailsModal')
+                .modal('show');
+
+
+            const requestUrl =
+                registrationDetailsBaseUrl +
+                '/' +
+                encodeURIComponent(id);
+
+
+            console.log(
+                'GET:',
+                requestUrl
+            );
+
+
+            $.ajax({
+
+                url:
+                    requestUrl,
+
+                type:
+                    'GET',
+
+                dataType:
+                    'json',
+
+                cache:
+                    false,
+
+                timeout:
+                    15000,
+
+
+                success:
+                    function (response) {
+
+                        console.log(
+                            'REGISTRATION RESPONSE:',
+                            response
+                        );
+
+
+                        if (
+                            !response ||
+                            response.success !== true
+                        ) {
+
+                            showRegistrationError(
+
+                                response &&
+                                response.message
+
+                                    ? response.message
+
+                                    : 'Invalid response from server.'
+
+                            );
+
+                            return;
+
+                        }
+
+
+                        const data =
+                            response.data || {};
+
+
+                        const user =
+                            data.user || {};
+
+
+                        const farmer =
+                            data.farmer || {};
+
+
+                        const existingFarmer =
+                            response.existingFarmer ||
+                            null;
+
+
+                        /* ==========================================
+                           USER
+                           ========================================== */
+
+                        $('#registrationUsername')
+                            .text(
+                                user.username ||
+                                '—'
+                            );
+
+
+                        $('#registrationRole')
+                            .text(
+                                user.role ||
+                                'farmer'
+                            );
+
+
+                        /* ==========================================
+                           FARMER
+                           ========================================== */
+
+                        const farmerGrid =
+                            $('#farmerInformationGrid');
+
+
+                        farmerGrid.empty();
+
+
+                        addFarmerField(
+                            farmerGrid,
+                            'First Name',
+                            farmer.first_name
+                        );
+
+
+                        addFarmerField(
+                            farmerGrid,
+                            'Middle Name',
+                            farmer.middle_name
+                        );
+
+
+                        addFarmerField(
+                            farmerGrid,
+                            'Last Name',
+                            farmer.last_name
+                        );
+
+
+                        addFarmerField(
+                            farmerGrid,
+                            'Address',
+                            farmer.address
+                        );
+
+
+                        addFarmerField(
+                            farmerGrid,
+                            'Contact Number',
+                            farmer.contact_no
+                        );
+
+
+                        addFarmerField(
+                            farmerGrid,
+                            'Gender',
+                            farmer.gender
+                        );
+
+
+                        addFarmerField(
+                            farmerGrid,
+                            'Birth Date',
+                            farmer.birthdate
+                        );
+
+
+                        /* ==========================================
+                           DUPLICATE
+                           ========================================== */
+
+                        if (
+                            existingFarmer
+                        ) {
+
+                            $('#existingFarmerNumber')
+                                .text(
+                                    existingFarmer.farmer_no ||
+                                    existingFarmer.id ||
+                                    '—'
+                                );
+
+
+                            $('#duplicateFarmerAlert')
+                                .show();
+
+
+                            $('#noDuplicateFarmerAlert')
+                                .hide();
+
+                        }
+
+                        else {
+
+                            $('#duplicateFarmerAlert')
+                                .hide();
+
+
+                            $('#noDuplicateFarmerAlert')
+                                .show();
+
+                        }
+
+
+                        /* ==========================================
+                           STATUS
+                           ========================================== */
+
+                        const status =
+                            String(
+                                response.status ||
+                                'pending'
+                            )
+                            .toLowerCase()
+                            .trim();
+
+
+                        console.log(
+                            'STATUS:',
+                            status
+                        );
+
+
+                        $('#registrationLoading')
+                            .hide();
+
+
+                        $('#registrationModalContent')
+                            .show();
+
+
+                        /* ==========================================
+                           ALREADY APPROVED
+                           ========================================== */
+
+                        if (
+                            status === 'approved'
+                        ) {
+
+                            $('#registrationModalFooter')
+                                .hide();
+
+
+                            $('#modalApproveBtn')
+                                .hide();
+
+
+                            $('#modalDeclineBtn')
+                                .hide();
+
+
+                            setTimeout(
+                                function () {
+
+                                    $('#registrationDetailsModal')
+                                        .modal('hide');
+
+
+                                    setTimeout(
+                                        function () {
+
+                                            showRegistrationResult(
+
+                                                'warning',
+
+                                                'Registration Already Approved',
+
+                                                'This farmer registration has already been approved.'
+
+                                            );
+
+                                        },
+                                        350
+                                    );
+
+                                },
+                                250
+                            );
+
+
+                            return;
+
+                        }
+
+
+                        /* ==========================================
+                           ALREADY DECLINED
+                           ========================================== */
+
+                        if (
+                            status === 'declined'
+                        ) {
+
+                            $('#registrationModalFooter')
+                                .hide();
+
+
+                            $('#modalApproveBtn')
+                                .hide();
+
+
+                            $('#modalDeclineBtn')
+                                .hide();
+
+
+                            setTimeout(
+                                function () {
+
+                                    $('#registrationDetailsModal')
+                                        .modal('hide');
+
+
+                                    setTimeout(
+                                        function () {
+
+                                            showRegistrationResult(
+
+                                                'warning',
+
+                                                'Registration Already Declined',
+
+                                                'This farmer registration has already been declined.'
+
+                                            );
+
+                                        },
+                                        350
+                                    );
+
+                                },
+                                250
+                            );
+
+
+                            return;
+
+                        }
+
+
+                        /* ==========================================
+                           PENDING
+                           ========================================== */
+
+                        $('#registrationModalFooter')
+                            .show();
+
+
+                        $('#modalApproveBtn')
+                            .show();
+
+
+                        $('#modalDeclineBtn')
+                            .show();
+
+                    },
+
+
+                error:
+                    function (
+                        xhr,
+                        textStatus,
+                        errorThrown
+                    ) {
+
+                        console.error(
+                            'REGISTRATION ERROR:',
+                            xhr.status,
+                            textStatus,
+                            errorThrown,
+                            xhr.responseText
+                        );
+
+
+                        let message =
+                            'Unable to load registration details.';
+
+
+                        if (
+                            textStatus ===
+                            'timeout'
+                        ) {
+
+                            message =
+                                'The request timed out. Please try again.';
+
+                        }
+
+                        else if (
+                            xhr.status === 404
+                        ) {
+
+                            message =
+                                'The registration details URL was not found.';
+
+                        }
+
+                        else if (
+                            xhr.status === 403
+                        ) {
+
+                            message =
+                                'You are not authorized to view this registration.';
+
+                        }
+
+                        else if (
+                            xhr.status >= 500
+                        ) {
+
+                            message =
+                                'A server error occurred while loading the registration.';
+
+                        }
+
+
+                        if (
+                            xhr.responseJSON &&
+                            xhr.responseJSON.message
+                        ) {
+
+                            message =
+                                xhr.responseJSON.message;
+
+                        }
+
+
+                        showRegistrationError(
+                            message
+                        );
 
                     }
 
+            });
 
-                    updateBulkButton();
+        }
+    );
 
-                }
+
+
+    /* ============================================================
+       APPROVE BUTTON
+       ============================================================ */
+
+    $(document).on(
+        'click',
+        '#modalApproveBtn',
+        function () {
+
+            if (
+                !currentNotificationId
+            ) {
+
+                showRegistrationResult(
+
+                    'error',
+
+                    'Unable to Approve',
+
+                    'Registration ID is missing.'
+
+                );
+
+                return;
+
+            }
+
+
+            pendingRegistrationId =
+                currentNotificationId;
+
+
+            pendingRegistrationAction =
+                'approve';
+
+
+            $('#registrationConfirmModalLabel')
+                .text(
+                    'Confirm Registration Approval'
+                );
+
+
+            $('#registrationConfirmIcon')
+                .html(
+                    '<i class="fas fa-check-circle text-success" ' +
+                    'style="font-size:65px;"></i>'
+                );
+
+
+            $('#registrationConfirmTitle')
+                .text(
+                    'Approve Farmer Registration?'
+                );
+
+
+            $('#registrationConfirmMessage')
+                .text(
+                    'Are you sure you want to approve this farmer registration?'
+                );
+
+
+            $('#confirmRegistrationActionBtn')
+                .removeClass(
+                    'btn-danger btn-primary'
+                )
+                .addClass(
+                    'btn-success'
+                )
+                .html(
+                    '<i class="fas fa-check mr-1"></i>' +
+                    ' Approve Registration'
+                )
+                .prop(
+                    'disabled',
+                    false
+                );
+
+
+            $('#registrationDetailsModal')
+                .modal('hide');
+
+
+            setTimeout(
+                function () {
+
+                    $('#registrationConfirmModal')
+                        .modal({
+                            backdrop: 'static',
+                            keyboard: false
+                        });
+
+                },
+                400
             );
 
         }
@@ -1819,859 +3382,769 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    /* =========================================================
-       BULK APPROVE
-    ========================================================= */
+    /* ============================================================
+       DECLINE BUTTON
+       ============================================================ */
 
-    if (bulkApproveBtn) {
+    $(document).on(
+        'click',
+        '#modalDeclineBtn',
+        function () {
 
-        bulkApproveBtn.addEventListener(
-            'click',
-            function () {
+            if (
+                !currentNotificationId
+            ) {
 
-                const selected =
-                    document.querySelectorAll(
-                        '.notif-checkbox:checked'
-                    );
+                showRegistrationResult(
 
+                    'error',
 
-                /*
-                 * NO SELECTION
-                 */
+                    'Unable to Decline',
 
-                if (selected.length === 0) {
+                    'Registration ID is missing.'
 
-                    alert(
-                        'Please select at least one registration request.'
-                    );
+                );
 
-                    return;
+                return;
 
-                }
+            }
 
 
-                /*
-                 * GET SELECTED IDS
-                 */
-
-                const ids = [];
+            pendingRegistrationId =
+                currentNotificationId;
 
 
-                selected.forEach(
-                    function (checkbox) {
+            pendingRegistrationAction =
+                'decline';
 
-                        ids.push(
-                            checkbox.value
-                        );
 
-                    }
+            $('#registrationConfirmModalLabel')
+                .text(
+                    'Confirm Registration Decline'
                 );
 
 
-                /*
-                 * CONFIRMATION
-                 */
-
-                const confirmed =
-                    confirm(
-                        'Are you sure you want to approve ' +
-                        ids.length +
-                        ' registration request(s)?'
-                    );
-
-
-                if (!confirmed) {
-                    return;
-                }
-
-
-                /*
-                 * CREATE FORM
-                 */
-
-                const form =
-                    document.createElement(
-                        'form'
-                    );
-
-
-                form.method =
-                    'POST';
-
-
-                form.action =
-                    '<?= $this->Url->build([
-                        'controller' => 'Notifications',
-                        'action' => 'bulkApprove'
-                    ]) ?>';
-
-
-                /*
-                 * CSRF TOKEN
-                 */
-
-                const csrfToken =
-                    document.querySelector(
-                        'input[name="_csrfToken"]'
-                    );
-
-
-                if (csrfToken) {
-
-                    const csrf =
-                        document.createElement(
-                            'input'
-                        );
-
-
-                    csrf.type =
-                        'hidden';
-
-
-                    csrf.name =
-                        '_csrfToken';
-
-
-                    csrf.value =
-                        csrfToken.value;
-
-
-                    form.appendChild(
-                        csrf
-                    );
-
-                }
-
-
-                /*
-                 * ADD SELECTED IDS
-                 */
-
-                ids.forEach(
-                    function (id) {
-
-                        const input =
-                            document.createElement(
-                                'input'
-                            );
-
-
-                        input.type =
-                            'hidden';
-
-
-                        input.name =
-                            'notification_ids[]';
-
-
-                        input.value =
-                            id;
-
-
-                        form.appendChild(
-                            input
-                        );
-
-                    }
+            $('#registrationConfirmIcon')
+                .html(
+                    '<i class="fas fa-times-circle text-danger" ' +
+                    'style="font-size:65px;"></i>'
                 );
 
 
-                /*
-                 * SUBMIT
-                 */
+            $('#registrationConfirmTitle')
+                .text(
+                    'Decline Farmer Registration?'
+                );
 
-                document.body.appendChild(
+
+            $('#registrationConfirmMessage')
+                .text(
+                    'Are you sure you want to decline this farmer registration?'
+                );
+
+
+            $('#confirmRegistrationActionBtn')
+                .removeClass(
+                    'btn-success btn-primary'
+                )
+                .addClass(
+                    'btn-danger'
+                )
+                .html(
+                    '<i class="fas fa-times mr-1"></i>' +
+                    ' Decline Registration'
+                )
+                .prop(
+                    'disabled',
+                    false
+                );
+
+
+            $('#registrationDetailsModal')
+                .modal('hide');
+
+
+            setTimeout(
+                function () {
+
+                    $('#registrationConfirmModal')
+                        .modal({
+                            backdrop: 'static',
+                            keyboard: false
+                        });
+
+                },
+                400
+            );
+
+        }
+    );
+
+
+
+    /* ============================================================
+       CONFIRM APPROVE / DECLINE
+       ============================================================ */
+
+    $(document).on(
+        'click',
+        '#confirmRegistrationActionBtn',
+        function () {
+
+            if (
+                isSubmittingRegistrationAction
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                !pendingRegistrationId ||
+                !pendingRegistrationAction
+            ) {
+
+                showRegistrationResult(
+
+                    'error',
+
+                    'Unable to Process',
+
+                    'The registration information is missing.'
+
+                );
+
+                return;
+
+            }
+
+
+            isSubmittingRegistrationAction =
+                true;
+
+
+            const button =
+                $(this);
+
+
+            button
+                .prop(
+                    'disabled',
+                    true
+                );
+
+
+            button.html(
+                '<span class="spinner-border spinner-border-sm mr-1"></span>' +
+                ' Processing...'
+            );
+
+
+            let actionUrl;
+
+
+            if (
+                pendingRegistrationAction ===
+                'approve'
+            ) {
+
+                actionUrl =
+                    approveBaseUrl +
+                    '/' +
+                    encodeURIComponent(
+                        pendingRegistrationId
+                    );
+
+            }
+
+            else {
+
+                actionUrl =
+                    declineBaseUrl +
+                    '/' +
+                    encodeURIComponent(
+                        pendingRegistrationId
+                    );
+
+            }
+
+
+            console.log(
+                'SUBMIT:',
+                actionUrl
+            );
+
+
+            /*
+             * NATIVE FORM
+             * This allows CakePHP CSRF protection.
+             */
+
+            const form =
+                $('<form>', {
+
+                    method:
+                        'POST',
+
+                    action:
+                        actionUrl
+
+                });
+
+
+            const csrfToken =
+                getCsrfToken();
+
+
+            if (
+                csrfToken
+            ) {
+
+                form.append(
+                    $('<input>', {
+
+                        type:
+                            'hidden',
+
+                        name:
+                            '_csrfToken',
+
+                        value:
+                            csrfToken
+
+                    })
+                );
+
+            }
+
+
+            $('body')
+                .append(
                     form
                 );
 
 
-                form.submit();
+            /*
+             * Native submit.
+             */
 
-            }
-        );
-
-    }
-
-
-
-    /* =========================================================
-       VIEW REGISTRATION
-    ========================================================= */
-
-    document.querySelectorAll(
-        '.view-registration-btn'
-    ).forEach(
-        function (button) {
-
-            button.addEventListener(
-                'click',
-                function () {
-
-                    currentNotificationId =
-                        this.getAttribute(
-                            'data-id'
-                        );
-
-
-                    loadRegistrationDetails(
-                        currentNotificationId
-                    );
-
-                }
-            );
+            HTMLFormElement
+                .prototype
+                .submit
+                .call(
+                    form[0]
+                );
 
         }
     );
 
 
 
-    /* =========================================================
-       LOAD REGISTRATION DETAILS
-    ========================================================= */
-
-    function loadRegistrationDetails(id) {
-
-
-        /* =====================================================
-           SET APPROVE / DECLINE FORM URLS
-        ===================================================== */
-
-        setRegistrationFormActions(id);
-
-
-
-        /* =====================================================
-           RESET MODAL
-        ===================================================== */
-
-        if (loading) {
-
-            loading.style.display =
-                'flex';
-
-        }
-
-
-        if (modalContent) {
-
-            modalContent.style.display =
-                'none';
-
-        }
-
-
-        if (errorBox) {
-
-            errorBox.style.display =
-                'none';
-
-        }
-
-
-        if (modalFooter) {
-
-            modalFooter.style.display =
-                'none';
-
-        }
-
-
-        if (duplicateAlert) {
-
-            duplicateAlert.style.display =
-                'none';
-
-        }
-
-
-        if (noDuplicateAlert) {
-
-            noDuplicateAlert.style.display =
-                'none';
-
-        }
-
-
-        if (farmerGrid) {
-
-            farmerGrid.innerHTML =
-                '';
-
-        }
-
-
-        if (username) {
-
-            username.textContent =
-                '—';
-
-        }
-
-
-        if (role) {
-
-            role.textContent =
-                '—';
-
-        }
-
-
-        if (existingFarmerNumber) {
-
-            existingFarmerNumber.textContent =
-                '—';
-
-        }
-
-
-
-        /* =====================================================
-           URL
-        ===================================================== */
-
-        const url =
-            '<?= $this->Url->build([
-                'controller' => 'Notifications',
-                'action' => 'getRegistrationDetails'
-            ]) ?>/' +
-            encodeURIComponent(id);
-
-
-
-        /* =====================================================
-           FETCH
-        ===================================================== */
-
-        fetch(
-            url,
-            {
-                method: 'GET',
-
-                headers: {
-
-                    'Accept':
-                        'application/json',
-
-                    'X-Requested-With':
-                        'XMLHttpRequest'
-
-                }
-
-            }
-        )
-
-        .then(
-            function (response) {
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        'Server error: ' +
-                        response.status
-                    );
-
-                }
-
-
-                return response.json();
-
-            }
-        )
-
-        .then(
-            function (result) {
-
-
-                /* =================================================
-                   VALIDATE RESPONSE
-                ================================================= */
+    /* ============================================================
+       CONFIRM MODAL CLOSED
+       ============================================================ */
+
+    $('#registrationConfirmModal')
+        .on(
+            'hidden.bs.modal',
+            function () {
 
                 if (
-                    !result ||
-                    result.success !== true
+                    !isSubmittingRegistrationAction
                 ) {
 
-                    throw new Error(
-                        result.message ||
-                        'Registration details not found.'
-                    );
+                    pendingRegistrationId =
+                        null;
 
-                }
 
+                    pendingRegistrationAction =
+                        null;
 
 
-                /* =================================================
-                   USER INFORMATION
-                ================================================= */
-
-                const user =
-                    result.data &&
-                    result.data.user
-                        ? result.data.user
-                        : {};
-
-
-                if (username) {
-
-                    username.textContent =
-                        user.username ||
-                        '—';
-
-                }
-
-
-                if (role) {
-
-                    role.textContent =
-                        user.role ||
-                        '—';
-
-                }
-
-
-
-                /* =================================================
-                   DUPLICATE FARMER
-                ================================================= */
-
-                if (
-                    result.existingFarmer
-                ) {
-
-                    if (duplicateAlert) {
-
-                        duplicateAlert.style.display =
-                            'flex';
-
-                    }
-
-
-                    if (existingFarmerNumber) {
-
-                        existingFarmerNumber.textContent =
-                            result.existingFarmer.farmer_no ||
-                            '—';
-
-                    }
-
-                } else {
-
-                    if (noDuplicateAlert) {
-
-                        noDuplicateAlert.style.display =
-                            'flex';
-
-                    }
-
-                }
-
-
-
-                /* =================================================
-                   FARMER INFORMATION
-                ================================================= */
-
-                const farmer =
-                    result.data &&
-                    result.data.farmer
-                        ? result.data.farmer
-                        : {};
-
-
-                if (farmerGrid) {
-
-                    Object.keys(farmer).forEach(
-                        function (field) {
-
-
-                            const item =
-                                document.createElement(
-                                    'div'
-                                );
-
-
-                            item.className =
-                                'registration-info-item';
-
-
-
-                            const label =
-                                document.createElement(
-                                    'span'
-                                );
-
-
-                            label.className =
-                                'registration-label';
-
-
-                            label.textContent =
-                                formatFieldName(
-                                    field
-                                );
-
-
-
-                            const value =
-                                document.createElement(
-                                    'span'
-                                );
-
-
-                            value.className =
-                                'registration-value';
-
-
-
-                            const fieldValue =
-                                farmer[field];
-
-
-
-                            value.textContent =
-                                fieldValue !== null &&
-                                fieldValue !== undefined &&
-                                fieldValue !== ''
-                                    ? fieldValue
-                                    : '—';
-
-
-
-                            item.appendChild(
-                                label
-                            );
-
-
-                            item.appendChild(
-                                value
-                            );
-
-
-                            farmerGrid.appendChild(
-                                item
-                            );
-
-                        }
-                    );
-
-                }
-
-
-
-                /* =================================================
-                   SHOW CONTENT
-                ================================================= */
-
-                if (loading) {
-
-                    loading.style.display =
-                        'none';
-
-                }
-
-
-                if (modalContent) {
-
-                    modalContent.style.display =
-                        'block';
-
-                }
-
-
-
-                /* =================================================
-                   ACTION BUTTONS
-                ================================================= */
-
-                if (
-                    result.status &&
-                    result.status.toLowerCase() ===
-                    'pending'
-                ) {
-
-
-                    if (modalFooter) {
-
-                        modalFooter.style.display =
-                            'flex';
-
-                    }
-
-
-                    if (approveForm) {
-
-                        approveForm.style.display =
-                            'inline';
-
-                    }
-
-
-                    if (declineForm) {
-
-                        declineForm.style.display =
-                            'inline';
-
-                    }
-
-
-                    if (approveBtn) {
-
-                        approveBtn.style.display =
-                            'inline-block';
-
-                    }
-
-
-                    if (declineBtn) {
-
-                        declineBtn.style.display =
-                            'inline-block';
-
-                    }
-
-                } else {
-
-
-                    if (modalFooter) {
-
-                        modalFooter.style.display =
-                            'flex';
-
-                    }
-
-
-                    if (approveForm) {
-
-                        approveForm.style.display =
-                            'none';
-
-                    }
-
-
-                    if (declineForm) {
-
-                        declineForm.style.display =
-                            'none';
-
-                    }
-
-
-                    if (approveBtn) {
-
-                        approveBtn.style.display =
-                            'none';
-
-                    }
-
-
-                    if (declineBtn) {
-
-                        declineBtn.style.display =
-                            'none';
-
-                    }
-
-                }
-
-            }
-        )
-
-        .catch(
-            function (error) {
-
-
-                console.error(
-                    'Registration Details Error:',
-                    error
-                );
-
-
-                if (loading) {
-
-                    loading.style.display =
-                        'none';
-
-                }
-
-
-                if (errorBox) {
-
-                    errorBox.style.display =
-                        'flex';
-
-                }
-
-
-                if (errorMessage) {
-
-                    errorMessage.textContent =
-                        error.message ||
-                        'Unable to load registration details.';
+                    $('#confirmRegistrationActionBtn')
+                        .prop(
+                            'disabled',
+                            false
+                        );
 
                 }
 
             }
         );
 
-    }
+
+
+    /* ============================================================
+       SELECT ALL
+       ============================================================ */
+
+    $(document).on(
+        'change',
+        '#selectAllNotifications',
+        function () {
+
+            const checked =
+                $(this)
+                    .prop(
+                        'checked'
+                    );
+
+
+            $('.notif-checkbox:not(:disabled)')
+                .prop(
+                    'checked',
+                    checked
+                );
+
+
+            updateBulkApproveButton();
+
+        }
+    );
 
 
 
-    /* =========================================================
-       FORMAT FIELD NAME
-    ========================================================= */
+    /* ============================================================
+       INDIVIDUAL CHECKBOX
+       ============================================================ */
 
-    function formatFieldName(field) {
+    $(document).on(
+        'change',
+        '.notif-checkbox',
+        function () {
 
-        return field
+            updateBulkApproveButton();
 
-            .replace(
-                /_/g,
-                ' '
-            )
+        }
+    );
 
-            .replace(
-                /\b\w/g,
-                function (letter) {
 
-                    return letter.toUpperCase();
 
-                }
+    /* ============================================================
+       UPDATE BULK BUTTON
+       ============================================================ */
+
+    function updateBulkApproveButton() {
+
+        const selected =
+            $('.notif-checkbox:checked')
+                .length;
+
+
+        const available =
+            $('.notif-checkbox:not(:disabled)')
+                .length;
+
+
+        $('#bulkApproveBtn')
+            .prop(
+                'disabled',
+                selected === 0
+            );
+
+
+        if (
+            selected > 0
+        ) {
+
+            $('#bulkApproveBtn')
+                .html(
+                    '<i class="fas fa-check-double mr-1"></i>' +
+                    ' Approve Selected (' +
+                    selected +
+                    ')'
+                );
+
+        }
+
+        else {
+
+            $('#bulkApproveBtn')
+                .html(
+                    '<i class="fas fa-check-double mr-1"></i>' +
+                    ' Approve Selected'
+                );
+
+        }
+
+
+        $('#selectAllNotifications')
+            .prop(
+                'checked',
+                available > 0 &&
+                selected === available
             );
 
     }
 
 
 
-    /* =========================================================
-       RESET MODAL WHEN CLOSED
-    ========================================================= */
+    /* ============================================================
+       BULK APPROVE BUTTON
+       ============================================================ */
 
-    $('#registrationDetailsModal').on(
-        'hidden.bs.modal',
+    $(document).on(
+        'click',
+        '#bulkApproveBtn',
         function () {
 
+            const selectedIds =
+                $('.notif-checkbox:checked')
+                    .map(
+                        function () {
 
-            currentNotificationId =
-                null;
+                            return $(this).val();
 
-
-            if (loading) {
-
-                loading.style.display =
-                    'flex';
-
-            }
-
-
-            if (modalContent) {
-
-                modalContent.style.display =
-                    'none';
-
-            }
+                        }
+                    )
+                    .get();
 
 
-            if (errorBox) {
-
-                errorBox.style.display =
-                    'none';
-
-            }
+            console.log(
+                'SELECTED IDS:',
+                selectedIds
+            );
 
 
-            if (modalFooter) {
+            if (
+                selectedIds.length === 0
+            ) {
 
-                modalFooter.style.display =
-                    'none';
+                showRegistrationResult(
 
-            }
+                    'warning',
 
+                    'No Registration Selected',
 
-            if (duplicateAlert) {
+                    'Please select at least one farmer registration to approve.'
 
-                duplicateAlert.style.display =
-                    'none';
+                );
+
+                return;
 
             }
 
 
-            if (noDuplicateAlert) {
+            $('#bulkApproveCount')
+                .text(
+                    selectedIds.length
+                );
 
-                noDuplicateAlert.style.display =
-                    'none';
+
+            $('#bulkApproveConfirmModal')
+                .modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+
+        }
+    );
+
+
+
+    /* ============================================================
+       CONFIRM BULK APPROVE
+       ============================================================ */
+
+    $(document).on(
+        'click',
+        '#confirmBulkApproveBtn',
+        function () {
+
+            if (
+                isSubmittingBulkApproval
+            ) {
+
+                return;
 
             }
 
 
-            if (farmerGrid) {
+            const selectedIds =
+                $('.notif-checkbox:checked')
+                    .map(
+                        function () {
 
-                farmerGrid.innerHTML =
-                    '';
+                            return $(this).val();
+
+                        }
+                    )
+                    .get();
+
+
+            if (
+                selectedIds.length === 0
+            ) {
+
+                $('#bulkApproveConfirmModal')
+                    .modal('hide');
+
+
+                showRegistrationResult(
+
+                    'warning',
+
+                    'No Registration Selected',
+
+                    'Please select at least one farmer registration to approve.'
+
+                );
+
+                return;
 
             }
 
 
-            if (username) {
-
-                username.textContent =
-                    '—';
-
-            }
+            isSubmittingBulkApproval =
+                true;
 
 
-            if (role) {
-
-                role.textContent =
-                    '—';
-
-            }
+            const button =
+                $(this);
 
 
-            if (existingFarmerNumber) {
+            button
+                .prop(
+                    'disabled',
+                    true
+                );
 
-                existingFarmerNumber.textContent =
-                    '—';
+
+            button.html(
+                '<span class="spinner-border spinner-border-sm mr-1"></span>' +
+                ' Approving...'
+            );
+
+
+            /*
+             * CREATE NATIVE FORM
+             */
+
+            const form =
+                $('<form>', {
+
+                    method:
+                        'POST',
+
+                    action:
+                        bulkApproveUrl
+
+                });
+
+
+            /*
+             * CSRF
+             */
+
+            const csrfToken =
+                getCsrfToken();
+
+
+            if (
+                csrfToken
+            ) {
+
+                form.append(
+                    $('<input>', {
+
+                        type:
+                            'hidden',
+
+                        name:
+                            '_csrfToken',
+
+                        value:
+                            csrfToken
+
+                    })
+                );
 
             }
 
 
             /*
-             * Reset forms
+             * IDS
              */
 
-            if (approveForm) {
+            selectedIds.forEach(
+                function (id) {
 
-                approveForm.style.display =
-                    'none';
+                    form.append(
+                        $('<input>', {
 
-                approveForm.action =
-                    '#';
+                            type:
+                                'hidden',
 
-            }
+                            name:
+                                'notification_ids[]',
+
+                            value:
+                                id
+
+                        })
+                    );
+
+                }
+            );
 
 
-            if (declineForm) {
+            console.log(
+                'BULK URL:',
+                bulkApproveUrl
+            );
 
-                declineForm.style.display =
-                    'none';
 
-                declineForm.action =
-                    '#';
+            console.log(
+                'BULK IDS:',
+                selectedIds
+            );
 
-            }
+
+            $('body')
+                .append(
+                    form
+                );
+
+
+            /*
+             * NATIVE SUBMIT
+             */
+
+            HTMLFormElement
+                .prototype
+                .submit
+                .call(
+                    form[0]
+                );
 
         }
     );
 
 
 
-    /* =========================================================
-       INITIAL STATE
-    ========================================================= */
+    /* ============================================================
+       BULK CONFIRM MODAL CLOSED
+       ============================================================ */
 
-    updateBulkButton();
+    $('#bulkApproveConfirmModal')
+        .on(
+            'hidden.bs.modal',
+            function () {
+
+                if (
+                    !isSubmittingBulkApproval
+                ) {
+
+                    $('#confirmBulkApproveBtn')
+                        .prop(
+                            'disabled',
+                            false
+                        );
+
+
+                    $('#confirmBulkApproveBtn')
+                        .html(
+                            '<i class="fas fa-check-double mr-1"></i>' +
+                            ' Approve Selected'
+                        );
+
+                }
+
+            }
+        );
+
+
+
+    /* ============================================================
+       DETAILS MODAL CLOSED
+       ============================================================ */
+
+    $('#registrationDetailsModal')
+        .on(
+            'hidden.bs.modal',
+            function () {
+
+                /*
+                 * Do not clear ID while confirmation
+                 * is waiting.
+                 */
+
+                if (
+                    !pendingRegistrationAction
+                ) {
+
+                    currentNotificationId =
+                        null;
+
+                }
+
+            }
+        );
+
+
+
+    /* ============================================================
+       CLEAN RESULT MODAL BACKDROP
+       ============================================================ */
+
+    $('#registrationResultModal')
+        .on(
+            'hidden.bs.modal',
+            function () {
+
+                $('.modal-backdrop')
+                    .remove();
+
+
+                $('body')
+                    .removeClass(
+                        'modal-open'
+                    );
+
+
+                $('body')
+                    .css(
+                        'padding-right',
+                        ''
+                    );
+
+            }
+        );
+
+
+    $('#bulkApproveResultModal')
+        .on(
+            'hidden.bs.modal',
+            function () {
+
+                $('.modal-backdrop')
+                    .remove();
+
+
+                $('body')
+                    .removeClass(
+                        'modal-open'
+                    );
+
+
+                $('body')
+                    .css(
+                        'padding-right',
+                        ''
+                    );
+
+            }
+        );
+
+
+
+    /* ============================================================
+       INITIALIZE
+       ============================================================ */
+
+    updateBulkApproveButton();
+
 
 });
-
 </script>

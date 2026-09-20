@@ -283,846 +283,1043 @@ class FarmsController extends AppController
             'action' => 'index'
         ]);
     }
-
-    /**
-     * Upload Excel method
-     *
-     * Imports farm records from Excel.
-     *
-     * @return \Cake\Http\Response
+  /**
+     * Upload Farms Excel
      */
     public function uploadExcel()
-{
-    /*
-    |--------------------------------------------------------------------------
-    | ONLY ALLOW POST
-    |--------------------------------------------------------------------------
-    */
-    if (!$this->request->is('post')) {
-        return $this->redirect([
-            'action' => 'index'
-        ]);
-    }
+    {
+        /*
+         * Only POST is allowed.
+         */
+        $this->request->allowMethod(['post']);
 
-    /*
-    |--------------------------------------------------------------------------
-    | GET UPLOADED FILE
-    |--------------------------------------------------------------------------
-    */
-    $file = $this->request->getData('excel_file');
-
-    /*
-    |--------------------------------------------------------------------------
-    | VALIDATE FILE
-    |--------------------------------------------------------------------------
-    */
-    if (!$file || $file->getError() !== UPLOAD_ERR_OK) {
-
-        $this->request->getSession()->write(
-            'FarmExcelImportResult',
-            [
-                'type' => 'error',
-                'title' => 'Upload Failed',
-                'success' => 0,
-                'duplicate' => 0,
-                'failed' => 0,
-                'message' => 'Please select a valid Excel file.'
-            ]
-        );
-
-        return $this->redirect([
-            'action' => 'index'
-        ]);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | CHECK FILE EXTENSION
-    |--------------------------------------------------------------------------
-    */
-    $extension = strtolower(
-        pathinfo(
-            $file->getClientFilename(),
-            PATHINFO_EXTENSION
-        )
-    );
-
-    if (!in_array($extension, ['xlsx', 'xls'], true)) {
-
-        $this->request->getSession()->write(
-            'FarmExcelImportResult',
-            [
-                'type' => 'error',
-                'title' => 'Invalid File',
-                'success' => 0,
-                'duplicate' => 0,
-                'failed' => 0,
-                'message' => 'Only Excel files (.xlsx or .xls) are allowed.'
-            ]
-        );
-
-        return $this->redirect([
-            'action' => 'index'
-        ]);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | LOAD FARMERS MODEL
-    |--------------------------------------------------------------------------
-    */
-    $this->loadModel('Farmers');
-
-    /*
-    |--------------------------------------------------------------------------
-    | COUNTERS
-    |--------------------------------------------------------------------------
-    */
-    $success = 0;
-    $duplicate = 0;
-    $failed = 0;
-
-    /*
-    |--------------------------------------------------------------------------
-    | TRACK DUPLICATES INSIDE EXCEL
-    |--------------------------------------------------------------------------
-    */
-    $uploadedFarmNumbers = [];
-
-    try {
 
         /*
-        |--------------------------------------------------------------------------
-        | LOAD EXCEL
-        |--------------------------------------------------------------------------
-        */
-        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load(
-            $file->getStream()->getMetadata('uri')
-        );
+         * Disable normal view rendering.
+         */
+        $this->autoRender = false;
 
-        $sheet = $spreadsheet->getActiveSheet();
 
         /*
-        |--------------------------------------------------------------------------
-        | CONVERT TO ARRAY
-        |--------------------------------------------------------------------------
-        */
-        $rows = $sheet->toArray(
-            null,
-            true,
-            true,
-            true
-        );
+         * Load Farmers model.
+         */
+        $this->loadModel('Farmers');
+
 
         /*
-        |--------------------------------------------------------------------------
-        | PROCESS EACH ROW
-        |--------------------------------------------------------------------------
-        */
-        foreach ($rows as $index => $row) {
+         * Load Farms table.
+         */
+        $this->loadModel('Farms');
+
+
+        /*
+         * ========================================================
+         * GET UPLOADED FILE
+         * ========================================================
+         */
+
+        $uploadedFile =
+            $this->request->getData('excel_file');
+
+
+        /*
+         * Result values.
+         */
+
+        $success =
+            0;
+
+        $failed =
+            0;
+
+        $errors =
+            [];
+
+
+        /*
+         * ========================================================
+         * CHECK FILE
+         * ========================================================
+         */
+
+        if (
+            empty($uploadedFile)
+        ) {
+
+            $this->request
+                ->getSession()
+                ->write(
+                    'ExcelImportResult',
+                    [
+                        'type' =>
+                            'error',
+
+                        'success' =>
+                            0,
+
+                        'failed' =>
+                            1,
+
+                        'errors' => [
+                            'No Excel file was uploaded.'
+                        ]
+                    ]
+                );
+
+
+            return $this->redirect(
+                [
+                    'action' =>
+                        'index'
+                ]
+            );
+        }
+
+
+        /*
+         * ========================================================
+         * CHECK UPLOAD ERROR
+         * ========================================================
+         */
+
+        $uploadError =
+            $uploadedFile->getError();
+
+
+        if (
+            $uploadError !== UPLOAD_ERR_OK
+        ) {
+
+            $errors[] =
+                'The uploaded file could not be processed. Upload error code: '
+                . $uploadError;
+
+
+            $this->request
+                ->getSession()
+                ->write(
+                    'ExcelImportResult',
+                    [
+                        'type' =>
+                            'error',
+
+                        'success' =>
+                            0,
+
+                        'failed' =>
+                            1,
+
+                        'errors' =>
+                            $errors
+                    ]
+                );
+
+
+            return $this->redirect(
+                [
+                    'action' =>
+                        'index'
+                ]
+            );
+        }
+
+
+        /*
+         * ========================================================
+         * FILE EXTENSION
+         * ========================================================
+         */
+
+        $originalName =
+            $uploadedFile->getClientFilename();
+
+
+        $extension =
+            strtolower(
+                pathinfo(
+                    $originalName,
+                    PATHINFO_EXTENSION
+                )
+            );
+
+
+        if (
+            !in_array(
+                $extension,
+                [
+                    'xlsx',
+                    'xls'
+                ],
+                true
+            )
+        ) {
+
+            $this->request
+                ->getSession()
+                ->write(
+                    'ExcelImportResult',
+                    [
+                        'type' =>
+                            'error',
+
+                        'success' =>
+                            0,
+
+                        'failed' =>
+                            1,
+
+                        'errors' => [
+                            'Invalid file type. Please upload an .xlsx or .xls file.'
+                        ]
+                    ]
+                );
+
+
+            return $this->redirect(
+                [
+                    'action' =>
+                        'index'
+                ]
+            );
+        }
+
+
+        /*
+         * ========================================================
+         * GET TEMPORARY FILE
+         * ========================================================
+         */
+
+        $tmpFile =
+            $uploadedFile->getStream()
+                ->getMetadata('uri');
+
+
+        if (
+            empty($tmpFile) ||
+            !file_exists($tmpFile)
+        ) {
+
+            $this->request
+                ->getSession()
+                ->write(
+                    'ExcelImportResult',
+                    [
+                        'type' =>
+                            'error',
+
+                        'success' =>
+                            0,
+
+                        'failed' =>
+                            1,
+
+                        'errors' => [
+                            'The uploaded Excel file could not be accessed.'
+                        ]
+                    ]
+                );
+
+
+            return $this->redirect(
+                [
+                    'action' =>
+                        'index'
+                ]
+            );
+        }
+
+
+        /*
+         * ========================================================
+         * LOAD EXCEL
+         * ========================================================
+         */
+
+        try {
+
+            $spreadsheet =
+                IOFactory::load(
+                    $tmpFile
+                );
+
+        } catch (
+            \Throwable $e
+        ) {
+
+            $this->request
+                ->getSession()
+                ->write(
+                    'ExcelImportResult',
+                    [
+                        'type' =>
+                            'error',
+
+                        'success' =>
+                            0,
+
+                        'failed' =>
+                            1,
+
+                        'errors' => [
+                            'Unable to read the Excel file: '
+                            . $e->getMessage()
+                        ]
+                    ]
+                );
+
+
+            return $this->redirect(
+                [
+                    'action' =>
+                        'index'
+                ]
+            );
+        }
+
+
+        /*
+         * ========================================================
+         * GET ACTIVE SHEET
+         * ========================================================
+         */
+
+        $sheet =
+            $spreadsheet
+                ->getActiveSheet();
+
+
+        $rows =
+            $sheet
+                ->toArray(
+                    null,
+                    true,
+                    true,
+                    true
+                );
+
+
+        /*
+         * ========================================================
+         * CHECK EMPTY FILE
+         * ========================================================
+         */
+
+        if (
+            count($rows) <= 1
+        ) {
+
+            $this->request
+                ->getSession()
+                ->write(
+                    'ExcelImportResult',
+                    [
+                        'type' =>
+                            'error',
+
+                        'success' =>
+                            0,
+
+                        'failed' =>
+                            0,
+
+                        'errors' => [
+                            'The Excel file does not contain any farm records.'
+                        ]
+                    ]
+                );
+
+
+            return $this->redirect(
+                [
+                    'action' =>
+                        'index'
+                ]
+            );
+        }
+
+
+        /*
+         * ========================================================
+         * EXPECTED HEADER
+         * ========================================================
+         *
+         * A = Farmer Name
+         * B = Farm Name
+         * C = Farm Size
+         * D = Location
+         * E = Average Yield
+         *
+         */
+
+        $header =
+            $rows[1] ?? [];
+
+
+        $headerA =
+            strtolower(
+                trim(
+                    (string)(
+                        $header['A']
+                        ?? ''
+                    )
+                )
+            );
+
+
+        $headerB =
+            strtolower(
+                trim(
+                    (string)(
+                        $header['B']
+                        ?? ''
+                    )
+                )
+            );
+
+
+        $headerC =
+            strtolower(
+                trim(
+                    (string)(
+                        $header['C']
+                        ?? ''
+                    )
+                )
+            );
+
+
+        $headerD =
+            strtolower(
+                trim(
+                    (string)(
+                        $header['D']
+                        ?? ''
+                    )
+                )
+            );
+
+
+        $headerE =
+            strtolower(
+                trim(
+                    (string)(
+                        $header['E']
+                        ?? ''
+                    )
+                )
+            );
+
+
+        /*
+         * Normalize headers.
+         */
+
+        $headerA =
+            preg_replace(
+                '/\s+/',
+                ' ',
+                $headerA
+            );
+
+
+        $headerB =
+            preg_replace(
+                '/\s+/',
+                ' ',
+                $headerB
+            );
+
+
+        $headerC =
+            preg_replace(
+                '/\s+/',
+                ' ',
+                $headerC
+            );
+
+
+        $headerD =
+            preg_replace(
+                '/\s+/',
+                ' ',
+                $headerD
+            );
+
+
+        $headerE =
+            preg_replace(
+                '/\s+/',
+                ' ',
+                $headerE
+            );
+
+
+        /*
+         * ========================================================
+         * HEADER VALIDATION
+         * ========================================================
+         */
+
+        if (
+            $headerA !== 'farmer name' ||
+            $headerB !== 'farm name' ||
+            $headerC !== 'farm size' ||
+            $headerD !== 'location' ||
+            $headerE !== 'average yield'
+        ) {
+
+            $this->request
+                ->getSession()
+                ->write(
+                    'ExcelImportResult',
+                    [
+                        'type' =>
+                            'error',
+
+                        'success' =>
+                            0,
+
+                        'failed' =>
+                            1,
+
+                        'errors' => [
+                            'Invalid Excel format.',
+                            'Required columns are:',
+                            'Farmer Name',
+                            'Farm Name',
+                            'Farm Size',
+                            'Location',
+                            'Average Yield'
+                        ]
+                    ]
+                );
+
+
+            return $this->redirect(
+                [
+                    'action' =>
+                        'index'
+                ]
+            );
+        }
+
+
+        /*
+         * ========================================================
+         * PROCESS DATA ROWS
+         * ========================================================
+         */
+
+        foreach (
+            $rows as $rowNumber => $row
+        ) {
 
             /*
-            |--------------------------------------------------------------------------
-            | SKIP HEADER
-            |--------------------------------------------------------------------------
-            */
-            if ($index == 1) {
+             * Skip header.
+             */
+            if (
+                $rowNumber === 1
+            ) {
                 continue;
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | EXCEL COLUMNS
-            |--------------------------------------------------------------------------
-            |
-            | A = LGU RSBSA Number
-            | B = FARM SIZE
-            | C = LOCATION
-            |
-            */
-
-            $farmerNo = trim(
-                (string)($row['A'] ?? '')
-            );
-
-            $farmSize = trim(
-                (string)($row['B'] ?? '')
-            );
-
-            $location = trim(
-                (string)($row['C'] ?? '')
-            );
 
             /*
-            |--------------------------------------------------------------------------
-            | CHECK EMPTY ROW
-            |--------------------------------------------------------------------------
-            */
+             * Check completely empty row.
+             */
+
+            $farmerName =
+                trim(
+                    (string)(
+                        $row['A']
+                        ?? ''
+                    )
+                );
+
+
+            $farmName =
+                trim(
+                    (string)(
+                        $row['B']
+                        ?? ''
+                    )
+                );
+
+
+            $farmSize =
+                trim(
+                    (string)(
+                        $row['C']
+                        ?? ''
+                    )
+                );
+
+
+            $location =
+                trim(
+                    (string)(
+                        $row['D']
+                        ?? ''
+                    )
+                );
+
+
+            $averageYield =
+                trim(
+                    (string)(
+                        $row['E']
+                        ?? ''
+                    )
+                );
+
+
             if (
-                $farmerNo === '' &&
+                $farmerName === '' &&
+                $farmName === '' &&
                 $farmSize === '' &&
+                $location === '' &&
+                $averageYield === ''
+            ) {
+
+                continue;
+            }
+
+
+            /*
+             * ====================================================
+             * VALIDATION
+             * ====================================================
+             */
+
+            $rowErrors =
+                [];
+
+
+            if (
+                $farmerName === ''
+            ) {
+
+                $rowErrors[] =
+                    'Farmer Name is required.';
+
+            }
+
+
+            if (
+                $farmName === ''
+            ) {
+
+                $rowErrors[] =
+                    'Farm Name is required.';
+
+            }
+
+
+            if (
+                $farmSize === ''
+            ) {
+
+                $rowErrors[] =
+                    'Farm Size is required.';
+
+            } elseif (
+                !is_numeric($farmSize)
+                ||
+                (float)$farmSize <= 0
+            ) {
+
+                $rowErrors[] =
+                    'Farm Size must be a number greater than 0.';
+
+            }
+
+
+            if (
                 $location === ''
             ) {
-                continue;
+
+                $rowErrors[] =
+                    'Location is required.';
+
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | REQUIRED FIELDS
-            |--------------------------------------------------------------------------
-            */
+
             if (
-                $farmerNo === '' ||
-                $farmSize === '' ||
-                $location === ''
+                $averageYield === ''
             ) {
-                $failed++;
-                continue;
+
+                $rowErrors[] =
+                    'Average Yield is required.';
+
+            } elseif (
+                !is_numeric($averageYield)
+                ||
+                (float)$averageYield < 0
+            ) {
+
+                $rowErrors[] =
+                    'Average Yield must be a number greater than or equal to 0.';
+
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | NORMALIZE RSBSA NUMBER
-            |--------------------------------------------------------------------------
-            */
-            $normalizedFarmerNo = strtolower(
-                preg_replace(
-                    '/\s+/',
-                    '',
-                    $farmerNo
-                )
-            );
 
             /*
-            |--------------------------------------------------------------------------
-            | CHECK DUPLICATE INSIDE CURRENT EXCEL FILE
-            |--------------------------------------------------------------------------
-            */
+             * ====================================================
+             * FIND FARMER
+             * ====================================================
+             */
+
+            $farmer =
+                null;
+
+
             if (
-                isset(
-                    $uploadedFarmNumbers[$normalizedFarmerNo]
-                )
+                empty($rowErrors)
             ) {
-                $duplicate++;
-                continue;
+
+                $nameParts =
+                    preg_split(
+                        '/\s+/',
+                        $farmerName
+                    );
+
+
+                if (
+                    count($nameParts) >= 2
+                ) {
+
+                    $firstName =
+                        array_shift(
+                            $nameParts
+                        );
+
+
+                    $lastName =
+                        implode(
+                            ' ',
+                            $nameParts
+                        );
+
+
+                    $farmer =
+                        $this->Farmers
+                            ->find()
+                            ->where([
+                                'LOWER(Farmers.first_name)' =>
+                                    strtolower(
+                                        $firstName
+                                    ),
+
+                                'LOWER(Farmers.last_name)' =>
+                                    strtolower(
+                                        $lastName
+                                    )
+                            ])
+                            ->first();
+
+                }
+
+
+                /*
+                 * Try full_name if available.
+                 */
+
+                if (
+                    !$farmer
+                ) {
+
+                    $farmer =
+                        $this->Farmers
+                            ->find()
+                            ->where([
+                                'LOWER(Farmers.full_name)' =>
+                                    strtolower(
+                                        $farmerName
+                                    )
+                            ])
+                            ->first();
+
+                }
+
+
+                if (
+                    !$farmer
+                ) {
+
+                    $rowErrors[] =
+                        'Farmer "' .
+                        $farmerName .
+                        '" was not found.';
+                }
+
             }
 
-            $uploadedFarmNumbers[$normalizedFarmerNo] = true;
 
             /*
-            |--------------------------------------------------------------------------
-            | FIND FARMER USING RSBSA NUMBER
-            |--------------------------------------------------------------------------
-            */
-            $farmer = $this->Farmers
-                ->find()
-                ->where([
-                    'Farmers.farmer_no' => $farmerNo
-                ])
-                ->first();
+             * ====================================================
+             * REPORT ROW ERROR
+             * ====================================================
+             */
 
-            /*
-            |--------------------------------------------------------------------------
-            | FARMER DOES NOT EXIST
-            |--------------------------------------------------------------------------
-            */
-            if (!$farmer) {
+            if (
+                !empty($rowErrors)
+            ) {
+
                 $failed++;
+
+
+                $errors[] =
+                    'Row ' .
+                    $rowNumber .
+                    ': ' .
+                    implode(
+                        ' ',
+                        $rowErrors
+                    );
+
+
                 continue;
             }
 
+
             /*
-            |--------------------------------------------------------------------------
-            | CHECK IF FARM ALREADY EXISTS
-            |--------------------------------------------------------------------------
-            |
-            | If your database allows multiple farms for one farmer,
-            | remove this duplicate check.
-            |
-            | This version considers farmer_no + farm details as duplicate.
-            |
-            */
+             * ====================================================
+             * DUPLICATE CHECK
+             * ====================================================
+             */
 
-            $existingFarm = $this->Farms
-                ->find()
-                ->where([
-                    'Farms.farmer_id' => $farmer->id,
-                    'Farms.farm_size' => (float)$farmSize,
-                    'Farms.location' => $location
-                ])
-                ->first();
+            $existingFarm =
+                $this->Farms
+                    ->find()
+                    ->where([
+                        'farmer_id' =>
+                            $farmer->id,
 
-            if ($existingFarm) {
-                $duplicate++;
+                        'LOWER(farm_name)' =>
+                            strtolower(
+                                $farmName
+                            )
+                    ])
+                    ->first();
+
+
+            if (
+                $existingFarm
+            ) {
+
+                $failed++;
+
+
+                $errors[] =
+                    'Row ' .
+                    $rowNumber .
+                    ': Farm "' .
+                    $farmName .
+                    '" already exists for farmer "' .
+                    $farmerName .
+                    '".';
+
+
                 continue;
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | CREATE FARM ENTITY
-            |--------------------------------------------------------------------------
-            */
-            $farm = $this->Farms->newEmptyEntity();
 
             /*
-            |--------------------------------------------------------------------------
-            | ASSIGN DATA
-            |--------------------------------------------------------------------------
-            */
-            $farm->farmer_id = $farmer->id;
+             * ====================================================
+             * CREATE FARM ENTITY
+             * ====================================================
+             */
 
-            $farm->farm_size = is_numeric($farmSize)
-                ? (float)$farmSize
-                : null;
+            $farm =
+                $this->Farms
+                    ->newEmptyEntity();
 
-            $farm->location = $location;
+
+            $farm->farmer_id =
+                $farmer->id;
+
+
+            $farm->farm_name =
+                $farmName;
+
+
+            $farm->farm_size =
+                (float)$farmSize;
+
+
+            $farm->location =
+                $location;
+
+
+            $farm->average_yield =
+                (float)$averageYield;
+
 
             /*
-            |--------------------------------------------------------------------------
-            | SAVE
-            |--------------------------------------------------------------------------
-            */
-            if ($this->Farms->save($farm)) {
+             * ====================================================
+             * SAVE
+             * ====================================================
+             */
+
+            if (
+                $this->Farms
+                    ->save($farm)
+            ) {
 
                 $success++;
 
             } else {
 
                 $failed++;
+
+
+                $errors[] =
+                    'Row ' .
+                    $rowNumber .
+                    ': Unable to save farm "' .
+                    $farmName .
+                    '".';
+
             }
+
         }
 
+
         /*
-        |--------------------------------------------------------------------------
-        | DETERMINE RESULT
-        |--------------------------------------------------------------------------
-        */
+         * ========================================================
+         * RESULT TYPE
+         * ========================================================
+         */
 
         if (
             $success > 0 &&
-            $duplicate > 0 &&
             $failed === 0
         ) {
 
-            $message =
-                "Upload completed successfully. " .
-                "{$success} new farm record(s) were uploaded. " .
-                "{$duplicate} farm record(s) were already uploaded " .
-                "and were skipped to prevent duplicate records.";
-
-            $resultType = 'success';
-            $resultTitle = 'Upload Completed';
+            $resultType =
+                'success';
 
         } elseif (
             $success > 0 &&
-            $duplicate === 0 &&
-            $failed === 0
-        ) {
-
-            $message =
-                "Upload completed successfully. " .
-                "{$success} farm record(s) were uploaded.";
-
-            $resultType = 'success';
-            $resultTitle = 'Upload Successful';
-
-        } elseif (
-            $success === 0 &&
-            $duplicate > 0 &&
-            $failed === 0
-        ) {
-
-            $message =
-                "The farm data are already uploaded. " .
-                "{$duplicate} farm record(s) already exist in the system. " .
-                "No duplicate records were created.";
-
-            $resultType = 'warning';
-            $resultTitle = 'Data Already Uploaded';
-
-        } elseif (
-            $success > 0 ||
-            $duplicate > 0 ||
             $failed > 0
         ) {
 
-            $message =
-                "Upload completed with some issues. " .
-                "{$success} new farm record(s) uploaded, " .
-                "{$duplicate} already uploaded/skipped, " .
-                "{$failed} row(s) failed.";
-
-            $resultType = 'warning';
-            $resultTitle = 'Upload Completed with Warnings';
+            $resultType =
+                'partial';
 
         } else {
 
-            $message =
-                'No valid farm data were found in the Excel file.';
-
-            $resultType = 'warning';
-            $resultTitle = 'No Data Found';
+            $resultType =
+                'error';
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | STORE RESULT
-        |--------------------------------------------------------------------------
-        */
-        $this->request->getSession()->write(
-            'FarmExcelImportResult',
-            [
-                'type' => $resultType,
-                'title' => $resultTitle,
-                'success' => $success,
-                'duplicate' => $duplicate,
-                'failed' => $failed,
-                'message' => $message
-            ]
-        );
-
-    } catch (\Throwable $e) {
 
         /*
-        |--------------------------------------------------------------------------
-        | EXCEL PROCESSING ERROR
-        |--------------------------------------------------------------------------
-        */
-        $this->request->getSession()->write(
-            'FarmExcelImportResult',
-            [
-                'type' => 'error',
-                'title' => 'Excel Import Failed',
-                'success' => 0,
-                'duplicate' => 0,
-                'failed' => 0,
-                'message' =>
-                    'Unable to read the Excel file: ' .
-                    $e->getMessage()
-            ]
-        );
-    }
+         * ========================================================
+         * SAVE RESULT TO SESSION
+         * ========================================================
+         */
 
-    /*
-    |--------------------------------------------------------------------------
-    | REDIRECT
-    |--------------------------------------------------------------------------
-    */
-    return $this->redirect([
-        'action' => 'index'
-    ]);
-}
-public function downloadFarmExcelTemplate()
-{
-    $spreadsheet =
-        new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $this->request
+            ->getSession()
+            ->write(
+                'ExcelImportResult',
+                [
+                    'type' =>
+                        $resultType,
 
-    $sheet =
-        $spreadsheet->getActiveSheet();
+                    'success' =>
+                        $success,
 
-    $sheet->setTitle('Farms');
+                    'failed' =>
+                        $failed,
 
-    /*
-    |--------------------------------------------------------------------------
-    | HEADERS
-    |--------------------------------------------------------------------------
-    */
-    $headers = [
-        'LGU RSBSA Number',
-        'FARM SIZE (ha)',
-        'LOCATION',
-    ];
-
-    foreach ($headers as $index => $header) {
-
-        $column =
-            \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(
-                $index + 1
+                    'errors' =>
+                        $errors
+                ]
             );
 
-        $sheet->setCellValue(
-            $column . '1',
-            $header
-        );
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | COLUMN WIDTHS
-    |--------------------------------------------------------------------------
-    */
-    $widths = [
-        'A' => 28,
-        'B' => 20,
-        'C' => 35
-    ];
-
-    foreach ($widths as $column => $width) {
-
-        $sheet
-            ->getColumnDimension($column)
-            ->setWidth($width);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | BLANK DATA ROWS
-    |--------------------------------------------------------------------------
-    */
-    $lastTemplateRow = 11;
-
-    /*
-    |--------------------------------------------------------------------------
-    | BORDERS
-    |--------------------------------------------------------------------------
-    */
-    $sheet
-        ->getStyle("A1:E{$lastTemplateRow}")
-        ->getBorders()
-        ->getAllBorders()
-        ->setBorderStyle(
-            \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN
-        )
-        ->getColor()
-        ->setARGB('D9D9D9');
-
-    /*
-    |--------------------------------------------------------------------------
-    | HEADER STYLE
-    |--------------------------------------------------------------------------
-    */
-    $headerStyle =
-        $sheet->getStyle('A1:C1');
-
-    $headerStyle
-        ->getFill()
-        ->setFillType(
-            \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID
-        )
-        ->getStartColor()
-        ->setARGB('FFFF00');
-
-    $headerStyle
-        ->getFont()
-        ->setBold(true)
-        ->setSize(11);
-
-    $headerStyle
-        ->getAlignment()
-        ->setHorizontal(
-            \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER
-        )
-        ->setVertical(
-            \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
-        )
-        ->setWrapText(true);
-
-    /*
-    |--------------------------------------------------------------------------
-    | HEADER BORDER
-    |--------------------------------------------------------------------------
-    */
-    $headerStyle
-        ->getBorders()
-        ->getAllBorders()
-        ->setBorderStyle(
-            \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN
-        )
-        ->getColor()
-        ->setARGB('808080');
-
-    /*
-    |--------------------------------------------------------------------------
-    | ROW HEIGHT
-    |--------------------------------------------------------------------------
-    */
-    $sheet
-        ->getRowDimension(1)
-        ->setRowHeight(32);
-
-    for ($row = 2; $row <= $lastTemplateRow; $row++) {
-
-        $sheet
-            ->getRowDimension($row)
-            ->setRowHeight(22);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | RSBSA NUMBER AS TEXT
-    |--------------------------------------------------------------------------
-    */
-    $sheet
-        ->getStyle("A2:A{$lastTemplateRow}")
-        ->getNumberFormat()
-        ->setFormatCode('@');
-
-    /*
-    |--------------------------------------------------------------------------
-    | VERTICAL ALIGNMENT
-    |--------------------------------------------------------------------------
-    */
-    $sheet
-        ->getStyle("A2:E{$lastTemplateRow}")
-        ->getAlignment()
-        ->setVertical(
-            \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
-        );
-
-    /*
-    |--------------------------------------------------------------------------
-    | FREEZE HEADER
-    |--------------------------------------------------------------------------
-    */
-    $sheet->freezePane('A2');
-
-    /*
-    |--------------------------------------------------------------------------
-    | AUTO FILTER
-    |--------------------------------------------------------------------------
-    */
-    $sheet->setAutoFilter(
-        "A1:E{$lastTemplateRow}"
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | PAGE SETUP
-    |--------------------------------------------------------------------------
-    */
-    $sheet
-        ->getPageSetup()
-        ->setOrientation(
-            \PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE
-        );
-
-    $sheet
-        ->getPageSetup()
-        ->setPaperSize(
-            \PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4
-        );
-
-    /*
-    |--------------------------------------------------------------------------
-    | DOWNLOAD
-    |--------------------------------------------------------------------------
-    */
-    $filename = 'farms_import_template.xlsx';
-
-    $writer =
-        new \PhpOffice\PhpSpreadsheet\Writer\Xlsx(
-            $spreadsheet
-        );
-
-    $tempFile =
-        tempnam(
-            sys_get_temp_dir(),
-            'farm_template_'
-        );
-
-    $writer->save($tempFile);
-
-    return $this->response
-        ->withType(
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        )
-        ->withDownload($filename)
-        ->withFile(
-            $tempFile,
-            [
-                'download' => true,
-                'name' => $filename
-            ]
-        );
-}
-public function downloadFarmsExcel()
-{
-    /*
-    |--------------------------------------------------------------------------
-    | GET ALL FARMS
-    |--------------------------------------------------------------------------
-    */
-    $farms = $this->Farms
-        ->find()
-        ->contain([
-            'Farmers'
-        ])
-        ->order([
-            'Farms.id' => 'ASC'
-        ])
-        ->all();
-
-    /*
-    |--------------------------------------------------------------------------
-    | CREATE SPREADSHEET
-    |--------------------------------------------------------------------------
-    */
-    $spreadsheet =
-        new \PhpOffice\PhpSpreadsheet\Spreadsheet();
-
-    $sheet =
-        $spreadsheet->getActiveSheet();
-
-    $sheet->setTitle('Farms');
-
-    /*
-    |--------------------------------------------------------------------------
-    | HEADERS
-    |--------------------------------------------------------------------------
-    */
-    $headers = [
-        'LGU RSBSA Number',
-        'FARM SIZE (ha)',
-        'LOCATION'
-    ];
-
-    foreach ($headers as $index => $header) {
-
-        $column =
-            \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(
-                $index + 1
-            );
-
-        $sheet->setCellValue(
-            $column . '1',
-            $header
-        );
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | INSERT FARM DATA
-    |--------------------------------------------------------------------------
-    */
-    $rowNumber = 2;
-
-    foreach ($farms as $farm) {
 
         /*
+         * ========================================================
+         * REDIRECT
+         * ========================================================
+         */
+
+        return $this->redirect(
+            [
+                'action' =>
+                    'index'
+            ]
+        );
+    }
+    public function downloadFarmExcelTemplate()
+    {
+        $spreadsheet =
+            new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+    
+        $sheet =
+            $spreadsheet->getActiveSheet();
+    
+        $sheet->setTitle('Farms');
+    
+        /*
         |--------------------------------------------------------------------------
-        | RSBSA NUMBER
+        | HEADERS
         |--------------------------------------------------------------------------
         */
-        $farmerNo = '';
-
-        if (!empty($farm->farmer)) {
-
-            $farmerNo = trim(
-                (string)($farm->farmer->farmer_no ?? '')
+        $headers = [
+            'LGU RSBSA Number',
+            'FARM SIZE (ha)',
+            'LOCATION',
+        ];
+    
+        foreach ($headers as $index => $header) {
+    
+            $column =
+                \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(
+                    $index + 1
+                );
+    
+            $sheet->setCellValue(
+                $column . '1',
+                $header
             );
         }
-
-        $sheet->setCellValueExplicit(
-            'A' . $rowNumber,
-            $farmerNo,
-            \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING
-        );
-
+    
         /*
         |--------------------------------------------------------------------------
-        | FARM SIZE
+        | COLUMN WIDTHS
         |--------------------------------------------------------------------------
         */
-        $sheet->setCellValue(
-            'B' . $rowNumber,
-            $farm->farm_size ?? ''
-        );
-
+        $widths = [
+            'A' => 28,
+            'B' => 20,
+            'C' => 35
+        ];
+    
+        foreach ($widths as $column => $width) {
+    
+            $sheet
+                ->getColumnDimension($column)
+                ->setWidth($width);
+        }
+    
         /*
         |--------------------------------------------------------------------------
-        | LOCATION
+        | BLANK DATA ROWS
         |--------------------------------------------------------------------------
         */
-        $sheet->setCellValue(
-            'C' . $rowNumber,
-            $farm->location ?? ''
-        );
-
-        $rowNumber++;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | LAST ROW
-    |--------------------------------------------------------------------------
-    */
-    $lastRow = max(
-        1,
-        $rowNumber - 1
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | COLUMN WIDTHS
-    |--------------------------------------------------------------------------
-    */
-    $widths = [
-        'A' => 28,
-        'B' => 20,
-        'C' => 35
-    ];
-
-    foreach ($widths as $column => $width) {
-
+        $lastTemplateRow = 11;
+    
+        /*
+        |--------------------------------------------------------------------------
+        | BORDERS
+        |--------------------------------------------------------------------------
+        */
         $sheet
-            ->getColumnDimension($column)
-            ->setWidth($width);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | HEADER STYLE
-    |--------------------------------------------------------------------------
-    */
-    $headerStyle =
-        $sheet->getStyle('A1:D1');
-
-    $headerStyle
-        ->getFill()
-        ->setFillType(
-            \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID
-        )
-        ->getStartColor()
-        ->setARGB('FFFF00');
-
-    $headerStyle
-        ->getFont()
-        ->setBold(true)
-        ->setSize(11);
-
-    $headerStyle
-        ->getAlignment()
-        ->setHorizontal(
-            \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER
-        )
-        ->setVertical(
-            \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
-        )
-        ->setWrapText(true);
-
-    /*
-    |--------------------------------------------------------------------------
-    | HEADER BORDER
-    |--------------------------------------------------------------------------
-    */
-    $headerStyle
-        ->getBorders()
-        ->getAllBorders()
-        ->setBorderStyle(
-            \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN
-        )
-        ->getColor()
-        ->setARGB('808080');
-
-    /*
-    |--------------------------------------------------------------------------
-    | DATA BORDERS
-    |--------------------------------------------------------------------------
-    */
-    if ($lastRow >= 2) {
-
-        $sheet
-            ->getStyle("A2:C{$lastRow}")
+            ->getStyle("A1:E{$lastTemplateRow}")
             ->getBorders()
             ->getAllBorders()
             ->setBorderStyle(
@@ -1130,124 +1327,469 @@ public function downloadFarmsExcel()
             )
             ->getColor()
             ->setARGB('D9D9D9');
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | HEADER ROW HEIGHT
-    |--------------------------------------------------------------------------
-    */
-    $sheet
-        ->getRowDimension(1)
-        ->setRowHeight(32);
-
-    /*
-    |--------------------------------------------------------------------------
-    | DATA ROW HEIGHT
-    |--------------------------------------------------------------------------
-    */
-    if ($lastRow >= 2) {
-
-        for ($row = 2; $row <= $lastRow; $row++) {
-
+    
+        /*
+        |--------------------------------------------------------------------------
+        | HEADER STYLE
+        |--------------------------------------------------------------------------
+        */
+        $headerStyle =
+            $sheet->getStyle('A1:C1');
+    
+        $headerStyle
+            ->getFill()
+            ->setFillType(
+                \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID
+            )
+            ->getStartColor()
+            ->setARGB('FFFF00');
+    
+        $headerStyle
+            ->getFont()
+            ->setBold(true)
+            ->setSize(11);
+    
+        $headerStyle
+            ->getAlignment()
+            ->setHorizontal(
+                \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER
+            )
+            ->setVertical(
+                \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
+            )
+            ->setWrapText(true);
+    
+        /*
+        |--------------------------------------------------------------------------
+        | HEADER BORDER
+        |--------------------------------------------------------------------------
+        */
+        $headerStyle
+            ->getBorders()
+            ->getAllBorders()
+            ->setBorderStyle(
+                \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN
+            )
+            ->getColor()
+            ->setARGB('808080');
+    
+        /*
+        |--------------------------------------------------------------------------
+        | ROW HEIGHT
+        |--------------------------------------------------------------------------
+        */
+        $sheet
+            ->getRowDimension(1)
+            ->setRowHeight(32);
+    
+        for ($row = 2; $row <= $lastTemplateRow; $row++) {
+    
             $sheet
                 ->getRowDimension($row)
                 ->setRowHeight(22);
         }
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | RSBSA AS TEXT
-    |--------------------------------------------------------------------------
-    */
-    $sheet
-        ->getStyle("A2:A{$lastRow}")
-        ->getNumberFormat()
-        ->setFormatCode('@');
-
-    /*
-    |--------------------------------------------------------------------------
-    | VERTICAL ALIGNMENT
-    |--------------------------------------------------------------------------
-    */
-    if ($lastRow >= 2) {
-
+    
+        /*
+        |--------------------------------------------------------------------------
+        | RSBSA NUMBER AS TEXT
+        |--------------------------------------------------------------------------
+        */
         $sheet
-            ->getStyle("A2:C{$lastRow}")
+            ->getStyle("A2:A{$lastTemplateRow}")
+            ->getNumberFormat()
+            ->setFormatCode('@');
+    
+        /*
+        |--------------------------------------------------------------------------
+        | VERTICAL ALIGNMENT
+        |--------------------------------------------------------------------------
+        */
+        $sheet
+            ->getStyle("A2:E{$lastTemplateRow}")
             ->getAlignment()
             ->setVertical(
                 \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
             );
+    
+        /*
+        |--------------------------------------------------------------------------
+        | FREEZE HEADER
+        |--------------------------------------------------------------------------
+        */
+        $sheet->freezePane('A2');
+    
+        /*
+        |--------------------------------------------------------------------------
+        | AUTO FILTER
+        |--------------------------------------------------------------------------
+        */
+        $sheet->setAutoFilter(
+            "A1:E{$lastTemplateRow}"
+        );
+    
+        /*
+        |--------------------------------------------------------------------------
+        | PAGE SETUP
+        |--------------------------------------------------------------------------
+        */
+        $sheet
+            ->getPageSetup()
+            ->setOrientation(
+                \PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE
+            );
+    
+        $sheet
+            ->getPageSetup()
+            ->setPaperSize(
+                \PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4
+            );
+    
+        /*
+        |--------------------------------------------------------------------------
+        | DOWNLOAD
+        |--------------------------------------------------------------------------
+        */
+        $filename = 'farms_import_template.xlsx';
+    
+        $writer =
+            new \PhpOffice\PhpSpreadsheet\Writer\Xlsx(
+                $spreadsheet
+            );
+    
+        $tempFile =
+            tempnam(
+                sys_get_temp_dir(),
+                'farm_template_'
+            );
+    
+        $writer->save($tempFile);
+    
+        return $this->response
+            ->withType(
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+            ->withDownload($filename)
+            ->withFile(
+                $tempFile,
+                [
+                    'download' => true,
+                    'name' => $filename
+                ]
+            );
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | FREEZE HEADER
-    |--------------------------------------------------------------------------
-    */
-    $sheet->freezePane('A2');
-
-    /*
-    |--------------------------------------------------------------------------
-    | AUTO FILTER
-    |--------------------------------------------------------------------------
-    */
-    $sheet->setAutoFilter(
-        "A1:C{$lastRow}"
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | PAGE SETUP
-    |--------------------------------------------------------------------------
-    */
-    $sheet
-        ->getPageSetup()
-        ->setOrientation(
-            \PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE
+    public function downloadFarmsExcel()
+    {
+        /*
+        |--------------------------------------------------------------------------
+        | GET ALL FARMS
+        |--------------------------------------------------------------------------
+        */
+        $farms = $this->Farms
+            ->find()
+            ->contain([
+                'Farmers'
+            ])
+            ->order([
+                'Farms.id' => 'ASC'
+            ])
+            ->all();
+    
+        /*
+        |--------------------------------------------------------------------------
+        | CREATE SPREADSHEET
+        |--------------------------------------------------------------------------
+        */
+        $spreadsheet =
+            new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+    
+        $sheet =
+            $spreadsheet->getActiveSheet();
+    
+        $sheet->setTitle('Farms');
+    
+        /*
+        |--------------------------------------------------------------------------
+        | HEADERS
+        |--------------------------------------------------------------------------
+        */
+        $headers = [
+            'LGU RSBSA Number',
+            'FARM SIZE (ha)',
+            'LOCATION'
+        ];
+    
+        foreach ($headers as $index => $header) {
+    
+            $column =
+                \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(
+                    $index + 1
+                );
+    
+            $sheet->setCellValue(
+                $column . '1',
+                $header
+            );
+        }
+    
+        /*
+        |--------------------------------------------------------------------------
+        | INSERT FARM DATA
+        |--------------------------------------------------------------------------
+        */
+        $rowNumber = 2;
+    
+        foreach ($farms as $farm) {
+    
+            /*
+            |--------------------------------------------------------------------------
+            | RSBSA NUMBER
+            |--------------------------------------------------------------------------
+            */
+            $farmerNo = '';
+    
+            if (!empty($farm->farmer)) {
+    
+                $farmerNo = trim(
+                    (string)($farm->farmer->farmer_no ?? '')
+                );
+            }
+    
+            $sheet->setCellValueExplicit(
+                'A' . $rowNumber,
+                $farmerNo,
+                \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING
+            );
+    
+            /*
+            |--------------------------------------------------------------------------
+            | FARM SIZE
+            |--------------------------------------------------------------------------
+            */
+            $sheet->setCellValue(
+                'B' . $rowNumber,
+                $farm->farm_size ?? ''
+            );
+    
+            /*
+            |--------------------------------------------------------------------------
+            | LOCATION
+            |--------------------------------------------------------------------------
+            */
+            $sheet->setCellValue(
+                'C' . $rowNumber,
+                $farm->location ?? ''
+            );
+    
+            $rowNumber++;
+        }
+    
+        /*
+        |--------------------------------------------------------------------------
+        | LAST ROW
+        |--------------------------------------------------------------------------
+        */
+        $lastRow = max(
+            1,
+            $rowNumber - 1
         );
-
-    $sheet
-        ->getPageSetup()
-        ->setPaperSize(
-            \PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4
+    
+        /*
+        |--------------------------------------------------------------------------
+        | COLUMN WIDTHS
+        |--------------------------------------------------------------------------
+        */
+        $widths = [
+            'A' => 28,
+            'B' => 20,
+            'C' => 35
+        ];
+    
+        foreach ($widths as $column => $width) {
+    
+            $sheet
+                ->getColumnDimension($column)
+                ->setWidth($width);
+        }
+    
+        /*
+        |--------------------------------------------------------------------------
+        | HEADER STYLE
+        |--------------------------------------------------------------------------
+        */
+        $headerStyle =
+            $sheet->getStyle('A1:D1');
+    
+        $headerStyle
+            ->getFill()
+            ->setFillType(
+                \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID
+            )
+            ->getStartColor()
+            ->setARGB('FFFF00');
+    
+        $headerStyle
+            ->getFont()
+            ->setBold(true)
+            ->setSize(11);
+    
+        $headerStyle
+            ->getAlignment()
+            ->setHorizontal(
+                \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER
+            )
+            ->setVertical(
+                \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
+            )
+            ->setWrapText(true);
+    
+        /*
+        |--------------------------------------------------------------------------
+        | HEADER BORDER
+        |--------------------------------------------------------------------------
+        */
+        $headerStyle
+            ->getBorders()
+            ->getAllBorders()
+            ->setBorderStyle(
+                \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN
+            )
+            ->getColor()
+            ->setARGB('808080');
+    
+        /*
+        |--------------------------------------------------------------------------
+        | DATA BORDERS
+        |--------------------------------------------------------------------------
+        */
+        if ($lastRow >= 2) {
+    
+            $sheet
+                ->getStyle("A2:C{$lastRow}")
+                ->getBorders()
+                ->getAllBorders()
+                ->setBorderStyle(
+                    \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN
+                )
+                ->getColor()
+                ->setARGB('D9D9D9');
+        }
+    
+        /*
+        |--------------------------------------------------------------------------
+        | HEADER ROW HEIGHT
+        |--------------------------------------------------------------------------
+        */
+        $sheet
+            ->getRowDimension(1)
+            ->setRowHeight(32);
+    
+        /*
+        |--------------------------------------------------------------------------
+        | DATA ROW HEIGHT
+        |--------------------------------------------------------------------------
+        */
+        if ($lastRow >= 2) {
+    
+            for ($row = 2; $row <= $lastRow; $row++) {
+    
+                $sheet
+                    ->getRowDimension($row)
+                    ->setRowHeight(22);
+            }
+        }
+    
+        /*
+        |--------------------------------------------------------------------------
+        | RSBSA AS TEXT
+        |--------------------------------------------------------------------------
+        */
+        $sheet
+            ->getStyle("A2:A{$lastRow}")
+            ->getNumberFormat()
+            ->setFormatCode('@');
+    
+        /*
+        |--------------------------------------------------------------------------
+        | VERTICAL ALIGNMENT
+        |--------------------------------------------------------------------------
+        */
+        if ($lastRow >= 2) {
+    
+            $sheet
+                ->getStyle("A2:C{$lastRow}")
+                ->getAlignment()
+                ->setVertical(
+                    \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
+                );
+        }
+    
+        /*
+        |--------------------------------------------------------------------------
+        | FREEZE HEADER
+        |--------------------------------------------------------------------------
+        */
+        $sheet->freezePane('A2');
+    
+        /*
+        |--------------------------------------------------------------------------
+        | AUTO FILTER
+        |--------------------------------------------------------------------------
+        */
+        $sheet->setAutoFilter(
+            "A1:C{$lastRow}"
         );
-
-    /*
-    |--------------------------------------------------------------------------
-    | DOWNLOAD
-    |--------------------------------------------------------------------------
-    */
-    $filename =
-        'farms_' .
-        date('Y-m-d_H-i-s') .
-        '.xlsx';
-
-    $writer =
-        new \PhpOffice\PhpSpreadsheet\Writer\Xlsx(
-            $spreadsheet
-        );
-
-    $tempFile =
-        tempnam(
-            sys_get_temp_dir(),
-            'farms_'
-        );
-
-    $writer->save($tempFile);
-
-    return $this->response
-        ->withType(
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        )
-        ->withDownload($filename)
-        ->withFile(
-            $tempFile,
-            [
-                'download' => true,
-                'name' => $filename
-            ]
-        );
-}
+    
+        /*
+        |--------------------------------------------------------------------------
+        | PAGE SETUP
+        |--------------------------------------------------------------------------
+        */
+        $sheet
+            ->getPageSetup()
+            ->setOrientation(
+                \PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE
+            );
+    
+        $sheet
+            ->getPageSetup()
+            ->setPaperSize(
+                \PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4
+            );
+    
+        /*
+        |--------------------------------------------------------------------------
+        | DOWNLOAD
+        |--------------------------------------------------------------------------
+        */
+        $filename =
+            'farms_' .
+            date('Y-m-d_H-i-s') .
+            '.xlsx';
+    
+        $writer =
+            new \PhpOffice\PhpSpreadsheet\Writer\Xlsx(
+                $spreadsheet
+            );
+    
+        $tempFile =
+            tempnam(
+                sys_get_temp_dir(),
+                'farms_'
+            );
+    
+        $writer->save($tempFile);
+    
+        return $this->response
+            ->withType(
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+            ->withDownload($filename)
+            ->withFile(
+                $tempFile,
+                [
+                    'download' => true,
+                    'name' => $filename
+                ]
+            );
+    }
 }

@@ -17,6 +17,7 @@ use Cake\ORM\Entity;
  * @property \Cake\I18n\FrozenDate $end_date
  * @property \Cake\I18n\Time $start_time
  * @property \Cake\I18n\Time $end_time
+ * @property \Cake\I18n\Time status
  *
  */
 class Schedule extends Entity
@@ -30,7 +31,7 @@ class Schedule extends Entity
      *
      * @var array<string, bool>
      */
-    protected $_accessible = [
+        protected $_accessible = [
         'program_code' => true,
         'program_name' => true,
         'description' => true,
@@ -39,5 +40,6 @@ class Schedule extends Entity
         'end_date' => true,
         'start_time' => true,
         'end_time' => true,
+        'status' => true
     ];
 }

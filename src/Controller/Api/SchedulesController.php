@@ -13,215 +13,1093 @@ use App\Controller\AppController;
  */
 class SchedulesController extends AppController
 {
-    /**
-     * Index method
-     *
-     * @return \Cake\Http\Response|null|void Renders view
+/**
+     * Initialize
      */
-     public function index()
+    public function initialize(): void
     {
-        $schedules = $this->Schedules->find();
-        return $this->response->withType('application/json')
-            ->withStringBody(json_encode($schedules));
+        parent::initialize();
+
+        $this->loadModel('Schedules');
     }
 
+    /**
+     * Index
+     *
+     * GET /api/Schedules
+     */
+    public function index()
+    {
+        $schedules = $this->Schedules
+            ->find()
+            ->order([
+                'Schedules.start_date' => 'ASC',
+                'Schedules.start_time' => 'ASC'
+            ])
+            ->all();
+
+        return $this->response
+            ->withType('application/json')
+            ->withStringBody(
+                json_encode([
+                    'status' => 'success',
+                    'data' => $schedules
+                ])
+            );
+    }
 
     /**
-     * View method
+     * View
      *
-     * @param string|null $id Schedule id.
-     * @return \Cake\Http\Response|null|void Renders view
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
+     * GET /api/Schedules/view/{id}
      */
     public function view($id = null)
     {
-        $schedule = $this->Schedules->get($id, [
-            'contain' => ['Farmers'],
-        ]);
+        try {
 
-        $this->set(compact('schedule'));
-    }
-    
-    public function getSchedules()
-    {
-        $schedules = $this->Schedules->find();
-        return $this->response->withType('application/json')
-            ->withStringBody(json_encode(['data'=>$schedules]));
-    }
+            if (empty($id)) {
 
+                return $this->response
+                    ->withStatus(400)
+                    ->withType('application/json')
+                    ->withStringBody(
+                        json_encode([
+                            'status' => 'error',
+                            'message' => 'Schedule ID is required.'
+                        ])
+                    );
+            }
+
+            $schedule = $this->Schedules->get($id);
+
+            return $this->response
+                ->withType('application/json')
+                ->withStringBody(
+                    json_encode([
+                        'status' => 'success',
+                        'data' => $schedule
+                    ])
+                );
+
+        } catch (\Throwable $e) {
+
+            Log::error(
+                'View Schedule Error: ' .
+                $e->getMessage()
+            );
+
+            return $this->response
+                ->withStatus(500)
+                ->withType('application/json')
+                ->withStringBody(
+                    json_encode([
+                        'status' => 'error',
+                        'message' => 'Unable to retrieve schedule.'
+                    ])
+                );
+        }
+    }
 
     /**
-     * Add method
+     * Get Schedules
      *
-     * @return \Cake\Http\Response|null|void Redirects on successful add, renders view otherwise.
+     * GET /api/Schedules/getSchedules
+     */
+    public function getSchedules()
+    {
+        try {
+
+            $schedules = $this->Schedules
+                ->find()
+                ->order([
+                    'Schedules.start_date' => 'ASC',
+                    'Schedules.start_time' => 'ASC'
+                ])
+                ->all();
+
+            return $this->response
+                ->withType('application/json')
+                ->withStringBody(
+                    json_encode([
+                        'status' => 'success',
+                        'data' => $schedules
+                    ])
+                );
+
+        } catch (\Throwable $e) {
+
+            Log::error(
+                'Get Schedules Error: ' .
+                $e->getMessage()
+            );
+
+            return $this->response
+                ->withStatus(500)
+                ->withType('application/json')
+                ->withStringBody(
+                    json_encode([
+                        'status' => 'error',
+                        'message' => 'Unable to retrieve schedules.'
+                    ])
+                );
+        }
+    }
+
+    /**
+     * Add Schedule
+     *
+     * POST /api/Schedules/add
      */
     public function add()
     {
-        $schedule = $this->Schedules->newEmptyEntity();
-
         if (!$this->request->is('post')) {
-            return $this->response->withStatus(405)->withType('application/json')
-                ->withStringBody(json_encode(['status' => 'error', 'message' => 'Invalid request method.'
-                ]));
+
+            return $this->response
+                ->withStatus(405)
+                ->withType('application/json')
+                ->withStringBody(
+                    json_encode([
+                        'status' => 'error',
+                        'message' => 'Invalid request method.'
+                    ])
+                );
         }
 
-        $data = $this->request->getData();
-        $validationResult = $this->validateScheduleDateTime($data);
-        if ($validationResult !== true) {
-            return $this->response->withStatus(400)->withType('application/json')
-                ->withStringBody(json_encode(['status' => 'error', 'message' => $validationResult
-                ]));
-        }
-        $schedule = $this->Schedules->patchEntity(
-            $schedule,
-            $data
-        );
-        if ($this->Schedules->save($schedule)) {
+        try {
+
+            $data = $this->request->getData();
+
+            /*
+             * =====================================================
+             * VALIDATE DATE AND TIME
+             * =====================================================
+             */
+
+            $validationResult =
+                $this->validateScheduleDateTime($data);
+
+            if ($validationResult !== true) {
+
+                return $this->response
+                    ->withStatus(400)
+                    ->withType('application/json')
+                    ->withStringBody(
+                        json_encode([
+                            'status' => 'error',
+                            'message' => $validationResult
+                        ])
+                    );
+            }
+
+            /*
+             * =====================================================
+             * NEW ENTITY
+             * =====================================================
+             */
+
+            $schedule =
+                $this->Schedules->newEmptyEntity();
+
+            /*
+             * =====================================================
+             * DEFAULT STATUS
+             * =====================================================
+             *
+             * New schedules should always begin as Scheduled.
+             */
+
+            if (
+                !isset($data['status']) ||
+                empty($data['status'])
+            ) {
+
+                $data['status'] = 'Scheduled';
+
+            }
+
+            /*
+             * =====================================================
+             * PATCH ENTITY
+             * =====================================================
+             */
+
+            $schedule =
+                $this->Schedules->patchEntity(
+                    $schedule,
+                    $data
+                );
+
+            /*
+             * =====================================================
+             * SAVE
+             * =====================================================
+             */
+
+            if (
+                $this->Schedules->save(
+                    $schedule
+                )
+            ) {
+
+                return $this->response
+                    ->withType('application/json')
+                    ->withStringBody(
+                        json_encode([
+                            'status' => 'success',
+                            'message' =>
+                                'The schedule has been saved.',
+                            'data' => $schedule
+                        ])
+                    );
+            }
+
             return $this->response
-                ->withType('application/json')->withStringBody(json_encode(['status' => 'success',
-                'message' => 'The schedule has been saved.','data' => $schedule
-                ]));
+                ->withStatus(400)
+                ->withType('application/json')
+                ->withStringBody(
+                    json_encode([
+                        'status' => 'error',
+                        'message' =>
+                            'The schedule could not be saved.',
+                        'errors' =>
+                            $schedule->getErrors()
+                    ])
+                );
+
+        } catch (\Throwable $e) {
+
+            Log::error(
+                'Add Schedule Error: ' .
+                $e->getMessage()
+            );
+
+            return $this->response
+                ->withStatus(500)
+                ->withType('application/json')
+                ->withStringBody(
+                    json_encode([
+                        'status' => 'error',
+                        'message' =>
+                            'Server error while saving schedule.',
+                        'error' =>
+                            $e->getMessage()
+                    ])
+                );
         }
-        return $this->response
-            ->withStatus(400)->withType('application/json')
-            ->withStringBody(json_encode(['status' => 'error', 'message' => 'The schedule could not be saved.',
-                'errors' => $schedule->getErrors()
-            ]));
     }
 
     /**
-     * Edit method
+     * Edit Schedule
      *
-     * @param string|null $id Schedule id.
-     * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
+     * PATCH|POST|PUT /api/Schedules/edit/{id}
      */
     public function edit($id = null)
     {
-        $schedule = $this->Schedules->get($id);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $schedule = $this->Schedules->patchEntity(
-                $schedule,$this->request->getData() );
-            if ($this->Schedules->save($schedule)) {
-                return $this->response->withType('application/json')->withStringBody(json_encode([
-                'status' => 'success','message' => 'schedule updated successfully']));
-            }
-            return $this->response->withType('application/json')
-            ->withStringBody(json_encode(['status' => 'error','errors' => $schedule->getErrors()]));
+        if (!$this->request->is(['patch', 'post', 'put'])) {
+
+            return $this->response
+                ->withStatus(405)
+                ->withType('application/json')
+                ->withStringBody(
+                    json_encode([
+                        'status' => 'error',
+                        'message' => 'Invalid request method.'
+                    ])
+                );
         }
-        return $this->response
-            ->withType('application/json')
-            ->withStringBody(json_encode($schedule));
+
+        try {
+
+            if (empty($id)) {
+
+                $id =
+                    $this->request->getData('id');
+
+            }
+
+            if (empty($id)) {
+
+                return $this->response
+                    ->withStatus(400)
+                    ->withType('application/json')
+                    ->withStringBody(
+                        json_encode([
+                            'status' => 'error',
+                            'message' =>
+                                'Schedule ID is required.'
+                        ])
+                    );
+            }
+
+            /*
+             * =====================================================
+             * FIND SCHEDULE
+             * =====================================================
+             */
+
+            $schedule =
+                $this->Schedules->get($id);
+
+            /*
+             * =====================================================
+             * PREVENT EDITING CANCELLED
+             * =====================================================
+             */
+
+            $currentStatus =
+                strtolower(
+                    trim(
+                        (string)(
+                            $schedule->status ?? ''
+                        )
+                    )
+                );
+
+            if ($currentStatus === 'cancelled') {
+
+                return $this->response
+                    ->withStatus(400)
+                    ->withType('application/json')
+                    ->withStringBody(
+                        json_encode([
+                            'status' => 'error',
+                            'message' =>
+                                'Cancelled schedules cannot be edited.'
+                        ])
+                    );
+            }
+
+            /*
+             * =====================================================
+             * GET DATA
+             * =====================================================
+             */
+
+            $data =
+                $this->request->getData();
+
+            /*
+             * =====================================================
+             * VALIDATE DATE / TIME
+             * =====================================================
+             */
+
+            $validationResult =
+                $this->validateScheduleDateTime(
+                    $data
+                );
+
+            if ($validationResult !== true) {
+
+                return $this->response
+                    ->withStatus(400)
+                    ->withType('application/json')
+                    ->withStringBody(
+                        json_encode([
+                            'status' => 'error',
+                            'message' => $validationResult
+                        ])
+                    );
+            }
+
+            /*
+             * =====================================================
+             * DO NOT ALLOW FORM TO REMOVE STATUS
+             * =====================================================
+             */
+
+            unset($data['status']);
+
+            /*
+             * =====================================================
+             * PATCH
+             * =====================================================
+             */
+
+            $schedule =
+                $this->Schedules->patchEntity(
+                    $schedule,
+                    $data
+                );
+
+            /*
+             * =====================================================
+             * SAVE
+             * =====================================================
+             */
+
+            if (
+                $this->Schedules->save(
+                    $schedule
+                )
+            ) {
+
+                return $this->response
+                    ->withType('application/json')
+                    ->withStringBody(
+                        json_encode([
+                            'status' => 'success',
+                            'message' =>
+                                'Schedule updated successfully.',
+                            'data' => $schedule
+                        ])
+                    );
+            }
+
+            return $this->response
+                ->withStatus(400)
+                ->withType('application/json')
+                ->withStringBody(
+                    json_encode([
+                        'status' => 'error',
+                        'message' =>
+                            'The schedule could not be updated.',
+                        'errors' =>
+                            $schedule->getErrors()
+                    ])
+                );
+
+        } catch (\Throwable $e) {
+
+            Log::error(
+                'Edit Schedule Error: ' .
+                $e->getMessage()
+            );
+
+            return $this->response
+                ->withStatus(500)
+                ->withType('application/json')
+                ->withStringBody(
+                    json_encode([
+                        'status' => 'error',
+                        'message' =>
+                            'Server error while updating schedule.',
+                        'error' =>
+                            $e->getMessage()
+                    ])
+                );
+        }
     }
 
     /**
-     * Delete method
+     * Delete Schedule
      *
-     * @param string|null $id Schedule id.
-     * @return \Cake\Http\Response|null|void Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
+     * POST|DELETE /api/Schedules/delete/{id}
      */
     public function delete($id = null)
     {
-        $this->request->allowMethod(['post', 'delete']);
-        $schedule = $this->Schedules->get($id);
-        if ($this->Schedules->delete($schedule)) {
-            $result = ['status' => 'success', 'message' => 'The Schedule has been deleted.'];
-        }else {
-            $result = ['status'=>'error','message'=>'The Schedule could not be deleted. Please, try again.'];
+        $this->request->allowMethod([
+            'post',
+            'delete'
+        ]);
+
+        try {
+
+            if (empty($id)) {
+
+                $id =
+                    $this->request->getData('id');
+
+            }
+
+            if (empty($id)) {
+
+                return $this->response
+                    ->withStatus(400)
+                    ->withType('application/json')
+                    ->withStringBody(
+                        json_encode([
+                            'status' => 'error',
+                            'message' =>
+                                'Schedule ID is required.'
+                        ])
+                    );
+            }
+
+            $schedule =
+                $this->Schedules->get($id);
+
+            if (
+                $this->Schedules->delete(
+                    $schedule
+                )
+            ) {
+
+                return $this->response
+                    ->withType('application/json')
+                    ->withStringBody(
+                        json_encode([
+                            'status' => 'success',
+                            'message' =>
+                                'The schedule has been deleted.'
+                        ])
+                    );
+            }
+
+            return $this->response
+                ->withStatus(400)
+                ->withType('application/json')
+                ->withStringBody(
+                    json_encode([
+                        'status' => 'error',
+                        'message' =>
+                            'The schedule could not be deleted.',
+                        'errors' =>
+                            $schedule->getErrors()
+                    ])
+                );
+
+        } catch (\Throwable $e) {
+
+            Log::error(
+                'Delete Schedule Error: ' .
+                $e->getMessage()
+            );
+
+            return $this->response
+                ->withStatus(500)
+                ->withType('application/json')
+                ->withStringBody(
+                    json_encode([
+                        'status' => 'error',
+                        'message' =>
+                            'Server error while deleting schedule.',
+                        'error' =>
+                            $e->getMessage()
+                    ])
+                );
         }
-        return $this->response->withType('application/json')
-            ->withStringBody(json_encode($result));
     }
 
+    /**
+     * =========================================================
+     * CANCEL SCHEDULE
+     * =========================================================
+     *
+     * POST /api/Schedules/cancel/{id}
+     *
+     * This is the function used by the Cancel button
+     * in the schedules page.
+     */
+    public function cancel($id = null)
+    {
+        $this->request->allowMethod([
+            'post'
+        ]);
+
+        $this->response =
+            $this->response
+                ->withType('application/json');
+
+        try {
+
+            /*
+             * =====================================================
+             * GET SCHEDULE ID
+             * =====================================================
+             */
+
+            if (empty($id)) {
+
+                $id =
+                    $this->request->getData('id');
+
+            }
+
+            /*
+             * =====================================================
+             * GET ID FROM JSON BODY
+             * =====================================================
+             */
+
+            if (empty($id)) {
+
+                $rawBody =
+                    (string)$this->request->getBody();
+
+                if (!empty($rawBody)) {
+
+                    $json =
+                        json_decode(
+                            $rawBody,
+                            true
+                        );
+
+                    if (
+                        is_array($json) &&
+                        !empty($json['id'])
+                    ) {
+
+                        $id =
+                            $json['id'];
+
+                    }
+                }
+            }
+
+            /*
+             * =====================================================
+             * VALIDATE ID
+             * =====================================================
+             */
+
+            if (empty($id)) {
+
+                return $this->response
+                    ->withStatus(400)
+                    ->withStringBody(
+                        json_encode([
+                            'success' => false,
+                            'status' => 'error',
+                            'message' =>
+                                'Schedule ID is required.'
+                        ])
+                    );
+            }
+
+            /*
+             * =====================================================
+             * FIND SCHEDULE
+             * =====================================================
+             */
+
+            $schedule =
+                $this->Schedules
+                    ->find()
+                    ->where([
+                        'Schedules.id' => $id
+                    ])
+                    ->first();
+
+            /*
+             * =====================================================
+             * NOT FOUND
+             * =====================================================
+             */
+
+            if (!$schedule) {
+
+                return $this->response
+                    ->withStatus(404)
+                    ->withStringBody(
+                        json_encode([
+                            'success' => false,
+                            'status' => 'error',
+                            'message' =>
+                                'Schedule not found.'
+                        ])
+                    );
+            }
+
+            /*
+             * =====================================================
+             * CURRENT STATUS
+             * =====================================================
+             */
+
+            $currentStatus =
+                strtolower(
+                    trim(
+                        (string)(
+                            $schedule->status ?? ''
+                        )
+                    )
+                );
+
+            /*
+             * =====================================================
+             * COMPLETED
+             * =====================================================
+             *
+             * A completed schedule cannot be cancelled.
+             */
+
+            if ($currentStatus === 'completed') {
+
+                return $this->response
+                    ->withStatus(400)
+                    ->withStringBody(
+                        json_encode([
+                            'success' => false,
+                            'status' => 'error',
+                            'message' =>
+                                'Completed schedules cannot be cancelled.'
+                        ])
+                    );
+            }
+
+            /*
+             * =====================================================
+             * ALREADY CANCELLED
+             * =====================================================
+             */
+
+            if ($currentStatus === 'cancelled') {
+
+                return $this->response
+                    ->withStatus(400)
+                    ->withStringBody(
+                        json_encode([
+                            'success' => false,
+                            'status' => 'error',
+                            'message' =>
+                                'This schedule is already cancelled.'
+                        ])
+                    );
+            }
+
+            /*
+             * =====================================================
+             * SAVE OLD VALUES
+             * =====================================================
+             */
+
+            $oldStatus =
+                $schedule->status ?? null;
+
+            $programCode =
+                $schedule->program_code ?? null;
+
+            $programName =
+                $schedule->program_name ?? null;
+
+            /*
+             * =====================================================
+             * CHANGE STATUS
+             * =====================================================
+             */
+
+            $schedule->status =
+                'Cancelled';
+
+            /*
+             * =====================================================
+             * SAVE TO DATABASE
+             * =====================================================
+             */
+
+            if (
+                !$this->Schedules->save(
+                    $schedule
+                )
+            ) {
+
+                Log::error(
+                    'Failed to cancel schedule ID ' .
+                    $id .
+                    ': ' .
+                    json_encode(
+                        $schedule->getErrors()
+                    )
+                );
+
+                return $this->response
+                    ->withStatus(400)
+                    ->withStringBody(
+                        json_encode([
+                            'success' => false,
+                            'status' => 'error',
+                            'message' =>
+                                'Failed to save cancelled status.',
+                            'errors' =>
+                                $schedule->getErrors()
+                        ])
+                    );
+            }
+
+            /*
+             * =====================================================
+             * AUDIT LOG
+             * =====================================================
+             *
+             * IMPORTANT:
+             *
+             * logActivity() argument #4 MUST BE AN ARRAY.
+             *
+             * DO NOT USE:
+             *
+             * 'Schedule was cancelled.'
+             *
+             * as argument #4.
+             */
+
+            if (
+                isset($this->AuditLogger) &&
+                $this->AuditLogger
+            ) {
+
+                try {
+
+                    $this->AuditLogger->logActivity(
+                        'Cancelled Schedule',
+                        'Schedules',
+                        $schedule->id,
+                        [
+                            'program_code' =>
+                                $programCode,
+
+                            'program_name' =>
+                                $programName,
+
+                            'old_status' =>
+                                $oldStatus,
+
+                            'new_status' =>
+                                'Cancelled'
+                        ]
+                    );
+
+                } catch (\Throwable $auditError) {
+
+                    /*
+                     * The database update already succeeded.
+                     *
+                     * Therefore an AuditLogger error must NOT
+                     * make the cancellation fail.
+                     */
+
+                    Log::error(
+                        'Schedule cancellation audit log failed: ' .
+                        $auditError->getMessage()
+                    );
+                }
+            }
+
+            /*
+             * =====================================================
+             * SUCCESS
+             * =====================================================
+             */
+
+            return $this->response
+                ->withStatus(200)
+                ->withStringBody(
+                    json_encode([
+                        'success' => true,
+                        'status' => 'success',
+                        'message' =>
+                            'Schedule cancelled successfully.',
+                        'id' =>
+                            $schedule->id,
+                        'schedule_status' =>
+                            $schedule->status
+                    ])
+                );
+
+        } catch (\Throwable $e) {
+
+            Log::error(
+                'Cancel Schedule Error: ' .
+                $e->getMessage()
+            );
+
+            return $this->response
+                ->withStatus(500)
+                ->withStringBody(
+                    json_encode([
+                        'success' => false,
+                        'status' => 'error',
+                        'message' =>
+                            'Server error while cancelling schedule.',
+                        'error' =>
+                            $e->getMessage()
+                    ])
+                );
+        }
+    }
+
+    /**
+     * =========================================================
+     * VALIDATE SCHEDULE DATE / TIME
+     * =========================================================
+     */
     private function validateScheduleDateTime(array $data)
     {
-        $startDate = $data['start_date'] ?? '';
-        $endDate   = $data['end_date'] ?? '';
-        $startTime = $data['start_time'] ?? '';
-        $endTime   = $data['end_time'] ?? '';
+        $startDate =
+            $data['start_date'] ?? '';
+
+        $endDate =
+            $data['end_date'] ?? '';
+
+        $startTime =
+            $data['start_time'] ?? '';
+
+        $endTime =
+            $data['end_time'] ?? '';
 
         /*
-        * ==========================================
-        * START DATE / END DATE
-        * ==========================================
-        */
+         * =====================================================
+         * START DATE
+         * =====================================================
+         */
 
         if (empty($startDate)) {
+
             return 'Start date is required.';
         }
 
+        /*
+         * =====================================================
+         * END DATE
+         * =====================================================
+         */
+
         if (empty($endDate)) {
+
             return 'End date is required.';
         }
 
         /*
-        * Convert values to strings.
-        */
-        if ($startDate instanceof \DateTimeInterface) {
-            $startDate = $startDate->format('Y-m-d');
+         * =====================================================
+         * NORMALIZE DATE
+         * =====================================================
+         */
+
+        if (
+            $startDate instanceof
+            \DateTimeInterface
+        ) {
+
+            $startDate =
+                $startDate->format(
+                    'Y-m-d'
+                );
+
         } else {
-            $startDate = trim((string)$startDate);
+
+            $startDate =
+                trim(
+                    (string)$startDate
+                );
+
         }
 
-        if ($endDate instanceof \DateTimeInterface) {
-            $endDate = $endDate->format('Y-m-d');
+        if (
+            $endDate instanceof
+            \DateTimeInterface
+        ) {
+
+            $endDate =
+                $endDate->format(
+                    'Y-m-d'
+                );
+
         } else {
-            $endDate = trim((string)$endDate);
+
+            $endDate =
+                trim(
+                    (string)$endDate
+                );
+
         }
 
         /*
-        * Parse dates strictly.
-        *
-        * Expected format:
-        * YYYY-MM-DD
-        */
-        $startDateObj = \DateTime::createFromFormat('!Y-m-d', $startDate);
-        $endDateObj   = \DateTime::createFromFormat('!Y-m-d', $endDate);
+         * =====================================================
+         * PARSE START DATE
+         * =====================================================
+         */
+
+        $startDateObj =
+            \DateTime::createFromFormat(
+                '!Y-m-d',
+                $startDate
+            );
 
         /*
-        * If the form sends another format, try strtotime().
-        */
+         * =====================================================
+         * PARSE END DATE
+         * =====================================================
+         */
+
+        $endDateObj =
+            \DateTime::createFromFormat(
+                '!Y-m-d',
+                $endDate
+            );
+
+        /*
+         * =====================================================
+         * FALLBACK START DATE
+         * =====================================================
+         */
+
         if (!$startDateObj) {
-            $timestamp = strtotime($startDate);
+
+            $timestamp =
+                strtotime(
+                    $startDate
+                );
 
             if ($timestamp === false) {
+
                 return 'Invalid start date.';
             }
 
-            $startDateObj = new \DateTime(
-                date('Y-m-d', $timestamp)
-            );
+            $startDateObj =
+                new \DateTime(
+                    date(
+                        'Y-m-d',
+                        $timestamp
+                    )
+                );
         }
 
+        /*
+         * =====================================================
+         * FALLBACK END DATE
+         * =====================================================
+         */
+
         if (!$endDateObj) {
-            $timestamp = strtotime($endDate);
+
+            $timestamp =
+                strtotime(
+                    $endDate
+                );
 
             if ($timestamp === false) {
+
                 return 'Invalid end date.';
             }
 
-            $endDateObj = new \DateTime(
-                date('Y-m-d', $timestamp)
-            );
+            $endDateObj =
+                new \DateTime(
+                    date(
+                        'Y-m-d',
+                        $timestamp
+                    )
+                );
         }
 
         /*
-        * Normalize dates.
-        */
-        $startDateString = $startDateObj->format('Y-m-d');
-        $endDateString   = $endDateObj->format('Y-m-d');
+         * =====================================================
+         * NORMALIZE
+         * =====================================================
+         */
+
+        $startDateString =
+            $startDateObj->format(
+                'Y-m-d'
+            );
+
+        $endDateString =
+            $endDateObj->format(
+                'Y-m-d'
+            );
 
         /*
-        * ==========================================
-        * RULE 1:
-        *
-        * END DATE MUST NOT BE BEFORE START DATE
-        * ==========================================
-        */
-        if ($endDateObj->getTimestamp() < $startDateObj->getTimestamp()) {
+         * =====================================================
+         * END DATE CANNOT BE BEFORE START DATE
+         * =====================================================
+         */
 
-            return 'Invalid schedule: End date (' .
+        if (
+            $endDateObj->getTimestamp() <
+            $startDateObj->getTimestamp()
+        ) {
+
+            return
+                'Invalid schedule: End date (' .
                 $endDateString .
                 ') cannot be earlier than start date (' .
                 $startDateString .
@@ -229,86 +1107,149 @@ class SchedulesController extends AppController
         }
 
         /*
-        * ==========================================
-        * RULE 2:
-        *
-        * IF SAME DATE, COMPARE TIMES
-        * ==========================================
-        */
-        if ($startDateString === $endDateString) {
+         * =====================================================
+         * SAME DATE
+         * =====================================================
+         */
+
+        if (
+            $startDateString ===
+            $endDateString
+        ) {
+
+            /*
+             * Start time required
+             */
 
             if (empty($startTime)) {
+
                 return 'Start time is required.';
             }
 
+            /*
+             * End time required
+             */
+
             if (empty($endTime)) {
+
                 return 'End time is required.';
             }
 
             /*
-            * Convert time objects to strings.
-            */
-            if ($startTime instanceof \DateTimeInterface) {
-                $startTime = $startTime->format('H:i:s');
-            } else {
-                $startTime = trim((string)$startTime);
-            }
+             * Normalize start time
+             */
 
-            if ($endTime instanceof \DateTimeInterface) {
-                $endTime = $endTime->format('H:i:s');
+            if (
+                $startTime instanceof
+                \DateTimeInterface
+            ) {
+
+                $startTime =
+                    $startTime->format(
+                        'H:i:s'
+                    );
+
             } else {
-                $endTime = trim((string)$endTime);
+
+                $startTime =
+                    trim(
+                        (string)$startTime
+                    );
             }
 
             /*
-            * Parse times.
-            */
-            $startTimeObj = \DateTime::createFromFormat(
-                '!H:i:s',
-                $startTime
-            );
+             * Normalize end time
+             */
 
-            $endTimeObj = \DateTime::createFromFormat(
-                '!H:i:s',
-                $endTime
-            );
+            if (
+                $endTime instanceof
+                \DateTimeInterface
+            ) {
+
+                $endTime =
+                    $endTime->format(
+                        'H:i:s'
+                    );
+
+            } else {
+
+                $endTime =
+                    trim(
+                        (string)$endTime
+                    );
+            }
 
             /*
-            * Try H:i if H:i:s didn't work.
-            */
-            if (!$startTimeObj) {
-                $startTimeObj = \DateTime::createFromFormat(
-                    '!H:i',
+             * Parse start time
+             */
+
+            $startTimeObj =
+                \DateTime::createFromFormat(
+                    '!H:i:s',
                     $startTime
                 );
+
+            /*
+             * Parse end time
+             */
+
+            $endTimeObj =
+                \DateTime::createFromFormat(
+                    '!H:i:s',
+                    $endTime
+                );
+
+            /*
+             * Try H:i
+             */
+
+            if (!$startTimeObj) {
+
+                $startTimeObj =
+                    \DateTime::createFromFormat(
+                        '!H:i',
+                        $startTime
+                    );
             }
 
             if (!$endTimeObj) {
-                $endTimeObj = \DateTime::createFromFormat(
-                    '!H:i',
-                    $endTime
-                );
+
+                $endTimeObj =
+                    \DateTime::createFromFormat(
+                        '!H:i',
+                        $endTime
+                    );
             }
 
             /*
-            * Invalid time.
-            */
+             * Invalid start time
+             */
+
             if (!$startTimeObj) {
+
                 return 'Invalid start time.';
             }
 
+            /*
+             * Invalid end time
+             */
+
             if (!$endTimeObj) {
+
                 return 'Invalid end time.';
             }
 
             /*
-            * ==========================================
-            * END TIME MUST NOT BE BEFORE START TIME
-            * ==========================================
-            */
-            if ($endTimeObj->getTimestamp() < $startTimeObj->getTimestamp()) {
+             * End time cannot be earlier
+             */
 
-                return 'Invalid schedule: End time (' .
+            if (
+                $endTimeObj->getTimestamp() <
+                $startTimeObj->getTimestamp()
+            ) {
+
+                return
+                    'Invalid schedule: End time (' .
                     $endTimeObj->format('H:i:s') .
                     ') cannot be earlier than start time (' .
                     $startTimeObj->format('H:i:s') .
@@ -316,11 +1257,6 @@ class SchedulesController extends AppController
             }
         }
 
-        /*
-        * ==========================================
-        * VALID
-        * ==========================================
-        */
         return true;
     }
 }

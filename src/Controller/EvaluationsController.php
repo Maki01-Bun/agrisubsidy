@@ -15,17 +15,41 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
  */
 class EvaluationsController extends AppController
 {
+    
+    public function initialize(): void
+    {
+        parent::initialize();
+    
+        $this->loadComponent('Flash');
+    
+        $this->loadModel('Feedbacks');
+    }
     /**
      * Index method
      *
      * @return \Cake\Http\Response|null|void Renders view
      */
     public function index()
-    {
-        $evaluation = $this->Evaluations->newEmptyEntity();
+{
+    $evaluation = $this->Evaluations->newEmptyEntity();
 
-        $this->set(compact('evaluation'));
-    }
+    /*
+     * ============================================================
+     * GET FEEDBACK SUMMARY
+     * ============================================================
+     */
+    $questionSummary = $this->getQuestionSummary();
+
+    /*
+     * ============================================================
+     * SEND DATA TO VIEW
+     * ============================================================
+     */
+    $this->set([
+        'evaluation' => $evaluation,
+        'questionSummary' => $questionSummary
+    ]);
+}
 
     /**
      * View method
@@ -47,19 +71,48 @@ class EvaluationsController extends AppController
      *
      * @return \Cake\Http\Response|null|void Redirects on successful add, renders view otherwise.
      */
-    public function add()
+   public function add()
     {
-        $evaluation = $this->Evaluations->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $evaluation = $this->Evaluations->patchEntity($evaluation, $this->request->getData());
-            if ($this->Evaluations->save($evaluation)) {
-                $this->Flash->success(__('The evaluation has been saved.'));
+        $evaluation =
+            $this->Evaluations->newEmptyEntity();
 
-                return $this->redirect(['action' => 'index']);
+        if ($this->request->is('post')) {
+
+            $evaluation =
+                $this->Evaluations->patchEntity(
+                    $evaluation,
+                    $this->request->getData()
+                );
+
+            if (
+                $this->Evaluations->save(
+                    $evaluation
+                )
+            ) {
+
+                $this->Flash->success(
+                    __('The evaluation has been saved.')
+                );
+
+                return $this->redirect([
+                    'action' => 'index'
+                ]);
             }
-            $this->Flash->error(__('The evaluation could not be saved. Please, try again.'));
+
+            $this->Flash->error(
+                __(
+                    'The evaluation could not be saved. Please, try again.'
+                )
+            );
         }
-        $this->set(compact('evaluation'));
+
+        $questionSummary =
+            $this->getQuestionSummary();
+
+        $this->set([
+            'evaluation' => $evaluation,
+            'questionSummary' => $questionSummary
+        ]);
     }
 
     /**
@@ -705,118 +758,483 @@ class EvaluationsController extends AppController
         }
     }
 
-    public function getFeedback($id = null)
-    {
-        $this->request->allowMethod(['get']);
-        $this->autoRender = false;
+ /**
+ * Get farmer feedback records
+ */
+private function getFeedbackRecords(): array
+{
+    $this->loadModel('Feedbacks');
 
-        try {
+    $feedbacks = $this->Feedbacks
+        ->find()
+        ->contain([
+            'Farmers',
+            'Evaluations'
+        ])
+        ->order([
+            'Feedbacks.created' => 'DESC'
+        ])
+        ->all()
+        ->toArray();
 
-            if ($id === null) {
-                return $this->response
-                    ->withStatus(400)
-                    ->withType('application/json')
-                    ->withStringBody(json_encode([
-                        'success' => false,
-                        'message' => 'Evaluation ID is required.'
-                    ]));
+    $questions = [
+
+        'q1' =>
+            'The subsidy improved my crop production.',
+
+        'q2' =>
+            'The subsidy increased my farm income.',
+
+        'q3' =>
+            'The subsidy was distributed on time.',
+
+        'q4' =>
+            'The quality of the subsidy met my expectations.',
+
+        'q5' =>
+            'The subsidy helped reduce farming expenses.',
+
+        'q6' =>
+            'Overall, I am satisfied with the subsidy program.'
+    ];
+
+    $records = [];
+
+    foreach ($feedbacks as $feedback) {
+
+        /*
+         * ========================================================
+         * FARMER INFORMATION
+         * ========================================================
+         */
+
+        $farmerNo = '-';
+
+        $farmerName = '-';
+
+        if (!empty($feedback->farmer)) {
+
+            $farmerNo =
+                $feedback->farmer->farmer_no
+                ?? '-';
+
+            $farmerName =
+                $feedback->farmer->full_name
+                ?? '';
+
+            if (empty($farmerName)) {
+
+                $farmerName = trim(
+                    ($feedback->farmer->first_name ?? '') .
+                    ' ' .
+                    ($feedback->farmer->last_name ?? '')
+                );
+            }
+
+            if (empty($farmerName)) {
+                $farmerName = '-';
+            }
+        }
+
+        /*
+         * ========================================================
+         * DECODE ANSWERS
+         * ========================================================
+         */
+
+        $answers = [];
+
+        if (!empty($feedback->answer)) {
+
+            $decoded =
+                json_decode(
+                    (string)$feedback->answer,
+                    true
+                );
+
+            if (is_array($decoded)) {
+                $answers = $decoded;
+            }
+        }
+
+        /*
+         * ========================================================
+         * CREATE ONE RECORD PER QUESTION
+         * ========================================================
+         */
+
+        foreach ($questions as $key => $question) {
+
+            /*
+             * Skip if this question wasn't saved
+             */
+            if (!isset($answers[$key])) {
+                continue;
+            }
+
+            $rating =
+                (int)$answers[$key];
+
+            /*
+             * Only accept 1-5
+             */
+            if (
+                $rating < 1 ||
+                $rating > 5
+            ) {
+                continue;
             }
 
             /*
-            * Get evaluation together with Feedbacks.
-            */
-            $evaluation = $this->Evaluations->get($id, [
-                'contain' => ['Feedbacks']
-            ]);
+             * Feedback date
+             */
+            $date =
+                $feedback->feedback_date
+                ?? $feedback->created
+                ?? null;
 
-            /*
-            * Default rating.
-            */
-            $feedbackRating = null;
+            $records[] = [
 
-            /*
-            * Get the rating from the related feedback.
-            */
-            if (!empty($evaluation->feedbacks)) {
+                'farmer_no' =>
+                    $farmerNo,
 
-                foreach ($evaluation->feedbacks as $feedback) {
+                'farmer_name' =>
+                    $farmerName,
 
-                    if (!$feedback) {
-                        continue;
-                    }
+                'question' =>
+                    $question,
 
-                    /*
-                    * Check the possible rating field names.
-                    */
-                    if (
-                        isset($feedback->feedback_score) &&
-                        $feedback->feedback_score !== '' &&
-                        $feedback->feedback_score !== null
-                    ) {
-                        $feedbackRating = $feedback->feedback_score;
-                    }
-                    elseif (
-                        isset($feedback->rating) &&
-                        $feedback->rating !== '' &&
-                        $feedback->rating !== null
-                    ) {
-                        $feedbackRating = $feedback->rating;
-                    }
-                    elseif (
-                        isset($feedback->score) &&
-                        $feedback->score !== '' &&
-                        $feedback->score !== null
-                    ) {
-                        $feedbackRating = $feedback->score;
-                    }
+                'rating' =>
+                    $rating,
 
-                    /*
-                    * We only need the first feedback.
-                    */
-                    break;
-                }
-            }
-
-            /*
-            * Return evaluation data.
-            */
-            $data = [
-                'id' => $evaluation->id,
-
-                'rice_type' => $evaluation->rice_type ?? null,
-
-                'average_yield' => $evaluation->average_yield ?? null,
-
-                'crop_yield_after' => $evaluation->crop_yield_after ?? null,
-
-                'selling_price' => $evaluation->selling_price ?? null,
-
-                'subsidy_received' => $evaluation->subsidy_received ?? null,
-
-                'feedback_rating' => $feedbackRating
+                'created' =>
+                    $date
             ];
-
-            return $this->response
-                ->withType('application/json')
-                ->withStringBody(json_encode([
-                    'success' => true,
-                    'data' => $data
-                ]));
-
-        } catch (\Throwable $e) {
-
-            $this->log(
-                'Get Feedback Error: ' . $e->getMessage(),
-                'error'
-            );
-
-            return $this->response
-                ->withStatus(500)
-                ->withType('application/json')
-                ->withStringBody(json_encode([
-                    'success' => false,
-                    'message' => $e->getMessage()
-                ]));
         }
     }
+
+    return $records;
+}
+ /**
+ * Get question-by-question feedback summary
+ *
+ * Reads all q1-q6 answers from:
+ *
+ * feedbacks.answer
+ *
+ * Example:
+ *
+ * {"q1":5,"q2":4,"q3":5,"q4":3,"q5":4,"q6":5}
+ */
+private function getQuestionSummary(): array
+{
+    /*
+     * ============================================================
+     * QUESTIONS
+     * ============================================================
+     */
+
+    $questions = [
+
+        1 =>
+            'The subsidy improved my crop production.',
+
+        2 =>
+            'The subsidy increased my farm income.',
+
+        3 =>
+            'The subsidy was distributed on time.',
+
+        4 =>
+            'The quality of the subsidy met my expectations.',
+
+        5 =>
+            'The subsidy helped reduce farming expenses.',
+
+        6 =>
+            'Overall, I am satisfied with the subsidy program.'
+    ];
+
+    /*
+     * ============================================================
+     * INITIALIZE SUMMARY
+     * ============================================================
+     */
+
+    $summary = [];
+
+    foreach (
+        $questions as $number => $question
+    ) {
+
+        $summary[$number] = [
+
+            'question' =>
+                $question,
+
+            'rating_1' =>
+                0,
+
+            'rating_2' =>
+                0,
+
+            'rating_3' =>
+                0,
+
+            'rating_4' =>
+                0,
+
+            'rating_5' =>
+                0,
+
+            'total' =>
+                0,
+
+            'average' =>
+                0,
+
+            'label' =>
+                'No Response'
+        ];
+    }
+
+    /*
+     * ============================================================
+     * GET FEEDBACKS
+     * ============================================================
+     *
+     * IMPORTANT:
+     *
+     * The correct database column is:
+     *
+     * answer
+     *
+     * NOT:
+     *
+     * answers
+     *
+     * ============================================================
+     */
+
+    $feedbacks = $this->Feedbacks
+        ->find()
+        ->select([
+            'id',
+            'answer'
+        ])
+        ->where([
+            'answer IS NOT' => null
+        ])
+        ->all();
+
+    /*
+     * ============================================================
+     * PROCESS FEEDBACKS
+     * ============================================================
+     */
+
+    foreach (
+        $feedbacks as $feedback
+    ) {
+
+        /*
+         * Skip empty answers
+         */
+
+        if (
+            empty($feedback->answer)
+        ) {
+            continue;
+        }
+
+        /*
+         * ========================================================
+         * DECODE JSON
+         * ========================================================
+         */
+
+        $answers = json_decode(
+            (string)$feedback->answer,
+            true
+        );
+
+        /*
+         * Invalid JSON
+         */
+
+        if (
+            !is_array($answers)
+        ) {
+            continue;
+        }
+
+        /*
+         * ========================================================
+         * PROCESS Q1-Q6
+         * ========================================================
+         */
+
+        foreach (
+            $questions as $number => $question
+        ) {
+
+            $key =
+                'q' . $number;
+
+            /*
+             * Question does not exist
+             */
+
+            if (
+                !array_key_exists(
+                    $key,
+                    $answers
+                )
+            ) {
+                continue;
+            }
+
+            /*
+             * Convert rating to integer
+             */
+
+            $rating =
+                (int)$answers[$key];
+
+            /*
+             * Only ratings 1-5 are valid
+             */
+
+            if (
+                $rating < 1 ||
+                $rating > 5
+            ) {
+                continue;
+            }
+
+            /*
+             * Increment rating count
+             */
+
+            $summary[$number][
+                'rating_' . $rating
+            ]++;
+
+            /*
+             * Increment total response count
+             */
+
+            $summary[$number]['total']++;
+        }
+    }
+
+    /*
+     * ============================================================
+     * CALCULATE AVERAGE AND LABEL
+     * ============================================================
+     */
+
+    foreach (
+        $summary as &$item
+    ) {
+
+        /*
+         * No responses
+         */
+
+        if (
+            $item['total'] <= 0
+        ) {
+
+            $item['average'] = 0;
+
+            $item['label'] =
+                'No Response';
+
+            continue;
+        }
+
+        /*
+         * ========================================================
+         * TOTAL WEIGHTED SCORE
+         * ========================================================
+         */
+
+        $totalScore =
+
+            ($item['rating_1'] * 1) +
+
+            ($item['rating_2'] * 2) +
+
+            ($item['rating_3'] * 3) +
+
+            ($item['rating_4'] * 4) +
+
+            ($item['rating_5'] * 5);
+
+        /*
+         * ========================================================
+         * AVERAGE
+         * ========================================================
+         */
+
+        $item['average'] = round(
+            $totalScore /
+            $item['total'],
+            2
+        );
+
+        /*
+         * ========================================================
+         * LABEL
+         * ========================================================
+         */
+
+        if (
+            $item['average'] >= 4.21
+        ) {
+
+            $item['label'] =
+                'Strongly Agree';
+
+        } elseif (
+            $item['average'] >= 3.41
+        ) {
+
+            $item['label'] =
+                'Agree';
+
+        } elseif (
+            $item['average'] >= 2.61
+        ) {
+
+            $item['label'] =
+                'Neutral';
+
+        } elseif (
+            $item['average'] >= 1.81
+        ) {
+
+            $item['label'] =
+                'Disagree';
+
+        } else {
+
+            $item['label'] =
+                'Strongly Disagree';
+        }
+    }
+
+    unset($item);
+
+    /*
+     * ============================================================
+     * RETURN
+     * ============================================================
+     */
+
+    return array_values(
+        $summary
+    );
+}
 }
