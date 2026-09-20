@@ -123,7 +123,7 @@
                     <h3 class="card-title mb-1">
                         Feedback Summary by Question
                     </h3>
-
+                    <br>
                     <div class="feedback-header-subtitle">
                         <i class="fas fa-info-circle mr-1"></i>
                         Distribution of farmer responses for each survey question

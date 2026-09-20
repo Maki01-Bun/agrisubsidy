@@ -576,7 +576,7 @@
                     <ol class="mb-0 pl-3">
 
                         <li>
-                            Farmer Name
+                            LGU RSBSA Number
                         </li>
 
                         <li>
@@ -589,10 +589,6 @@
 
                         <li>
                             Location
-                        </li>
-
-                        <li>
-                            Average Yield
                         </li>
 
                     </ol>

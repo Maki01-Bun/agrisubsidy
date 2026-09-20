@@ -81,27 +81,83 @@
                     ]) ?>
 
                     <div class="input-group-append">
-                        <button type="button" class="btn btn-outline-secondary" onclick="password.type=password.type=='password'?'text':'password'">
-                            <i class="fas fa-eye"></i>
+                        <button
+                            type="button"
+                            class="btn btn-outline-secondary"
+                            onclick="togglePassword('password', 'passwordIcon')"
+                            aria-label="Show or hide password"
+                        >
+                            <i id="passwordIcon" class="fas fa-eye-slash"></i>
                         </button>
                     </div>
                 </div>
+
+
                 <div class="input-group mb-3">
-                    <?= $this->Form->control('confirm_password', ['type' => 'password','class' => 'form-control','placeholder' => 'Confirm Password',
-                        'label' => false,'required' => true,'id' => 'confirm_password'
+                    <?= $this->Form->control('confirm_password', [
+                        'type' => 'password',
+                        'class' => 'form-control',
+                        'placeholder' => 'Confirm Password',
+                        'label' => false,
+                        'required' => true,
+                        'id' => 'confirm_password'
                     ]) ?>
+
                     <div class="input-group-append">
-                        <button type="button" class="btn btn-outline-secondary" onclick="confirm_password.type=confirm_password.type=='password'?'text':'password'">
-                            <i class="fas fa-eye"></i>
+                        <button
+                            type="button"
+                            class="btn btn-outline-secondary"
+                            onclick="togglePassword('confirm_password', 'confirmPasswordIcon')"
+                            aria-label="Show or hide confirm password"
+                        >
+                            <i id="confirmPasswordIcon" class="fas fa-eye-slash"></i>
                         </button>
                     </div>
                 </div>
                 <div class="input-group mb-3">
                     <?= $this->Form->hidden('role', ['value' => 'farmer']) ?>
                 </div>
-                <button type="submit" class="btn btn-success btn-block">Register</button>
+                <div class="row">
+                    <div class="col-6 pr-1">
+                        <?= $this->Html->link(
+                            'Cancel',
+                            [
+                                'controller' => 'Users',
+                                'action' => 'login'
+                            ],
+                            [
+                                'class' => 'btn btn-secondary btn-block'
+                            ]
+                        ) ?>
+                    </div>
+
+                    <div class="col-6 pl-1">
+                        <button type="submit" class="btn btn-success btn-block">
+                            Register
+                        </button>
+                    </div>
+                </div>
                 <?= $this->Form->end() ?>
             <?php endif; ?>
         </div>
     </div>
 </div>
+
+<script>
+function togglePassword(inputId, iconId) {
+    const passwordInput = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    } else {
+        passwordInput.type = 'password';
+
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    }
+}
+</script>

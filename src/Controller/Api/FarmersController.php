@@ -65,7 +65,7 @@ class FarmersController extends AppController
                                 : trim((string)($farmer->gender ?? ''))
                         )
                 ),
-                'address' => $farmer->address ?? '',
+                'address' => strtoupper((string)($farmer->address ?? '')),
                 'contact_no' => $farmer->contact_no ?? '',
                 'created' => $created
             ];

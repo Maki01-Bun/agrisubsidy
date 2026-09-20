@@ -3,12 +3,14 @@
     <!-- =========================================================
          PROFILE TABS
     ========================================================== -->
+
     <div class="profile-tabs-wrapper mb-4">
 
         <ul class="nav nav-tabs profile-tabs" role="tablist">
 
             <!-- PROFILE TAB -->
             <li class="nav-item">
+
                 <a class="nav-link active"
                    data-toggle="tab"
                    href="#profile"
@@ -19,7 +21,9 @@
                     <span>Profile Information</span>
 
                 </a>
+
             </li>
+
 
             <!-- FARM TAB -->
             <?php if (strtolower($user->role ?? '') === 'farmer'): ?>
@@ -49,12 +53,14 @@
     <!-- =========================================================
          TAB CONTENT
     ========================================================== -->
+
     <div class="tab-content">
 
 
         <!-- =====================================================
              PROFILE INFORMATION
         ====================================================== -->
+
         <div class="tab-pane fade show active"
              id="profile"
              role="tabpanel">
@@ -63,9 +69,11 @@
             <!-- =================================================
                  PROFILE HEADER
             ================================================== -->
+
             <div class="profile-header">
 
                 <!-- PROFILE IMAGE -->
+
                 <div class="profile-avatar-wrapper">
 
                     <img src="<?= $this->Url->image('default-profile.png') ?>"
@@ -76,6 +84,7 @@
 
 
                 <!-- PROFILE INFORMATION -->
+
                 <div class="profile-header-content">
 
                     <h2 class="profile-name">
@@ -116,6 +125,7 @@
             <!-- =================================================
                  EDIT ACCOUNT BUTTON
             ================================================== -->
+
             <div class="profile-account-actions">
 
                 <button type="button"
@@ -135,6 +145,7 @@
             <!-- =================================================
                  PERSONAL INFORMATION TITLE
             ================================================== -->
+
             <div class="section-heading mt-4 mb-3">
 
                 <div class="section-icon">
@@ -161,12 +172,12 @@
             <!-- =================================================
                  PERSONAL INFORMATION CARDS
             ================================================== -->
+
             <div class="row">
 
 
-                <!-- =============================================
-                     FULL NAME
-                ============================================== -->
+                <!-- FULL NAME -->
+
                 <?php if (strtolower($user->role ?? '') === 'farmer'): ?>
 
                     <div class="col-12 col-sm-6 col-xl-6 mb-3">
@@ -205,9 +216,8 @@
                 <?php endif; ?>
 
 
-                <!-- =============================================
-                     USERNAME
-                ============================================== -->
+                <!-- USERNAME -->
+
                 <div class="col-12 col-sm-6 col-xl-6 mb-3">
 
                     <div class="info-card">
@@ -238,9 +248,8 @@
                 </div>
 
 
-                <!-- =============================================
-                     ROLE
-                ============================================== -->
+                <!-- ROLE -->
+
                 <div class="col-12 col-sm-6 col-xl-6 mb-3">
 
                     <div class="info-card">
@@ -271,9 +280,8 @@
                 </div>
 
 
-                <!-- =============================================
-                     CREATED
-                ============================================== -->
+                <!-- CREATED -->
+
                 <div class="col-12 col-sm-6 col-xl-6 mb-3">
 
                     <div class="info-card">
@@ -300,9 +308,7 @@
                                     echo h(
                                         $user->created instanceof \Cake\I18n\FrozenTime ||
                                         $user->created instanceof \Cake\I18n\FrozenDate
-
                                             ? $user->created->format('F d, Y')
-
                                             : $user->created
                                     );
 
@@ -327,10 +333,10 @@
         </div>
 
 
-
         <!-- =====================================================
              FARM INFORMATION
         ====================================================== -->
+
         <?php if (strtolower($user->role ?? '') === 'farmer'): ?>
 
             <div class="tab-pane fade"
@@ -338,12 +344,13 @@
                  role="tabpanel">
 
 
-                <!-- =============================================
+                <!-- =================================================
                      FARM SECTION HEADER
-                ============================================== -->
+                ================================================== -->
+
                 <div class="farm-section-header">
 
-                    <div>
+                    <div class="farm-section-title-area">
 
                         <div class="section-heading mb-1">
 
@@ -352,7 +359,6 @@
                                 <i class="fas fa-tractor"></i>
 
                             </div>
-
 
                             <div>
 
@@ -371,28 +377,49 @@
                     </div>
 
 
-                    <!-- FARM COUNT -->
-                    <?php if (!empty($farms)): ?>
+                    <!-- =================================================
+                         FARM ACTIONS
+                    ================================================== -->
 
-                        <div class="farm-count">
+                    <div class="farm-header-actions">
 
-                            <i class="fas fa-layer-group mr-1"></i>
+                        <?php if (!empty($farms)): ?>
 
-                            <?= count($farms) ?>
+                            <div class="farm-count">
 
-                            <?= count($farms) == 1 ? 'Farm' : 'Farms' ?>
+                                <i class="fas fa-layer-group mr-1"></i>
 
-                        </div>
+                                <?= count($farms) ?>
 
-                    <?php endif; ?>
+                                <?= count($farms) == 1 ? 'Farm' : 'Farms' ?>
+
+                            </div>
+
+                        <?php endif; ?>
+
+
+                        <!-- ADD FARM BUTTON -->
+
+                        <button type="button"
+                                class="btn btn-success add-farm-btn"
+                                data-toggle="modal"
+                                data-target="#addFarmModal">
+
+                            <i class="fas fa-plus mr-1"></i>
+
+                            Add Farm
+
+                        </button>
+
+                    </div>
 
                 </div>
 
 
-
-                <!-- =============================================
+                <!-- =================================================
                      FARMS FOUND
-                ============================================== -->
+                ================================================== -->
+
                 <?php if (!empty($farms)): ?>
 
                     <div class="row mt-3">
@@ -404,9 +431,8 @@
                                 <div class="farm-card">
 
 
-                                    <!-- =================================
-                                         FARM HEADER
-                                    ================================== -->
+                                    <!-- FARM HEADER -->
+
                                     <div class="farm-card-header">
 
                                         <div class="farm-title-wrapper">
@@ -416,24 +442,39 @@
                                                 <i class="fas fa-tractor"></i>
 
                                             </div>
+
+
                                             <div class="farm-title">
+
                                                 <span>
                                                     Registered Farm
                                                 </span>
+
+
                                                 <div class="farm-location">
+
                                                     <div class="farm-detail-icon location">
+
                                                         <i class="fas fa-map-marker-alt"></i>
+
                                                     </div>
+
                                                     <h5>
+
                                                         <?= h(
                                                             !empty($farm->location)
                                                                 ? $farm->location
                                                                 : 'Unknown Farm Location'
                                                         ) ?>
+
                                                     </h5>
+
                                                 </div>
+
                                             </div>
+
                                         </div>
+
 
                                         <span class="farm-badge">
 
@@ -446,16 +487,15 @@
                                     </div>
 
 
+                                    <!-- FARM BODY -->
 
-                                    <!-- =================================
-                                         FARM BODY
-                                    ================================== -->
                                     <div class="farm-card-body">
 
                                         <div class="farm-detail-grid">
 
 
                                             <!-- FARM SIZE -->
+
                                             <div class="farm-detail">
 
                                                 <div class="farm-detail-icon size">
@@ -468,7 +508,9 @@
                                                 <div>
 
                                                     <span class="farm-detail-label">
+
                                                         Farm Size
+
                                                     </span>
 
                                                     <strong>
@@ -484,13 +526,19 @@
                                                     </strong>
 
                                                 </div>
+
                                             </div>
+
                                         </div>
+
+
                                         <!-- DIVIDER -->
+
                                         <div class="farm-divider"></div>
 
 
                                         <!-- REGISTERED DATE -->
+
                                         <div class="farm-date">
 
                                             <i class="far fa-calendar-alt"></i>
@@ -508,9 +556,7 @@
                                                         echo h(
                                                             $farm->created instanceof \Cake\I18n\FrozenTime ||
                                                             $farm->created instanceof \Cake\I18n\FrozenDate
-
                                                                 ? $farm->created->format('F d, Y')
-
                                                                 : $farm->created
                                                         );
 
@@ -542,9 +588,10 @@
                 <?php else: ?>
 
 
-                    <!-- =============================================
+                    <!-- =================================================
                          EMPTY FARM STATE
-                    ============================================== -->
+                    ================================================== -->
+
                     <div class="empty-farm-state">
 
                         <div class="empty-farm-icon">
@@ -563,6 +610,20 @@
                             There are no registered farms linked to your account.
                         </p>
 
+
+                        <!-- ADD FIRST FARM BUTTON -->
+
+                        <button type="button"
+                                class="btn btn-success add-first-farm-btn"
+                                data-toggle="modal"
+                                data-target="#addFarmModal">
+
+                            <i class="fas fa-plus mr-1"></i>
+
+                            Add Your First Farm
+
+                        </button>
+
                     </div>
 
                 <?php endif; ?>
@@ -570,6 +631,218 @@
             </div>
 
         <?php endif; ?>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     ADD FARM MODAL
+========================================================== -->
+
+<div class="modal fade"
+     id="addFarmModal"
+     tabindex="-1"
+     role="dialog"
+     aria-labelledby="addFarmModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered"
+         role="document">
+
+        <div class="modal-content add-farm-modal">
+
+
+            <!-- =================================================
+                 MODAL HEADER
+            ================================================== -->
+
+            <div class="modal-header">
+
+                <div>
+
+                    <h5 class="modal-title"
+                        id="addFarmModalLabel">
+
+                        <i class="fas fa-tractor mr-2"></i>
+
+                        Add Farm
+
+                    </h5>
+
+                    <small class="text-muted">
+
+                        Register a new farm associated with your account.
+
+                    </small>
+
+                </div>
+
+
+                <button type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-label="Close">
+
+                    <span aria-hidden="true">
+                        &times;
+                    </span>
+
+                </button>
+
+            </div>
+
+
+            <!-- =================================================
+                 FORM
+            ================================================== -->
+
+            <?= $this->Form->create(null, [
+                'url' => [
+                    'controller' => 'Farms',
+                    'action' => 'add'
+                ],
+                'id' => 'addFarmForm',
+                'class' => 'add-farm-form',
+                'autocomplete' => 'off'
+            ]) ?>
+
+
+            <!-- =================================================
+                 MODAL BODY
+            ================================================== -->
+
+            <div class="modal-body">
+
+
+                <!-- FARM LOCATION -->
+
+                <div class="form-group">
+
+                    <label for="farm-location">
+
+                        <i class="fas fa-map-marker-alt mr-1"></i>
+
+                        Farm Location
+
+                    </label>
+
+
+                    <?= $this->Form->control('location', [
+
+                        'label' => false,
+
+                        'type' => 'text',
+
+                        'class' => 'form-control',
+
+                        'id' => 'farm-location',
+
+                        'placeholder' =>
+                            'Enter farm location',
+
+                        'required' => true,
+
+                        'maxlength' => 255,
+
+                        'autocomplete' => 'off'
+
+                    ]) ?>
+
+
+                    <small class="form-text text-muted">
+
+                        Enter the barangay or specific farm location.
+
+                    </small>
+
+                </div>
+
+
+                <!-- FARM SIZE -->
+
+                <div class="form-group mb-0">
+
+                    <label for="farm-size">
+
+                        <i class="fas fa-ruler-combined mr-1"></i>
+
+                        Farm Size (ha)
+
+                    </label>
+
+
+                    <div class="input-group">
+
+                        <?= $this->Form->control('farm_size', [
+
+                            'label' => false,
+
+                            'type' => 'number',
+
+                            'class' => 'form-control',
+
+                            'id' => 'farm-size',
+
+                            'placeholder' =>
+                                'Enter farm size',
+
+                            'min' => '0.01',
+
+                            'step' => '0.01',
+
+                            'required' => true
+
+                        ]) ?>
+
+                    </div>
+
+
+                    <small class="form-text text-muted">
+
+                        Enter the total size of the farm in hectares.
+
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 MODAL FOOTER
+            ================================================== -->
+
+            <div class="modal-footer">
+
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal">
+
+                    <i class="fas fa-times mr-1"></i>
+
+                    Cancel
+
+                </button>
+
+
+                <button type="submit"
+                        class="btn btn-success"
+                        id="saveFarmButton">
+
+                    <i class="fas fa-plus mr-1"></i>
+
+                    Add Farm
+
+                </button>
+
+            </div>
+
+
+            <?= $this->Form->end() ?>
+
+        </div>
 
     </div>
 
@@ -592,6 +865,7 @@
 
         <div class="modal-content edit-account-modal">
 
+
             <!-- =================================================
                  MODAL HEADER
             ================================================== -->
@@ -610,10 +884,13 @@
                     </h5>
 
                     <small class="text-muted">
+
                         Update your username, email, or password.
+
                     </small>
 
                 </div>
+
 
                 <button type="button"
                         class="close"
@@ -634,13 +911,21 @@
             ================================================== -->
 
             <?= $this->Form->create($user, [
+
                 'url' => [
+
                     'controller' => 'Users',
+
                     'action' => 'editAccount'
+
                 ],
+
                 'class' => 'edit-account-form',
+
                 'id' => 'editAccountForm',
+
                 'autocomplete' => 'off'
+
             ]) ?>
 
 
@@ -650,11 +935,11 @@
 
             <div class="modal-body">
 
-                <!-- =================================================
-                     USERNAME + EMAIL
-                ================================================== -->
+
+                <!-- USERNAME + EMAIL -->
 
                 <div class="row">
+
 
                     <!-- USERNAME -->
 
@@ -670,6 +955,7 @@
 
                             </label>
 
+
                             <?= $this->Form->control('username', [
 
                                 'label' => false,
@@ -678,7 +964,8 @@
 
                                 'id' => 'username',
 
-                                'value' => $user->username ?? '',
+                                'value' =>
+                                    $user->username ?? '',
 
                                 'required' => true,
 
@@ -705,6 +992,7 @@
 
                             </label>
 
+
                             <?= $this->Form->control('email', [
 
                                 'label' => false,
@@ -715,11 +1003,13 @@
 
                                 'id' => 'email',
 
-                                'value' => $user->email ?? '',
+                                'value' =>
+                                    $user->email ?? '',
 
                                 'required' => true,
 
-                                'placeholder' => 'Enter your email address',
+                                'placeholder' =>
+                                    'Enter your email address',
 
                                 'autocomplete' => 'email'
 
@@ -732,9 +1022,7 @@
                 </div>
 
 
-                <!-- =================================================
-                     PASSWORD DIVIDER
-                ================================================== -->
+                <!-- PASSWORD DIVIDER -->
 
                 <div class="account-section-divider">
 
@@ -745,9 +1033,7 @@
                 </div>
 
 
-                <!-- =================================================
-                     CURRENT PASSWORD
-                ================================================== -->
+                <!-- CURRENT PASSWORD -->
 
                 <div class="form-group">
 
@@ -765,6 +1051,7 @@
                         <?= $this->Form->password(
                             'current_password',
                             [
+
                                 'class' => 'form-control',
 
                                 'id' => 'current_password',
@@ -774,6 +1061,7 @@
 
                                 'autocomplete' =>
                                     'current-password'
+
                             ]
                         ) ?>
 
@@ -800,9 +1088,7 @@
                 </div>
 
 
-                <!-- =================================================
-                     NEW PASSWORD
-                ================================================== -->
+                <!-- NEW PASSWORD -->
 
                 <div class="form-group">
 
@@ -820,6 +1106,7 @@
                         <?= $this->Form->password(
                             'new_password',
                             [
+
                                 'class' => 'form-control',
 
                                 'id' => 'new_password',
@@ -829,6 +1116,7 @@
 
                                 'autocomplete' =>
                                     'new-password'
+
                             ]
                         ) ?>
 
@@ -857,9 +1145,7 @@
                 </div>
 
 
-                <!-- =================================================
-                     CONFIRM PASSWORD
-                ================================================== -->
+                <!-- CONFIRM PASSWORD -->
 
                 <div class="form-group mb-0">
 
@@ -877,6 +1163,7 @@
                         <?= $this->Form->password(
                             'confirm_password',
                             [
+
                                 'class' => 'form-control',
 
                                 'id' => 'confirm_password',
@@ -886,6 +1173,7 @@
 
                                 'autocomplete' =>
                                     'new-password'
+
                             ]
                         ) ?>
 
@@ -947,7 +1235,7 @@
 
 
 <!-- =========================================================
-     EDIT ACCOUNT JAVASCRIPT
+     PROFILE JAVASCRIPT
 ========================================================== -->
 
 <script>
@@ -994,6 +1282,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         icon.classList.add(
                             'fa-eye-slash'
                         );
+
                     }
 
                     button.setAttribute(
@@ -1019,6 +1308,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         icon.classList.add(
                             'fa-eye'
                         );
+
                     }
 
                     button.setAttribute(
@@ -1030,6 +1320,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         'aria-label',
                         'Show password'
                     );
+
                 }
 
             });
@@ -1038,275 +1329,359 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /* =========================================================
-       FORM
+       EDIT ACCOUNT FORM
     ========================================================== */
 
     const form =
         document.getElementById('editAccountForm');
 
-    if (!form) {
-        return;
+
+    if (form) {
+
+        form.addEventListener('submit', function (e) {
+
+            const username =
+                document.getElementById('username');
+
+            const email =
+                document.getElementById('email');
+
+            const currentPassword =
+                document.getElementById('current_password');
+
+            const newPassword =
+                document.getElementById('new_password');
+
+            const confirmPassword =
+                document.getElementById('confirm_password');
+
+
+            const usernameValue =
+                username
+                    ? username.value.trim()
+                    : '';
+
+
+            const emailValue =
+                email
+                    ? email.value.trim()
+                    : '';
+
+
+            const currentValue =
+                currentPassword
+                    ? currentPassword.value
+                    : '';
+
+
+            const newValue =
+                newPassword
+                    ? newPassword.value
+                    : '';
+
+
+            const confirmValue =
+                confirmPassword
+                    ? confirmPassword.value
+                    : '';
+
+
+            /* USERNAME */
+
+            if (usernameValue === '') {
+
+                e.preventDefault();
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Username Required',
+                    text: 'Please enter your username.',
+                    confirmButtonColor: '#087f23'
+                });
+
+                return;
+
+            }
+
+
+            if (usernameValue.length < 3) {
+
+                e.preventDefault();
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Username',
+                    text: 'Username must be at least 3 characters long.',
+                    confirmButtonColor: '#087f23'
+                });
+
+                return;
+
+            }
+
+
+            /* EMAIL */
+
+            if (emailValue === '') {
+
+                e.preventDefault();
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Email Required',
+                    text: 'Please enter your email address.',
+                    confirmButtonColor: '#087f23'
+                });
+
+                return;
+
+            }
+
+
+            const emailPattern =
+                /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
+            if (!emailPattern.test(emailValue)) {
+
+                e.preventDefault();
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Email',
+                    text: 'Please enter a valid email address.',
+                    confirmButtonColor: '#087f23'
+                });
+
+                return;
+
+            }
+
+
+            /* NO PASSWORD CHANGE */
+
+            if (newValue === '') {
+
+                return true;
+
+            }
+
+
+            /* CURRENT PASSWORD */
+
+            if (currentValue === '') {
+
+                e.preventDefault();
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Current Password Required',
+                    text: 'Please enter your current password before changing your password.',
+                    confirmButtonColor: '#087f23'
+                });
+
+                return;
+
+            }
+
+
+            /* PASSWORD REQUIREMENTS */
+
+            const passwordPattern =
+                /^(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
+
+
+            if (!passwordPattern.test(newValue)) {
+
+                e.preventDefault();
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Password',
+                    text: 'New password must be at least 8 characters and contain at least one capital letter and one special character.',
+                    confirmButtonColor: '#087f23'
+                });
+
+                return;
+
+            }
+
+
+            /* CONFIRM PASSWORD */
+
+            if (confirmValue === '') {
+
+                e.preventDefault();
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Confirm Password',
+                    text: 'Please confirm your new password.',
+                    confirmButtonColor: '#087f23'
+                });
+
+                return;
+
+            }
+
+
+            if (newValue !== confirmValue) {
+
+                e.preventDefault();
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Password Mismatch',
+                    text: 'The new passwords do not match.',
+                    confirmButtonColor: '#087f23'
+                });
+
+                return;
+
+            }
+
+
+            /* SAME PASSWORD */
+
+            if (newValue === currentValue) {
+
+                e.preventDefault();
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Same Password',
+                    text: 'Your new password must be different from your current password.',
+                    confirmButtonColor: '#087f23'
+                });
+
+                return;
+
+            }
+
+
+            /* DISABLE SAVE BUTTON */
+
+            const saveButton =
+                document.getElementById(
+                    'saveAccountButton'
+                );
+
+
+            if (saveButton) {
+
+                saveButton.disabled = true;
+
+                saveButton.innerHTML =
+                    '<i class="fas fa-spinner fa-spin mr-1"></i> Saving...';
+
+            }
+
+        });
+
     }
 
 
     /* =========================================================
-       FORM SUBMIT VALIDATION
+       ADD FARM FORM
     ========================================================== */
 
-    form.addEventListener('submit', function (e) {
+    const addFarmForm =
+        document.getElementById('addFarmForm');
 
-        const username =
-            document.getElementById('username');
+    const saveFarmButton =
+        document.getElementById('saveFarmButton');
 
-        const email =
-            document.getElementById('email');
+    const farmLocation =
+        document.getElementById('farm-location');
 
-        const currentPassword =
-            document.getElementById('current_password');
+    const farmSize =
+        document.getElementById('farm-size');
 
-        const newPassword =
-            document.getElementById('new_password');
 
-        const confirmPassword =
-            document.getElementById('confirm_password');
+    if (addFarmForm) {
 
+        addFarmForm.addEventListener(
+            'submit',
+            function (e) {
 
-        const usernameValue =
-            username
-                ? username.value.trim()
-                : '';
+                const locationValue =
+                    farmLocation
+                        ? farmLocation.value.trim()
+                        : '';
 
 
-        const emailValue =
-            email
-                ? email.value.trim()
-                : '';
+                const farmSizeValue =
+                    farmSize
+                        ? parseFloat(farmSize.value)
+                        : 0;
 
 
-        const currentValue =
-            currentPassword
-                ? currentPassword.value
-                : '';
+                /* LOCATION */
 
+                if (locationValue === '') {
 
-        const newValue =
-            newPassword
-                ? newPassword.value
-                : '';
+                    e.preventDefault();
 
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Farm Location Required',
+                        text: 'Please enter the location of your farm.',
+                        confirmButtonColor: '#087f23'
+                    });
 
-        const confirmValue =
-            confirmPassword
-                ? confirmPassword.value
-                : '';
+                    if (farmLocation) {
+                        farmLocation.focus();
+                    }
 
+                    return;
 
-        /* =====================================================
-           USERNAME
-        ====================================================== */
+                }
 
-        if (usernameValue === '') {
 
-            e.preventDefault();
+                /* FARM SIZE */
 
-            Swal.fire({
-                icon: 'warning',
-                title: 'Username Required',
-                text: 'Please enter your username.',
-                confirmButtonColor: '#087f23'
-            });
+                if (
+                    isNaN(farmSizeValue) ||
+                    farmSizeValue <= 0
+                ) {
 
-            return;
-        }
+                    e.preventDefault();
 
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Invalid Farm Size',
+                        text: 'Please enter a farm size greater than 0 hectares.',
+                        confirmButtonColor: '#087f23'
+                    });
 
-        if (usernameValue.length < 3) {
+                    if (farmSize) {
+                        farmSize.focus();
+                    }
 
-            e.preventDefault();
+                    return;
 
-            Swal.fire({
-                icon: 'warning',
-                title: 'Invalid Username',
-                text: 'Username must be at least 3 characters long.',
-                confirmButtonColor: '#087f23'
-            });
+                }
 
-            return;
-        }
 
+                /* DISABLE BUTTON */
 
-        /* =====================================================
-           EMAIL
-        ====================================================== */
+                if (saveFarmButton) {
 
-        if (emailValue === '') {
+                    saveFarmButton.disabled = true;
 
-            e.preventDefault();
+                    saveFarmButton.innerHTML =
+                        '<i class="fas fa-spinner fa-spin mr-1"></i> Adding...';
 
-            Swal.fire({
-                icon: 'warning',
-                title: 'Email Required',
-                text: 'Please enter your email address.',
-                confirmButtonColor: '#087f23'
-            });
+                }
 
-            return;
-        }
+            }
+        );
 
-
-        /*
-         * CORRECT EMAIL REGEX
-         */
-        const emailPattern =
-            /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-
-        if (!emailPattern.test(emailValue)) {
-
-            e.preventDefault();
-
-            Swal.fire({
-                icon: 'warning',
-                title: 'Invalid Email',
-                text: 'Please enter a valid email address.',
-                confirmButtonColor: '#087f23'
-            });
-
-            return;
-        }
-
-
-        /* =====================================================
-           NO PASSWORD CHANGE
-        ====================================================== */
-
-        if (newValue === '') {
-
-            return true;
-        }
-
-
-        /* =====================================================
-           CURRENT PASSWORD
-        ====================================================== */
-
-        if (currentValue === '') {
-
-            e.preventDefault();
-
-            Swal.fire({
-                icon: 'warning',
-                title: 'Current Password Required',
-                text: 'Please enter your current password before changing your password.',
-                confirmButtonColor: '#087f23'
-            });
-
-            return;
-        }
-
-
-        /* =====================================================
-           PASSWORD REQUIREMENTS
-        ====================================================== */
-
-        /*
-         * CORRECT PASSWORD REGEX
-         */
-        const passwordPattern =
-            /^(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
-
-
-        if (!passwordPattern.test(newValue)) {
-
-            e.preventDefault();
-
-            Swal.fire({
-                icon: 'warning',
-                title: 'Invalid Password',
-                text: 'New password must be at least 8 characters and contain at least one capital letter and one special character.',
-                confirmButtonColor: '#087f23'
-            });
-
-            return;
-        }
-
-
-        /* =====================================================
-           CONFIRM PASSWORD
-        ====================================================== */
-
-        if (confirmValue === '') {
-
-            e.preventDefault();
-
-            Swal.fire({
-                icon: 'warning',
-                title: 'Confirm Password',
-                text: 'Please confirm your new password.',
-                confirmButtonColor: '#087f23'
-            });
-
-            return;
-        }
-
-
-        if (newValue !== confirmValue) {
-
-            e.preventDefault();
-
-            Swal.fire({
-                icon: 'error',
-                title: 'Password Mismatch',
-                text: 'The new passwords do not match.',
-                confirmButtonColor: '#087f23'
-            });
-
-            return;
-        }
-
-
-        /* =====================================================
-           SAME PASSWORD
-        ====================================================== */
-
-        if (newValue === currentValue) {
-
-            e.preventDefault();
-
-            Swal.fire({
-                icon: 'warning',
-                title: 'Same Password',
-                text: 'Your new password must be different from your current password.',
-                confirmButtonColor: '#087f23'
-            });
-
-            return;
-        }
-
-
-        /* =====================================================
-           DISABLE BUTTON WHILE SUBMITTING
-        ====================================================== */
-
-        const saveButton =
-            document.getElementById('saveAccountButton');
-
-        if (saveButton) {
-
-            saveButton.disabled = true;
-
-            saveButton.innerHTML =
-                '<i class="fas fa-spinner fa-spin mr-1"></i> Saving...';
-        }
-
-
-        return true;
-
-    });
+    }
 
 
     /* =========================================================
-       RESET PASSWORD FIELDS WHEN MODAL CLOSES
+       EDIT ACCOUNT MODAL RESET
     ========================================================== */
 
     if (typeof window.jQuery !== 'undefined') {
@@ -1337,6 +1712,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     currentPassword.type =
                         'password';
+
                 }
 
 
@@ -1346,6 +1722,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     newPassword.type =
                         'password';
+
                 }
 
 
@@ -1355,12 +1732,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     confirmPassword.type =
                         'password';
+
                 }
 
 
-                /*
-                 * RESET EYE ICONS
-                 */
+                /* RESET EYE ICONS */
+
                 document
                     .querySelectorAll(
                         '#editAccountModal .password-toggle i'
@@ -1378,13 +1755,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     });
 
 
-                /*
-                 * RESET SAVE BUTTON
-                 */
+                /* RESET SAVE BUTTON */
+
                 const saveButton =
                     document.getElementById(
                         'saveAccountButton'
                     );
+
 
                 if (saveButton) {
 
@@ -1392,6 +1769,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     saveButton.innerHTML =
                         '<i class="fas fa-save mr-1"></i> Save Changes';
+
+                }
+
+            }
+        );
+
+
+        /* =====================================================
+           ADD FARM MODAL RESET
+        ====================================================== */
+
+        $('#addFarmModal').on(
+            'hidden.bs.modal',
+            function () {
+
+                if (addFarmForm) {
+
+                    addFarmForm.reset();
+
+                }
+
+
+                if (saveFarmButton) {
+
+                    saveFarmButton.disabled = false;
+
+                    saveFarmButton.innerHTML =
+                        '<i class="fas fa-plus mr-1"></i> Add Farm';
+
                 }
 
             }
@@ -1401,7 +1807,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /* =========================================================
-       SUCCESS CONFIRMATION AFTER REDIRECT
+       SUCCESS CONFIRMATION AFTER EDIT ACCOUNT
     ========================================================== */
 
     <?php
@@ -1413,6 +1819,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     ?>
 
+
     <?php if (!empty($editAccountSuccess)): ?>
 
         Swal.fire({
@@ -1422,13 +1829,18 @@ document.addEventListener('DOMContentLoaded', function () {
             title: 'Account Updated',
 
             html:
+
                 '<div style="text-align:left;">' +
+
 
                 <?php if (!empty($editAccountSuccess['usernameChanged'])): ?>
 
                     '<div class="mb-2">' +
+
                         '<i class="fas fa-check-circle text-success mr-2"></i>' +
+
                         '<strong>Username</strong> has been updated.' +
+
                     '</div>' +
 
                 <?php endif; ?>
@@ -1437,8 +1849,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 <?php if (!empty($editAccountSuccess['emailChanged'])): ?>
 
                     '<div class="mb-2">' +
+
                         '<i class="fas fa-check-circle text-success mr-2"></i>' +
+
                         '<strong>Email address</strong> has been updated.' +
+
                     '</div>' +
 
                 <?php endif; ?>
@@ -1447,8 +1862,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 <?php if (!empty($editAccountSuccess['passwordChanged'])): ?>
 
                     '<div class="mb-2">' +
+
                         '<i class="fas fa-check-circle text-success mr-2"></i>' +
+
                         '<strong>Password</strong> has been updated.' +
+
                     '</div>' +
 
                 <?php endif; ?>
@@ -1461,11 +1879,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 ): ?>
 
                     '<div class="mb-2">' +
+
                         '<i class="fas fa-info-circle text-info mr-2"></i>' +
+
                         'Your account information is already up to date.' +
+
                     '</div>' +
 
                 <?php endif; ?>
+
 
                 '</div>',
 
@@ -1477,6 +1899,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     <?php endif; ?>
 
-});
 
+});
 </script>
