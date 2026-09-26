@@ -116,7 +116,6 @@ function getEvaluations()
             {data:"program_name"},
 			{data:"farm_size"},
             {data:"crop_yield_after"},
-            {data:"effectiveness_label"},
             {data: null,render: function(data) {
                     var option =
                         '<div style="text-align:center;">' + '<a href="javascript:void(0)" ' + 'class="text-info" ' + 

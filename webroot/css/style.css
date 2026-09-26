@@ -16,7 +16,7 @@ textarea{
 }
 
 /*==================================
-        LOGO HEADER
+        LOGO HEADER 
 ==================================*/
 
 .logo-header {
@@ -25,33 +25,30 @@ textarea{
 }
 
 
-/*==================================
-        LOGO ITEM
-==================================*/
-
 .logo-item {
-    width: 105px;
-    height: 105px;
-
+    width: 95px;
+    height: 95px;
     display: flex;
     align-items: center;
     justify-content: center;
-
     flex-shrink: 0;
 }
 
-
-/*==================================
-        LOGO IMAGE
-==================================*/
-
 .header-logo {
-    width: 100px;
-    height: 100px;
-
-    object-fit: contain;
-
     display: block;
+    object-fit: contain;
+}
+
+/* Santiago City */
+.logo-item:first-child .header-logo {
+    width: 90px !important;
+    height: 90px !important;
+}
+
+/* AgriSubsidy */
+.logo-item:nth-child(2) .header-logo {
+    width: 110px !important;
+    height: 110px !important;
 }
 
 
@@ -830,6 +827,97 @@ textarea{
     }
 
 }
+/* ============================================================
+   REGISTRATION INPUTS
+============================================================ */
+
+#registration-form .form-control {
+    height: 48px;
+}
+
+
+/* ============================================================
+   INVALID INPUT
+============================================================ */
+
+#registration-form .form-control.is-invalid {
+    border: 1px solid #dc3545 !important;
+
+    box-shadow:
+        0 0 0 0.15rem rgba(220, 53, 69, 0.15) !important;
+}
+
+
+/* ============================================================
+   INVALID INPUT FOCUS
+============================================================ */
+
+#registration-form .form-control.is-invalid:focus {
+
+    border-color: #dc3545 !important;
+
+    box-shadow:
+        0 0 0 0.2rem rgba(220, 53, 69, 0.20) !important;
+}
+
+
+/* ============================================================
+   INVALID INPUT GROUP ICON
+============================================================ */
+
+#registration-form
+.input-group:has(.form-control.is-invalid)
+.input-group-text {
+
+    border-color: #dc3545 !important;
+
+    color: #dc3545 !important;
+
+}
+
+
+/* ============================================================
+   INVALID PASSWORD BUTTON
+============================================================ */
+
+#registration-form
+.input-group:has(.form-control.is-invalid)
+.password-toggle {
+
+    border-color: #dc3545 !important;
+
+    color: #dc3545 !important;
+
+}
+
+
+/* ============================================================
+   REGISTRATION MODAL
+============================================================ */
+
+#registrationErrorModal .modal-content {
+
+    border: none;
+
+    border-radius: 12px;
+
+    overflow: hidden;
+
+}
+
+
+#registrationErrorModal .modal-header {
+
+    border-bottom: none;
+
+}
+
+
+#registrationErrorModal .modal-footer {
+
+    border-top: 1px solid #eeeeee;
+
+}
 
 
 /* ===========================
@@ -1429,42 +1517,22 @@ side-bar logout part
 .dataTables_wrapper {
     width: 100% !important;
     max-width: 100% !important;
-
     padding: 0 !important;
-
     margin: 0 !important;
-
     overflow: visible !important;
 }
 
-
-/* ============================================================
-   DATATABLE TABLE CONTAINER
-============================================================ */
-
-/*
- * DataTables sometimes creates its own width.
- *
- * This makes sure the table cannot push the page wider.
- */
-
 .dataTables_wrapper .dataTables_scroll {
     width: 100% !important;
-
     max-width: 100% !important;
-
     overflow: hidden;
 }
 
 .dataTables_wrapper .dataTables_scrollBody {
     width: 100% !important;
-
     max-width: 100% !important;
-
     overflow-x: auto !important;
     overflow-y: auto;
-
-    -webkit-overflow-scrolling: touch;
 }
 
 
@@ -5906,6 +5974,7 @@ body {
     border: 1px solid #e1e5e9;
     border-radius: 8px;
     overflow: hidden;
+    width: 100%;
 }
 
 
@@ -5913,7 +5982,8 @@ body {
    FILTER HEADER
 ========================================================= */
 
-.audit-filter-card .card-header {
+.audit-filter-card .card-header,
+.audit-table-card .card-header {
     background: #f8f9fa;
     border-bottom: 1px solid #e1e5e9;
 }
@@ -5925,6 +5995,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+
+    flex: 0 0 30px;
 
     border-radius: 5px;
 
@@ -5965,6 +6037,8 @@ body {
 
 .audit-filter-card .form-control {
     height: 34px;
+    width: 100%;
+    font-size: 13px;
 }
 
 .audit-filter-card .form-control:focus {
@@ -5976,6 +6050,10 @@ body {
 /* =========================================================
    IP SEARCH
 ========================================================= */
+
+.audit-filter-card .input-group {
+    width: 100%;
+}
 
 .audit-filter-card .input-group-text {
     background: #fff;
@@ -5995,6 +6073,7 @@ body {
 #clearFilters {
     min-width: 78px;
     transition: .2s ease;
+    white-space: nowrap;
 }
 
 #clearFilters:hover {
@@ -6004,16 +6083,39 @@ body {
 
 
 /* =========================================================
-   TABLE
+   TABLE CARD
 ========================================================= */
 
 .audit-table-card .card-header {
-    background: #f8f9fa;
-    border-bottom: 1px solid #e1e5e9;
+    padding: 10px 15px;
 }
+
+
+/* =========================================================
+   TABLE RESPONSIVE WRAPPER
+========================================================= */
+
+.audit-table-card .card-body {
+    width: 100%;
+}
+
+.audit-table-card .table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
 
 #audit-logs-table {
     margin-bottom: 0 !important;
+    width: 100% !important;
 }
 
 #audit-logs-table thead th {
@@ -6028,12 +6130,17 @@ body {
     padding: 11px 10px;
 
     white-space: nowrap;
+    vertical-align: middle;
 }
 
 #audit-logs-table tbody td {
     font-size: 13px;
     vertical-align: middle;
     padding: 9px 10px;
+}
+
+#audit-logs-table tbody tr {
+    transition: background-color .15s ease;
 }
 
 #audit-logs-table tbody tr:hover {
@@ -6052,6 +6159,8 @@ body {
     padding: 5px 8px;
 
     border-radius: 4px;
+
+    white-space: nowrap;
 }
 
 
@@ -6061,9 +6170,23 @@ body {
 
 #audit-logs-table code {
     font-size: 12px;
+
     background: #f5f5f5;
+
     padding: 3px 6px;
+
     border-radius: 4px;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   DATE
+========================================================= */
+
+#audit-logs-table td:last-child {
+    white-space: nowrap;
 }
 
 
@@ -6073,6 +6196,7 @@ body {
 
 #audit-logs-table_wrapper {
     padding: 0;
+    width: 100%;
 }
 
 #audit-logs-table_wrapper .dataTables_length,
@@ -6097,20 +6221,34 @@ body {
 }
 
 
-/* Search box */
+/* =========================================================
+   SEARCH BOX
+========================================================= */
 
 #audit-logs-table_wrapper .dataTables_filter input {
     height: 34px;
+
     margin-left: 5px;
 
     border: 1px solid #dfe3e6;
     border-radius: 5px;
 
     padding: 5px 10px;
+
+    max-width: 250px;
+
+    outline: none;
+}
+
+#audit-logs-table_wrapper .dataTables_filter input:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, .1);
 }
 
 
-/* Entries dropdown */
+/* =========================================================
+   ENTRIES DROPDOWN
+========================================================= */
 
 #audit-logs-table_wrapper .dataTables_length select {
     height: 34px;
@@ -6119,13 +6257,67 @@ body {
     border-radius: 5px;
 
     padding: 4px 25px 4px 8px;
+
+    outline: none;
 }
 
 
-/* Pagination */
+/* =========================================================
+   PAGINATION
+========================================================= */
 
 #audit-logs-table_wrapper .pagination {
     margin-bottom: 0;
+}
+
+#audit-logs-table_wrapper .paginate_button {
+    margin-left: 2px;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 991.98px) {
+
+    .audit-filter-card .card-body {
+        padding: 14px !important;
+    }
+
+    /*
+     * Allow filter columns to occupy more space
+     */
+    .audit-filter-card .row {
+        margin-left: -5px;
+        margin-right: -5px;
+    }
+
+    .audit-filter-card .row > [class*="col-"] {
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+
+    /*
+     * Table gets horizontal scrolling
+     */
+    .audit-table-card .table-responsive {
+        overflow-x: auto;
+    }
+
+    #audit-logs-table {
+        min-width: 850px !important;
+        width: 850px !important;
+    }
+
+    /*
+     * DataTables controls
+     */
+    #audit-logs-table_wrapper .dataTables_length,
+    #audit-logs-table_wrapper .dataTables_filter {
+        padding: 10px 12px 5px;
+    }
+
 }
 
 
@@ -6135,31 +6327,739 @@ body {
 
 @media (max-width: 767.98px) {
 
+    /* PAGE */
     .container-fluid {
-        padding-left: 10px;
-        padding-right: 10px;
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+
+    /* =====================================================
+       FILTER CARD
+    ===================================================== */
+
+    .audit-filter-card .card-header {
+        padding: 10px 12px !important;
     }
 
     .audit-filter-card .card-body {
         padding: 12px !important;
     }
 
-    .audit-filter-card .col-xl-2 {
-        margin-bottom: 8px;
+    /*
+     * Stack filter fields
+     */
+    .audit-filter-card .row {
+        display: block;
+        margin: 0;
     }
 
-    #audit-logs-table_wrapper .dataTables_length,
-    #audit-logs-table_wrapper .dataTables_filter {
-        text-align: left;
+    .audit-filter-card .row > [class*="col-"] {
+        width: 100%;
+        max-width: 100%;
+
+        padding-left: 0;
+        padding-right: 0;
+
+        margin-bottom: 10px !important;
+    }
+
+    .audit-filter-card .row > [class*="col-"]:last-child {
+        margin-bottom: 0 !important;
+    }
+
+    .filter-label {
+        font-size: 11px;
+        margin-bottom: 5px;
+    }
+
+    .audit-filter-card .form-control {
+        height: 38px;
+        font-size: 13px;
+    }
+
+
+    /* =====================================================
+       FILTER HEADER
+    ===================================================== */
+
+    .audit-filter-card .card-header > .d-flex {
         width: 100%;
     }
 
+    .filter-icon {
+        width: 28px;
+        height: 28px;
+        flex-basis: 28px;
+    }
+
+    #clearFilters {
+        min-width: 70px;
+        padding: 5px 9px;
+        font-size: 11px;
+    }
+
+
+    /* =====================================================
+       TABLE CARD
+    ===================================================== */
+
+    .audit-table-card .card-header {
+        padding: 10px 12px !important;
+    }
+
+    /*
+     * Important:
+     * Keep table readable instead of squeezing columns.
+     */
+    .audit-table-card .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #audit-logs-table {
+        min-width: 850px !important;
+        width: 850px !important;
+    }
+
+    #audit-logs-table thead th {
+        font-size: 11px;
+        padding: 9px 8px;
+    }
+
+    #audit-logs-table tbody td {
+        font-size: 12px;
+        padding: 9px 8px;
+    }
+
+
+    /* =====================================================
+       DATATABLE SEARCH / LENGTH
+    ===================================================== */
+
+    #audit-logs-table_wrapper .dataTables_length,
+    #audit-logs-table_wrapper .dataTables_filter {
+
+        float: none;
+
+        width: 100%;
+
+        text-align: left;
+
+        padding: 8px 12px 5px;
+    }
+
+    #audit-logs-table_wrapper .dataTables_length label,
+    #audit-logs-table_wrapper .dataTables_filter label {
+        width: 100%;
+        font-size: 11px;
+    }
+
+    #audit-logs-table_wrapper .dataTables_length select {
+        height: 36px;
+        font-size: 12px;
+    }
+
     #audit-logs-table_wrapper .dataTables_filter input {
-        width: calc(100% - 65px);
+
+        display: block;
+
+        width: 100%;
+        max-width: none;
+
+        height: 38px;
+
+        margin: 5px 0 0 0 !important;
+
+        box-sizing: border-box;
+    }
+
+
+    /* =====================================================
+       DATATABLE INFO
+    ===================================================== */
+
+    #audit-logs-table_wrapper .dataTables_info {
+
+        width: 100%;
+
+        text-align: center;
+
+        padding: 8px 10px;
+
+        font-size: 11px;
+    }
+
+
+    /* =====================================================
+       PAGINATION
+    ===================================================== */
+
+    #audit-logs-table_wrapper .dataTables_paginate {
+
+        width: 100%;
+
+        float: none;
+
+        text-align: center;
+
+        padding: 5px 8px 12px;
+    }
+
+    #audit-logs-table_wrapper .paginate_button {
+
+        padding: 5px 8px !important;
+
+        margin: 2px !important;
+
+        font-size: 11px;
     }
 
 }
 
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+
+    .container-fluid {
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+
+
+    /* Filter */
+    .audit-filter-card,
+    .audit-table-card {
+        border-radius: 6px;
+    }
+
+    .audit-filter-card .card-header,
+    .audit-table-card .card-header {
+        padding: 9px 10px !important;
+    }
+
+    .audit-filter-card .card-body {
+        padding: 10px !important;
+    }
+
+
+    /* Table */
+    #audit-logs-table {
+        min-width: 800px !important;
+        width: 800px !important;
+    }
+
+    #audit-logs-table thead th {
+        font-size: 10px;
+        padding: 8px 7px;
+    }
+
+    #audit-logs-table tbody td {
+        font-size: 11px;
+        padding: 8px 7px;
+    }
+
+
+    /* Badges */
+    #audit-logs-table .badge {
+        font-size: 9px;
+        padding: 4px 6px;
+    }
+
+
+    /* IP */
+    #audit-logs-table code {
+        font-size: 10px;
+    }
+
+
+    /* DataTables */
+    #audit-logs-table_wrapper .dataTables_length,
+    #audit-logs-table_wrapper .dataTables_filter {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    #audit-logs-table_wrapper .dataTables_info {
+        font-size: 10px;
+    }
+
+    #audit-logs-table_wrapper .paginate_button {
+        padding: 4px 7px !important;
+        font-size: 10px;
+    }
+
+}
+
+
+/* =========================================================
+   VERY SMALL DEVICES
+========================================================= */
+
+@media (max-width: 360px) {
+
+    #clearFilters {
+        min-width: 60px;
+        font-size: 10px;
+    }
+
+    .filter-icon {
+        width: 26px;
+        height: 26px;
+        flex-basis: 26px;
+    }
+
+    #audit-logs-table {
+        min-width: 760px !important;
+        width: 760px !important;
+    }
+
+    #audit-logs-table_wrapper .paginate_button {
+        padding: 3px 6px !important;
+        margin: 1px !important;
+    }
+
+}
+/* =========================================================
+   MODERN AUDIT TABLE
+========================================================= */
+
+.audit-table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.audit-modern-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #fff;
+}
+
+.audit-modern-table thead th {
+    background: #078a27;
+    color: #fff;
+
+    border: 0;
+
+    padding: 12px 13px;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    text-transform: uppercase;
+    letter-spacing: .35px;
+
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.audit-modern-table thead th:first-child {
+    padding-left: 15px;
+}
+
+.audit-modern-table tbody tr {
+    background: #fff;
+
+    transition:
+        background-color .15s ease,
+        box-shadow .15s ease;
+}
+
+.audit-modern-table tbody tr:hover {
+    background: #f8fbf9;
+    box-shadow: inset 3px 0 0 #078a27;
+}
+
+.audit-modern-table tbody td {
+    border-top: 1px solid #edf0f2;
+    border-bottom: 0;
+    border-left: 0;
+    border-right: 0;
+
+    padding: 11px 13px;
+
+    font-size: 13px;
+
+    color: #495057;
+
+    vertical-align: middle;
+}
+
+
+/* =========================================================
+   ID
+========================================================= */
+
+.audit-id {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-width: 34px;
+
+    padding: 4px 7px;
+
+    background: #f3f5f7;
+
+    color: #6c757d;
+
+    border-radius: 5px;
+
+    font-size: 11px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   USER
+========================================================= */
+
+.audit-user {
+    display: flex;
+    align-items: center;
+
+    min-width: 120px;
+}
+
+.audit-user-icon {
+    width: 31px;
+    height: 31px;
+
+    min-width: 31px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-right: 8px;
+
+    border-radius: 50%;
+
+    background: #eaf7ee;
+    color: #078a27;
+
+    font-size: 12px;
+}
+
+.audit-user-icon.unknown {
+    background: #f1f3f5;
+    color: #adb5bd;
+}
+
+.audit-user-name {
+    color: #343a40;
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   ACTION
+========================================================= */
+
+.audit-action {
+    display: inline-flex;
+
+    align-items: center;
+
+    padding: 5px 9px;
+
+    border-radius: 20px;
+
+    font-size: 10px;
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
+.audit-action i {
+    font-size: 9px;
+}
+
+
+/* SUCCESS */
+.audit-action.badge-success {
+    background: #e8f7ed;
+    color: #198754;
+}
+
+
+/* WARNING */
+.audit-action.badge-warning {
+    background: #fff6df;
+    color: #b77900;
+}
+
+
+/* DANGER */
+.audit-action.badge-danger {
+    background: #fdeaea;
+    color: #dc3545;
+}
+
+
+/* INFO */
+.audit-action.badge-info {
+    background: #e8f4fb;
+    color: #0d6efd;
+}
+
+
+/* PRIMARY */
+.audit-action.badge-primary {
+    background: #eaf2ff;
+    color: #0d6efd;
+}
+
+
+/* SECONDARY */
+.audit-action.badge-secondary {
+    background: #f1f3f5;
+    color: #6c757d;
+}
+
+
+/* =========================================================
+   DESCRIPTION
+========================================================= */
+
+.audit-description {
+    max-width: 330px;
+
+    line-height: 1.45;
+
+    color: #555;
+}
+
+
+/* =========================================================
+   SUBJECT
+========================================================= */
+
+.audit-subject {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    white-space: nowrap;
+}
+
+.audit-subject-name {
+    color: #343a40;
+    font-weight: 600;
+}
+
+.audit-subject-id {
+    color: #adb5bd;
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   IP ADDRESS
+========================================================= */
+
+.audit-ip {
+    display: inline-flex;
+
+    align-items: center;
+
+    padding: 5px 8px;
+
+    background: #f6f7f8;
+
+    border: 1px solid #e9ecef;
+
+    border-radius: 5px;
+
+    color: #6c757d;
+
+    font-family: monospace;
+
+    font-size: 11px;
+
+    white-space: nowrap;
+}
+
+.audit-ip i {
+    color: #9aa1a8;
+}
+
+
+/* =========================================================
+   DATE
+========================================================= */
+
+.audit-date {
+    min-width: 105px;
+
+    white-space: nowrap;
+}
+
+.audit-date-main {
+    color: #495057;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.audit-date-time {
+    margin-top: 2px;
+
+    color: #9aa1a8;
+
+    font-size: 10px;
+}
+
+.audit-date-time i {
+    font-size: 9px;
+}
+
+
+/* =========================================================
+   N/A
+========================================================= */
+
+.audit-na {
+    color: #adb5bd;
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 991.98px) {
+
+    .audit-modern-table {
+        min-width: 950px;
+    }
+
+    .audit-description {
+        max-width: 260px;
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 767.98px) {
+
+    .audit-table-responsive {
+        overflow-x: auto;
+    }
+
+    /*
+     * Keep columns readable.
+     * User can swipe horizontally.
+     */
+    .audit-modern-table {
+        min-width: 950px;
+    }
+
+    .audit-modern-table thead th {
+        padding: 10px 11px;
+        font-size: 10px;
+    }
+
+    .audit-modern-table tbody td {
+        padding: 10px 11px;
+        font-size: 12px;
+    }
+
+    .audit-user-icon {
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+        margin-right: 6px;
+    }
+
+    .audit-user-name {
+        font-size: 12px;
+    }
+
+    .audit-description {
+        max-width: 280px;
+    }
+
+    .audit-action {
+        font-size: 9px;
+        padding: 5px 8px;
+    }
+
+    .audit-ip {
+        font-size: 10px;
+    }
+
+    .audit-date-main {
+        font-size: 11px;
+    }
+
+    .audit-date-time {
+        font-size: 9px;
+    }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+
+    .audit-modern-table {
+        min-width: 900px;
+    }
+
+    .audit-modern-table thead th {
+        padding: 9px 9px;
+        font-size: 9px;
+    }
+
+    .audit-modern-table tbody td {
+        padding: 9px;
+        font-size: 11px;
+    }
+
+    .audit-id {
+        min-width: 29px;
+        padding: 3px 6px;
+        font-size: 10px;
+    }
+
+    .audit-user-icon {
+        width: 26px;
+        height: 26px;
+        min-width: 26px;
+        font-size: 10px;
+    }
+
+    .audit-action {
+        font-size: 8px;
+        padding: 4px 7px;
+    }
+
+}
 .profile-container {
     background: #ffffff;
 }
@@ -19029,4 +19929,245 @@ body {
         text-align: center;
         padding-bottom: 5px;
     }
+}
+
+.confirmation-box {
+    margin-top: 20px;
+    padding: 18px;
+    border: 1px solid #d4edda;
+    background: #f4fff6;
+    border-radius: 10px;
+}
+
+.confirmation-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.confirmation-icon {
+    width: 45px;
+    height: 45px;
+    min-width: 45px;
+    border-radius: 50%;
+    background: #d4edda;
+    color: #28a745;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.confirmation-text strong {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.confirmation-text p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.btn-confirm-received {
+    width: 100%;
+    border-radius: 7px;
+    padding: 10px 15px;
+    font-weight: 600;
+}
+
+/* =========================================================
+   TREND ANALYSIS
+========================================================= */
+
+.analytics-trend-card {
+    border: 0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+
+.analytics-trend-header {
+    padding: 20px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+
+.analytics-trend-header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+
+.analytics-trend-title h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+
+.analytics-trend-title h3 i {
+    margin-right: 8px;
+}
+
+
+.analytics-trend-title p {
+    margin: 5px 0 0;
+    color: #6c757d;
+    font-size: 13px;
+}
+
+
+.analytics-trend-filter {
+    min-width: 160px;
+}
+
+
+.analytics-trend-filter label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+
+.analytics-trend-filter select {
+    min-width: 160px;
+}
+
+
+.analytics-trend-body {
+    padding: 20px;
+}
+
+
+.trend-panel {
+    padding: 20px;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+
+.trend-panel:last-child {
+    margin-bottom: 0;
+}
+
+
+.trend-panel-header {
+    margin-bottom: 15px;
+}
+
+
+.trend-panel-header h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+
+.trend-panel-header h4 i {
+    margin-right: 7px;
+}
+
+
+.trend-panel-header small {
+    color: #6c757d;
+}
+
+
+.trend-chart-container {
+    position: relative;
+    width: 100%;
+    height: 320px;
+}
+
+
+@media (max-width: 768px) {
+
+    .analytics-trend-header-inner {
+        align-items: stretch;
+    }
+
+
+    .analytics-trend-filter {
+        width: 100%;
+    }
+
+
+    .analytics-trend-filter select {
+        width: 100%;
+    }
+
+
+    .trend-chart-container {
+        height: 260px;
+    }
+
+}
+
+.status-rescheduled-card {
+    border-top: 4px solid #ffc107;
+}
+
+
+.announcement-status.status-rescheduled {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+
+.rescheduled-box {
+    margin-top: 20px;
+    padding: 16px 18px;
+    border-radius: 8px;
+    background: #fff3cd;
+    border: 1px solid #ffeeba;
+    color: #856404;
+}
+
+
+.rescheduled-box-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 15px;
+}
+
+
+.rescheduled-box > span {
+    display: block;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+
+.rescheduled-new-date,
+.rescheduled-new-time {
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: rgba(255, 193, 7, 0.12);
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+
+.rescheduled-new-date i,
+.rescheduled-new-time i {
+    color: #856404;
+}
+
+.dashboard-card-header {
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+}
+
+.mini-statistics {
+    margin-top: 0 !important;
 }

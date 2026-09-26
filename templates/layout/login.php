@@ -33,9 +33,10 @@ $cakeDescription = 'AgriSubsidy';
 
     <?= $this->Html->css([
         '/plugins/fontawesome-free/css/all.min',
-        '/dist/css/adminlte.min',
-        'style'
+        '/dist/css/adminlte.min'
     ]) ?>
+    <link rel="stylesheet"
+      href="<?= $this->Url->build('/css/style.css') ?>?v=<?= time() ?>">
 
     <?= $this->Html->script([
         '/plugins/jquery/jquery.min'

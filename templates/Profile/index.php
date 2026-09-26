@@ -400,10 +400,12 @@
 
                         <!-- ADD FARM BUTTON -->
 
-                        <button type="button"
-                                class="btn btn-success add-farm-btn"
-                                data-toggle="modal"
-                                data-target="#addFarmModal">
+                        <button
+                            type="button"
+                            class="btn btn-success add-farm-btn"
+                            data-toggle="modal"
+                            data-target="#addFarmModal"
+                        >
 
                             <i class="fas fa-plus mr-1"></i>
 
@@ -613,10 +615,12 @@
 
                         <!-- ADD FIRST FARM BUTTON -->
 
-                        <button type="button"
-                                class="btn btn-success add-first-farm-btn"
-                                data-toggle="modal"
-                                data-target="#addFarmModal">
+                        <button
+                            type="button"
+                            class="btn btn-success add-first-farm-btn"
+                            data-toggle="modal"
+                            data-target="#addFarmModal"
+                        >
 
                             <i class="fas fa-plus mr-1"></i>
 
@@ -699,13 +703,21 @@
             ================================================== -->
 
             <?= $this->Form->create(null, [
+
                 'url' => [
+
                     'controller' => 'Farms',
+
                     'action' => 'add'
+
                 ],
+
                 'id' => 'addFarmForm',
+
                 'class' => 'add-farm-form',
+
                 'autocomplete' => 'off'
+
             ]) ?>
 
 
@@ -716,7 +728,46 @@
             <div class="modal-body">
 
 
-                <!-- FARM LOCATION -->
+                <!-- =================================================
+                     LGU RSBSA NUMBER
+                ================================================== -->
+
+                <div class="form-group">
+
+                    <label for="farmer-rsbsa">
+
+                        <i class="fas fa-id-card mr-1"></i>
+
+                        LGU RSBSA Number
+
+                    </label>
+
+
+                    <input
+                        type="text"
+                        id="farmer-rsbsa"
+                        class="form-control"
+                        value="<?= h(
+                            $rsbsaNumber
+                            ?? ($farmer->farmer_no ?? '')
+                        ) ?>"
+                        readonly
+                    >
+
+
+                    <small class="form-text text-muted">
+
+                        This RSBSA number is automatically assigned
+                        from your farmer account.
+
+                    </small>
+
+                </div>
+
+
+                <!-- =================================================
+                     FARM LOCATION
+                ================================================== -->
 
                 <div class="form-group">
 
@@ -760,7 +811,9 @@
                 </div>
 
 
-                <!-- FARM SIZE -->
+                <!-- =================================================
+                     FARM SIZE
+                ================================================== -->
 
                 <div class="form-group mb-0">
 
@@ -773,30 +826,26 @@
                     </label>
 
 
-                    <div class="input-group">
+                    <?= $this->Form->control('farm_size', [
 
-                        <?= $this->Form->control('farm_size', [
+                        'label' => false,
 
-                            'label' => false,
+                        'type' => 'number',
 
-                            'type' => 'number',
+                        'class' => 'form-control',
 
-                            'class' => 'form-control',
+                        'id' => 'farm-size',
 
-                            'id' => 'farm-size',
+                        'placeholder' =>
+                            'Enter farm size',
 
-                            'placeholder' =>
-                                'Enter farm size',
+                        'min' => '0.01',
 
-                            'min' => '0.01',
+                        'step' => '0.01',
 
-                            'step' => '0.01',
+                        'required' => true
 
-                            'required' => true
-
-                        ]) ?>
-
-                    </div>
+                    ]) ?>
 
 
                     <small class="form-text text-muted">
@@ -1630,7 +1679,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     });
 
                     if (farmLocation) {
+
                         farmLocation.focus();
+
                     }
 
                     return;
@@ -1655,7 +1706,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     });
 
                     if (farmSize) {
+
                         farmSize.focus();
+
                     }
 
                     return;

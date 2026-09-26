@@ -131,7 +131,7 @@ function getFarmers()
                     'title="Edit Record" ' + 'data-id="' + data.id + '">' + '<i class="fa fas fa-pen"></i>' + '</a>' + ' | ' +
                     '<a href="" class="delete text-danger" ' + 'data-toggle="tooltip" ' + 'data-placement="bottom" ' + 'title="Delete Record" ' +
                     'data-id="' + data.id + '">' + '<i class="fa fa-trash"></i>' + '</a>' + ' | ' + '<a href="javascript:void(0)" ' + 'class="text-info" ' + 
-                    'onclick="viewRecord(' + data.id + ')" ' + 'data-toggle="tooltip" ' + 'data-placement="bottom" ' + 'title="View Distribution Record" ' + 'data-id="' + data.id + '">' + 
+                    'onclick="viewRecord(' + data.id + ')" ' + 'data-toggle="tooltip" ' + 'data-placement="bottom" ' + 'title="View Record" ' + 'data-id="' + data.id + '">' + 
                     '<i class="fa fa-eye"></i>' + '</a>' + '</div>';
                     return option;
                 }
@@ -139,191 +139,736 @@ function getFarmers()
         ]
     });
 }
-function viewRecord(recordId) {
+// =============================================================
+// VIEW FARMER DISTRIBUTION RECORDS
+// =============================================================
 
-    if (!recordId) {
-        console.error('Invalid record ID.');
+function viewRecord(farmerId) {
+
+    console.log('======================================');
+    console.log('VIEW RECORD');
+    console.log('Farmer ID:', farmerId);
+    console.log('======================================');
+
+
+    // =========================================================
+    // VALIDATE FARMER ID
+    // =========================================================
+
+    if (!farmerId) {
+
+        console.error(
+            'Invalid farmer ID.'
+        );
+
+        showModalError(
+            'Invalid farmer ID.'
+        );
+
         return;
     }
 
-    // Show loading state
-    $('#view_farmer_name').text('Loading...');
-    $('#view_total_records').text('0');
 
-    $('#view_distribution_records').html(`
-        <tr>
-            <td colspan="6" class="text-center">
-                <i class="fas fa-spinner fa-spin"></i>
-                Loading distribution records...
-            </td>
-        </tr>
+    // =========================================================
+    // RESET FARMER INFORMATION
+    // =========================================================
+
+    $('#farmerInformation').html(`
+
+        <div class="text-center py-3">
+
+            <i class="fas
+                      fa-spinner
+                      fa-spin
+                      mr-2"></i>
+
+            Loading farmer information...
+
+        </div>
+
     `);
 
-    // Open modal
+
+    // =========================================================
+    // RESET RECORD TABLE
+    // =========================================================
+
+    $('#distributionRecordsBody').html(`
+
+        <tr>
+
+            <td colspan="6"
+                class="text-center py-4">
+
+                <i class="fas
+                          fa-spinner
+                          fa-spin
+                          mr-2"></i>
+
+                Loading records...
+
+            </td>
+
+        </tr>
+
+    `);
+
+
+    // =========================================================
+    // SHOW MODAL
+    // =========================================================
+
     $('#viewRecordModal').modal('show');
 
+
+    // =========================================================
+    // CHECK RECORD URL
+    // =========================================================
+
+    if (
+        typeof window.RECORD_GET_URL === 'undefined' ||
+        !window.RECORD_GET_URL
+    ) {
+
+        console.error(
+            'RECORD_GET_URL is not defined.'
+        );
+
+        showModalError(
+            'Record API URL is not configured.'
+        );
+
+        return;
+    }
+
+
+    // =========================================================
+    // BUILD REQUEST URL
+    // =========================================================
+
+    var url =
+        window.RECORD_GET_URL +
+        '/' +
+        encodeURIComponent(farmerId);
+
+
+    console.log(
+        'Request URL:',
+        url
+    );
+
+
+    // =========================================================
+    // AJAX REQUEST
+    // =========================================================
+
     $.ajax({
-        url: BASE_URL + '/Records/getRecord/' + recordId,
+
+        url: url,
+
         type: 'GET',
+
         dataType: 'json',
 
-        success: function(response) {
+        cache: false,
 
-            console.log('getRecord response:', response);
 
-            if (!response || response.success !== true) {
+        // =====================================================
+        // BEFORE SEND
+        // =====================================================
 
-                $('#view_distribution_records').html(`
+        beforeSend: function () {
+
+            console.log(
+                'AJAX request started.'
+            );
+
+        },
+
+
+        // =====================================================
+        // SUCCESS
+        // =====================================================
+
+        success: function (
+            response,
+            textStatus,
+            xhr
+        ) {
+
+            console.log(
+                '======================================'
+            );
+
+            console.log(
+                'AJAX SUCCESS'
+            );
+
+            console.log(
+                'HTTP Status:',
+                xhr.status
+            );
+
+            console.log(
+                'Response:',
+                response
+            );
+
+            console.log(
+                '======================================'
+            );
+
+
+            // =================================================
+            // CHECK RESPONSE
+            // =================================================
+
+            if (!response) {
+
+                showModalError(
+                    'Empty response received from server.'
+                );
+
+                return;
+            }
+
+
+            // =================================================
+            // CHECK SUCCESS FLAG
+            // =================================================
+
+            if (response.success !== true) {
+
+                showModalError(
+                    response.message ||
+                    'Unable to load farmer records.'
+                );
+
+                return;
+            }
+
+
+            // =================================================
+            // CHECK DATA
+            // =================================================
+
+            if (!response.data) {
+
+                showModalError(
+                    'No farmer data was returned.'
+                );
+
+                return;
+            }
+
+
+            // =================================================
+            // DATA
+            // =================================================
+
+            var data = response.data;
+
+
+            console.log(
+                'Farmer data:',
+                data
+            );
+
+
+            // =================================================
+            // FARMER NAME
+            // =================================================
+
+            var farmerName =
+                data.farmer_name || 'N/A';
+
+
+            // =================================================
+            // TOTAL RECORDS
+            // =================================================
+
+            var totalRecords =
+                data.total_records || 0;
+
+
+            // =================================================
+            // DISPLAY FARMER INFORMATION
+            // =================================================
+
+            $('#farmerInformation').html(`
+
+                <div class="card card-body bg-light py-2 mb-0">
+
+                    <div class="row align-items-center">
+
+
+                        <div class="col-md-8">
+
+                            <h6 class="mb-0 text-success">
+
+                                <i class="fas
+                                          fa-user-circle
+                                          mr-1"></i>
+
+                                <strong>
+                                    Farmer Name:
+                                </strong>
+
+                                ${escapeHtml(
+                                    farmerName
+                                )}
+
+                            </h6>
+
+                        </div>
+
+
+                        <div class="col-md-4
+                                    text-md-right
+                                    mt-2
+                                    mt-md-0">
+
+                            <span class="badge badge-info p-2">
+
+                                Total Records:
+                                ${escapeHtml(
+                                    totalRecords
+                                )}
+
+                            </span>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            `);
+
+
+            // =================================================
+            // GET ALL RECORDS
+            // =================================================
+
+            var records =
+                Array.isArray(data.all_records)
+                    ? data.all_records
+                    : [];
+
+
+            console.log(
+                'Number of records:',
+                records.length
+            );
+
+
+            // =================================================
+            // NO RECORDS
+            // =================================================
+
+            if (records.length === 0) {
+
+                $('#distributionRecordsBody').html(`
+
                     <tr>
-                        <td colspan="6" class="text-center text-danger">
-                            <i class="fas fa-exclamation-circle"></i>
-                            Unable to load distribution records.
+
+                        <td colspan="6"
+                            class="text-center
+                                   py-4
+                                   text-muted">
+
+                            <i class="fas
+                                      fa-folder-open
+                                      mr-1"></i>
+
+                            No distribution records
+                            found for this farmer.
+
                         </td>
+
                     </tr>
+
                 `);
 
                 return;
             }
 
-            var data = response.data || {};
 
-            console.log('Record data:', data);
+            // =================================================
+            // BUILD TABLE ROWS
+            // =================================================
 
-            // Farmer
-            $('#view_farmer_name').text(
-                data.farmer_name || 'N/A'
+            var rowsHtml = '';
+
+
+            $.each(
+                records,
+                function (
+                    index,
+                    item
+                ) {
+
+
+                    // =========================================
+                    // STATUS
+                    // =========================================
+
+                    var status =
+                        item.status || 'N/A';
+
+
+                    var statusBadge = '';
+
+
+                    // =========================================
+                    // RECEIVED
+                    // =========================================
+
+                    if (
+                        status === 'Received'
+                    ) {
+
+                        statusBadge = `
+
+                            <span class="badge badge-success">
+
+                                <i class="fas
+                                          fa-check
+                                          mr-1"></i>
+
+                                Received
+
+                            </span>
+
+                        `;
+
+                    }
+
+
+                    // =========================================
+                    // CANCELLED
+                    // =========================================
+
+                    else if (
+                        status === 'Cancelled'
+                    ) {
+
+                        statusBadge = `
+
+                            <span class="badge badge-danger">
+
+                                <i class="fas
+                                          fa-times
+                                          mr-1"></i>
+
+                                Cancelled
+
+                            </span>
+
+                        `;
+
+                    }
+
+
+                    // =========================================
+                    // NOT RECEIVED
+                    // =========================================
+
+                    else if (
+                        status === 'Not Received'
+                    ) {
+
+                        statusBadge = `
+
+                            <span class="badge badge-warning">
+
+                                <i class="fas
+                                          fa-clock
+                                          mr-1"></i>
+
+                                Not Received
+
+                            </span>
+
+                        `;
+
+                    }
+
+
+                    // =========================================
+                    // RE-SCHEDULED
+                    // =========================================
+
+                    else if (
+                        status === 'Re-Scheduled'
+                    ) {
+
+                        statusBadge = `
+
+                            <span class="badge badge-info">
+
+                                <i class="fas
+                                          fa-calendar-alt
+                                          mr-1"></i>
+
+                                Re-Scheduled
+
+                            </span>
+
+                        `;
+
+                    }
+
+
+                    // =========================================
+                    // OTHER STATUS
+                    // =========================================
+
+                    else {
+
+                        statusBadge = `
+
+                            <span class="badge badge-secondary">
+
+                                ${escapeHtml(
+                                    status
+                                )}
+
+                            </span>
+
+                        `;
+                    }
+
+
+                    // =========================================
+                    // TABLE ROW
+                    // =========================================
+
+                    rowsHtml += `
+
+                        <tr>
+
+                            <td>
+                                ${escapeHtml(
+                                    item.program_name ||
+                                    'N/A'
+                                )}
+                            </td>
+
+
+                            <td>
+                                ${escapeHtml(
+                                    item.subsidy_item ||
+                                    'N/A'
+                                )}
+                            </td>
+
+
+                            <td>
+                                ${escapeHtml(
+                                    item.quantity ||
+                                    '0.00'
+                                )}
+                            </td>
+
+
+                            <td>
+                                ${escapeHtml(
+                                    item.distribution_date ||
+                                    'N/A'
+                                )}
+                            </td>
+
+
+                            <td>
+                                ${escapeHtml(
+                                    item.received_date ||
+                                    'N/A'
+                                )}
+                            </td>
+
+
+                            <td>
+                                ${statusBadge}
+                            </td>
+
+                        </tr>
+
+                    `;
+
+                }
             );
 
-            // Total
-            $('#view_total_records').text(
-                data.total_records || 1
+
+            // =================================================
+            // DISPLAY TABLE
+            // =================================================
+
+            $('#distributionRecordsBody')
+                .html(rowsHtml);
+
+
+            console.log(
+                'Distribution records table updated.'
             );
 
-            // Program
-            var programName =
-                data.program_name ||
-                data.schedule_program_name ||
-                'N/A';
-
-            // Other fields
-            var subsidyItem =
-                data.subsidy_item || 'N/A';
-
-            var quantity =
-                data.quantity !== null &&
-                data.quantity !== undefined &&
-                data.quantity !== ''
-                    ? data.quantity
-                    : 'N/A';
-
-            var distributionDate =
-                data.distribution_date || 'N/A';
-
-            var receivedDate =
-                data.received_date || 'N/A';
-
-            var status =
-                data.status || 'N/A';
-
-            // Status badge
-            var statusBadge = '';
-
-            if (status === 'Received') {
-
-                statusBadge = `
-                    <span class="badge badge-success">
-                        <i class="fas fa-check"></i>
-                        Received
-                    </span>
-                `;
-
-            } else if (status === 'Cancelled') {
-
-                statusBadge = `
-                    <span class="badge badge-danger">
-                        <i class="fas fa-times"></i>
-                        Cancelled
-                    </span>
-                `;
-
-            } else if (status === 'Not Received') {
-
-                statusBadge = `
-                    <span class="badge badge-warning">
-                        <i class="fas fa-clock"></i>
-                        Not Received
-                    </span>
-                `;
-
-            } else {
-
-                statusBadge = `
-                    <span class="badge badge-secondary">
-                        ${escapeHtml(status)}
-                    </span>
-                `;
-            }
-
-            // Build table row
-            $('#view_distribution_records').html(`
-                <tr>
-
-                    <td>
-                        ${escapeHtml(programName)}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(subsidyItem)}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(quantity)}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(distributionDate)}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(receivedDate)}
-                    </td>
-
-                    <td>
-                        ${statusBadge}
-                    </td>
-
-                </tr>
-            `);
         },
 
-        error: function(xhr, status, error) {
 
-            console.error('getRecord AJAX error:', error);
-            console.error('Response:', xhr.responseText);
+        // =====================================================
+        // ERROR
+        // =====================================================
 
-            $('#view_distribution_records').html(`
-                <tr>
-                    <td colspan="6" class="text-center text-danger">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        Failed to load distribution records.
-                    </td>
-                </tr>
-            `);
+        error: function (
+            xhr,
+            textStatus,
+            errorThrown
+        ) {
+
+            console.error(
+                '======================================'
+            );
+
+            console.error(
+                'AJAX ERROR'
+            );
+
+            console.error(
+                'HTTP Status:',
+                xhr.status
+            );
+
+            console.error(
+                'Text Status:',
+                textStatus
+            );
+
+            console.error(
+                'Error:',
+                errorThrown
+            );
+
+            console.error(
+                'Response:',
+                xhr.responseText
+            );
+
+            console.error(
+                '======================================'
+            );
+
+
+            var message =
+                'Failed to load farmer distribution records.';
+
+
+            if (
+                xhr.responseJSON &&
+                xhr.responseJSON.message
+            ) {
+
+                message =
+                    xhr.responseJSON.message;
+            }
+
+
+            showModalError(
+                message
+            );
+
         }
+
     });
+
 }
 
 
-/**
- * Prevent HTML injection when displaying AJAX values.
- */
-function escapeHtml(value) {
+// =============================================================
+// SHOW MODAL ERROR
+// =============================================================
 
-    if (value === null || value === undefined) {
+function showModalError(message) {
+
+    $('#farmerInformation').html(`
+
+        <div class="alert alert-warning mb-0"
+             role="alert">
+
+            <i class="fas
+                      fa-exclamation-triangle
+                      mr-2"></i>
+
+            ${escapeHtml(message)}
+
+        </div>
+
+    `);
+
+
+    $('#distributionRecordsBody').html(`
+
+        <tr>
+
+            <td colspan="6"
+                class="text-center
+                       py-4
+                       text-danger">
+
+                <i class="fas
+                          fa-exclamation-circle
+                          mr-1"></i>
+
+                ${escapeHtml(message)}
+
+            </td>
+
+        </tr>
+
+    `);
+
+}
+
+
+// =============================================================
+// ESCAPE HTML
+// =============================================================
+
+function escapeHtml(text) {
+
+    if (
+        text === null ||
+        text === undefined
+    ) {
+
         return '';
     }
 
-    return $('<div>')
-        .text(value)
-        .html();
+
+    return String(text)
+
+        .replace(
+            /&/g,
+            '&amp;'
+        )
+
+        .replace(
+            /</g,
+            '&lt;'
+        )
+
+        .replace(
+            />/g,
+            '&gt;'
+        )
+
+        .replace(
+            /"/g,
+            '&quot;'
+        )
+
+        .replace(
+            /'/g,
+            '&#039;'
+        );
 }

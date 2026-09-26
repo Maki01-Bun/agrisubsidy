@@ -3,6 +3,13 @@
     <div class="card">
         <div class="card-body login-card-body">
             <div class="logo-header d-flex justify-content-center align-items-center mb-4">
+                <div class="logo-item">
+                    <?= $this->Html->image('da_logo.jpg', [
+                        'alt' => 'Santiago City Logo',
+                        'class' => 'header-logo'
+                    ]) ?>
+                </div>
+
                 <!-- AgriSubsidy Logo -->
                 <div class="logo-item">
                     <?= $this->Html->image('logos.png', [
@@ -10,13 +17,6 @@
                         'class' => 'header-logo'
                     ]) ?>
                 </div>
-                <div class="logo-item">
-                    <?= $this->Html->image('stgocitys.png', [
-                        'alt' => 'Santiago City Logo',
-                        'class' => 'header-logo'
-                    ]) ?>
-                </div>
-
             </div>
             <p class="login-box-msg">AgriSubsidy</p>
             <center><?php echo $this->Flash->render(); ?></center>

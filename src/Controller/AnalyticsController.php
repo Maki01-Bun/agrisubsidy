@@ -15,1624 +15,408 @@ class AnalyticsController extends AppController
      *
      * @return \Cake\Http\Response|null|void
      */
-       public function index()
+        public function initialize(): void
     {
-        /*
-         * ============================================================
-         * LOAD REQUIRED MODELS
-         * ============================================================
-         */
+        parent::initialize();
+
+        $this->loadComponent('Flash');
 
         $this->loadModel('Evaluations');
         $this->loadModel('Farms');
         $this->loadModel('Feedbacks');
         $this->loadModel('Schedules');
         $this->loadModel('Records');
+        $this->loadModel('Farmers');
+    }
+
+
+    /**
+     * =========================================================
+     * INDEX
+     * =========================================================
+     */
+    public function index()
+    {
+        /*
+         * =====================================================
+         * LOAD ALL EVALUATIONS
+         * =====================================================
+         */
+
+        $evaluations = $this->Evaluations->find()
+            ->order([
+                'Evaluations.id' => 'ASC'
+            ])
+            ->all()
+            ->toArray();
+
+
+        $totalEvaluations =
+            count($evaluations);
 
 
         /*
-         * ============================================================
-         * OVERALL EVALUATION COUNTS
-         * ============================================================
+         * =====================================================
+         * EFFECTIVENESS COUNTS
+         *
+         * 0 = Not Effective
+         * 1 = Moderately Effective
+         * 2 = Effective
+         * NULL = Not Yet Predicted
+         * =====================================================
          */
 
-        $totalEvaluations = $this->Evaluations
-            ->find()
-            ->where([
-                'Evaluations.effectiveness_label IS NOT' => null
-            ])
-            ->count();
+        $effective = 0;
+
+        $moderatelyEffective = 0;
+
+        $notEffective = 0;
+
+        $notYetPredicted = 0;
 
 
-        /*
-         * ============================================================
-         * EFFECTIVENESS LABEL COUNTS
-         * ============================================================
-         */
+        foreach (
+            $evaluations as $evaluation
+        ) {
 
-        $effective = $this->Evaluations
-            ->find()
-            ->where([
-                'Evaluations.effectiveness_label' => 'Effective'
-            ])
-            ->count();
+            $value =
+                $evaluation->effectiveness_label;
 
 
-        $moderatelyEffective = $this->Evaluations
-            ->find()
-            ->where([
-                'Evaluations.effectiveness_label' =>
-                    'Moderately Effective'
-            ])
-            ->count();
+            if (
+                $value === null ||
+                $value === ''
+            ) {
+
+                $notYetPredicted++;
+
+                continue;
+
+            }
 
 
-        $notEffective = $this->Evaluations
-            ->find()
-            ->where([
-                'Evaluations.effectiveness_label' =>
-                    'Not Effective'
-            ])
-            ->count();
+            switch (
+                (int)$value
+            ) {
+
+                case 2:
+
+                    $effective++;
+
+                    break;
 
 
-        /*
-         * ============================================================
-         * OVERALL EFFECTIVENESS RATES
-         * ============================================================
-         */
+                case 1:
 
-        $effectiveRate = 0;
-        $moderatelyEffectiveRate = 0;
-        $notEffectiveRate = 0;
+                    $moderatelyEffective++;
 
-        if ($totalEvaluations > 0) {
+                    break;
 
-            $effectiveRate =
-                round(
-                    (
-                        $effective /
-                        $totalEvaluations
-                    ) * 100,
-                    2
-                );
 
-            $moderatelyEffectiveRate =
-                round(
-                    (
-                        $moderatelyEffective /
-                        $totalEvaluations
-                    ) * 100,
-                    2
-                );
+                case 0:
 
-            $notEffectiveRate =
-                round(
-                    (
-                        $notEffective /
-                        $totalEvaluations
-                    ) * 100,
-                    2
-                );
+                    $notEffective++;
+
+                    break;
+
+
+                default:
+
+                    $notYetPredicted++;
+
+                    break;
+
+            }
+
         }
 
 
+        $predictedEvaluations =
+            $effective
+            + $moderatelyEffective
+            + $notEffective;
+
+
         /*
-         * ============================================================
-         * PROGRAM EFFECTIVENESS
-         * ============================================================
+         * =====================================================
+         * FEEDBACK DATA
+         * =====================================================
+         *
+         * feedbacks.answer contains Q1-Q10 JSON.
+         *
+         * We use feedback_date as the time reference for:
+         *
+         * - yield trend
+         * - effectiveness trend
+         * - survey trend
+         *
+         * because evaluations are connected to feedbacks through
+         * evaluations.feedback_id.
+         *
+         * =====================================================
          */
 
-        $programFeedbackQuery =
-            $this->Evaluations->find();
-
-
-        $programFeedbacks =
-            $programFeedbackQuery
-                ->select([
-
-                    'evaluation_id' =>
-                        'Evaluations.id',
-
-                    'feedback_id' =>
-                        'Evaluations.feedback_id',
-
-                    'schedule_id' =>
-                        'Evaluations.schedule_id',
-
-                    'effectiveness_label' =>
-                        'Evaluations.effectiveness_label',
-
-                    'program_code' =>
-                        'Schedules.program_code',
-
-                    'program_name' =>
-                        'Schedules.program_name',
-
-                    'feedback_rating' =>
-                        'Feedbacks.rating'
+        $feedbacks =
+            $this->Feedbacks->find()
+                ->order([
+                    'Feedbacks.feedback_date' => 'ASC',
+                    'Feedbacks.id' => 'ASC'
                 ])
-
-                ->leftJoin(
-                    ['Feedbacks' => 'feedbacks'],
-                    [
-                        'Feedbacks.id = Evaluations.feedback_id'
-                    ]
-                )
-
-                ->innerJoin(
-                    ['Schedules' => 'schedules'],
-                    [
-                        'Schedules.id = Evaluations.schedule_id'
-                    ]
-                )
-
-                ->enableHydration(false)
-
+                ->all()
                 ->toArray();
 
 
         /*
-         * ============================================================
-         * GROUP EVALUATIONS BY PROGRAM
-         * ============================================================
+         * =====================================================
+         * MAP FEEDBACK ID -> FEEDBACK
+         * =====================================================
          */
 
-        $programGroups = [];
+        $feedbackMap = [];
 
 
         foreach (
-            $programFeedbacks as $evaluation
+            $feedbacks as $feedback
         ) {
 
-            $programCode =
-                trim(
-                    (string)(
-                        $evaluation['program_code']
-                        ?? ''
-                    )
-                );
+            $feedbackMap[
+                (int)$feedback->id
+            ] = $feedback;
 
-
-            $programName =
-                trim(
-                    (string)(
-                        $evaluation['program_name']
-                        ?? ''
-                    )
-                );
-
-
-            if ($programCode === '') {
-                continue;
-            }
-
-
-            if ($programName === '') {
-                $programName = 'N/A';
-            }
-
-
-            $programKey =
-                $programCode;
-
-
-            if (
-                !isset(
-                    $programGroups[$programKey]
-                )
-            ) {
-
-                $programGroups[$programKey] = [
-
-                    'program_code' =>
-                        $programCode,
-
-                    'program_name' =>
-                        $programName,
-
-                    'total_evaluations' =>
-                        0,
-
-                    'total_feedbacks' =>
-                        0,
-
-                    'total_rating' =>
-                        0,
-
-                    'effective_count' =>
-                        0,
-
-                    'moderately_effective_count' =>
-                        0,
-
-                    'not_effective_count' =>
-                        0
-                ];
-            }
-
-
-            /*
-             * Count evaluation.
-             */
-
-            $programGroups[$programKey]
-                ['total_evaluations']++;
-
-
-            /*
-             * Effectiveness label.
-             */
-
-            $label =
-                strtolower(
-                    trim(
-                        (string)(
-                            $evaluation[
-                                'effectiveness_label'
-                            ]
-                            ?? ''
-                        )
-                    )
-                );
-
-
-            $label =
-                preg_replace(
-                    '/\s+/',
-                    ' ',
-                    $label
-                );
-
-
-            if (
-                $label === 'effective'
-            ) {
-
-                $programGroups[$programKey]
-                    ['effective_count']++;
-
-            } elseif (
-                $label === 'moderately effective'
-            ) {
-
-                $programGroups[$programKey]
-                    ['moderately_effective_count']++;
-
-            } elseif (
-                $label === 'not effective'
-            ) {
-
-                $programGroups[$programKey]
-                    ['not_effective_count']++;
-            }
-
-
-            /*
-             * Feedback rating.
-             */
-
-            $ratingValue =
-                $evaluation[
-                    'feedback_rating'
-                ]
-                ?? null;
-
-
-            if (
-                $ratingValue === null ||
-                $ratingValue === ''
-            ) {
-                continue;
-            }
-
-
-            $rating =
-                (float)$ratingValue;
-
-
-            if (
-                $rating < 1 ||
-                $rating > 5
-            ) {
-                continue;
-            }
-
-
-            $programGroups[$programKey]
-                ['total_feedbacks']++;
-
-
-            $programGroups[$programKey]
-                ['total_rating'] += $rating;
         }
 
 
         /*
-         * ============================================================
-         * BUILD PROGRAM EFFECTIVENESS ARRAY
-         * ============================================================
+         * =====================================================
+         * QUESTION SUMMARY
+         * =====================================================
          */
 
-        $programEffectiveness = [];
+        $questionSummary =
+            $this->buildQuestionSummary(
+                $feedbacks
+            );
+
+
+        /*
+         * =====================================================
+         * SURVEY AVERAGE
+         * =====================================================
+         */
+
+        $feedbackTotalScore = 0;
+
+        $feedbackTotalResponses = 0;
 
 
         foreach (
-            $programGroups as $program
+            $feedbacks as $feedback
         ) {
 
-            $totalProgramEvaluations =
-                (int)(
-                    $program[
-                        'total_evaluations'
-                    ]
+            $answers =
+                $this->decodeAnswers(
+                    $feedback->answer ?? null
                 );
 
 
-            $totalFeedbacks =
-                (int)(
-                    $program[
-                        'total_feedbacks'
-                    ]
-                );
-
-
-            $totalRating =
-                (float)(
-                    $program[
-                        'total_rating'
-                    ]
-                );
-
-
-            $averageRating = 0;
-
-
-            if (
-                $totalFeedbacks > 0
+            foreach (
+                $answers as $answer
             ) {
 
-                $averageRating =
-                    round(
-                        $totalRating /
-                        $totalFeedbacks,
-                        2
+                $normalized =
+                    $this->normalizeAnswer(
+                        $answer
                     );
+
+
+                if (
+                    $normalized === null
+                ) {
+                    continue;
+                }
+
+
+                $feedbackTotalScore +=
+                    $normalized;
+
+                $feedbackTotalResponses++;
+
             }
 
-
-            $effectiveCount =
-                (int)(
-                    $program[
-                        'effective_count'
-                    ]
-                );
-
-
-            $moderatelyEffectiveCount =
-                (int)(
-                    $program[
-                        'moderately_effective_count'
-                    ]
-                );
-
-
-            $notEffectiveCount =
-                (int)(
-                    $program[
-                        'not_effective_count'
-                    ]
-                );
-
-
-            $effectivePercentage = 0;
-
-
-            if (
-                $totalProgramEvaluations > 0
-            ) {
-
-                $effectivePercentage =
-                    round(
-                        (
-                            $effectiveCount /
-                            $totalProgramEvaluations
-                        ) * 100,
-                        2
-                    );
-            }
-
-
-            $programEffectiveness[] = [
-
-                'program_code' =>
-                    $program[
-                        'program_code'
-                    ],
-
-                'program_name' =>
-                    $program[
-                        'program_name'
-                    ],
-
-                'total_evaluations' =>
-                    $totalProgramEvaluations,
-
-                'total_feedbacks' =>
-                    $totalFeedbacks,
-
-                'total_rating' =>
-                    $totalRating,
-
-                'effectiveness_rating' =>
-                    $averageRating,
-
-                'effective_count' =>
-                    $effectiveCount,
-
-                'moderately_effective_count' =>
-                    $moderatelyEffectiveCount,
-
-                'not_effective_count' =>
-                    $notEffectiveCount,
-
-                'effective_percentage' =>
-                    $effectivePercentage
-            ];
         }
 
 
-        /*
-         * ============================================================
-         * SORT PROGRAMS
-         * ============================================================
-         */
-
-        usort(
-            $programEffectiveness,
-            function (
-                $a,
-                $b
-            ) {
-
-                $ratingA =
-                    (float)(
-                        $a[
-                            'effectiveness_rating'
-                        ]
-                        ?? 0
-                    );
-
-
-                $ratingB =
-                    (float)(
-                        $b[
-                            'effectiveness_rating'
-                        ]
-                        ?? 0
-                    );
-
-
-                if (
-                    $ratingA != $ratingB
-                ) {
-
-                    return
-                        $ratingB
-                        <=>
-                        $ratingA;
-                }
-
-
-                $effectiveA =
-                    (int)(
-                        $a[
-                            'effective_count'
-                        ]
-                        ?? 0
-                    );
-
-
-                $effectiveB =
-                    (int)(
-                        $b[
-                            'effective_count'
-                        ]
-                        ?? 0
-                    );
-
-
-                if (
-                    $effectiveA != $effectiveB
-                ) {
-
-                    return
-                        $effectiveB
-                        <=>
-                        $effectiveA;
-                }
-
-
-                $effectivePercentageA =
-                    (float)(
-                        $a[
-                            'effective_percentage'
-                        ]
-                        ?? 0
-                    );
-
-
-                $effectivePercentageB =
-                    (float)(
-                        $b[
-                            'effective_percentage'
-                        ]
-                        ?? 0
-                    );
-
-
-                if (
-                    $effectivePercentageA
-                    !=
-                    $effectivePercentageB
-                ) {
-
-                    return
-                        $effectivePercentageB
-                        <=>
-                        $effectivePercentageA;
-                }
-
-
-                $notEffectiveA =
-                    (int)(
-                        $a[
-                            'not_effective_count'
-                        ]
-                        ?? 0
-                    );
-
-
-                $notEffectiveB =
-                    (int)(
-                        $b[
-                            'not_effective_count'
-                        ]
-                        ?? 0
-                    );
-
-
-                if (
-                    $notEffectiveA
-                    !=
-                    $notEffectiveB
-                ) {
-
-                    return
-                        $notEffectiveA
-                        <=>
-                        $notEffectiveB;
-                }
-
-
-                $feedbackA =
-                    (int)(
-                        $a[
-                            'total_feedbacks'
-                        ]
-                        ?? 0
-                    );
-
-
-                $feedbackB =
-                    (int)(
-                        $b[
-                            'total_feedbacks'
-                        ]
-                        ?? 0
-                    );
-
-
-                if (
-                    $feedbackA
-                    !=
-                    $feedbackB
-                ) {
-
-                    return
-                        $feedbackB
-                        <=>
-                        $feedbackA;
-                }
-
-
-                $evaluationsA =
-                    (int)(
-                        $a[
-                            'total_evaluations'
-                        ]
-                        ?? 0
-                    );
-
-
-                $evaluationsB =
-                    (int)(
-                        $b[
-                            'total_evaluations'
-                        ]
-                        ?? 0
-                    );
-
-
-                return
-                    $evaluationsB
-                    <=>
-                    $evaluationsA;
-            }
-        );
-
-
-        /*
-         * ============================================================
-         * MOST EFFECTIVE PROGRAM
-         * ============================================================
-         */
-
-        $mostEffectiveProgram =
-            !empty(
-                $programEffectiveness
-            )
-                ? $programEffectiveness[0]
-                : null;
-
-
-        /*
-         * ============================================================
-         * FIND SEED SUBSIDY PROGRAM
-         * ============================================================
-         */
-
-        $seedProgram = null;
-
-
-        foreach (
-            $programEffectiveness as $program
-        ) {
-
-            $programName =
-                strtolower(
-                    trim(
-                        (string)(
-                            $program[
-                                'program_name'
-                            ]
-                            ?? ''
-                        )
-                    )
-                );
-
-
-            $programCode =
-                strtolower(
-                    trim(
-                        (string)(
-                            $program[
-                                'program_code'
-                            ]
-                            ?? ''
-                        )
-                    )
-                );
-
-
-            if (
-                str_contains(
-                    $programName,
-                    'seed subsidy'
-                )
-                ||
-                str_contains(
-                    $programName,
-                    'seed'
-                )
-            ) {
-
-                $seedProgram =
-                    $program;
-
-                break;
-            }
-
-
-            if (
-                str_contains(
-                    $programCode,
-                    'seed'
-                )
-            ) {
-
-                $seedProgram =
-                    $program;
-
-                break;
-            }
-        }
-
-
-        /*
-         * ============================================================
-         * SEED SUBSIDY STATISTICS
-         * ============================================================
-         */
-
-        $seedTotalEvaluations = 0;
-        $seedTotalFeedbacks = 0;
-        $seedFeedbackRating = 0;
-        $seedEffective = 0;
-        $seedModeratelyEffective = 0;
-        $seedNotEffective = 0;
-        $seedEffectivenessRate = 0;
-
-
-        if (
-            $seedProgram !== null
-        ) {
-
-            $seedTotalEvaluations =
-                (int)(
-                    $seedProgram[
-                        'total_evaluations'
-                    ]
-                    ?? 0
-                );
-
-
-            $seedTotalFeedbacks =
-                (int)(
-                    $seedProgram[
-                        'total_feedbacks'
-                    ]
-                    ?? 0
-                );
-
-
-            $seedFeedbackRating =
-                (float)(
-                    $seedProgram[
-                        'effectiveness_rating'
-                    ]
-                    ?? 0
-                );
-
-
-            $seedEffective =
-                (int)(
-                    $seedProgram[
-                        'effective_count'
-                    ]
-                    ?? 0
-                );
-
-
-            $seedModeratelyEffective =
-                (int)(
-                    $seedProgram[
-                        'moderately_effective_count'
-                    ]
-                    ?? 0
-                );
-
-
-            $seedNotEffective =
-                (int)(
-                    $seedProgram[
-                        'not_effective_count'
-                    ]
-                    ?? 0
-                );
-
-
-            if (
-                $seedTotalEvaluations > 0
-            ) {
-
-                $seedEffectivenessRate =
-                    round(
-                        (
-                            $seedEffective /
-                            $seedTotalEvaluations
-                        ) * 100,
-                        2
-                    );
-            }
-        }
-
-
-        /*
-         * ============================================================
-         * OVERALL FEEDBACK AVERAGE
-         * ============================================================
-         */
-
-        $feedbackQuery =
-            $this->Feedbacks->find();
-
-
-        $feedbackAverageResult =
-            $feedbackQuery
-                ->select([
-                    'average_rating' =>
-                        $feedbackQuery
-                            ->func()
-                            ->avg(
-                                'Feedbacks.rating'
-                            )
-                ])
-                ->where([
-                    'Feedbacks.rating IS NOT' => null
-                ])
-                ->first();
-
-
-        $feedbackAverage = 0;
-
-
-        if (
-            $feedbackAverageResult
-        ) {
-
-            $feedbackAverage =
-                round(
-                    (float)(
-                        $feedbackAverageResult
-                            ->average_rating
-                    ),
+        $feedbackAverage =
+            $feedbackTotalResponses > 0
+                ? round(
+                    $feedbackTotalScore /
+                    $feedbackTotalResponses,
                     2
-                );
-        }
-
-
-        /*
-         * ============================================================
-         * AVERAGE YIELD
-         * ============================================================
-         */
-
-        $yieldQuery =
-            $this->Evaluations->find();
-
-
-        $yieldData =
-            $yieldQuery
-                ->select([
-
-                    'avg_yield_before' =>
-                        $yieldQuery
-                            ->func()
-                            ->avg(
-                                'Evaluations.average_yield'
-                            ),
-
-                    'avg_yield_after' =>
-                        $yieldQuery
-                            ->func()
-                            ->avg(
-                                'Evaluations.crop_yield_after'
-                            )
-                ])
-                ->innerJoin(
-                    ['Farms' => 'farms'],
-                    [
-                        'Farms.id = Evaluations.farm_id'
-                    ]
                 )
-                ->first();
-
-
-        $avgYieldBefore = 0;
-        $avgYieldAfter = 0;
-
-
-        if (
-            $yieldData
-        ) {
-
-            $avgYieldBefore =
-                (float)(
-                    $yieldData
-                        ->avg_yield_before
-                    ?? 0
-                );
-
-
-            $avgYieldAfter =
-                (float)(
-                    $yieldData
-                        ->avg_yield_after
-                    ?? 0
-                );
-        }
+                : 0;
 
 
         /*
-         * ============================================================
-         * YIELD IMPROVEMENT
-         * ============================================================
+         * =====================================================
+         * TREND DATA
+         * =====================================================
          */
 
-        $yieldImprovement = 0;
+        $yieldTrend =
+            $this->buildYieldTrend(
+                $evaluations,
+                $feedbackMap
+            );
+
+
+        $effectivenessTrend =
+            $this->buildEffectivenessTrend(
+                $evaluations,
+                $feedbackMap
+            );
+
+
+        $surveyTrend =
+            $this->buildSurveyTrend(
+                $feedbacks
+            );
+
+
+        /*
+         * =====================================================
+         * DISTRIBUTION DATA
+         * =====================================================
+         */
+
+        $allRecords =
+            $this->Records->find()
+                ->order([
+                    'Records.id' => 'ASC'
+                ])
+                ->all()
+                ->toArray();
+
+
+        $distributionTrend =
+            $this->buildDistributionTrend(
+                $allRecords
+            );
+
+
+        /*
+         * =====================================================
+         * RICE TYPE SUMMARY
+         * =====================================================
+         */
+
+        $riceTypeSummary =
+            $this->buildRiceTypeSummary(
+                $evaluations
+            );
+
+
+        /*
+         * =====================================================
+         * YIELD SUMMARY
+         * =====================================================
+         */
+
+        $averageYieldBefore =
+            $this->calculateAverage(
+                $evaluations,
+                'average_yield'
+            );
+
+
+        $averageYieldAfter =
+            $this->calculateAverage(
+                $evaluations,
+                'crop_yield_after'
+            );
+
+
+        $yieldImprovement =
+            0;
 
 
         if (
-            $avgYieldBefore > 0
+            $averageYieldBefore > 0
         ) {
 
             $yieldImprovement =
                 (
                     (
-                        $avgYieldAfter -
-                        $avgYieldBefore
+                        $averageYieldAfter
+                        -
+                        $averageYieldBefore
                     )
                     /
-                    $avgYieldBefore
+                    $averageYieldBefore
                 )
                 * 100;
-        }
 
-
-        $yieldImprovement =
-            round(
-                $yieldImprovement,
-                2
-            );
-
-
-        /*
-         * ============================================================
-         * AVERAGE SELLING PRICE
-         * ============================================================
-         */
-
-        $sellingPriceQuery =
-            $this->Evaluations->find();
-
-
-        $sellingPriceData =
-            $sellingPriceQuery
-                ->select([
-                    'avg_selling_price' =>
-                        $sellingPriceQuery
-                            ->func()
-                            ->avg(
-                                'Evaluations.selling_price'
-                            )
-                ])
-                ->first();
-
-
-        $avgSellingPrice = 0;
-
-
-        if (
-            $sellingPriceData
-        ) {
-
-            $avgSellingPrice =
-                (float)(
-                    $sellingPriceData
-                        ->avg_selling_price
-                    ?? 0
-                );
         }
 
 
         /*
-         * ============================================================
-         * SEED SUBSIDY YIELD DATA
-         * ============================================================
+         * =====================================================
+         * SELLING PRICE
+         * =====================================================
          */
 
-        $seedAvgYieldBefore = 0;
-        $seedAvgYieldAfter = 0;
-        $seedAvgSellingPrice = 0;
-        $seedYieldImprovement = 0;
-
-
-        if (
-            $seedProgram !== null
-        ) {
-
-            $seedProgramCode =
-                $seedProgram[
-                    'program_code'
-                ];
-
-
-            $programYieldQuery =
-                $this->Evaluations->find();
-
-
-            $programYieldData =
-                $programYieldQuery
-                    ->select([
-
-                        'avg_yield_before' =>
-                            $programYieldQuery
-                                ->func()
-                                ->avg(
-                                    'Evaluations.average_yield'
-                                ),
-
-                        'avg_yield_after' =>
-                            $programYieldQuery
-                                ->func()
-                                ->avg(
-                                    'Evaluations.crop_yield_after'
-                                ),
-
-                        'avg_selling_price' =>
-                            $programYieldQuery
-                                ->func()
-                                ->avg(
-                                    'Evaluations.selling_price'
-                                )
-                    ])
-
-                    ->innerJoin(
-                        ['Farms' => 'farms'],
-                        [
-                            'Farms.id = Evaluations.farm_id'
-                        ]
-                    )
-
-                    ->innerJoin(
-                        ['Schedules' => 'schedules'],
-                        [
-                            'Schedules.id = Evaluations.schedule_id'
-                        ]
-                    )
-
-                    ->where([
-                        'Schedules.program_code' =>
-                            $seedProgramCode
-                    ])
-
-                    ->first();
-
-
-            if (
-                $programYieldData
-            ) {
-
-                $seedAvgYieldBefore =
-                    (float)(
-                        $programYieldData
-                            ->avg_yield_before
-                        ?? 0
-                    );
-
-
-                $seedAvgYieldAfter =
-                    (float)(
-                        $programYieldData
-                            ->avg_yield_after
-                        ?? 0
-                    );
-
-
-                $seedAvgSellingPrice =
-                    (float)(
-                        $programYieldData
-                            ->avg_selling_price
-                        ?? 0
-                    );
-            }
-
-
-            if (
-                $seedAvgYieldBefore > 0
-            ) {
-
-                $seedYieldImprovement =
-                    (
-                        (
-                            $seedAvgYieldAfter -
-                            $seedAvgYieldBefore
-                        )
-                        /
-                        $seedAvgYieldBefore
-                    )
-                    * 100;
-            }
-
-
-            $seedYieldImprovement =
-                round(
-                    $seedYieldImprovement,
-                    2
-                );
-        }
-
-
-        /*
-         * ============================================================
-         * MACHINE LEARNING MODEL
-         * ============================================================
-         */
-
-        $modelStatus =
-            'Active';
-
-        $modelName =
-            'Random Forest Classifier';
-
-
-        /*
-         * ============================================================
-         * RECEIVED SUBSIDY DISTRIBUTION RECORDS
-         * ============================================================
-         *
-         * IMPORTANT:
-         *
-         * Records.status = Received
-         *
-         * Farmer information comes from Farmers.
-         *
-         * Program/location/date/time come from Schedules.
-         *
-         * Received date/status come from Records.
-         *
-         * ============================================================
-         */
-
-        $receivedRecordsQuery =
-            $this->Records
-                ->find()
-                ->select([
-
-                    /*
-                     * Record
-                     */
-                    'record_id' =>
-                        'Records.id',
-
-                    'farmer_id' =>
-                        'Records.farmer_id',
-
-                    'schedule_id' =>
-                        'Records.schedule_id',
-
-                    'subsidy_item' =>
-                        'Records.subsidy_item',
-
-                    'quantity' =>
-                        'Records.quantity',
-
-                    'received_date' =>
-                        'Records.received_date',
-
-                    'status' =>
-                        'Records.status',
-
-
-                    /*
-                     * Farmer
-                     */
-                    'farmer_no' =>
-                        'Farmers.farmer_no',
-
-                    'first_name' =>
-                        'Farmers.first_name',
-
-                    'last_name' =>
-                        'Farmers.last_name',
-
-
-                    /*
-                     * Schedule
-                     */
-                    'program_code' =>
-                        'Schedules.program_code',
-
-                    'barangay' =>
-                        'Schedules.barangay',
-
-                    'distribution_date' =>
-                        'Schedules.start_date',
-
-                    'distribution_time' =>
-                        'Schedules.start_time'
-                ])
-
-
-                /*
-                 * ====================================================
-                 * JOIN FARMERS
-                 * ====================================================
-                 */
-
-                ->leftJoin(
-                    ['Farmers' => 'farmers'],
-                    [
-                        'Farmers.id = Records.farmer_id'
-                    ]
-                )
-
-
-                /*
-                 * ====================================================
-                 * JOIN SCHEDULES
-                 * ====================================================
-                 */
-
-                ->leftJoin(
-                    ['Schedules' => 'schedules'],
-                    [
-                        'Schedules.id = Records.schedule_id'
-                    ]
-                )
-
-
-                /*
-                 * ====================================================
-                 * RECEIVED ONLY
-                 * ====================================================
-                 */
-
-                ->where([
-                    'Records.status' => 'Received'
-                ])
-
-
-                /*
-                 * ====================================================
-                 * ORDER
-                 * ====================================================
-                 */
-
-                ->order([
-                    'Schedules.start_date' =>
-                        'DESC',
-
-                    'Schedules.start_time' =>
-                        'DESC',
-
-                    'Records.id' =>
-                        'DESC'
-                ])
-
-
-                ->enableHydration(false)
-
-                ->all();
-
-
-        /*
-         * ============================================================
-         * FORMAT RECEIVED RECORDS
-         * ============================================================
-         */
-
-        $receivedRecords = [];
+        $sellingPrices = [];
 
 
         foreach (
-            $receivedRecordsQuery as $record
+            $evaluations as $evaluation
         ) {
 
-            /*
-             * --------------------------------------------------------
-             * FARMER NAME
-             * --------------------------------------------------------
-             */
-
-            $farmerName =
-                trim(
-                    ($record['first_name'] ?? '') .
-                    ' ' .
-                    ($record['last_name'] ?? '')
-                );
-
-
             if (
-                $farmerName === ''
+                $evaluation->selling_price !== null &&
+                $evaluation->selling_price !== ''
             ) {
 
-                $farmerName = '-';
+                $sellingPrices[] =
+                    (float)$evaluation->selling_price;
+
             }
 
-
-            /*
-             * --------------------------------------------------------
-             * DISTRIBUTION DATE
-             * --------------------------------------------------------
-             */
-
-            $distributionDate = '-';
-
-
-            if (
-                !empty(
-                    $record['distribution_date']
-                )
-            ) {
-
-                try {
-
-                    $date =
-                        $record[
-                            'distribution_date'
-                        ];
-
-
-                    if (
-                        $date instanceof
-                        \Cake\I18n\FrozenDate
-                        ||
-                        $date instanceof
-                        \Cake\I18n\FrozenTime
-                    ) {
-
-                        $distributionDate =
-                            $date->format(
-                                'M d, Y'
-                            );
-
-                    } else {
-
-                        $timestamp =
-                            strtotime(
-                                (string)$date
-                            );
-
-
-                        if (
-                            $timestamp !== false
-                        ) {
-
-                            $distributionDate =
-                                date(
-                                    'M d, Y',
-                                    $timestamp
-                                );
-                        }
-                    }
-
-                } catch (
-                    \Throwable $e
-                ) {
-
-                    $distributionDate =
-                        '-';
-                }
-            }
-
-
-            /*
-             * --------------------------------------------------------
-             * DISTRIBUTION TIME
-             * --------------------------------------------------------
-             */
-
-            $distributionTime = '-';
-
-
-            if (
-                !empty(
-                    $record['distribution_time']
-                )
-            ) {
-
-                try {
-
-                    $time =
-                        $record[
-                            'distribution_time'
-                        ];
-
-
-                    if (
-                        $time instanceof
-                        \Cake\I18n\FrozenTime
-                    ) {
-
-                        $distributionTime =
-                            $time->format(
-                                'h:i A'
-                            );
-
-                    } else {
-
-                        $timestamp =
-                            strtotime(
-                                (string)$time
-                            );
-
-
-                        if (
-                            $timestamp !== false
-                        ) {
-
-                            $distributionTime =
-                                date(
-                                    'h:i A',
-                                    $timestamp
-                                );
-                        }
-                    }
-
-                } catch (
-                    \Throwable $e
-                ) {
-
-                    $distributionTime =
-                        '-';
-                }
-            }
-
-
-            /*
-             * --------------------------------------------------------
-             * RECEIVED DATE
-             * --------------------------------------------------------
-             */
-
-            $receivedDate = '-';
-
-
-            if (
-                !empty(
-                    $record['received_date']
-                )
-            ) {
-
-                try {
-
-                    $date =
-                        $record[
-                            'received_date'
-                        ];
-
-
-                    if (
-                        $date instanceof
-                        \Cake\I18n\FrozenDate
-                        ||
-                        $date instanceof
-                        \Cake\I18n\FrozenTime
-                    ) {
-
-                        $receivedDate =
-                            $date->format(
-                                'M d, Y'
-                            );
-
-                    } else {
-
-                        $timestamp =
-                            strtotime(
-                                (string)$date
-                            );
-
-
-                        if (
-                            $timestamp !== false
-                        ) {
-
-                            $receivedDate =
-                                date(
-                                    'M d, Y',
-                                    $timestamp
-                                );
-                        }
-                    }
-
-                } catch (
-                    \Throwable $e
-                ) {
-
-                    $receivedDate =
-                        '-';
-                }
-            }
-
-
-            /*
-             * --------------------------------------------------------
-             * LOCATION
-             * --------------------------------------------------------
-             */
-
-            $barangay =
-                trim(
-                    (string)(
-                        $record['barangay']
-                        ?? ''
-                    )
-                );
-
-
-            if (
-                $barangay === ''
-            ) {
-
-                $barangay =
-                    'N/A';
-            }
-
-
-            /*
-             * --------------------------------------------------------
-             * QUANTITY
-             * --------------------------------------------------------
-             */
-
-            $quantity =
-                $record['quantity']
-                ?? 0;
-
-
-            /*
-             * --------------------------------------------------------
-             * SAVE RECORD
-             * --------------------------------------------------------
-             */
-
-            $receivedRecords[] = [
-
-                'record_id' =>
-                    $record['record_id']
-                    ?? null,
-
-                'farmer_id' =>
-                    $record['farmer_id']
-                    ?? null,
-
-                'schedule_id' =>
-                    $record['schedule_id']
-                    ?? null,
-
-                'farmer_no' =>
-                    $record['farmer_no']
-                    ?? '-',
-
-                'farmer_name' =>
-                    $farmerName,
-
-                'program_code' =>
-                    $record['program_code']
-                    ?? '-',
-
-                'subsidy_item' =>
-                    $record['subsidy_item']
-                    ?? 'Seed Subsidy',
-
-                'quantity' =>
-                    $quantity,
-
-                'barangay' =>
-                    $barangay,
-
-                'distribution_date' =>
-                    $distributionDate,
-
-                'distribution_time' =>
-                    $distributionTime,
-
-                'received_date' =>
-                    $receivedDate,
-
-                'status' =>
-                    $record['status']
-                    ?? 'Received'
-            ];
         }
 
 
+        $averageSellingPrice =
+            !empty($sellingPrices)
+                ? array_sum($sellingPrices)
+                    / count($sellingPrices)
+                : 0;
+
+
+        $minimumSellingPrice =
+            !empty($sellingPrices)
+                ? min($sellingPrices)
+                : 0;
+
+
+        $maximumSellingPrice =
+            !empty($sellingPrices)
+                ? max($sellingPrices)
+                : 0;
+
+
         /*
-         * ============================================================
-         * GET UNIQUE RECEIVED LOCATIONS
-         * ============================================================
+         * =====================================================
+         * RECEIVED RECORDS
+         * =====================================================
+         */
+
+        $receivedRecords =
+            $this->getReceivedRecords();
+
+
+        /*
+         * =====================================================
+         * RECEIVED LOCATIONS
+         * =====================================================
          */
 
         $receivedLocations = [];
@@ -1653,19 +437,15 @@ class AnalyticsController extends AppController
 
             if (
                 $location !== ''
-                &&
-                $location !== 'N/A'
             ) {
 
                 $receivedLocations[] =
                     $location;
+
             }
+
         }
 
-
-        /*
-         * Remove duplicates.
-         */
 
         $receivedLocations =
             array_values(
@@ -1674,10 +454,6 @@ class AnalyticsController extends AppController
                 )
             );
 
-
-        /*
-         * Sort alphabetically.
-         */
 
         natcasesort(
             $receivedLocations
@@ -1691,87 +467,2453 @@ class AnalyticsController extends AppController
 
 
         /*
-         * ============================================================
-         * SEND DATA TO VIEW
-         * ============================================================
+         * =====================================================
+         * DISTRIBUTION STATUS SUMMARY
+         * =====================================================
          */
 
-        $this->set(compact(
+        $distributionStatusSummary =
+            $this->buildDistributionStatusSummary(
+                $allRecords
+            );
+
+
+        /*
+         * =====================================================
+         * TOTAL SUBSIDY QUANTITY
+         * =====================================================
+         */
+
+        $totalSubsidyQuantity = 0;
+
+        $receivedQuantityCount = 0;
+
+
+        foreach (
+            $allRecords as $record
+        ) {
+
+            $status =
+                strtolower(
+                    trim(
+                        (string)(
+                            $record->status
+                            ?? ''
+                        )
+                    )
+                );
+
+
+            if (
+                $status === 'received'
+            ) {
+
+                $quantity =
+                    $record->quantity ?? null;
+
+
+                if (
+                    is_numeric($quantity)
+                ) {
+
+                    $totalSubsidyQuantity +=
+                        (float)$quantity;
+
+                    $receivedQuantityCount++;
+
+                }
+
+            }
+
+        }
+
+
+        $averageSubsidyQuantity =
+            $receivedQuantityCount > 0
+                ? $totalSubsidyQuantity /
+                    $receivedQuantityCount
+                : 0;
+
+
+        /*
+         * =====================================================
+         * SET VIEW VARIABLES
+         * =====================================================
+         */
+
+        $this->set([
 
             /*
-             * Overall
+             * Main counts
              */
-            'totalEvaluations',
-            'effective',
-            'moderatelyEffective',
-            'notEffective',
 
-            'effectiveRate',
-            'moderatelyEffectiveRate',
-            'notEffectiveRate',
+            'totalEvaluations' =>
+                $totalEvaluations,
 
+            'predictedEvaluations' =>
+                $predictedEvaluations,
 
-            /*
-             * Program effectiveness
-             */
-            'programEffectiveness',
-            'mostEffectiveProgram',
+            'notYetPredicted' =>
+                $notYetPredicted,
 
+            'effective' =>
+                $effective,
 
-            /*
-             * Seed subsidy
-             */
-            'seedProgram',
-            'seedTotalEvaluations',
-            'seedTotalFeedbacks',
-            'seedFeedbackRating',
-            'seedEffective',
-            'seedModeratelyEffective',
-            'seedNotEffective',
-            'seedEffectivenessRate',
+            'moderatelyEffective' =>
+                $moderatelyEffective,
+
+            'notEffective' =>
+                $notEffective,
 
 
             /*
              * Feedback
              */
-            'feedbackAverage',
+
+            'feedbackAverage' =>
+                $feedbackAverage,
+
+            'feedbackTotalResponses' =>
+                $feedbackTotalResponses,
+
+            'questionSummary' =>
+                $questionSummary,
+
+
+            /*
+             * Trends
+             */
+
+            'yieldTrend' =>
+                $yieldTrend,
+
+            'effectivenessTrend' =>
+                $effectivenessTrend,
+
+            'surveyTrend' =>
+                $surveyTrend,
+
+            'distributionTrend' =>
+                $distributionTrend,
 
 
             /*
              * Yield
              */
-            'avgYieldBefore',
-            'avgYieldAfter',
-            'yieldImprovement',
+
+            'averageYieldBefore' =>
+                $averageYieldBefore,
+
+            'averageYieldAfter' =>
+                $averageYieldAfter,
+
+            'yieldImprovement' =>
+                $yieldImprovement,
 
 
             /*
              * Selling price
              */
-            'avgSellingPrice',
+
+            'averageSellingPrice' =>
+                $averageSellingPrice,
+
+            'minimumSellingPrice' =>
+                $minimumSellingPrice,
+
+            'maximumSellingPrice' =>
+                $maximumSellingPrice,
 
 
             /*
-             * Seed yield
+             * Rice type
              */
-            'seedAvgYieldBefore',
-            'seedAvgYieldAfter',
-            'seedAvgSellingPrice',
-            'seedYieldImprovement',
+
+            'riceTypeSummary' =>
+                $riceTypeSummary,
 
 
             /*
-             * Machine learning
+             * Distribution
              */
-            'modelStatus',
-            'modelName',
+
+            'receivedRecords' =>
+                $receivedRecords,
+
+            'receivedLocations' =>
+                $receivedLocations,
+
+            'distributionStatusSummary' =>
+                $distributionStatusSummary,
+
+            'totalSubsidyQuantity' =>
+                $totalSubsidyQuantity,
+
+            'averageSubsidyQuantity' =>
+                $averageSubsidyQuantity
+
+        ]);
+    }
+
+
+    /**
+     * =========================================================
+     * BUILD YIELD TREND
+     * =========================================================
+     */
+    private function buildYieldTrend(
+        array $evaluations,
+        array $feedbackMap
+    ): array {
+
+        $monthly = [];
+
+        $quarterly = [];
+
+
+        foreach (
+            $evaluations as $evaluation
+        ) {
+
+            $feedbackId =
+                (int)(
+                    $evaluation->feedback_id
+                    ?? 0
+                );
+
+
+            if (
+                $feedbackId <= 0 ||
+                !isset(
+                    $feedbackMap[$feedbackId]
+                )
+            ) {
+
+                continue;
+
+            }
+
+
+            $feedback =
+                $feedbackMap[$feedbackId];
+
+
+            $date =
+                $this->toDateTime(
+                    $feedback->feedback_date
+                    ?? null
+                );
+
+
+            if (!$date) {
+                continue;
+            }
+
+
+            $before =
+                $evaluation->average_yield;
+
+
+            $after =
+                $evaluation->crop_yield_after;
+
+
+            if (
+                !is_numeric($before) &&
+                !is_numeric($after)
+            ) {
+
+                continue;
+
+            }
+
+
+            $before =
+                is_numeric($before)
+                    ? (float)$before
+                    : 0;
+
+
+            $after =
+                is_numeric($after)
+                    ? (float)$after
+                    : 0;
 
 
             /*
-             * Received subsidy records
+             * MONTH
              */
-            'receivedRecords',
-            'receivedLocations'
-        ));
+
+            $monthKey =
+                $date->format('Y-m');
+
+
+            if (
+                !isset(
+                    $monthly[$monthKey]
+                )
+            ) {
+
+                $monthly[$monthKey] = [
+                    'period_type' =>
+                        'monthly',
+
+                    'period' =>
+                        $date->format('M Y'),
+
+                    'sort' =>
+                        $monthKey,
+
+                    'before_total' =>
+                        0,
+
+                    'after_total' =>
+                        0,
+
+                    'count' =>
+                        0
+                ];
+
+            }
+
+
+            $monthly[$monthKey]
+                ['before_total']
+                += $before;
+
+
+            $monthly[$monthKey]
+                ['after_total']
+                += $after;
+
+
+            $monthly[$monthKey]
+                ['count']++;
+
+
+            /*
+             * QUARTER
+             */
+
+            $quarter =
+                (int)(
+                    ceil(
+                        (int)$date->format('n')
+                        / 3
+                    )
+                );
+
+
+            $year =
+                $date->format('Y');
+
+
+            $quarterKey =
+                $year
+                . '-Q'
+                . $quarter;
+
+
+            if (
+                !isset(
+                    $quarterly[$quarterKey]
+                )
+            ) {
+
+                $quarterly[$quarterKey] = [
+                    'period_type' =>
+                        'quarterly',
+
+                    'period' =>
+                        'Q'
+                        . $quarter
+                        . ' '
+                        . $year,
+
+                    'sort' =>
+                        $year
+                        . '-'
+                        . str_pad(
+                            (string)$quarter,
+                            2,
+                            '0',
+                            STR_PAD_LEFT
+                        ),
+
+                    'before_total' =>
+                        0,
+
+                    'after_total' =>
+                        0,
+
+                    'count' =>
+                        0
+                ];
+
+            }
+
+
+            $quarterly[$quarterKey]
+                ['before_total']
+                += $before;
+
+
+            $quarterly[$quarterKey]
+                ['after_total']
+                += $after;
+
+
+            $quarterly[$quarterKey]
+                ['count']++;
+
+        }
+
+
+        return $this->finalizeYieldTrend(
+            array_merge(
+                array_values($monthly),
+                array_values($quarterly)
+            )
+        );
+    }
+
+
+    /**
+     * =========================================================
+     * FINALIZE YIELD TREND
+     * =========================================================
+     */
+    private function finalizeYieldTrend(
+        array $data
+    ): array {
+
+        foreach (
+            $data as &$row
+        ) {
+
+            $count =
+                (int)(
+                    $row['count']
+                    ?? 0
+                );
+
+
+            $row['yield_before'] =
+                $count > 0
+                    ? round(
+                        $row['before_total']
+                        / $count,
+                        2
+                    )
+                    : 0;
+
+
+            $row['yield_after'] =
+                $count > 0
+                    ? round(
+                        $row['after_total']
+                        / $count,
+                        2
+                    )
+                    : 0;
+
+
+            unset(
+                $row['before_total'],
+                $row['after_total'],
+                $row['count']
+            );
+
+        }
+
+        unset($row);
+
+
+        usort(
+            $data,
+            function (
+                $a,
+                $b
+            ) {
+
+                if (
+                    $a['period_type']
+                    ===
+                    $b['period_type']
+                ) {
+
+                    return strcmp(
+                        $a['sort'],
+                        $b['sort']
+                    );
+
+                }
+
+
+                return strcmp(
+                    $a['period_type'],
+                    $b['period_type']
+                );
+
+            }
+        );
+
+
+        foreach (
+            $data as &$row
+        ) {
+
+            unset(
+                $row['sort']
+            );
+
+        }
+
+        unset($row);
+
+
+        return $data;
+    }
+
+
+    /**
+     * =========================================================
+     * BUILD EFFECTIVENESS TREND
+     * =========================================================
+     */
+    private function buildEffectivenessTrend(
+        array $evaluations,
+        array $feedbackMap
+    ): array {
+
+        $monthly = [];
+
+        $quarterly = [];
+
+
+        foreach (
+            $evaluations as $evaluation
+        ) {
+
+            $feedbackId =
+                (int)(
+                    $evaluation->feedback_id
+                    ?? 0
+                );
+
+
+            if (
+                $feedbackId <= 0 ||
+                !isset(
+                    $feedbackMap[$feedbackId]
+                )
+            ) {
+
+                continue;
+
+            }
+
+
+            $feedback =
+                $feedbackMap[$feedbackId];
+
+
+            $date =
+                $this->toDateTime(
+                    $feedback->feedback_date
+                    ?? null
+                );
+
+
+            if (!$date) {
+                continue;
+            }
+
+
+            $value =
+                $evaluation->effectiveness_label;
+
+
+            /*
+             * MONTH
+             */
+
+            $monthKey =
+                $date->format('Y-m');
+
+
+            if (
+                !isset(
+                    $monthly[$monthKey]
+                )
+            ) {
+
+                $monthly[$monthKey] = [
+                    'period_type' =>
+                        'monthly',
+
+                    'period' =>
+                        $date->format('M Y'),
+
+                    'sort' =>
+                        $monthKey,
+
+                    'effective' =>
+                        0,
+
+                    'moderately_effective' =>
+                        0,
+
+                    'not_effective' =>
+                        0,
+
+                    'not_yet_predicted' =>
+                        0
+                ];
+
+            }
+
+
+            $this->incrementEffectiveness(
+                $monthly[$monthKey],
+                $value
+            );
+
+
+            /*
+             * QUARTER
+             */
+
+            $quarter =
+                (int)(
+                    ceil(
+                        (int)$date->format('n')
+                        / 3
+                    )
+                );
+
+
+            $year =
+                $date->format('Y');
+
+
+            $quarterKey =
+                $year
+                . '-Q'
+                . $quarter;
+
+
+            if (
+                !isset(
+                    $quarterly[$quarterKey]
+                )
+            ) {
+
+                $quarterly[$quarterKey] = [
+                    'period_type' =>
+                        'quarterly',
+
+                    'period' =>
+                        'Q'
+                        . $quarter
+                        . ' '
+                        . $year,
+
+                    'sort' =>
+                        $year
+                        . '-'
+                        . str_pad(
+                            (string)$quarter,
+                            2,
+                            '0',
+                            STR_PAD_LEFT
+                        ),
+
+                    'effective' =>
+                        0,
+
+                    'moderately_effective' =>
+                        0,
+
+                    'not_effective' =>
+                        0,
+
+                    'not_yet_predicted' =>
+                        0
+                ];
+
+            }
+
+
+            $this->incrementEffectiveness(
+                $quarterly[$quarterKey],
+                $value
+            );
+
+        }
+
+
+        $data =
+            array_merge(
+                array_values($monthly),
+                array_values($quarterly)
+            );
+
+
+        usort(
+            $data,
+            function (
+                $a,
+                $b
+            ) {
+
+                if (
+                    $a['period_type']
+                    ===
+                    $b['period_type']
+                ) {
+
+                    return strcmp(
+                        $a['sort'],
+                        $b['sort']
+                    );
+
+                }
+
+
+                return strcmp(
+                    $a['period_type'],
+                    $b['period_type']
+                );
+
+            }
+        );
+
+
+        foreach (
+            $data as &$row
+        ) {
+
+            unset(
+                $row['sort']
+            );
+
+        }
+
+        unset($row);
+
+
+        return $data;
+    }
+
+
+    /**
+     * =========================================================
+     * INCREMENT EFFECTIVENESS
+     * =========================================================
+     */
+    private function incrementEffectiveness(
+        array &$row,
+        mixed $value
+    ): void {
+
+        if (
+            $value === null ||
+            $value === ''
+        ) {
+
+            $row['not_yet_predicted']++;
+
+            return;
+
+        }
+
+
+        switch (
+            (int)$value
+        ) {
+
+            case 2:
+
+                $row['effective']++;
+
+                break;
+
+
+            case 1:
+
+                $row['moderately_effective']++;
+
+                break;
+
+
+            case 0:
+
+                $row['not_effective']++;
+
+                break;
+
+
+            default:
+
+                $row['not_yet_predicted']++;
+
+                break;
+
+        }
+
+    }
+
+
+    /**
+     * =========================================================
+     * BUILD SURVEY TREND
+     * =========================================================
+     */
+    private function buildSurveyTrend(
+        array $feedbacks
+    ): array {
+
+        $monthly = [];
+
+        $quarterly = [];
+
+
+        foreach (
+            $feedbacks as $feedback
+        ) {
+
+            $date =
+                $this->toDateTime(
+                    $feedback->feedback_date
+                    ?? null
+                );
+
+
+            if (!$date) {
+                continue;
+            }
+
+
+            $answers =
+                $this->decodeAnswers(
+                    $feedback->answer ?? null
+                );
+
+
+            $scores = [];
+
+
+            foreach (
+                $answers as $answer
+            ) {
+
+                $normalized =
+                    $this->normalizeAnswer(
+                        $answer
+                    );
+
+
+                if (
+                    $normalized !== null
+                ) {
+
+                    $scores[] =
+                        $normalized;
+
+                }
+
+            }
+
+
+            if (
+                empty($scores)
+            ) {
+
+                continue;
+
+            }
+
+
+            $average =
+                array_sum($scores)
+                /
+                count($scores);
+
+
+            /*
+             * MONTH
+             */
+
+            $monthKey =
+                $date->format('Y-m');
+
+
+            if (
+                !isset(
+                    $monthly[$monthKey]
+                )
+            ) {
+
+                $monthly[$monthKey] = [
+                    'period_type' =>
+                        'monthly',
+
+                    'period' =>
+                        $date->format('M Y'),
+
+                    'sort' =>
+                        $monthKey,
+
+                    'total' =>
+                        0,
+
+                    'responses' =>
+                        0
+                ];
+
+            }
+
+
+            $monthly[$monthKey]['total']
+                += $average;
+
+
+            $monthly[$monthKey]['responses']++;
+
+
+            /*
+             * QUARTER
+             */
+
+            $quarter =
+                (int)(
+                    ceil(
+                        (int)$date->format('n')
+                        / 3
+                    )
+                );
+
+
+            $year =
+                $date->format('Y');
+
+
+            $quarterKey =
+                $year
+                . '-Q'
+                . $quarter;
+
+
+            if (
+                !isset(
+                    $quarterly[$quarterKey]
+                )
+            ) {
+
+                $quarterly[$quarterKey] = [
+                    'period_type' =>
+                        'quarterly',
+
+                    'period' =>
+                        'Q'
+                        . $quarter
+                        . ' '
+                        . $year,
+
+                    'sort' =>
+                        $year
+                        . '-'
+                        . str_pad(
+                            (string)$quarter,
+                            2,
+                            '0',
+                            STR_PAD_LEFT
+                        ),
+
+                    'total' =>
+                        0,
+
+                    'responses' =>
+                        0
+                ];
+
+            }
+
+
+            $quarterly[$quarterKey]['total']
+                += $average;
+
+
+            $quarterly[$quarterKey]['responses']++;
+
+        }
+
+
+        $data =
+            array_merge(
+                array_values($monthly),
+                array_values($quarterly)
+            );
+
+
+        foreach (
+            $data as &$row
+        ) {
+
+            $responses =
+                (int)(
+                    $row['responses']
+                    ?? 0
+                );
+
+
+            $row['average_rating'] =
+                $responses > 0
+                    ? round(
+                        $row['total']
+                        /
+                        $responses,
+                        2
+                    )
+                    : 0;
+
+
+            unset(
+                $row['total'],
+                $row['responses']
+            );
+
+        }
+
+        unset($row);
+
+
+        usort(
+            $data,
+            function (
+                $a,
+                $b
+            ) {
+
+                if (
+                    $a['period_type']
+                    ===
+                    $b['period_type']
+                ) {
+
+                    return strcmp(
+                        $a['sort'],
+                        $b['sort']
+                    );
+
+                }
+
+
+                return strcmp(
+                    $a['period_type'],
+                    $b['period_type']
+                );
+
+            }
+        );
+
+
+        foreach (
+            $data as &$row
+        ) {
+
+            unset(
+                $row['sort']
+            );
+
+        }
+
+        unset($row);
+
+
+        return $data;
+    }
+
+
+    /**
+     * =========================================================
+     * BUILD DISTRIBUTION TREND
+     * =========================================================
+     */
+    private function buildDistributionTrend(
+        array $records
+    ): array {
+
+        $monthly = [];
+
+        $quarterly = [];
+
+
+        foreach (
+            $records as $record
+        ) {
+
+            /*
+             * Use received_date when available.
+             *
+             * For records that do not have a received date,
+             * use the record created date.
+             */
+
+            $dateValue =
+                $record->received_date
+                ?? null;
+
+
+            if (
+                empty($dateValue)
+            ) {
+
+                $dateValue =
+                    $record->created
+                    ?? null;
+
+            }
+
+
+            $date =
+                $this->toDateTime(
+                    $dateValue
+                );
+
+
+            if (!$date) {
+                continue;
+            }
+
+
+            $status =
+                strtolower(
+                    trim(
+                        (string)(
+                            $record->status
+                            ?? ''
+                        )
+                    )
+                );
+
+
+            /*
+             * Normalize status
+             */
+
+            if (
+                in_array(
+                    $status,
+                    [
+                        'received',
+                        'receive'
+                    ],
+                    true
+                )
+            ) {
+
+                $statusKey =
+                    'received';
+
+            } elseif (
+                in_array(
+                    $status,
+                    [
+                        'not received',
+                        'not_received',
+                        'notreceived'
+                    ],
+                    true
+                )
+            ) {
+
+                $statusKey =
+                    'not_received';
+
+            } elseif (
+                in_array(
+                    $status,
+                    [
+                        're-scheduled',
+                        'rescheduled',
+                        're scheduled',
+                        're_schedule',
+                        're-schedule'
+                    ],
+                    true
+                )
+            ) {
+
+                $statusKey =
+                    'rescheduled';
+
+            } elseif (
+                in_array(
+                    $status,
+                    [
+                        'cancelled',
+                        'canceled'
+                    ],
+                    true
+                )
+            ) {
+
+                $statusKey =
+                    'cancelled';
+
+            } else {
+
+                /*
+                 * Ignore unknown statuses rather than
+                 * incorrectly assigning them.
+                 */
+
+                continue;
+
+            }
+
+
+            /*
+             * MONTH
+             */
+
+            $monthKey =
+                $date->format('Y-m');
+
+
+            if (
+                !isset(
+                    $monthly[$monthKey]
+                )
+            ) {
+
+                $monthly[$monthKey] = [
+                    'period_type' =>
+                        'monthly',
+
+                    'period' =>
+                        $date->format('M Y'),
+
+                    'sort' =>
+                        $monthKey,
+
+                    'received' =>
+                        0,
+
+                    'not_received' =>
+                        0,
+
+                    'rescheduled' =>
+                        0,
+
+                    'cancelled' =>
+                        0
+                ];
+
+            }
+
+
+            $monthly[$monthKey]
+                [$statusKey]++;
+
+
+            /*
+             * QUARTER
+             */
+
+            $quarter =
+                (int)(
+                    ceil(
+                        (int)$date->format('n')
+                        / 3
+                    )
+                );
+
+
+            $year =
+                $date->format('Y');
+
+
+            $quarterKey =
+                $year
+                . '-Q'
+                . $quarter;
+
+
+            if (
+                !isset(
+                    $quarterly[$quarterKey]
+                )
+            ) {
+
+                $quarterly[$quarterKey] = [
+                    'period_type' =>
+                        'quarterly',
+
+                    'period' =>
+                        'Q'
+                        . $quarter
+                        . ' '
+                        . $year,
+
+                    'sort' =>
+                        $year
+                        . '-'
+                        . str_pad(
+                            (string)$quarter,
+                            2,
+                            '0',
+                            STR_PAD_LEFT
+                        ),
+
+                    'received' =>
+                        0,
+
+                    'not_received' =>
+                        0,
+
+                    'rescheduled' =>
+                        0,
+
+                    'cancelled' =>
+                        0
+                ];
+
+            }
+
+
+            $quarterly[$quarterKey]
+                [$statusKey]++;
+
+        }
+
+
+        $data =
+            array_merge(
+                array_values($monthly),
+                array_values($quarterly)
+            );
+
+
+        usort(
+            $data,
+            function (
+                $a,
+                $b
+            ) {
+
+                if (
+                    $a['period_type']
+                    ===
+                    $b['period_type']
+                ) {
+
+                    return strcmp(
+                        $a['sort'],
+                        $b['sort']
+                    );
+
+                }
+
+
+                return strcmp(
+                    $a['period_type'],
+                    $b['period_type']
+                );
+
+            }
+        );
+
+
+        foreach (
+            $data as &$row
+        ) {
+
+            unset(
+                $row['sort']
+            );
+
+        }
+
+        unset($row);
+
+
+        return $data;
+    }
+
+
+    /**
+     * =========================================================
+     * BUILD DISTRIBUTION STATUS SUMMARY
+     * =========================================================
+     */
+    private function buildDistributionStatusSummary(
+        array $records
+    ): array {
+
+        $summary = [
+            'Received' =>
+                0,
+
+            'Not Received' =>
+                0,
+
+            'Re-Scheduled' =>
+                0,
+
+            'Cancelled' =>
+                0
+        ];
+
+
+        foreach (
+            $records as $record
+        ) {
+
+            $status =
+                strtolower(
+                    trim(
+                        (string)(
+                            $record->status
+                            ?? ''
+                        )
+                    )
+                );
+
+
+            if (
+                in_array(
+                    $status,
+                    [
+                        'received',
+                        'receive'
+                    ],
+                    true
+                )
+            ) {
+
+                $summary['Received']++;
+
+            } elseif (
+                in_array(
+                    $status,
+                    [
+                        'not received',
+                        'not_received',
+                        'notreceived'
+                    ],
+                    true
+                )
+            ) {
+
+                $summary['Not Received']++;
+
+            } elseif (
+                in_array(
+                    $status,
+                    [
+                        're-scheduled',
+                        'rescheduled',
+                        're scheduled',
+                        're-schedule'
+                    ],
+                    true
+                )
+            ) {
+
+                $summary['Re-Scheduled']++;
+
+            } elseif (
+                in_array(
+                    $status,
+                    [
+                        'cancelled',
+                        'canceled'
+                    ],
+                    true
+                )
+            ) {
+
+                $summary['Cancelled']++;
+
+            }
+
+        }
+
+
+        return $summary;
+    }
+
+
+    /**
+     * =========================================================
+     * BUILD RICE TYPE SUMMARY
+     * =========================================================
+     */
+    private function buildRiceTypeSummary(
+        array $evaluations
+    ): array {
+
+        $summary = [
+
+            0 => [
+                'label' =>
+                    'Inbred',
+
+                'count' =>
+                    0,
+
+                'yield_before_total' =>
+                    0,
+
+                'yield_after_total' =>
+                    0,
+
+                'yield_count' =>
+                    0
+            ],
+
+            1 => [
+                'label' =>
+                    'Hybrid',
+
+                'count' =>
+                    0,
+
+                'yield_before_total' =>
+                    0,
+
+                'yield_after_total' =>
+                    0,
+
+                'yield_count' =>
+                    0
+            ]
+
+        ];
+
+
+        foreach (
+            $evaluations as $evaluation
+        ) {
+
+            if (
+                $evaluation->rice_type === null
+            ) {
+
+                continue;
+
+            }
+
+
+            $type =
+                (int)$evaluation->rice_type;
+
+
+            if (
+                !isset(
+                    $summary[$type]
+                )
+            ) {
+
+                continue;
+
+            }
+
+
+            $summary[$type]['count']++;
+
+
+            if (
+                is_numeric(
+                    $evaluation->average_yield
+                ) &&
+                is_numeric(
+                    $evaluation->crop_yield_after
+                )
+            ) {
+
+                $summary[$type]
+                    ['yield_before_total']
+                    +=
+                    (float)$evaluation->average_yield;
+
+
+                $summary[$type]
+                    ['yield_after_total']
+                    +=
+                    (float)$evaluation->crop_yield_after;
+
+
+                $summary[$type]
+                    ['yield_count']++;
+
+            }
+
+        }
+
+
+        foreach (
+            $summary as &$row
+        ) {
+
+            $count =
+                $row['yield_count'];
+
+
+            $row['average_yield_before'] =
+                $count > 0
+                    ? round(
+                        $row['yield_before_total']
+                        / $count,
+                        2
+                    )
+                    : 0;
+
+
+            $row['average_yield_after'] =
+                $count > 0
+                    ? round(
+                        $row['yield_after_total']
+                        / $count,
+                        2
+                    )
+                    : 0;
+
+
+            $row['yield_improvement'] =
+                $row['average_yield_before'] > 0
+                    ? round(
+                        (
+                            (
+                                $row['average_yield_after']
+                                -
+                                $row['average_yield_before']
+                            )
+                            /
+                            $row['average_yield_before']
+                        )
+                        * 100,
+                        2
+                    )
+                    : 0;
+
+
+            unset(
+                $row['yield_before_total'],
+                $row['yield_after_total'],
+                $row['yield_count']
+            );
+
+        }
+
+        unset($row);
+
+
+        return $summary;
+    }
+
+
+    /**
+     * =========================================================
+     * GET RECEIVED RECORDS
+     * =========================================================
+     */
+    private function getReceivedRecords(): array
+    {
+        $records =
+            $this->Records->find()
+                ->where([
+                    'Records.status' =>
+                        'Received'
+                ])
+                ->order([
+                    'Records.received_date' =>
+                        'DESC',
+
+                    'Records.id' =>
+                        'DESC'
+                ])
+                ->all()
+                ->toArray();
+
+
+        $result = [];
+
+
+        foreach (
+            $records as $record
+        ) {
+
+            $farmer =
+                null;
+
+
+            if (
+                !empty(
+                    $record->farmer_id
+                )
+            ) {
+
+                $farmer =
+                    $this->Farmers->find()
+                        ->where([
+                            'Farmers.id' =>
+                                (int)$record->farmer_id
+                        ])
+                        ->first();
+
+            }
+
+
+            $schedule =
+                null;
+
+
+            if (
+                !empty(
+                    $record->schedule_id
+                )
+            ) {
+
+                $schedule =
+                    $this->Schedules->find()
+                        ->where([
+                            'Schedules.id' =>
+                                (int)$record->schedule_id
+                        ])
+                        ->first();
+
+            }
+
+
+            $farmerName =
+                '-';
+
+
+            if ($farmer) {
+
+                $farmerName =
+                    trim(
+                        implode(
+                            ' ',
+                            array_filter([
+                                trim(
+                                    (string)(
+                                        $farmer->first_name
+                                        ?? ''
+                                    )
+                                ),
+
+                                trim(
+                                    (string)(
+                                        $farmer->middle_name
+                                        ?? ''
+                                    )
+                                ),
+
+                                trim(
+                                    (string)(
+                                        $farmer->last_name
+                                        ?? ''
+                                    )
+                                )
+                            ])
+                        )
+                    );
+
+            }
+
+
+            $distributionDate =
+                '-';
+
+
+            if (
+                $schedule &&
+                !empty(
+                    $schedule->start_date
+                )
+            ) {
+
+                $date =
+                    $this->toDateTime(
+                        $schedule->start_date
+                    );
+
+
+                if ($date) {
+
+                    $distributionDate =
+                        $date->format(
+                            'M d, Y'
+                        );
+
+                }
+
+            }
+
+
+            $distributionTime =
+                '-';
+
+
+            if (
+                $schedule &&
+                !empty(
+                    $schedule->start_time
+                )
+            ) {
+
+                $time =
+                    $this->toDateTime(
+                        $schedule->start_time
+                    );
+
+
+                if ($time) {
+
+                    $distributionTime =
+                        $time->format(
+                            'h:i A'
+                        );
+
+                } else {
+
+                    $distributionTime =
+                        (string)(
+                            $schedule->start_time
+                        );
+
+                }
+
+            }
+
+
+            $receivedDate =
+                '-';
+
+
+            if (
+                !empty(
+                    $record->received_date
+                )
+            ) {
+
+                $date =
+                    $this->toDateTime(
+                        $record->received_date
+                    );
+
+
+                if ($date) {
+
+                    $receivedDate =
+                        $date->format(
+                            'M d, Y'
+                        );
+
+                }
+
+            }
+
+
+            $barangay =
+                'N/A';
+
+
+            if (
+                $schedule &&
+                !empty(
+                    $schedule->barangay
+                )
+            ) {
+
+                $barangay =
+                    trim(
+                        (string)
+                        $schedule->barangay
+                    );
+
+            }
+
+
+            $result[] = [
+
+                'id' =>
+                    $record->id
+                    ?? null,
+
+                'farmer_no' =>
+                    $farmer->farmer_no
+                    ?? '-',
+
+                'farmer_name' =>
+                    $farmerName,
+
+                'program_code' =>
+                    $schedule->program_code
+                    ?? '-',
+
+                'program_name' =>
+                    $schedule->program_name
+                    ?? 'Seed Subsidy',
+
+                'subsidy_item' =>
+                    $record->subsidy_item
+                    ?? 'Seed Subsidy',
+
+                'quantity' =>
+                    $record->quantity
+                    ?? '0.00',
+
+                'barangay' =>
+                    $barangay,
+
+                'distribution_date' =>
+                    $distributionDate,
+
+                'distribution_time' =>
+                    $distributionTime,
+
+                'received_date' =>
+                    $receivedDate,
+
+                'status' =>
+                    $record->status
+                    ?? 'Received'
+
+            ];
+
+        }
+
+
+        return $result;
+    }
+
+
+    /**
+     * =========================================================
+     * BUILD QUESTION SUMMARY
+     * =========================================================
+     */
+    private function buildQuestionSummary(
+        array $feedbacks
+    ): array {
+
+        $questions =
+            $this->getQuestions();
+
+
+        $summary = [];
+
+
+        foreach (
+            $questions as $key => $question
+        ) {
+
+            $summary[$key] = [
+
+                'question' =>
+                    $question,
+
+                'count' => [
+                    1 => 0,
+                    2 => 0,
+                    3 => 0,
+                    4 => 0,
+                    5 => 0
+                ],
+
+                'total' =>
+                    0,
+
+                'responses' =>
+                    0,
+
+                'average' =>
+                    0,
+
+                'interpretation' =>
+                    'No Responses'
+
+            ];
+
+        }
+
+
+        foreach (
+            $feedbacks as $feedback
+        ) {
+
+            $answers =
+                $this->decodeAnswers(
+                    $feedback->answer
+                    ?? null
+                );
+
+
+            foreach (
+                $answers as $key => $answer
+            ) {
+
+                $normalized =
+                    $this->normalizeAnswer(
+                        $answer
+                    );
+
+
+                if (
+                    $normalized === null
+                ) {
+
+                    continue;
+
+                }
+
+
+                if (
+                    !isset(
+                        $summary[$key]
+                    )
+                ) {
+
+                    continue;
+
+                }
+
+
+                $summary[$key]
+                    ['count'][$normalized]++;
+
+
+                $summary[$key]
+                    ['total']
+                    += $normalized;
+
+
+                $summary[$key]
+                    ['responses']++;
+
+            }
+
+        }
+
+
+        foreach (
+            $summary as &$item
+        ) {
+
+            if (
+                $item['responses'] > 0
+            ) {
+
+                $item['average'] =
+                    round(
+                        $item['total']
+                        /
+                        $item['responses'],
+                        2
+                    );
+
+
+                $item['interpretation'] =
+                    $this->getRatingInterpretation(
+                        $item['average']
+                    );
+
+            }
+
+        }
+
+        unset($item);
+
+
+        return $summary;
+    }
+
+
+    /**
+     * =========================================================
+     * QUESTIONS
+     * =========================================================
+     */
+    private function getQuestions(): array
+    {
+        return [
+
+            'q1' =>
+                'I am satisfied with the service/intervention that I received from the DA.',
+
+            'q2' =>
+                'I spent a reasonable amount of time waiting to receive the seed subsidy.',
+
+            'q3' =>
+                'I received the seed subsidy that I needed and that was promised by the Department of Agriculture, following the prescribed distribution procedures.',
+
+            'q4' =>
+                'The City Agriculture Office was easily accessible and could be approached or contacted regarding the seed subsidy distribution.',
+
+            'q5' =>
+                'I was properly informed about the proper use, benefits, and expected results of the seed subsidy I received, and my feedback was listened to.',
+
+            'q6' =>
+                'I did not have to pay an unreasonable amount of fees to receive the seed subsidy. (Do not rate if the seed subsidy was provided free of charge.)',
+
+            'q7' =>
+                'I believe the distribution of the seed subsidy was fair to all qualified farmer beneficiaries, or "walang palakasan."',
+
+            'q8' =>
+                'I was treated courteously by the staff during the seed subsidy distribution, and they were helpful when I needed assistance.',
+
+            'q9' =>
+                'I received the seed subsidy that I needed, or, if my request was not granted, the reason for the denial was sufficiently explained to me.',
+
+            'q10' =>
+                'I received the seed subsidy within the expected time for its intended purpose.'
+
+        ];
+    }
+
+
+    /**
+     * =========================================================
+     * DECODE ANSWERS
+     * =========================================================
+     */
+    private function decodeAnswers(
+        mixed $answer
+    ): array {
+
+        if (
+            is_array($answer)
+        ) {
+
+            $decoded =
+                $answer;
+
+        } else {
+
+            $decoded =
+                json_decode(
+                    (string)$answer,
+                    true
+                );
+
+        }
+
+
+        if (
+            !is_array($decoded)
+        ) {
+
+            return [];
+
+        }
+
+
+        $result = [];
+
+
+        for (
+            $i = 1;
+            $i <= 10;
+            $i++
+        ) {
+
+            $key =
+                'q' . $i;
+
+
+            if (
+                array_key_exists(
+                    $key,
+                    $decoded
+                )
+            ) {
+
+                $result[$key] =
+                    $decoded[$key];
+
+                continue;
+
+            }
+
+
+            $upperKey =
+                'Q' . $i;
+
+
+            if (
+                array_key_exists(
+                    $upperKey,
+                    $decoded
+                )
+            ) {
+
+                $result[$key] =
+                    $decoded[$upperKey];
+
+                continue;
+
+            }
+
+
+            $numberKey =
+                (string)$i;
+
+
+            if (
+                array_key_exists(
+                    $numberKey,
+                    $decoded
+                )
+            ) {
+
+                $result[$key] =
+                    $decoded[$numberKey];
+
+            }
+
+        }
+
+
+        return $result;
+    }
+
+
+    /**
+     * =========================================================
+     * NORMALIZE ANSWER
+     * =========================================================
+     */
+    private function normalizeAnswer(
+        mixed $value
+    ): ?int {
+
+        if (
+            $value === null
+        ) {
+
+            return null;
+
+        }
+
+
+        $value =
+            trim(
+                (string)$value
+            );
+
+
+        if (
+            $value === ''
+        ) {
+
+            return null;
+
+        }
+
+
+        $lower =
+            strtolower($value);
+
+
+        if (
+            in_array(
+                $lower,
+                [
+                    'blank',
+                    'n/a',
+                    'na',
+                    'skip',
+                    'skipped',
+                    'not applicable',
+                    'not_applicable'
+                ],
+                true
+            )
+        ) {
+
+            return null;
+
+        }
+
+
+        if (
+            !is_numeric($value)
+        ) {
+
+            return null;
+
+        }
+
+
+        $number =
+            (int)$value;
+
+
+        if (
+            $number < 1 ||
+            $number > 5
+        ) {
+
+            return null;
+
+        }
+
+
+        return $number;
+    }
+
+
+    /**
+     * =========================================================
+     * RATING INTERPRETATION
+     * =========================================================
+     */
+    private function getRatingInterpretation(
+        float $average
+    ): string {
+
+        if (
+            $average >= 4.21
+        ) {
+
+            return 'Strongly Agree';
+
+        }
+
+
+        if (
+            $average >= 3.41
+        ) {
+
+            return 'Agree';
+
+        }
+
+
+        if (
+            $average >= 2.61
+        ) {
+
+            return 'Neutral';
+
+        }
+
+
+        if (
+            $average >= 1.81
+        ) {
+
+            return 'Disagree';
+
+        }
+
+
+        return 'Strongly Disagree';
+    }
+
+
+    /**
+     * =========================================================
+     * AVERAGE FIELD
+     * =========================================================
+     */
+    private function calculateAverage(
+        array $records,
+        string $field
+    ): float {
+
+        $values = [];
+
+
+        foreach (
+            $records as $record
+        ) {
+
+            $value =
+                $record->{$field}
+                ?? null;
+
+
+            if (
+                is_numeric($value)
+            ) {
+
+                $values[] =
+                    (float)$value;
+
+            }
+
+        }
+
+
+        if (
+            empty($values)
+        ) {
+
+            return 0;
+
+        }
+
+
+        return round(
+            array_sum($values)
+            /
+            count($values),
+            2
+        );
+    }
+
+
+    /**
+     * =========================================================
+     * DATE CONVERSION
+     * =========================================================
+     */
+    private function toDateTime(
+        mixed $value
+    ): ?\DateTime {
+
+        if (
+            $value instanceof \DateTimeInterface
+        ) {
+
+            return new \DateTime(
+                $value->format(
+                    'Y-m-d H:i:s'
+                )
+            );
+
+        }
+
+
+        if (
+            $value === null ||
+            trim((string)$value) === ''
+        ) {
+
+            return null;
+
+        }
+
+
+        try {
+
+            return new \DateTime(
+                (string)$value
+            );
+
+        } catch (
+            \Throwable $e
+        ) {
+
+            return null;
+
+        }
     }
 }

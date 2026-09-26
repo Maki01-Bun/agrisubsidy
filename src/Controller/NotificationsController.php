@@ -138,15 +138,87 @@ class NotificationsController extends AppController
             ]);
         }
 
-        public function approveRegistration($id)
-    {
-        $notificationsTable = $this->getTableLocator()->get('Notifications');
-        $usersTable = $this->getTableLocator()->get('Users');
-        $farmersTable = $this->getTableLocator()->get('Farmers');
+       public function approveRegistration($id)
+{
+    $this->request->allowMethod(['post']);
+
+    $notificationsTable = $this->getTableLocator()->get('Notifications');
+    $usersTable = $this->getTableLocator()->get('Users');
+    $farmersTable = $this->getTableLocator()->get('Farmers');
+
+    try {
+
+        /*
+         * ============================================================
+         * GET NOTIFICATION
+         * ============================================================
+         */
 
         $notification = $notificationsTable->get($id);
 
+        /*
+         * ============================================================
+         * CHECK CURRENT STATUS
+         * ============================================================
+         */
+
+        if ($notification->status === 'approved') {
+            $this->Flash->warning(
+                __('This registration has already been approved.')
+            );
+
+            return $this->redirect([
+                'controller' => 'Dashboard',
+                'action' => 'index'
+            ]);
+        }
+
+        /*
+         * ============================================================
+         * DECODE REGISTRATION DATA
+         * ============================================================
+         */
+
         $data = json_decode($notification->data, true);
+
+        if (!is_array($data)) {
+            throw new \Exception(
+                'Invalid registration data.'
+            );
+        }
+
+        /*
+         * ============================================================
+         * VALIDATE USER DATA
+         * ============================================================
+         */
+
+        if (
+            empty($data['user']) ||
+            empty($data['user']['username'])
+        ) {
+            throw new \Exception(
+                'Registration user data is incomplete.'
+            );
+        }
+
+        /*
+         * ============================================================
+         * VALIDATE FARMER DATA
+         * ============================================================
+         */
+
+        if (empty($data['farmer'])) {
+            throw new \Exception(
+                'Registration farmer data is incomplete.'
+            );
+        }
+
+        /*
+         * ============================================================
+         * DATABASE TRANSACTION
+         * ============================================================
+         */
 
         $connection = $usersTable->getConnection();
 
@@ -154,76 +226,167 @@ class NotificationsController extends AppController
 
         try {
 
-            // Check if username already exists
+            /*
+             * ========================================================
+             * CHECK USERNAME
+             * ========================================================
+             */
+
             $existingUser = $usersTable->find()
-                ->where(['username' => $data['user']['username']])
-                ->first();
-
-            if ($existingUser) {
-                throw new \Exception('Username already exists.');
-            }
-
-            // Create the system account
-            $user = $usersTable->newEntity($data['user']);
-
-            if (!$usersTable->save($user)) {
-                throw new \Exception('User save failed.');
-            }
-
-            // Check if farmer already exists
-            $existingFarmer = $farmersTable->find()
                 ->where([
-                    'first_name'  => $data['farmer']['first_name'],
-                    'middle_name' => $data['farmer']['middle_name'],
-                    'last_name'   => $data['farmer']['last_name']
+                    'username' => $data['user']['username']
                 ])
                 ->first();
 
+            if ($existingUser) {
+                throw new \Exception(
+                    'Username already exists.'
+                );
+            }
+
+            /*
+             * ========================================================
+             * CREATE USER
+             * ========================================================
+             */
+
+            $user = $usersTable->newEntity(
+                $data['user']
+            );
+
+            if (!$usersTable->save($user)) {
+
+                $errors = $user->getErrors();
+
+                throw new \Exception(
+                    'User save failed: ' .
+                    json_encode($errors)
+                );
+            }
+
+            /*
+             * ========================================================
+             * CHECK IF FARMER ALREADY EXISTS
+             * ========================================================
+             */
+
+            $existingFarmer = $farmersTable->find()
+                ->where([
+                    'first_name' => $data['farmer']['first_name'] ?? '',
+                    'middle_name' => $data['farmer']['middle_name'] ?? '',
+                    'last_name' => $data['farmer']['last_name'] ?? ''
+                ])
+                ->first();
+
+            /*
+             * ========================================================
+             * EXISTING FARMER
+             * ========================================================
+             */
+
             if ($existingFarmer) {
 
-                // Farmer already exists
-                // Link the system account to the existing farmer
                 $existingFarmer->user_id = $user->id;
 
                 if (!$farmersTable->save($existingFarmer)) {
-                    throw new \Exception('Unable to link user to existing farmer.');
+
+                    $errors = $existingFarmer->getErrors();
+
+                    throw new \Exception(
+                        'Unable to link user to existing farmer: ' .
+                        json_encode($errors)
+                    );
                 }
 
             } else {
 
-                // Farmer not found
-                // Create a new farmer record
+                /*
+                 * ====================================================
+                 * CREATE NEW FARMER
+                 * ====================================================
+                 */
+
                 $data['farmer']['user_id'] = $user->id;
 
-                $farmer = $farmersTable->newEntity($data['farmer']);
+                $farmer = $farmersTable->newEntity(
+                    $data['farmer']
+                );
 
                 if (!$farmersTable->save($farmer)) {
-                    throw new \Exception('Farmer save failed.');
+
+                    $errors = $farmer->getErrors();
+
+                    throw new \Exception(
+                        'Farmer save failed: ' .
+                        json_encode($errors)
+                    );
                 }
             }
 
-            // Update notification
+            /*
+             * ========================================================
+             * UPDATE NOTIFICATION
+             * ========================================================
+             */
+
             $notification->status = 'approved';
             $notification->is_read = 1;
 
             if (!$notificationsTable->save($notification)) {
-                throw new \Exception('Notification update failed.');
+
+                $errors = $notification->getErrors();
+
+                throw new \Exception(
+                    'Notification update failed: ' .
+                    json_encode($errors)
+                );
             }
+
+            /*
+             * ========================================================
+             * COMMIT
+             * ========================================================
+             */
 
             $connection->commit();
 
-            $this->Flash->success(__('Registration approved successfully.'));
+            $this->Flash->success(
+                __('Registration approved successfully.')
+            );
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+
+            /*
+             * ========================================================
+             * ROLLBACK
+             * ========================================================
+             */
 
             $connection->rollback();
 
-            $this->Flash->error($e->getMessage());
+            $this->Flash->error(
+                __($e->getMessage())
+            );
         }
 
-        return $this->redirect(['controller'=>'Dashboard','action' => 'index']);
+    } catch (\Throwable $e) {
+
+        $this->Flash->error(
+            __($e->getMessage())
+        );
     }
 
+    /*
+     * ================================================================
+     * REDIRECT AFTER POST
+     * ================================================================
+     */
+
+    return $this->redirect([
+        'controller' => 'Dashboard',
+        'action' => 'index'
+    ]);
+}
     public function declineRegistration($id)
     {
         $notification = $this->Notifications->get($id);

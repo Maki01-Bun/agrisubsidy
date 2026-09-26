@@ -49,184 +49,67 @@ class EvaluationsController extends AppController
             ->withStringBody(json_encode($evaluation));
     }
     
-    public function getEvaluations()
-    {
-        $this->request->allowMethod(['get']);
-    
-        $this->autoRender = false;
-    
-        try {
-    
-            /*
-             * ==========================================================
-             * GET ANONYMOUS EVALUATIONS
-             * ==========================================================
-             */
-            $evaluations = $this->Evaluations->find()
-                ->contain([
-                    'Farms',
-                    'Schedules'
-                ])
-                ->order([
-                    'Evaluations.id' => 'ASC'
-                ])
-                ->all();
-    
-            $data = [];
-    
-            foreach ($evaluations as $evaluation) {
-    
-                /*
-                 * ======================================================
-                 * FARM SIZE
-                 * ======================================================
-                 */
-                $farmSize = 'N/A';
-    
-                if (!empty($evaluation->farm)) {
-    
-                    $farmSize =
-                        $evaluation->farm->farm_size
-                        ?? 'N/A';
-                }
-    
-                /*
-                 * ======================================================
-                 * PROGRAM
-                 * ======================================================
-                 */
-                $programName = 'N/A';
-    
-                if (!empty($evaluation->schedule)) {
-    
-                    $programName =
-                        $evaluation->schedule->program_name
-                        ?? 'N/A';
-                }
-    
-                /*
-                 * ======================================================
-                 * YIELD AFTER
-                 * ======================================================
-                 */
-                $cropYieldAfter = 'N/A';
-    
-                if (
-                    isset($evaluation->crop_yield_after) &&
-                    $evaluation->crop_yield_after !== null &&
-                    $evaluation->crop_yield_after !== ''
-                ) {
-    
-                    $cropYieldAfter =
-                        $evaluation->crop_yield_after;
-                }
-    
-                /*
-                 * ======================================================
-                 * EFFECTIVENESS
-                 * ======================================================
-                 */
-                $effectivenessLabel =
-                    'Not Predicted';
-    
-                if (
-                    isset($evaluation->effectiveness_label) &&
-                    $evaluation->effectiveness_label !== null &&
-                    $evaluation->effectiveness_label !== ''
-                ) {
-    
-                    $effectivenessLabel =
-                        $evaluation->effectiveness_label;
-    
-                    /*
-                     * Convert numeric labels.
-                     */
-                    $labelMap = [
-                        0 => 'Not Effective',
-                        1 => 'Moderately Effective',
-                        2 => 'Effective'
-                    ];
-    
-                    if (
-                        is_numeric(
-                            $effectivenessLabel
-                        )
-                    ) {
-    
-                        $numericLabel =
-                            (int)$effectivenessLabel;
-    
-                        $effectivenessLabel =
-                            $labelMap[$numericLabel]
-                            ??
-                            'Not Predicted';
-                    }
-                }
-    
-                /*
-                 * ======================================================
-                 * ANONYMOUS RESPONSE
-                 * ======================================================
-                 *
-                 * DO NOT include:
-                 *
-                 * farmer_name
-                 * farmer_number
-                 * farmer_id
-                 */
-                $data[] = [
-    
-                    'id' =>
-                        $evaluation->id,
-    
-                    'program_name' =>
-                        $programName,
-    
-                    'farm_size' =>
-                        $farmSize,
-    
-                    'crop_yield_after' =>
-                        $cropYieldAfter,
-    
-                    'effectiveness_label' =>
-                        $effectivenessLabel
-                ];
-            }
-    
-            /*
-             * ==========================================================
-             * JSON RESPONSE
-             * ==========================================================
-             */
-            return $this->response
-                ->withType('application/json')
-                ->withStringBody(
-                    json_encode([
-                        'data' => $data
-                    ])
-                );
-    
-        } catch (\Throwable $e) {
-    
-            $this->log(
-                'Get Evaluations API Error: ' .
-                $e->getMessage(),
-                'error'
-            );
-    
-            return $this->response
-                ->withStatus(500)
-                ->withType('application/json')
-                ->withStringBody(
-                    json_encode([
-                        'data' => [],
-                        'success' => false,
-                        'message' =>
-                            $e->getMessage()
-                    ])
-                );
+ public function getEvaluations()
+{
+    $this->request->allowMethod(['get']);
+    $this->autoRender = false;
+
+    try {
+
+        $evaluations = $this->Evaluations
+            ->find()
+            ->order([
+                'Evaluations.id' => 'ASC'
+            ])
+            ->all();
+
+        $data = [];
+
+        foreach ($evaluations as $evaluation) {
+
+            $data[] = [
+                'id' => $evaluation->id,
+
+                'program_name' => 'N/A',
+
+                'farm_size' => 'N/A',
+
+                'crop_yield_after' =>
+                    $evaluation->crop_yield_after
+                    ?? 'N/A'
+            ];
         }
+
+        return $this->response
+            ->withType('application/json')
+            ->withStringBody(
+                json_encode([
+                    'success' => true,
+                    'count' => count($data),
+                    'data' => $data
+                ])
+            );
+
+    } catch (\Throwable $e) {
+
+        $this->log(
+            'Get Evaluations API Error: ' . $e->getMessage(),
+            'error'
+        );
+
+        return $this->response
+            ->withStatus(500)
+            ->withType('application/json')
+            ->withStringBody(
+                json_encode([
+                    'success' => false,
+                    'count' => 0,
+                    'data' => [],
+                    'message' => $e->getMessage()
+                ])
+            );
     }
+}
 
     /**
      * Add method

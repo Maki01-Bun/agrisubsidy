@@ -1,677 +1,858 @@
 <div class="analytics-page">
 
+    <!-- =========================================================
+         PAGE TITLE
+    ========================================================= -->
+
     <div class="analytics-title">
+
         <i class="fas fa-chart-line"></i>
+
         AgriSubsidy Data Analytics
+
     </div>
-    <!-- MODEL SUMMARY -->
+
+
+    <!-- =========================================================
+         MODEL SUMMARY
+    ========================================================= -->
+
     <div class="row g-3">
-        <!-- STATUS -->
+
+        <!-- MODEL STATUS -->
+
         <div class="col-lg-6 col-md-6">
+
             <div class="model-card">
+
                 <div class="model-icon">
+
                     <i class="fas fa-brain"></i>
+
                 </div>
+
                 <div>
+
                     <div class="model-label">
                         Model Status
                     </div>
+
                     <div class="model-value text-success">
                         Active
                     </div>
+
                     <small>
                         Random Forest Classifier
                     </small>
+
                 </div>
+
             </div>
+
         </div>
+
+
         <!-- DATA USED -->
+
         <div class="col-lg-6 col-md-6">
+
             <div class="model-card">
+
                 <div class="model-icon">
+
                     <i class="fas fa-database"></i>
+
                 </div>
+
                 <div>
+
                     <div class="model-label">
                         Data Used
                     </div>
+
                     <div class="model-value">
-                        <?= number_format($totalEvaluations) ?>
+
+                        <?= number_format(
+                            $totalEvaluations
+                        ) ?>
+
                     </div>
+
                     <small>
                         Evaluation Records
                     </small>
+
                 </div>
+
             </div>
+
         </div>
+
     </div>
- <!-- =========================================================
-     SUBSIDY RECEIVED RECORDS
-========================================================= -->
-
-<div class="card subsidy-received-card mt-3">
-
-    <!-- =====================================================
-         HEADER
-    ====================================================== -->
-
-    <div class="subsidy-received-header">
-
-        <div class="subsidy-received-header-inner">
-
-            <!-- TITLE -->
-
-            <div class="subsidy-received-title">
-
-                <h3>
-                    Beneficiaries Received the Subsidy
-                </h3>
-
-            </div>
 
 
-            <!-- FILTER + DOWNLOAD -->
+    <!-- =========================================================
+         TREND ANALYSIS
+    ========================================================= -->
 
-            <div class="subsidy-received-tools">
+    <div class="card analytics-trend-card mt-3">
 
-                <!-- LOCATION FILTER -->
+        <div class="analytics-trend-header">
 
-                <div class="subsidy-location-filter">
+            <div class="analytics-trend-header-inner">
+
+                <div class="analytics-trend-title">
+
+                    <h3>
+
+                        <i class="fas fa-chart-line"></i>
+
+                        Trend Analysis
+
+                    </h3>
+
+                    <p>
+                        Monitor yield, effectiveness,
+                        survey ratings, and subsidy
+                        distribution over time.
+                    </p>
+
+                </div>
+
+
+                <!-- PERIOD -->
+
+                <div class="analytics-trend-filter">
+
+                    <label for="trendPeriod">
+                        View By
+                    </label>
 
                     <select
-                        id="receivedLocationFilter"
+                        id="trendPeriod"
                         class="form-control"
                     >
 
-                        <option value="ALL">
-                            All Locations
+                        <option value="monthly">
+                            Monthly
                         </option>
 
-                        <?php
-                        $receivedLocations =
-                            $receivedLocations ?? [];
-                        ?>
-
-                        <?php foreach (
-                            $receivedLocations
-                            as $location
-                        ): ?>
-
-                            <option
-                                value="<?= h($location) ?>"
-                            >
-                                <?= h($location) ?>
-                            </option>
-
-                        <?php endforeach; ?>
+                        <option value="quarterly">
+                            Quarterly
+                        </option>
 
                     </select>
 
                 </div>
 
+            </div>
 
-                <!-- DOWNLOAD -->
+        </div>
 
-                <button
-                    type="button"
-                    id="downloadReceivedSubsidy"
-                    class="btn subsidy-download-btn"
-                >
-                    Download
-                </button>
+
+        <div class="analytics-trend-body">
+
+
+            <!-- =================================================
+                 YIELD TREND
+            ================================================== -->
+
+            <div class="trend-panel">
+
+                <div class="trend-panel-header">
+
+                    <div>
+
+                        <h4>
+
+                            <i class="fas fa-seedling"></i>
+
+                            Yield Trend
+
+                        </h4>
+
+                        <small>
+                            Average yield before and after
+                            the subsidy.
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="trend-chart-container">
+
+                    <canvas
+                        id="yieldTrendChart"
+                    ></canvas>
+
+                </div>
 
             </div>
+
+
+            <!-- =================================================
+                 EFFECTIVENESS TREND
+            ================================================== -->
+
+            <div class="trend-panel">
+
+                <div class="trend-panel-header">
+
+                    <div>
+
+                        <h4>
+
+                            <i class="fas fa-chart-bar"></i>
+
+                            Effectiveness Trend
+
+                        </h4>
+
+                        <small>
+                            Evaluation results over time.
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="trend-chart-container">
+
+                    <canvas
+                        id="effectivenessTrendChart"
+                    ></canvas>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 SURVEY TREND
+            ================================================== -->
+
+            <div class="trend-panel">
+
+                <div class="trend-panel-header">
+
+                    <div>
+
+                        <h4>
+
+                            <i class="fas fa-star"></i>
+
+                            Survey Rating Trend
+
+                        </h4>
+
+                        <small>
+                            Average Q1–Q10 survey rating
+                            over time.
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="trend-chart-container">
+
+                    <canvas
+                        id="surveyTrendChart"
+                    ></canvas>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 DISTRIBUTION TREND
+            ================================================== -->
+
+            <div class="trend-panel">
+
+                <div class="trend-panel-header">
+
+                    <div>
+
+                        <h4>
+
+                            <i class="fas fa-truck-loading"></i>
+
+                            Subsidy Distribution Trend
+
+                        </h4>
+
+                        <small>
+                            Distribution records by status
+                            over time.
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="trend-chart-container">
+
+                    <canvas
+                        id="distributionTrendChart"
+                    ></canvas>
+
+                </div>
+
+            </div>
+
 
         </div>
 
     </div>
 
 
-    <!-- =====================================================
-         BODY
-    ====================================================== -->
+    <!-- =========================================================
+         SUBSIDY RECEIVED RECORDS
+    ========================================================= -->
 
-    <div class="subsidy-received-body">
-
-        <?php
-        $receivedRecords =
-            $receivedRecords ?? [];
-        ?>
+    <div class="card subsidy-received-card mt-3">
 
 
-        <?php if (!empty($receivedRecords)): ?>
+        <!-- =====================================================
+             HEADER
+        ====================================================== -->
+
+        <div class="subsidy-received-header">
+
+            <div class="subsidy-received-header-inner">
 
 
-            <!-- =================================================
-                 RECORD COUNT
-            ================================================== -->
+                <!-- TITLE -->
 
-            <div
-                class="received-record-count"
-                id="receivedRecordCount"
-            >
-                Showing
-                <strong>
-                    <?= count($receivedRecords) ?>
-                </strong>
-                received subsidy record(s)
-            </div>
+                <div class="subsidy-received-title">
+
+                    <h3>
+                        Beneficiaries Received the Subsidy
+                    </h3>
+
+                </div>
 
 
-            <!-- =================================================
-                 TABLE
-            ================================================== -->
+                <!-- FILTER + DOWNLOAD -->
 
-            <div class="table-responsive received-table-wrapper">
-
-                <table
-                    id="receivedSubsidyTable"
-                    class="table subsidy-received-table mb-0"
-                >
-
-                    <thead>
-
-                        <tr>
-
-                            <th>#</th>
-
-                            <th>
-                                LGU RSBSA Number
-                            </th>
-
-                            <th>
-                                Farmer Name
-                            </th>
-
-                            <th>
-                                Distribution Code
-                            </th>
-
-                            <th>
-                                Subsidy Item
-                            </th>
-
-                            <th>
-                                Quantity (tons)
-                            </th>
-
-                            <th>
-                                Location
-                            </th>
-
-                            <th>
-                                Distribution Date
-                            </th>
-
-                            <th>
-                                Distribution Time
-                            </th>
-
-                            <th>
-                                Received Date
-                            </th>
-
-                            <th>
-                                Status
-                            </th>
-
-                        </tr>
-
-                    </thead>
+                <div class="subsidy-received-tools">
 
 
-                    <tbody>
+                    <!-- LOCATION -->
 
-                        <?php foreach (
-                            $receivedRecords
-                            as $index => $record
-                        ): ?>
+                    <div class="subsidy-location-filter">
+
+                        <select
+                            id="receivedLocationFilter"
+                            class="form-control"
+                        >
+
+                            <option value="ALL">
+                                All Locations
+                            </option>
+
 
                             <?php
-
-                            $location =
-                                trim(
-                                    (string)(
-                                        $record[
-                                            'barangay'
-                                        ] ?? 'N/A'
-                                    )
-                                );
-
-                            if (
-                                $location === ''
-                            ) {
-
-                                $location =
-                                    'N/A';
-                            }
-
+                            $receivedLocations =
+                                $receivedLocations ?? [];
                             ?>
 
-                            <tr
-                                data-location="<?= h($location) ?>"
-                            >
 
-                                <!-- NUMBER -->
+                            <?php foreach (
+                                $receivedLocations
+                                as $location
+                            ): ?>
 
-                                <td
-                                    class="row-number"
+                                <option
+                                    value="<?= h(
+                                        $location
+                                    ) ?>"
                                 >
-                                    <?= $index + 1 ?>
-                                </td>
-
-
-                                <!-- FARMER NO -->
-
-                                <td>
-
-                                    <strong
-                                        class="farmer-number"
-                                    >
-                                        <?= h(
-                                            $record[
-                                                'farmer_no'
-                                            ] ?? '-'
-                                        ) ?>
-                                    </strong>
-
-                                </td>
-
-
-                                <!-- FARMER NAME -->
-
-                                <td>
-
-                                    <strong
-                                        class="farmer-name"
-                                    >
-                                        <?= h(
-                                            $record[
-                                                'farmer_name'
-                                            ] ?? '-'
-                                        ) ?>
-                                    </strong>
-
-                                </td>
-
-
-                                <!-- DISTRIBUTION CODE -->
-
-                                <td>
-
-                                    <span
-                                        class="program-badge"
-                                    >
-                                        <?= h(
-                                            $record[
-                                                'program_code'
-                                            ] ?? '-'
-                                        ) ?>
-                                    </span>
-
-                                </td>
-
-
-                                <!-- SUBSIDY ITEM -->
-
-                                <td>
-
                                     <?= h(
-                                        $record[
-                                            'subsidy_item'
-                                        ]
-                                        ?? 'Seed Subsidy'
+                                        $location
                                     ) ?>
+                                </option>
 
-                                </td>
+                            <?php endforeach; ?>
 
+                        </select>
 
-                                <!-- QUANTITY -->
-
-                                <td>
-
-                                    <span
-                                        class="quantity-value"
-                                    >
-                                        <?= h(
-                                            $record[
-                                                'quantity'
-                                            ] ?? '0.00'
-                                        ) ?>
-                                    </span>
-
-                                </td>
+                    </div>
 
 
-                                <!-- LOCATION -->
+                    <!-- DOWNLOAD -->
 
-                                <td>
+                    <button
+                        type="button"
+                        id="downloadReceivedSubsidy"
+                        class="btn subsidy-download-btn"
+                    >
+                        Download
+                    </button>
 
-                                    <span
-                                        class="location-value"
-                                    >
-                                        <?= h(
-                                            $location
-                                        ) ?>
-                                    </span>
+                </div>
 
-                                </td>
+            </div>
 
-
-                                <!-- DISTRIBUTION DATE -->
-
-                                <td>
-
-                                    <?= h(
-                                        $record[
-                                            'distribution_date'
-                                        ] ?? '-'
-                                    ) ?>
-
-                                </td>
+        </div>
 
 
-                                <!-- DISTRIBUTION TIME -->
+        <!-- =====================================================
+             BODY
+        ====================================================== -->
 
-                                <td>
+        <div class="subsidy-received-body">
 
-                                    <?= h(
-                                        $record[
-                                            'distribution_time'
-                                        ] ?? '-'
-                                    ) ?>
-
-                                </td>
-
-
-                                <!-- RECEIVED DATE -->
-
-                                <td>
-
-                                    <?= h(
-                                        $record[
-                                            'received_date'
-                                        ] ?? '-'
-                                    ) ?>
-
-                                </td>
+            <?php
+            $receivedRecords =
+                $receivedRecords ?? [];
+            ?>
 
 
-                                <!-- STATUS -->
+            <?php if (
+                !empty(
+                    $receivedRecords
+                )
+            ): ?>
 
-                                <td>
 
-                                    <span
-                                        class="received-status"
-                                    >
-                                        <?= h(
-                                            $record[
-                                                'status'
-                                            ] ?? 'Received'
-                                        ) ?>
-                                    </span>
+                <!-- COUNT -->
 
-                                </td>
+                <div
+                    class="received-record-count"
+                    id="receivedRecordCount"
+                >
+
+                    Showing
+
+                    <strong>
+                        <?= count(
+                            $receivedRecords
+                        ) ?>
+                    </strong>
+
+                    received subsidy record(s)
+
+                </div>
+
+
+                <!-- TABLE -->
+
+                <div
+                    class="table-responsive received-table-wrapper"
+                >
+
+                    <table
+                        id="receivedSubsidyTable"
+                        class="table subsidy-received-table mb-0"
+                    >
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    #
+                                </th>
+
+                                <th>
+                                    LGU RSBSA Number
+                                </th>
+
+                                <th>
+                                    Farmer Name
+                                </th>
+
+                                <th>
+                                    Distribution Code
+                                </th>
+
+                                <th>
+                                    Subsidy Item
+                                </th>
+
+                                <th>
+                                    Quantity (tons)
+                                </th>
+
+                                <th>
+                                    Location
+                                </th>
+
+                                <th>
+                                    Distribution Date
+                                </th>
+
+                                <th>
+                                    Distribution Time
+                                </th>
+
+                                <th>
+                                    Received Date
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
 
                             </tr>
 
-                        <?php endforeach; ?>
-
-                    </tbody>
-
-                </table>
-
-            </div>
+                        </thead>
 
 
-            <!-- =================================================
-                 FILTER EMPTY STATE
-            ================================================== -->
+                        <tbody>
 
-            <div
-                id="receivedNoFilterResult"
-                class="received-filter-empty"
-                style="display:none;"
-            >
-
-                <h5>
-                    No Records Found
-                </h5>
-
-                <p>
-                    No received subsidy records were found
-                    for the selected location.
-                </p>
-
-            </div>
+                            <?php foreach (
+                                $receivedRecords
+                                as $index => $record
+                            ): ?>
 
 
-        <?php else: ?>
+                                <?php
+
+                                $location =
+                                    trim(
+                                        (string)(
+                                            $record[
+                                                'barangay'
+                                            ]
+                                            ?? 'N/A'
+                                        )
+                                    );
 
 
-            <!-- =================================================
-                 EMPTY STATE
-            ================================================== -->
+                                if (
+                                    $location === ''
+                                ) {
 
-            <div
-                class="subsidy-received-empty"
-            >
+                                    $location =
+                                        'N/A';
 
-                <h5>
-                    No Subsidy Records Yet
-                </h5>
+                                }
 
-                <p>
-                    Farmers who receive the subsidy
-                    will appear here.
-                </p>
-
-            </div>
+                                ?>
 
 
-        <?php endif; ?>
+                                <tr
+                                    data-location="<?= h(
+                                        $location
+                                    ) ?>"
+                                >
+
+
+                                    <!-- NUMBER -->
+
+                                    <td
+                                        class="row-number"
+                                    >
+
+                                        <?= $index + 1 ?>
+
+                                    </td>
+
+
+                                    <!-- FARMER NO -->
+
+                                    <td>
+
+                                        <strong
+                                            class="farmer-number"
+                                        >
+
+                                            <?= h(
+                                                $record[
+                                                    'farmer_no'
+                                                ]
+                                                ?? '-'
+                                            ) ?>
+
+                                        </strong>
+
+                                    </td>
+
+
+                                    <!-- FARMER NAME -->
+
+                                    <td>
+
+                                        <strong
+                                            class="farmer-name"
+                                        >
+
+                                            <?= h(
+                                                $record[
+                                                    'farmer_name'
+                                                ]
+                                                ?? '-'
+                                            ) ?>
+
+                                        </strong>
+
+                                    </td>
+
+
+                                    <!-- DISTRIBUTION CODE -->
+
+                                    <td>
+
+                                        <span
+                                            class="program-badge"
+                                        >
+
+                                            <?= h(
+                                                $record[
+                                                    'program_code'
+                                                ]
+                                                ?? '-'
+                                            ) ?>
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- SUBSIDY ITEM -->
+
+                                    <td>
+
+                                        <?= h(
+                                            $record[
+                                                'subsidy_item'
+                                            ]
+                                            ?? 'Seed Subsidy'
+                                        ) ?>
+
+                                    </td>
+
+
+                                    <!-- QUANTITY -->
+
+                                    <td>
+
+                                        <span
+                                            class="quantity-value"
+                                        >
+
+                                            <?= h(
+                                                $record[
+                                                    'quantity'
+                                                ]
+                                                ?? '0.00'
+                                            ) ?>
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- LOCATION -->
+
+                                    <td>
+
+                                        <span
+                                            class="location-value"
+                                        >
+
+                                            <?= h(
+                                                $location
+                                            ) ?>
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- DISTRIBUTION DATE -->
+
+                                    <td>
+
+                                        <?= h(
+                                            $record[
+                                                'distribution_date'
+                                            ]
+                                            ?? '-'
+                                        ) ?>
+
+                                    </td>
+
+
+                                    <!-- DISTRIBUTION TIME -->
+
+                                    <td>
+
+                                        <?= h(
+                                            $record[
+                                                'distribution_time'
+                                            ]
+                                            ?? '-'
+                                        ) ?>
+
+                                    </td>
+
+
+                                    <!-- RECEIVED DATE -->
+
+                                    <td>
+
+                                        <?= h(
+                                            $record[
+                                                'received_date'
+                                            ]
+                                            ?? '-'
+                                        ) ?>
+
+                                    </td>
+
+
+                                    <!-- STATUS -->
+
+                                    <td>
+
+                                        <span
+                                            class="received-status"
+                                        >
+
+                                            <?= h(
+                                                $record[
+                                                    'status'
+                                                ]
+                                                ?? 'Received'
+                                            ) ?>
+
+                                        </span>
+
+                                    </td>
+
+
+                                </tr>
+
+                            <?php endforeach; ?>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <!-- EMPTY FILTER -->
+
+                <div
+                    id="receivedNoFilterResult"
+                    class="received-filter-empty"
+                    style="display:none;"
+                >
+
+                    <h5>
+                        No Records Found
+                    </h5>
+
+                    <p>
+                        No received subsidy records were found
+                        for the selected location.
+                    </p>
+
+                </div>
+
+
+            <?php else: ?>
+
+
+                <!-- EMPTY -->
+
+                <div
+                    class="subsidy-received-empty"
+                >
+
+                    <h5>
+                        No Subsidy Records Yet
+                    </h5>
+
+                    <p>
+                        Farmers who receive the subsidy
+                        will appear here.
+                    </p>
+
+                </div>
+
+
+            <?php endif; ?>
+
+
+        </div>
 
     </div>
 
 </div>
-        <!-- PROGRAM EFFECTIVENESS TABLE -->
-    <div class="table-responsive mt-3">
-        <table class="table table-hover mb-0">
-            <thead style="background:#07851f; color:white;">
-                <tr>
-                    <th class="text-center">Rank</th>
-                    <th class="text-center">Program Code</th>
-                    <th class="text-center">Program Name</th>
-                    <th class="text-center">Feedback<br>Responses</th>
-                    <th class="text-center">Average Feedback<br>Rating</th>
-                    <th class="text-center">Performance</th>
-                    <th class="text-center">Evaluation Results</th>
-                </tr>
-            </thead>
-    
-            <tbody>
-                <?php if (!empty($programEffectiveness)): ?>
-    
-                    <?php foreach ($programEffectiveness as $index => $program): ?>
-    
-                        <?php
-                        $rank = $index + 1;
-    
-                        $programCode = $program['program_code'] ?? 'N/A';
-                        $programName = $program['program_name'] ?? 'N/A';
-    
-                        $totalFeedbacks = (int)($program['total_feedbacks'] ?? 0);
-                        $averageRating = (float)($program['effectiveness_rating'] ?? 0);
-    
-                        $effectiveCount =
-                            (int)($program['effective_count'] ?? 0);
-    
-                        $moderatelyEffectiveCount =
-                            (int)($program['moderately_effective_count'] ?? 0);
-    
-                        $notEffectiveCount =
-                            (int)($program['not_effective_count'] ?? 0);
-    
-                        $isMostEffective =
-                            !empty($mostEffectiveProgram) &&
-                            ($mostEffectiveProgram['program_code'] ?? '') === $programCode;
-    
-                        $ratingPercent = ($averageRating / 5) * 100;
-                        ?>
-    
-                        <tr>
-    
-                            <!-- RANK -->
-                            <td class="text-center align-middle">
-                                <?php if ($isMostEffective): ?>
-    
-                                    <span class="badge badge-success"
-                                          style="font-size:14px; padding:7px 10px;">
-                                        <i class="fas fa-trophy"></i>
-                                        #<?= $rank ?>
-                                    </span>
-    
-                                <?php else: ?>
-    
-                                    <strong>#<?= $rank ?></strong>
-    
-                                <?php endif; ?>
-                            </td>
-    
-                            <!-- PROGRAM CODE -->
-                            <td class="align-middle">
-                                <strong>
-                                    <?= h($programCode) ?>
-                                </strong>
-                            </td>
-    
-                            <!-- PROGRAM NAME -->
-                            <td class="align-middle">
-                                <strong>
-                                    <?= h($programName) ?>
-                                </strong>
-                            </td>
-    
-                            <!-- FEEDBACK RESPONSES -->
-                            <td class="text-center align-middle">
-                                <?= $totalFeedbacks ?>
-                            </td>
-    
-                            <!-- AVERAGE FEEDBACK RATING -->
-                            <td class="text-center align-middle">
-    
-                                <div style="font-size:20px; font-weight:bold;">
-                                    <?= number_format($averageRating, 2) ?>
-                                    / 5.00
-                                </div>
-    
-                                <div style="margin-top:5px; font-size:20px;">
-    
-                                    <?php
-                                    $fullStars = floor($averageRating);
-                                    $hasHalfStar = ($averageRating - $fullStars) >= 0.5;
-                                    $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
-                                    ?>
-    
-                                    <?php for ($i = 0; $i < $fullStars; $i++): ?>
-                                        <i class="fas fa-star"></i>
-                                    <?php endfor; ?>
-    
-                                    <?php if ($hasHalfStar): ?>
-                                        <i class="fas fa-star-half-alt"></i>
-                                    <?php endif; ?>
-    
-                                    <?php for ($i = 0; $i < $emptyStars; $i++): ?>
-                                        <i class="far fa-star"></i>
-                                    <?php endfor; ?>
-    
-                                </div>
-    
-                            </td>
-    
-                            <!-- PERFORMANCE -->
-                            <td class="text-center align-middle">
-    
-                                <?php if ($isMostEffective): ?>
-    
-                                    <span class="badge badge-success"
-                                          style="font-size:13px; padding:7px 10px;">
-                                        <i class="fas fa-trophy"></i>
-                                        Most Effective
-                                    </span>
-    
-                                <?php elseif ($averageRating >= 4.00): ?>
-    
-                                    <span class="badge badge-success">
-                                        Highly Rated
-                                    </span>
-    
-                                <?php elseif ($averageRating >= 3.00): ?>
-    
-                                    <span class="badge badge-warning">
-                                        Moderately Rated
-                                    </span>
-    
-                                <?php else: ?>
-    
-                                    <span class="badge badge-danger">
-                                        Low Rated
-                                    </span>
-    
-                                <?php endif; ?>
-    
-                            </td>
-    
-                            <!-- EVALUATION RESULTS -->
-                            <td class="text-center align-middle">
-    
-                                <div class="mb-1">
-    
-                                    <span class="badge badge-success">
-                                        Effective:
-                                        <?= $effectiveCount ?>
-                                    </span>
-    
-                                    <span class="badge badge-warning">
-                                        Moderate:
-                                        <?= $moderatelyEffectiveCount ?>
-                                    </span>
-    
-                                </div>
-    
-                                <div>
-    
-                                    <span class="badge badge-danger">
-                                        Not Effective:
-                                        <?= $notEffectiveCount ?>
-                                    </span>
-    
-                                </div>
-    
-                            </td>
-    
-                        </tr>
-    
-                    <?php endforeach; ?>
-    
-                <?php else: ?>
-    
-                    <tr>
-                        <td colspan="7"
-                            class="text-center text-muted py-4">
-    
-                            <i class="fas fa-info-circle"></i>
-                            No program evaluation data available.
-    
-                        </td>
-                    </tr>
-    
-                <?php endif; ?>
-    
-            </tbody>
-        </table>
-    </div>
-</div>
+
+
+<!-- =========================================================
+     CHART DATA
+========================================================= -->
+
+<script>
+
+const yieldTrendData =
+    <?= json_encode(
+        $yieldTrend ?? [],
+        JSON_HEX_TAG |
+        JSON_HEX_APOS |
+        JSON_HEX_AMP |
+        JSON_HEX_QUOT
+    ) ?>;
+
+
+const effectivenessTrendData =
+    <?= json_encode(
+        $effectivenessTrend ?? [],
+        JSON_HEX_TAG |
+        JSON_HEX_APOS |
+        JSON_HEX_AMP |
+        JSON_HEX_QUOT
+    ) ?>;
+
+
+const surveyTrendData =
+    <?= json_encode(
+        $surveyTrend ?? [],
+        JSON_HEX_TAG |
+        JSON_HEX_APOS |
+        JSON_HEX_AMP |
+        JSON_HEX_QUOT
+    ) ?>;
+
+
+const distributionTrendData =
+    <?= json_encode(
+        $distributionTrend ?? [],
+        JSON_HEX_TAG |
+        JSON_HEX_APOS |
+        JSON_HEX_AMP |
+        JSON_HEX_QUOT
+    ) ?>;
+
+</script>
+
+
+<!-- =========================================================
+     CHART.JS
+========================================================= -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/chart.js"
+></script>
+
+
+<!-- =========================================================
+     TREND CHARTS
+========================================================= -->
 
 <script>
 
@@ -679,10 +860,1065 @@ document.addEventListener(
     'DOMContentLoaded',
     function () {
 
+
         /*
-         * =========================================================
+         * =====================================================
+         * PERIOD SELECTOR
+         * =====================================================
+         */
+
+        const trendPeriod =
+            document.getElementById(
+                'trendPeriod'
+            );
+
+
+        /*
+         * =====================================================
+         * CHART VARIABLES
+         * =====================================================
+         */
+
+        let yieldChart =
+            null;
+
+
+        let effectivenessChart =
+            null;
+
+
+        let surveyChart =
+            null;
+
+
+        let distributionChart =
+            null;
+
+
+        /*
+         * =====================================================
+         * FILTER PERIOD
+         * =====================================================
+         */
+
+        function getPeriodData(
+            data,
+            period
+        ) {
+
+            return (
+                data || []
+            ).filter(
+                function (
+                    row
+                ) {
+
+                    return String(
+                        row.period_type
+                        ?? ''
+                    ).toLowerCase()
+                    ===
+                    period;
+
+                }
+            );
+
+        }
+
+
+        /*
+         * =====================================================
+         * DESTROY CHART
+         * =====================================================
+         */
+
+        function destroyChart(
+            chart
+        ) {
+
+            if (
+                chart
+            ) {
+
+                chart.destroy();
+
+            }
+
+        }
+
+
+        /*
+         * =====================================================
+         * YIELD CHART
+         * =====================================================
+         */
+
+        function renderYieldChart(
+            period
+        ) {
+
+            const canvas =
+                document.getElementById(
+                    'yieldTrendChart'
+                );
+
+
+            if (
+                !canvas
+            ) {
+
+                return;
+
+            }
+
+
+            destroyChart(
+                yieldChart
+            );
+
+
+            const data =
+                getPeriodData(
+                    yieldTrendData,
+                    period
+                );
+
+
+            const labels =
+                data.map(
+                    function (
+                        row
+                    ) {
+
+                        return row.period;
+
+                    }
+                );
+
+
+            const before =
+                data.map(
+                    function (
+                        row
+                    ) {
+
+                        return Number(
+                            row.yield_before
+                            ?? 0
+                        );
+
+                    }
+                );
+
+
+            const after =
+                data.map(
+                    function (
+                        row
+                    ) {
+
+                        return Number(
+                            row.yield_after
+                            ?? 0
+                        );
+
+                    }
+                );
+
+
+            yieldChart =
+                new Chart(
+                    canvas,
+                    {
+
+                        type:
+                            'line',
+
+                        data: {
+
+                            labels:
+                                labels,
+
+                            datasets: [
+
+                                {
+                                    label:
+                                        'Yield Before',
+
+                                    data:
+                                        before,
+
+                                    tension:
+                                        0.3,
+
+                                    fill:
+                                        false,
+
+                                    borderWidth:
+                                        2,
+
+                                    pointRadius:
+                                        4
+                                },
+
+                                {
+                                    label:
+                                        'Yield After',
+
+                                    data:
+                                        after,
+
+                                    tension:
+                                        0.3,
+
+                                    fill:
+                                        false,
+
+                                    borderWidth:
+                                        2,
+
+                                    pointRadius:
+                                        4
+                                }
+
+                            ]
+
+                        },
+
+                        options: {
+
+                            responsive:
+                                true,
+
+                            maintainAspectRatio:
+                                false,
+
+                            interaction: {
+
+                                mode:
+                                    'index',
+
+                                intersect:
+                                    false
+
+                            },
+
+                            plugins: {
+
+                                legend: {
+
+                                    display:
+                                        true
+
+                                }
+
+                            },
+
+                            scales: {
+
+                                y: {
+
+                                    beginAtZero:
+                                        true,
+
+                                    title: {
+
+                                        display:
+                                            true,
+
+                                        text:
+                                            'Yield (tons/ha)'
+
+                                    }
+
+                                },
+
+                                x: {
+
+                                    title: {
+
+                                        display:
+                                            true,
+
+                                        text:
+                                            period ===
+                                            'monthly'
+                                                ? 'Month'
+                                                : 'Quarter'
+
+                                    }
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+                );
+
+        }
+
+
+        /*
+         * =====================================================
+         * EFFECTIVENESS CHART
+         * =====================================================
+         */
+
+        function renderEffectivenessChart(
+            period
+        ) {
+
+            const canvas =
+                document.getElementById(
+                    'effectivenessTrendChart'
+                );
+
+
+            if (
+                !canvas
+            ) {
+
+                return;
+
+            }
+
+
+            destroyChart(
+                effectivenessChart
+            );
+
+
+            const data =
+                getPeriodData(
+                    effectivenessTrendData,
+                    period
+                );
+
+
+            const labels =
+                data.map(
+                    function (
+                        row
+                    ) {
+
+                        return row.period;
+
+                    }
+                );
+
+
+            effectivenessChart =
+                new Chart(
+                    canvas,
+                    {
+
+                        type:
+                            'line',
+
+                        data: {
+
+                            labels:
+                                labels,
+
+                            datasets: [
+
+                                {
+                                    label:
+                                        'Effective',
+
+                                    data:
+                                        data.map(
+                                            function (
+                                                row
+                                            ) {
+
+                                                return Number(
+                                                    row.effective
+                                                    ?? 0
+                                                );
+
+                                            }
+                                        ),
+
+                                    tension:
+                                        0.3,
+
+                                    fill:
+                                        false,
+
+                                    borderWidth:
+                                        2
+                                },
+
+                                {
+                                    label:
+                                        'Moderately Effective',
+
+                                    data:
+                                        data.map(
+                                            function (
+                                                row
+                                            ) {
+
+                                                return Number(
+                                                    row.moderately_effective
+                                                    ?? 0
+                                                );
+
+                                            }
+                                        ),
+
+                                    tension:
+                                        0.3,
+
+                                    fill:
+                                        false,
+
+                                    borderWidth:
+                                        2
+                                },
+
+                                {
+                                    label:
+                                        'Not Effective',
+
+                                    data:
+                                        data.map(
+                                            function (
+                                                row
+                                            ) {
+
+                                                return Number(
+                                                    row.not_effective
+                                                    ?? 0
+                                                );
+
+                                            }
+                                        ),
+
+                                    tension:
+                                        0.3,
+
+                                    fill:
+                                        false,
+
+                                    borderWidth:
+                                        2
+                                },
+
+                                {
+                                    label:
+                                        'Not Yet Predicted',
+
+                                    data:
+                                        data.map(
+                                            function (
+                                                row
+                                            ) {
+
+                                                return Number(
+                                                    row.not_yet_predicted
+                                                    ?? 0
+                                                );
+
+                                            }
+                                        ),
+
+                                    tension:
+                                        0.3,
+
+                                    fill:
+                                        false,
+
+                                    borderWidth:
+                                        2
+                                }
+
+                            ]
+
+                        },
+
+                        options: {
+
+                            responsive:
+                                true,
+
+                            maintainAspectRatio:
+                                false,
+
+                            interaction: {
+
+                                mode:
+                                    'index',
+
+                                intersect:
+                                    false
+
+                            },
+
+                            scales: {
+
+                                y: {
+
+                                    beginAtZero:
+                                        true,
+
+                                    ticks: {
+
+                                        precision:
+                                            0
+
+                                    },
+
+                                    title: {
+
+                                        display:
+                                            true,
+
+                                        text:
+                                            'Evaluation Records'
+
+                                    }
+
+                                },
+
+                                x: {
+
+                                    title: {
+
+                                        display:
+                                            true,
+
+                                        text:
+                                            period ===
+                                            'monthly'
+                                                ? 'Month'
+                                                : 'Quarter'
+
+                                    }
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+                );
+
+        }
+
+
+        /*
+         * =====================================================
+         * SURVEY CHART
+         * =====================================================
+         */
+
+        function renderSurveyChart(
+            period
+        ) {
+
+            const canvas =
+                document.getElementById(
+                    'surveyTrendChart'
+                );
+
+
+            if (
+                !canvas
+            ) {
+
+                return;
+
+            }
+
+
+            destroyChart(
+                surveyChart
+            );
+
+
+            const data =
+                getPeriodData(
+                    surveyTrendData,
+                    period
+                );
+
+
+            const labels =
+                data.map(
+                    function (
+                        row
+                    ) {
+
+                        return row.period;
+
+                    }
+                );
+
+
+            const ratings =
+                data.map(
+                    function (
+                        row
+                    ) {
+
+                        return Number(
+                            row.average_rating
+                            ?? 0
+                        );
+
+                    }
+                );
+
+
+            surveyChart =
+                new Chart(
+                    canvas,
+                    {
+
+                        type:
+                            'line',
+
+                        data: {
+
+                            labels:
+                                labels,
+
+                            datasets: [
+
+                                {
+                                    label:
+                                        'Average Survey Rating',
+
+                                    data:
+                                        ratings,
+
+                                    tension:
+                                        0.3,
+
+                                    fill:
+                                        false,
+
+                                    borderWidth:
+                                        2,
+
+                                    pointRadius:
+                                        4
+                                }
+
+                            ]
+
+                        },
+
+                        options: {
+
+                            responsive:
+                                true,
+
+                            maintainAspectRatio:
+                                false,
+
+                            scales: {
+
+                                y: {
+
+                                    min:
+                                        1,
+
+                                    max:
+                                        5,
+
+                                    ticks: {
+
+                                        stepSize:
+                                            1
+
+                                    },
+
+                                    title: {
+
+                                        display:
+                                            true,
+
+                                        text:
+                                            'Average Rating'
+
+                                    }
+
+                                },
+
+                                x: {
+
+                                    title: {
+
+                                        display:
+                                            true,
+
+                                        text:
+                                            period ===
+                                            'monthly'
+                                                ? 'Month'
+                                                : 'Quarter'
+
+                                    }
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+                );
+
+        }
+
+
+        /*
+         * =====================================================
+         * DISTRIBUTION CHART
+         * =====================================================
+         */
+
+        function renderDistributionChart(
+            period
+        ) {
+
+            const canvas =
+                document.getElementById(
+                    'distributionTrendChart'
+                );
+
+
+            if (
+                !canvas
+            ) {
+
+                return;
+
+            }
+
+
+            destroyChart(
+                distributionChart
+            );
+
+
+            const data =
+                getPeriodData(
+                    distributionTrendData,
+                    period
+                );
+
+
+            const labels =
+                data.map(
+                    function (
+                        row
+                    ) {
+
+                        return row.period;
+
+                    }
+                );
+
+
+            distributionChart =
+                new Chart(
+                    canvas,
+                    {
+
+                        type:
+                            'line',
+
+                        data: {
+
+                            labels:
+                                labels,
+
+                            datasets: [
+
+                                {
+                                    label:
+                                        'Received',
+
+                                    data:
+                                        data.map(
+                                            function (
+                                                row
+                                            ) {
+
+                                                return Number(
+                                                    row.received
+                                                    ?? 0
+                                                );
+
+                                            }
+                                        ),
+
+                                    tension:
+                                        0.3,
+
+                                    fill:
+                                        false,
+
+                                    borderWidth:
+                                        2
+                                },
+
+                                {
+                                    label:
+                                        'Not Received',
+
+                                    data:
+                                        data.map(
+                                            function (
+                                                row
+                                            ) {
+
+                                                return Number(
+                                                    row.not_received
+                                                    ?? 0
+                                                );
+
+                                            }
+                                        ),
+
+                                    tension:
+                                        0.3,
+
+                                    fill:
+                                        false,
+
+                                    borderWidth:
+                                        2
+                                },
+
+                                {
+                                    label:
+                                        'Re-Scheduled',
+
+                                    data:
+                                        data.map(
+                                            function (
+                                                row
+                                            ) {
+
+                                                return Number(
+                                                    row.rescheduled
+                                                    ?? 0
+                                                );
+
+                                            }
+                                        ),
+
+                                    tension:
+                                        0.3,
+
+                                    fill:
+                                        false,
+
+                                    borderWidth:
+                                        2
+                                },
+
+                                {
+                                    label:
+                                        'Cancelled',
+
+                                    data:
+                                        data.map(
+                                            function (
+                                                row
+                                            ) {
+
+                                                return Number(
+                                                    row.cancelled
+                                                    ?? 0
+                                                );
+
+                                            }
+                                        ),
+
+                                    tension:
+                                        0.3,
+
+                                    fill:
+                                        false,
+
+                                    borderWidth:
+                                        2
+                                }
+
+                            ]
+
+                        },
+
+                        options: {
+
+                            responsive:
+                                true,
+
+                            maintainAspectRatio:
+                                false,
+
+                            interaction: {
+
+                                mode:
+                                    'index',
+
+                                intersect:
+                                    false
+
+                            },
+
+                            scales: {
+
+                                y: {
+
+                                    beginAtZero:
+                                        true,
+
+                                    ticks: {
+
+                                        precision:
+                                            0
+
+                                    },
+
+                                    title: {
+
+                                        display:
+                                            true,
+
+                                        text:
+                                            'Distribution Records'
+
+                                    }
+
+                                },
+
+                                x: {
+
+                                    title: {
+
+                                        display:
+                                            true,
+
+                                        text:
+                                            period ===
+                                            'monthly'
+                                                ? 'Month'
+                                                : 'Quarter'
+
+                                    }
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+                );
+
+        }
+
+
+        /*
+         * =====================================================
+         * RENDER EVERYTHING
+         * =====================================================
+         */
+
+        function renderAllCharts()
+        {
+
+            const period =
+                trendPeriod
+                    ? trendPeriod.value
+                    : 'monthly';
+
+
+            renderYieldChart(
+                period
+            );
+
+
+            renderEffectivenessChart(
+                period
+            );
+
+
+            renderSurveyChart(
+                period
+            );
+
+
+            renderDistributionChart(
+                period
+            );
+
+        }
+
+
+        /*
+         * =====================================================
+         * PERIOD CHANGE
+         * =====================================================
+         */
+
+        if (
+            trendPeriod
+        ) {
+
+            trendPeriod.addEventListener(
+                'change',
+                function ()
+                {
+
+                    renderAllCharts();
+
+                }
+            );
+
+        }
+
+
+        /*
+         * =====================================================
+         * INITIAL RENDER
+         * =====================================================
+         */
+
+        renderAllCharts();
+
+    }
+
+);
+
+</script>
+
+
+<!-- =========================================================
+     RECEIVED SUBSIDY FILTER / DOWNLOAD
+========================================================= -->
+
+<script>
+
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
+
+
+        /*
+         * =====================================================
          * ELEMENTS
-         * =========================================================
+         * =====================================================
          */
 
         const locationFilter =
@@ -703,9 +1939,14 @@ document.addEventListener(
             );
 
 
+        /*
+         * FIXED:
+         * Your HTML uses receivedRecordCount.
+         */
+
         const visibleCount =
             document.getElementById(
-                'receivedVisibleCount'
+                'receivedRecordCount'
             );
 
 
@@ -715,36 +1956,20 @@ document.addEventListener(
             );
 
 
-        const activeLocation =
-            document.getElementById(
-                'receivedActiveLocation'
-            );
-
-
-        const activeLocationText =
-            document.getElementById(
-                'receivedActiveLocationText'
-            );
-
-
-        /*
-         * =========================================================
-         * MAKE SURE REQUIRED ELEMENTS EXIST
-         * =========================================================
-         */
-
         if (
             !locationFilter ||
             !table
         ) {
+
             return;
+
         }
 
 
         /*
-         * =========================================================
-         * GET TABLE ROWS
-         * =========================================================
+         * =====================================================
+         * ROWS
+         * =====================================================
          */
 
         const rows =
@@ -756,9 +1981,9 @@ document.addEventListener(
 
 
         /*
-         * =========================================================
-         * UPDATE ROW NUMBERS
-         * =========================================================
+         * =====================================================
+         * ROW NUMBERS
+         * =====================================================
          */
 
         function updateRowNumbers(
@@ -793,18 +2018,22 @@ document.addEventListener(
 
 
         /*
-         * =========================================================
-         * FILTER RECORDS
-         * =========================================================
+         * =====================================================
+         * FILTER
+         * =====================================================
          */
 
-        function filterRecords() {
+        function filterRecords()
+        {
 
             const selectedLocation =
-                locationFilter.value;
+                (
+                    locationFilter.value
+                    || 'ALL'
+                ).trim();
 
 
-            let visibleRows = [];
+            const visibleRows = [];
 
 
             rows.forEach(
@@ -819,19 +2048,13 @@ document.addEventListener(
                         ).trim();
 
 
-                    const selected =
-                        (
-                            selectedLocation
-                            || ''
-                        ).trim();
-
-
                     const shouldShow =
-                        selected === 'ALL'
+                        selectedLocation ===
+                        'ALL'
                         ||
                         rowLocation.toLowerCase()
                         ===
-                        selected.toLowerCase();
+                        selectedLocation.toLowerCase();
 
 
                     if (
@@ -857,9 +2080,7 @@ document.addEventListener(
 
 
             /*
-             * =====================================================
-             * UPDATE ROW NUMBERS
-             * =====================================================
+             * NUMBER
              */
 
             updateRowNumbers(
@@ -868,83 +2089,35 @@ document.addEventListener(
 
 
             /*
-             * =====================================================
-             * UPDATE VISIBLE COUNT
-             * =====================================================
+             * COUNT
              */
 
             if (
                 visibleCount
             ) {
 
-                visibleCount.textContent =
-                    visibleRows.length;
+                visibleCount.innerHTML =
+                    'Showing <strong>'
+                    +
+                    visibleRows.length
+                    +
+                    '</strong> received subsidy record(s)';
 
             }
 
 
             /*
-             * =====================================================
-             * ACTIVE LOCATION
-             * =====================================================
-             */
-
-            if (
-                activeLocation
-            ) {
-
-                if (
-                    selectedLocation === 'ALL'
-                ) {
-
-                    activeLocation.style.display =
-                        'none';
-
-                } else {
-
-                    activeLocation.style.display =
-                        'inline-flex';
-
-                }
-
-            }
-
-
-            if (
-                activeLocationText
-            ) {
-
-                activeLocationText.textContent =
-                    selectedLocation === 'ALL'
-                        ? ''
-                        : selectedLocation;
-
-            }
-
-
-            /*
-             * =====================================================
-             * EMPTY FILTER RESULT
-             * =====================================================
+             * EMPTY
              */
 
             if (
                 noResult
             ) {
 
-                if (
+                noResult.style.display =
                     visibleRows.length === 0
-                ) {
-
-                    noResult.style.display =
-                        'block';
-
-                } else {
-
-                    noResult.style.display =
-                        'none';
-
-                }
+                        ? 'block'
+                        : 'none';
 
             }
 
@@ -952,14 +2125,15 @@ document.addEventListener(
 
 
         /*
-         * =========================================================
-         * LOCATION FILTER CHANGE
-         * =========================================================
+         * =====================================================
+         * FILTER CHANGE
+         * =====================================================
          */
 
         locationFilter.addEventListener(
             'change',
-            function () {
+            function ()
+            {
 
                 filterRecords();
 
@@ -968,9 +2142,9 @@ document.addEventListener(
 
 
         /*
-         * =========================================================
-         * DOWNLOAD EXCEL
-         * =========================================================
+         * =====================================================
+         * DOWNLOAD
+         * =====================================================
          */
 
         if (
@@ -979,17 +2153,12 @@ document.addEventListener(
 
             downloadButton.addEventListener(
                 'click',
-                function () {
+                function ()
+                {
 
                     const selectedLocation =
                         locationFilter.value;
 
-
-                    /*
-                     * =================================================
-                     * CHECK VISIBLE RECORDS
-                     * =================================================
-                     */
 
                     const visibleRows =
                         rows.filter(
@@ -1020,12 +2189,6 @@ document.addEventListener(
                     }
 
 
-                    /*
-                     * =================================================
-                     * DISABLE BUTTON WHILE DOWNLOADING
-                     * =================================================
-                     */
-
                     const originalHTML =
                         downloadButton.innerHTML;
 
@@ -1038,16 +2201,6 @@ document.addEventListener(
                         '<i class="fas fa-spinner fa-spin mr-1"></i> Generating...';
 
 
-                    /*
-                     * =================================================
-                     * BUILD DOWNLOAD URL
-                     * =================================================
-                     *
-                     * The actual Excel file is generated by
-                     * PhpSpreadsheet in the RecordsController.
-                     *
-                     */
-
                     const baseUrl =
                         '<?= $this->Url->build([
                             "controller" => "Records",
@@ -1056,34 +2209,26 @@ document.addEventListener(
 
 
                     const url =
-                        baseUrl +
-                        '?location=' +
+                        baseUrl
+                        +
+                        '?location='
+                        +
                         encodeURIComponent(
                             selectedLocation
                         );
 
 
-                    /*
-                     * =================================================
-                     * DOWNLOAD FILE
-                     * =================================================
-                     */
-
                     window.location.href =
                         url;
 
 
-                    /*
-                     * =================================================
-                     * RESTORE BUTTON
-                     * =================================================
-                     */
-
                     setTimeout(
-                        function () {
+                        function ()
+                        {
 
                             downloadButton.disabled =
                                 false;
+
 
                             downloadButton.innerHTML =
                                 originalHTML;
@@ -1099,9 +2244,9 @@ document.addEventListener(
 
 
         /*
-         * =========================================================
+         * =====================================================
          * INITIAL FILTER
-         * =========================================================
+         * =====================================================
          */
 
         filterRecords();

@@ -246,227 +246,320 @@
         </div>
 
 
-        <div class="card-body p-0">
+       <div class="card-body p-0">
 
-            <div class="table-responsive">
+    <div class="table-responsive audit-table-responsive">
 
-                <table
-                    id="audit-logs-table"
-                    class="table table-bordered table-hover table-striped mb-0"
-                    width="100%"
-                >
+        <table
+            id="audit-logs-table"
+            class="table audit-modern-table mb-0"
+            width="100%"
+        >
 
-                    <thead>
-                        <tr>
+            <thead>
+                <tr>
 
-                            <th class="text-center">
-                                ID
-                            </th>
+                    <th class="text-center audit-id-column">
+                        ID
+                    </th>
 
-                            <th>
-                                User
-                            </th>
+                    <th>
+                        <i class="fas fa-user mr-1"></i>
+                        User
+                    </th>
 
-                            <th>
-                                Action
-                            </th>
+                    <th>
+                        <i class="fas fa-bolt mr-1"></i>
+                        Action
+                    </th>
 
-                            <th>
-                                Description
-                            </th>
+                    <th>
+                        <i class="fas fa-align-left mr-1"></i>
+                        Description
+                    </th>
 
-                            <th>
-                                Subject
-                            </th>
+                    <th>
+                        <i class="fas fa-cube mr-1"></i>
+                        Subject
+                    </th>
 
-                            <th>
-                                IP Address
-                            </th>
+                    <th>
+                        <i class="fas fa-network-wired mr-1"></i>
+                        IP Address
+                    </th>
 
-                            <th>
-                                Date
-                            </th>
+                    <th>
+                        <i class="far fa-clock mr-1"></i>
+                        Date
+                    </th>
 
-                        </tr>
-                    </thead>
-
-
-                    <tbody>
-
-                    <?php if (!empty($auditLogs)): ?>
-
-                        <?php foreach ($auditLogs as $log): ?>
-
-                            <tr>
-
-                                <!-- ID -->
-                                <td class="text-center font-weight-bold">
-                                    <?= h($log->id) ?>
-                                </td>
+                </tr>
+            </thead>
 
 
-                                <!-- USER -->
-                                <td>
+            <tbody>
 
-                                    <?php if ($log->user): ?>
+            <?php if (!empty($auditLogs)): ?>
 
-                                        <i class="fas fa-user-circle text-muted mr-1"></i>
+                <?php foreach ($auditLogs as $log): ?>
 
+                    <tr>
+
+                        <!-- =================================================
+                             ID
+                        ================================================== -->
+                        <td class="text-center">
+
+                            <span class="audit-id">
+                                #<?= h($log->id) ?>
+                            </span>
+
+                        </td>
+
+
+                        <!-- =================================================
+                             USER
+                        ================================================== -->
+                        <td>
+
+                            <?php if ($log->user): ?>
+
+                                <div class="audit-user">
+
+                                    <div class="audit-user-icon">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+
+                                    <div class="audit-user-name">
                                         <?= h(
                                             $log->user->username
                                             ?? 'Unknown User'
                                         ) ?>
+                                    </div>
 
-                                    <?php else: ?>
+                                </div>
 
-                                        <span class="text-muted">
-                                            <i class="fas fa-user-slash mr-1"></i>
-                                            Unknown User
-                                        </span>
+                            <?php else: ?>
 
-                                    <?php endif; ?>
+                                <div class="audit-user">
 
-                                </td>
+                                    <div class="audit-user-icon unknown">
+                                        <i class="fas fa-user-slash"></i>
+                                    </div>
 
-
-                                <!-- ACTION -->
-                                <td>
-
-                                    <?php
-                                    $actionLabel = ucwords(
-                                        str_replace(
-                                            '_',
-                                            ' ',
-                                            $log->action
-                                        )
-                                    );
-
-                                    $actionClass = 'secondary';
-
-                                    switch ($log->action) {
-
-                                        case 'login':
-                                            $actionClass = 'success';
-                                            break;
-
-                                        case 'logout':
-                                            $actionClass = 'warning';
-                                            break;
-
-                                        case 'login_failed':
-                                            $actionClass = 'danger';
-                                            break;
-
-                                        case 'registered':
-                                            $actionClass = 'info';
-                                            break;
-
-                                        case 'created':
-                                            $actionClass = 'success';
-                                            break;
-
-                                        case 'updated':
-                                            $actionClass = 'primary';
-                                            break;
-
-                                        case 'deleted':
-                                            $actionClass = 'danger';
-                                            break;
-
-                                    }
-                                    ?>
-
-                                    <span class="badge badge-<?= $actionClass ?>">
-                                        <?= h($actionLabel) ?>
+                                    <span class="text-muted">
+                                        Unknown User
                                     </span>
 
-                                </td>
+                                </div>
+
+                            <?php endif; ?>
+
+                        </td>
 
 
-                                <!-- DESCRIPTION -->
-                                <td>
-                                    <?= h($log->description) ?>
-                                </td>
+                        <!-- =================================================
+                             ACTION
+                        ================================================== -->
+                        <td>
+
+                            <?php
+
+                            $actionLabel = ucwords(
+                                str_replace(
+                                    '_',
+                                    ' ',
+                                    $log->action
+                                )
+                            );
+
+                            $actionClass = 'secondary';
+                            $actionIcon = 'fa-info-circle';
+
+                            switch ($log->action) {
+
+                                case 'login':
+                                    $actionClass = 'success';
+                                    $actionIcon = 'fa-sign-in-alt';
+                                    break;
+
+                                case 'logout':
+                                    $actionClass = 'warning';
+                                    $actionIcon = 'fa-sign-out-alt';
+                                    break;
+
+                                case 'login_failed':
+                                    $actionClass = 'danger';
+                                    $actionIcon = 'fa-exclamation-triangle';
+                                    break;
+
+                                case 'registered':
+                                    $actionClass = 'info';
+                                    $actionIcon = 'fa-user-plus';
+                                    break;
+
+                                case 'created':
+                                    $actionClass = 'success';
+                                    $actionIcon = 'fa-plus';
+                                    break;
+
+                                case 'updated':
+                                    $actionClass = 'primary';
+                                    $actionIcon = 'fa-edit';
+                                    break;
+
+                                case 'deleted':
+                                    $actionClass = 'danger';
+                                    $actionIcon = 'fa-trash';
+                                    break;
+
+                            }
+
+                            ?>
+
+                            <span class="audit-action badge-<?= $actionClass ?>">
+
+                                <i class="fas <?= $actionIcon ?> mr-1"></i>
+
+                                <?= h($actionLabel) ?>
+
+                            </span>
+
+                        </td>
 
 
-                                <!-- SUBJECT -->
-                                <td>
+                        <!-- =================================================
+                             DESCRIPTION
+                        ================================================== -->
+                        <td>
 
-                                    <?php if ($log->subject_type): ?>
+                            <div class="audit-description">
 
-                                        <span class="text-dark">
-                                            <?= h($log->subject_type) ?>
-                                        </span>
+                                <?= h(
+                                    $log->description
+                                ) ?>
 
-                                        <?php if ($log->subject_id): ?>
+                            </div>
 
-                                            <span class="text-muted">
-                                                #<?= h($log->subject_id) ?>
-                                            </span>
-
-                                        <?php endif; ?>
-
-                                    <?php else: ?>
-
-                                        <span class="text-muted">
-                                            N/A
-                                        </span>
-
-                                    <?php endif; ?>
-
-                                </td>
+                        </td>
 
 
-                                <!-- IP -->
-                                <td>
-                                    <code>
+                        <!-- =================================================
+                             SUBJECT
+                        ================================================== -->
+                        <td>
+
+                            <?php if ($log->subject_type): ?>
+
+                                <div class="audit-subject">
+
+                                    <span class="audit-subject-name">
                                         <?= h(
-                                            $log->ip_address ?? 'N/A'
+                                            $log->subject_type
                                         ) ?>
-                                    </code>
-                                </td>
+                                    </span>
 
+                                    <?php if ($log->subject_id): ?>
 
-                                <!-- DATE -->
-                                <td
-                                    data-order="<?= $log->created
-                                        ? $log->created->format('Y-m-d H:i:s')
-                                        : '' ?>"
-                                >
-
-                                    <?php if ($log->created): ?>
-
-                                        <span class="text-nowrap">
-                                            <?= h(
-                                                $log->created->format(
-                                                    'Y-m-d h:i A'
-                                                )
+                                        <span class="audit-subject-id">
+                                            #<?= h(
+                                                $log->subject_id
                                             ) ?>
                                         </span>
 
-                                    <?php else: ?>
-
-                                        <span class="text-muted">
-                                            N/A
-                                        </span>
-
                                     <?php endif; ?>
 
-                                </td>
+                                </div>
 
-                            </tr>
+                            <?php else: ?>
 
-                        <?php endforeach; ?>
+                                <span class="audit-na">
+                                    N/A
+                                </span>
 
-                    <?php endif; ?>
+                            <?php endif; ?>
 
-                    </tbody>
+                        </td>
 
-                </table>
 
-            </div>
+                        <!-- =================================================
+                             IP ADDRESS
+                        ================================================== -->
+                        <td>
 
-        </div>
+                            <span class="audit-ip">
+
+                                <i class="fas fa-globe mr-1"></i>
+
+                                <?= h(
+                                    $log->ip_address ?? 'N/A'
+                                ) ?>
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- =================================================
+                             DATE
+                        ================================================== -->
+                        <td
+                            data-order="<?= $log->created
+                                ? $log->created->format('Y-m-d H:i:s')
+                                : '' ?>"
+                        >
+
+                            <?php if ($log->created): ?>
+
+                                <div class="audit-date">
+
+                                    <div class="audit-date-main">
+
+                                        <?= h(
+                                            $log->created->format(
+                                                'Y-m-d'
+                                            )
+                                        ) ?>
+
+                                    </div>
+
+                                    <div class="audit-date-time">
+
+                                        <i class="far fa-clock mr-1"></i>
+
+                                        <?= h(
+                                            $log->created->format(
+                                                'h:i A'
+                                            )
+                                        ) ?>
+
+                                    </div>
+
+                                </div>
+
+                            <?php else: ?>
+
+                                <span class="audit-na">
+                                    N/A
+                                </span>
+
+                            <?php endif; ?>
+
+                        </td>
+
+                    </tr>
+
+                <?php endforeach; ?>
+
+            <?php endif; ?>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
 
     </div>
 

@@ -50,7 +50,6 @@
 
             <div class="schedule-planner">
 
-
                 <!-- =================================================
                      CALENDAR
                 ================================================== -->
@@ -134,36 +133,65 @@
 
                         <div class="legend-item">
 
-                            <span class="legend-dot scheduled"></span>
+                            <span
+                                class="legend-dot scheduled">
+                            </span>
 
-                            <span>Scheduled</span>
-
-                        </div>
-
-
-                        <div class="legend-item">
-
-                            <span class="legend-dot completed"></span>
-
-                            <span>Completed</span>
+                            <span>
+                                Scheduled
+                            </span>
 
                         </div>
 
 
                         <div class="legend-item">
 
-                            <span class="legend-dot cancelled"></span>
+                            <span
+                                class="legend-dot rescheduled">
+                            </span>
 
-                            <span>Cancelled</span>
+                            <span>
+                                Re-Scheduled
+                            </span>
 
                         </div>
 
 
                         <div class="legend-item">
 
-                            <span class="legend-dot today"></span>
+                            <span
+                                class="legend-dot completed">
+                            </span>
 
-                            <span>Today</span>
+                            <span>
+                                Completed
+                            </span>
+
+                        </div>
+
+
+                        <div class="legend-item">
+
+                            <span
+                                class="legend-dot cancelled">
+                            </span>
+
+                            <span>
+                                Cancelled
+                            </span>
+
+                        </div>
+
+
+                        <div class="legend-item">
+
+                            <span
+                                class="legend-dot today">
+                            </span>
+
+                            <span>
+                                Today
+                            </span>
 
                         </div>
 
@@ -244,7 +272,6 @@
     </div>
 
 </div>
-
 
 
 <!-- ============================================================
@@ -561,6 +588,247 @@
 </div>
 
 
+<style>
+
+/* =========================================================
+   CALENDAR LEGEND
+========================================================= */
+
+.calendar-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    padding: 15px 5px 5px;
+}
+
+
+.legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    color: #555;
+    white-space: nowrap;
+}
+
+
+.legend-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    min-width: 12px;
+    border-radius: 50%;
+}
+
+
+/* Scheduled */
+
+.legend-dot.scheduled {
+    background-color: #007bff;
+}
+
+
+/* Re-Scheduled */
+
+.legend-dot.rescheduled {
+    background-color: #ffc107;
+}
+
+
+/* Completed */
+
+.legend-dot.completed {
+    background-color: #28a745;
+}
+
+
+/* Cancelled */
+
+.legend-dot.cancelled {
+    background-color: #dc3545;
+}
+
+
+/* Today */
+
+.legend-dot.today {
+    background-color: #6f42c1;
+}
+
+
+/* =========================================================
+   CALENDAR EVENTS
+========================================================= */
+
+.calendar-event {
+    display: block;
+    width: 100%;
+    margin-top: 3px;
+    padding: 3px 5px;
+    border-radius: 4px;
+    font-size: 11px;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* Scheduled */
+
+.calendar-event.scheduled {
+    background-color: #007bff;
+    color: #fff;
+}
+
+
+/* Re-Scheduled */
+
+.calendar-event.rescheduled {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+
+/* Completed */
+
+.calendar-event.completed {
+    background-color: #28a745;
+    color: #fff;
+}
+
+
+/* Cancelled */
+
+.calendar-event.cancelled {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+
+/* =========================================================
+   TODAY
+========================================================= */
+
+.calendar-day.today {
+    border: 2px solid #6f42c1;
+}
+
+
+.calendar-day.today .calendar-day-number {
+    color: #6f42c1;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   SCHEDULE LIST STATUS
+========================================================= */
+
+.schedule-item.rescheduled {
+    border-left: 4px solid #ffc107;
+}
+
+
+.schedule-item.completed {
+    border-left: 4px solid #28a745;
+}
+
+
+.schedule-item.cancelled {
+    border-left: 4px solid #dc3545;
+}
+
+
+/* Scheduled */
+
+.schedule-status.active {
+    color: #0056b3;
+    background: #e7f1ff;
+    border: 1px solid #b8daff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+
+/* Re-Scheduled */
+
+.schedule-status.rescheduled {
+    color: #856404;
+    background: #fff3cd;
+    border: 1px solid #ffeeba;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+
+/* Completed */
+
+.schedule-status.completed {
+    color: #155724;
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+
+/* Cancelled */
+
+.schedule-status.cancelled {
+    color: #721c24;
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   MESSAGES
+========================================================= */
+
+.cancelled-message {
+    color: #721c24;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+
+.completed-message {
+    color: #155724;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+
+/* =========================================================
+   RESPONSIVE LEGEND
+========================================================= */
+
+@media (max-width: 768px) {
+
+    .calendar-legend {
+        gap: 10px;
+    }
+
+    .legend-item {
+        font-size: 12px;
+    }
+
+}
+
+</style>
+
 
 <script>
 
@@ -582,8 +850,14 @@ document.addEventListener('DOMContentLoaded', function () {
     ========================================================= */
 
     let currentDate = new Date();
+
     let selectedDate = null;
+
     let formSubmitting = false;
+
+    let originalStartDate = '';
+
+    let originalEndDate = '';
 
 
     /* =========================================================
@@ -619,10 +893,16 @@ document.addEventListener('DOMContentLoaded', function () {
        SAFETY CHECK
     ========================================================= */
 
-    if (!calendarDays || !calendarMonthYear || !scheduleList) {
+    if (
+        !calendarDays ||
+        !calendarMonthYear ||
+        !scheduleList
+    ) {
+
         console.error(
             'Schedule calendar elements could not be found.'
         );
+
         return;
     }
 
@@ -657,10 +937,12 @@ document.addEventListener('DOMContentLoaded', function () {
     function normalizeDate(value) {
 
         if (!value) {
-            return null;
+
+            return '';
         }
 
-        return String(value).substring(0, 10);
+        return String(value)
+            .substring(0, 10);
     }
 
 
@@ -671,10 +953,12 @@ document.addEventListener('DOMContentLoaded', function () {
     function normalizeTime(value) {
 
         if (!value) {
+
             return '';
         }
 
-        return String(value).substring(0, 5);
+        return String(value)
+            .substring(0, 5);
     }
 
 
@@ -705,11 +989,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 schedule.start_date
             );
 
+
         const end =
             normalizeDate(
                 schedule.end_date ||
                 schedule.start_date
             );
+
 
         return {
             start: start,
@@ -724,11 +1010,36 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function isCancelled(schedule) {
 
-        return String(
-            schedule.status || ''
-        )
-        .trim()
-        .toLowerCase() === 'cancelled';
+        const status =
+            String(
+                schedule.status || ''
+            )
+            .trim()
+            .toLowerCase();
+
+
+        return status === 'cancelled';
+    }
+
+
+    /* =========================================================
+       RE-SCHEDULED
+    ========================================================= */
+
+    function isRescheduled(schedule) {
+
+        const status =
+            String(
+                schedule.status || ''
+            )
+            .trim()
+            .toLowerCase();
+
+
+        return (
+            status === 're-scheduled' ||
+            status === 'rescheduled'
+        );
     }
 
 
@@ -738,32 +1049,64 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function isCompleted(schedule) {
 
+        const status =
+            String(
+                schedule.status || ''
+            )
+            .trim()
+            .toLowerCase();
+
+
         /*
-         * Cancelled always has priority.
+         * Cancelled is not completed.
          */
 
-        if (isCancelled(schedule)) {
+        if (
+            status === 'cancelled'
+        ) {
+
             return false;
         }
 
 
         /*
-         * Database status is Completed.
+         * Re-Scheduled stays Re-Scheduled.
+         *
+         * We do NOT automatically turn it into
+         * Completed just because the old date passed.
          */
 
         if (
-            String(
-                schedule.status || ''
-            )
-            .trim()
-            .toLowerCase() === 'completed'
+            status === 're-scheduled' ||
+            status === 'rescheduled'
         ) {
+
+            return false;
+        }
+
+
+        /*
+         * Explicit database status.
+         */
+
+        if (
+            status === 'completed'
+        ) {
+
             return true;
         }
 
 
+        /*
+         * Scheduled records can be displayed
+         * as completed when their end date has passed.
+         */
+
         const dates =
-            getScheduleDates(schedule);
+            getScheduleDates(
+                schedule
+            );
+
 
         const endDate =
             dates.end ||
@@ -771,6 +1114,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
         if (!endDate) {
+
             return false;
         }
 
@@ -780,15 +1124,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 new Date()
             );
 
-
-        /*
-         * A schedule whose end date
-         * has already passed is displayed
-         * as Completed.
-         *
-         * NOTE:
-         * This does NOT update the database.
-         */
 
         return endDate < today;
     }
@@ -800,13 +1135,68 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function getScheduleStatus(schedule) {
 
-        if (isCancelled(schedule)) {
+        const status =
+            String(
+                schedule.status || ''
+            )
+            .trim()
+            .toLowerCase();
+
+
+        /*
+         * CANCELLED
+         */
+
+        if (
+            status === 'cancelled'
+        ) {
+
             return 'cancelled';
         }
 
-        if (isCompleted(schedule)) {
+
+        /*
+         * RE-SCHEDULED
+         *
+         * This has priority over date-based completion.
+         */
+
+        if (
+            status === 're-scheduled' ||
+            status === 'rescheduled'
+        ) {
+
+            return 'rescheduled';
+        }
+
+
+        /*
+         * EXPLICIT COMPLETED
+         */
+
+        if (
+            status === 'completed'
+        ) {
+
             return 'completed';
         }
+
+
+        /*
+         * SCHEDULED BUT DATE HAS PASSED
+         */
+
+        if (
+            isCompleted(schedule)
+        ) {
+
+            return 'completed';
+        }
+
+
+        /*
+         * NORMAL SCHEDULED
+         */
 
         return 'scheduled';
     }
@@ -819,17 +1209,22 @@ document.addEventListener('DOMContentLoaded', function () {
     function schedulesOnDate(dateString) {
 
         if (!dateString) {
+
             return [];
         }
+
 
         return schedules.filter(
             function (schedule) {
 
                 const dates =
-                    getScheduleDates(schedule);
+                    getScheduleDates(
+                        schedule
+                    );
 
 
                 if (!dates.start) {
+
                     return false;
                 }
 
@@ -874,6 +1269,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function formatDisplayDate(dateString) {
 
         if (!dateString) {
+
             return '';
         }
 
@@ -885,7 +1281,12 @@ document.addEventListener('DOMContentLoaded', function () {
             );
 
 
-        if (isNaN(date.getTime())) {
+        if (
+            isNaN(
+                date.getTime()
+            )
+        ) {
+
             return dateString;
         }
 
@@ -908,6 +1309,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function formatDisplayTime(time) {
 
         if (!time) {
+
             return '';
         }
 
@@ -928,6 +1330,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
         if (isNaN(hour)) {
+
             return time;
         }
 
@@ -947,7 +1350,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /* =========================================================
-       GET CSRF TOKEN
+       CSRF TOKEN
     ========================================================= */
 
     function getCsrfToken() {
@@ -963,7 +1366,6 @@ document.addEventListener('DOMContentLoaded', function () {
             return csrfMeta.getAttribute(
                 'content'
             ) || '';
-
         }
 
 
@@ -974,7 +1376,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /* =========================================================
-       GET CANCEL URL
+       CANCEL URL
     ========================================================= */
 
     function getCancelUrl(id) {
@@ -983,6 +1385,73 @@ document.addEventListener('DOMContentLoaded', function () {
             '/api/Schedules/cancel'
         ) ?>/' +
         encodeURIComponent(id);
+    }
+
+
+    /* =========================================================
+       UPDATE LOCAL SCHEDULE
+       ========================================================= */
+
+    function updateLocalSchedule(updatedSchedule) {
+
+        if (
+            !updatedSchedule ||
+            !updatedSchedule.id
+        ) {
+
+            return;
+        }
+
+
+        const index =
+            schedules.findIndex(
+                function (item) {
+
+                    return String(item.id) ===
+                        String(updatedSchedule.id);
+                }
+            );
+
+
+        if (index !== -1) {
+
+            schedules[index] =
+                updatedSchedule;
+
+        } else {
+
+            schedules.push(
+                updatedSchedule
+            );
+        }
+
+
+        /*
+         * Refresh calendar
+         */
+
+        renderCalendar();
+
+
+        /*
+         * Refresh list
+         */
+
+        if (selectedDate) {
+
+            renderScheduleList(
+                schedulesOnDate(
+                    selectedDate
+                ),
+                selectedDate
+            );
+
+        } else {
+
+            renderScheduleList(
+                schedules
+            );
+        }
     }
 
 
@@ -1061,15 +1530,19 @@ document.addEventListener('DOMContentLoaded', function () {
         ) {
 
             let dayNumber;
+
             let cellDate;
+
             let otherMonth = false;
 
 
-            /* =================================================
-               PREVIOUS MONTH
-            ================================================= */
+            /*
+             * PREVIOUS MONTH
+             */
 
-            if (i < firstDay) {
+            if (
+                i < firstDay
+            ) {
 
                 dayNumber =
                     daysInPreviousMonth -
@@ -1092,9 +1565,9 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
 
-            /* =================================================
-               CURRENT MONTH
-            ================================================= */
+            /*
+             * CURRENT MONTH
+             */
 
             else if (
                 i <
@@ -1119,9 +1592,9 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
 
-            /* =================================================
-               NEXT MONTH
-            ================================================= */
+            /*
+             * NEXT MONTH
+             */
 
             else {
 
@@ -1149,7 +1622,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
             const day =
-                document.createElement('div');
+                document.createElement(
+                    'div'
+                );
 
 
             day.className =
@@ -1164,7 +1639,13 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
 
-            if (cellDate === today) {
+            /*
+             * TODAY
+             */
+
+            if (
+                cellDate === today
+            ) {
 
                 day.classList.add(
                     'today'
@@ -1172,7 +1653,13 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
 
-            if (cellDate === selectedDate) {
+            /*
+             * SELECTED
+             */
+
+            if (
+                cellDate === selectedDate
+            ) {
 
                 day.classList.add(
                     'selected'
@@ -1180,12 +1667,14 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
 
-            /* =================================================
-               DAY NUMBER
-            ================================================= */
+            /*
+             * DAY NUMBER
+             */
 
             const number =
-                document.createElement('div');
+                document.createElement(
+                    'div'
+                );
 
 
             number.className =
@@ -1201,9 +1690,9 @@ document.addEventListener('DOMContentLoaded', function () {
             );
 
 
-            /* =================================================
-               SCHEDULES
-            ================================================= */
+            /*
+             * SCHEDULES
+             */
 
             const daySchedules =
                 schedulesOnDate(
@@ -1232,10 +1721,18 @@ document.addEventListener('DOMContentLoaded', function () {
                             );
 
 
+                        /*
+                         * ADD STATUS CLASS
+                         */
+
                         event.classList.add(
                             status
                         );
 
+
+                        /*
+                         * PROGRAM CODE
+                         */
 
                         event.textContent =
                             schedule.program_code ||
@@ -1243,10 +1740,31 @@ document.addEventListener('DOMContentLoaded', function () {
                             'Schedule';
 
 
+                        /*
+                         * TOOLTIP
+                         */
+
                         event.title =
-                            schedule.program_name ||
-                            schedule.program_code ||
-                            'Schedule';
+                            (
+                                schedule.program_code
+                                    ? schedule.program_code + ' - '
+                                    : ''
+                            ) +
+                            (
+                                schedule.program_name ||
+                                'Schedule'
+                            ) +
+                            ' (' +
+                            (
+                                status === 'rescheduled'
+                                    ? 'Re-Scheduled'
+                                    : status === 'completed'
+                                        ? 'Completed'
+                                        : status === 'cancelled'
+                                            ? 'Cancelled'
+                                            : 'Scheduled'
+                            ) +
+                            ')';
 
 
                         day.appendChild(
@@ -1256,9 +1774,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 );
 
 
-            /* =================================================
-               MORE
-            ================================================= */
+            /*
+             * MORE
+             */
 
             if (
                 daySchedules.length > 3
@@ -1284,9 +1802,9 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
 
-            /* =================================================
-               CLICK
-            ================================================= */
+            /*
+             * CLICK DATE
+             */
 
             day.addEventListener(
                 'click',
@@ -1317,7 +1835,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /* =========================================================
-       RENDER LIST
+       RENDER SCHEDULE LIST
     ========================================================= */
 
     function renderScheduleList(
@@ -1335,12 +1853,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     date
                 );
 
-        }
-        else {
+        } else {
 
             selectedDateText.textContent =
                 'All Schedules';
-
         }
 
 
@@ -1350,9 +1866,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 : 0;
 
 
-        /* =================================================
-           EMPTY
-        ================================================= */
+        /*
+         * EMPTY
+         */
 
         if (
             !list ||
@@ -1386,9 +1902,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
 
-        /* =================================================
-           SORT
-        ================================================= */
+        /*
+         * SORT
+         */
 
         list =
             [...list].sort(
@@ -1435,9 +1951,9 @@ document.addEventListener('DOMContentLoaded', function () {
             );
 
 
-        /* =================================================
-           CREATE ITEMS
-        ================================================= */
+        /*
+         * CREATE ITEMS
+         */
 
         list.forEach(
             function (schedule) {
@@ -1458,6 +1974,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     );
 
 
+                /*
+                 * STATUS CLASS
+                 */
+
                 if (
                     status === 'cancelled'
                 ) {
@@ -1474,6 +1994,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     item.classList.add(
                         'completed'
+                    );
+                }
+
+
+                if (
+                    status === 'rescheduled'
+                ) {
+
+                    item.classList.add(
+                        'rescheduled'
                     );
                 }
 
@@ -1522,9 +2052,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     );
 
 
-                /* =================================================
-                   DATE
-                ================================================= */
+                /*
+                 * DATE TEXT
+                 */
 
                 let dateText =
                     formatDisplayDate(
@@ -1545,9 +2075,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
 
-                /* =================================================
-                   STATUS
-                ================================================= */
+                /*
+                 * STATUS HTML
+                 */
 
                 let statusHtml = '';
 
@@ -1558,7 +2088,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     statusHtml = `
 
-                        <span class="schedule-status cancelled">
+                        <span
+                            class="schedule-status cancelled">
 
                             <i class="fas fa-ban mr-1"></i>
 
@@ -1568,14 +2099,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     `;
 
-                }
-                else if (
+                } else if (
                     status === 'completed'
                 ) {
 
                     statusHtml = `
 
-                        <span class="schedule-status completed">
+                        <span
+                            class="schedule-status completed">
 
                             <i class="fas fa-check-double mr-1"></i>
 
@@ -1585,12 +2116,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     `;
 
-                }
-                else {
+                } else if (
+                    status === 'rescheduled'
+                ) {
 
                     statusHtml = `
 
-                        <span class="schedule-status active">
+                        <span
+                            class="schedule-status rescheduled">
+
+                            <i class="fas fa-calendar-alt mr-1"></i>
+
+                            Re-Scheduled
+
+                        </span>
+
+                    `;
+
+                } else {
+
+                    statusHtml = `
+
+                        <span
+                            class="schedule-status active">
 
                             <i class="fas fa-check-circle mr-1"></i>
 
@@ -1602,9 +2150,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
 
-                /* =================================================
-                   ACTIONS
-                ================================================= */
+                /*
+                 * ACTIONS
+                 */
 
                 let actionHtml = '';
 
@@ -1625,8 +2173,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     `;
 
-                }
-                else if (
+                } else if (
                     status === 'completed'
                 ) {
 
@@ -1642,8 +2189,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     `;
 
-                }
-                else {
+                } else {
+
+                    /*
+                     * Scheduled and Re-Scheduled
+                     * are both editable.
+                     */
 
                     actionHtml = `
 
@@ -1674,9 +2225,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
 
-                /* =================================================
-                   ITEM HTML
-                ================================================= */
+                /*
+                 * ITEM HTML
+                 */
 
                 item.innerHTML = `
 
@@ -1702,43 +2253,47 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     ${
                         description
-                        ? `
+                            ? `
 
-                            <div class="schedule-item-location">
+                                <div class="schedule-item-location">
 
-                                <i class="fas fa-info-circle"></i>
+                                    <i class="fas fa-info-circle"></i>
 
-                                <span>
+                                    <span>
 
-                                    ${escapeHtml(description)}
+                                        ${escapeHtml(
+                                            description
+                                        )}
 
-                                </span>
+                                    </span>
 
-                            </div>
+                                </div>
 
-                        `
-                        : ''
+                            `
+                            : ''
                     }
 
 
                     ${
                         barangay
-                        ? `
+                            ? `
 
-                            <div class="schedule-item-location">
+                                <div class="schedule-item-location">
 
-                                <i class="fas fa-map-marker-alt"></i>
+                                    <i class="fas fa-map-marker-alt"></i>
 
-                                <span>
+                                    <span>
 
-                                    ${escapeHtml(barangay)}
+                                        ${escapeHtml(
+                                            barangay
+                                        )}
 
-                                </span>
+                                    </span>
 
-                            </div>
+                                </div>
 
-                        `
-                        : ''
+                            `
+                            : ''
                     }
 
 
@@ -1748,7 +2303,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         <span>
 
-                            ${escapeHtml(dateText)}
+                            ${escapeHtml(
+                                dateText
+                            )}
 
                         </span>
 
@@ -1757,42 +2314,42 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     ${
                         startTime
-                        ? `
+                            ? `
 
-                            <div class="schedule-item-time">
+                                <div class="schedule-item-time">
 
-                                <i class="far fa-clock"></i>
+                                    <i class="far fa-clock"></i>
 
-                                <span>
+                                    <span>
 
-                                    ${escapeHtml(
-                                        formatDisplayTime(
-                                            startTime
-                                        )
-                                    )}
+                                        ${escapeHtml(
+                                            formatDisplayTime(
+                                                startTime
+                                            )
+                                        )}
 
-                                    ${
-                                        endTime
-                                        ? `
+                                        ${
+                                            endTime
+                                                ? `
 
-                                            -
+                                                    -
 
-                                            ${escapeHtml(
-                                                formatDisplayTime(
-                                                    endTime
-                                                )
-                                            )}
+                                                    ${escapeHtml(
+                                                        formatDisplayTime(
+                                                            endTime
+                                                        )
+                                                    )}
 
-                                        `
-                                        : ''
-                                    }
+                                                `
+                                                : ''
+                                        }
 
-                                </span>
+                                    </span>
 
-                            </div>
+                                </div>
 
-                        `
-                        : ''
+                            `
+                            : ''
                     }
 
 
@@ -1818,7 +2375,9 @@ document.addEventListener('DOMContentLoaded', function () {
        ADD SCHEDULE
     ========================================================= */
 
-    if ($('#add').length) {
+    if (
+        $('#add').length
+    ) {
 
         $('#add').on(
             'click',
@@ -1831,6 +2390,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
                 $('#id').val('');
+
+
+                originalStartDate =
+                    '';
+
+                originalEndDate =
+                    '';
 
 
                 $('#modal-title').text(
@@ -1878,6 +2444,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
             if (!editButton) {
+
                 return;
             }
 
@@ -1910,7 +2477,13 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
 
-            if (isCancelled(schedule)) {
+            /*
+             * CANCELLED
+             */
+
+            if (
+                isCancelled(schedule)
+            ) {
 
                 alert(
                     'This schedule has already been cancelled and cannot be edited.'
@@ -1920,7 +2493,13 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
 
-            if (isCompleted(schedule)) {
+            /*
+             * COMPLETED
+             */
+
+            if (
+                isCompleted(schedule)
+            ) {
 
                 alert(
                     'This schedule has already been completed and cannot be edited.'
@@ -1929,6 +2508,26 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
+
+            /*
+             * ORIGINAL DATES
+             */
+
+            originalStartDate =
+                normalizeDate(
+                    schedule.start_date
+                );
+
+
+            originalEndDate =
+                normalizeDate(
+                    schedule.end_date
+                );
+
+
+            /*
+             * FORM VALUES
+             */
 
             $('#modal-title').text(
                 'Edit Schedule'
@@ -1956,30 +2555,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
             $('#start-date').val(
-                normalizeDate(
-                    schedule.start_date
-                ) || ''
+                originalStartDate
             );
 
 
             $('#end-date').val(
-                normalizeDate(
-                    schedule.end_date
-                ) || ''
+                originalEndDate
             );
 
 
             $('#start-time').val(
                 normalizeTime(
                     schedule.start_time
-                ) || ''
+                )
             );
 
 
             $('#end-time').val(
                 normalizeTime(
                     schedule.end_time
-                ) || ''
+                )
             );
 
 
@@ -1994,6 +2589,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
             saveScheduleButton.disabled =
                 false;
+
+
+            saveScheduleButton.classList.remove(
+                'disabled'
+            );
 
 
             saveScheduleText.textContent =
@@ -2011,13 +2611,21 @@ document.addEventListener('DOMContentLoaded', function () {
        FORM SUBMIT
     ========================================================= */
 
-    if (scheduleForm) {
+    if (
+        scheduleForm
+    ) {
 
         scheduleForm.addEventListener(
             'submit',
             function (e) {
 
-                if (formSubmitting) {
+                /*
+                 * PREVENT DOUBLE SUBMIT
+                 */
+
+                if (
+                    formSubmitting
+                ) {
 
                     e.preventDefault();
 
@@ -2025,17 +2633,21 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
 
+                /*
+                 * FORM DATES
+                 */
+
                 const startDate =
-                    $('#start-date').val();
+                    $('#start-date').val() || '';
 
 
                 const endDate =
-                    $('#end-date').val();
+                    $('#end-date').val() || '';
 
 
-                /* =================================================
-                   DATE VALIDATION
-                ================================================= */
+                /*
+                 * END DATE VALIDATION
+                 */
 
                 if (
                     startDate &&
@@ -2055,13 +2667,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
 
-                /* =================================================
-                   DUPLICATE VALIDATION
-                ================================================= */
+                /*
+                 * CURRENT ID
+                 */
 
                 const currentId =
                     $('#id').val();
 
+
+                /*
+                 * PROGRAM CODE
+                 */
 
                 const programCode =
                     String(
@@ -2070,6 +2686,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     .trim()
                     .toLowerCase();
 
+
+                /*
+                 * DUPLICATE VALIDATION
+                 *
+                 * NEW SCHEDULES ONLY
+                 */
 
                 if (
                     !currentId &&
@@ -2081,11 +2703,17 @@ document.addEventListener('DOMContentLoaded', function () {
                             function (schedule) {
 
                                 return (
-                                    !isCancelled(schedule) &&
-                                    !isCompleted(schedule) &&
+                                    !isCancelled(
+                                        schedule
+                                    ) &&
+
+                                    !isCompleted(
+                                        schedule
+                                    ) &&
 
                                     String(
-                                        schedule.program_code || ''
+                                        schedule.program_code ||
+                                        ''
                                     )
                                     .trim()
                                     .toLowerCase() ===
@@ -2105,7 +2733,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         );
 
 
-                    if (duplicate) {
+                    if (
+                        duplicate
+                    ) {
 
                         e.preventDefault();
 
@@ -2120,9 +2750,32 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
 
-                /* =================================================
-                   LOCK SUBMIT
-                ================================================= */
+                /*
+                 * DETECT DATE CHANGE
+                 */
+
+                let dateChanged =
+                    false;
+
+
+                if (
+                    currentId
+                ) {
+
+                    dateChanged =
+                        (
+                            originalStartDate !==
+                                startDate ||
+
+                            originalEndDate !==
+                                endDate
+                        );
+                }
+
+
+                /*
+                 * LOCK SUBMIT
+                 */
 
                 formSubmitting =
                     true;
@@ -2137,10 +2790,45 @@ document.addEventListener('DOMContentLoaded', function () {
                 );
 
 
-                saveScheduleText.textContent =
+                /*
+                 * BUTTON TEXT
+                 */
+
+                if (
                     currentId
-                        ? 'Updating...'
-                        : 'Saving...';
+                ) {
+
+                    if (
+                        dateChanged
+                    ) {
+
+                        saveScheduleText.textContent =
+                            'Re-Scheduling...';
+
+                    } else {
+
+                        saveScheduleText.textContent =
+                            'Updating...';
+                    }
+
+                } else {
+
+                    saveScheduleText.textContent =
+                        'Saving...';
+                }
+
+
+                /*
+                 * IMPORTANT
+                 *
+                 * Status is NOT manually submitted.
+                 *
+                 * The SchedulesController API determines
+                 * whether the date changed and sets:
+                 *
+                 * Re-Scheduled
+                 */
+
             }
         );
     }
@@ -2161,6 +2849,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
             if (!cancelButton) {
+
                 return;
             }
 
@@ -2174,10 +2863,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 );
 
 
-            /* =================================================
-               VALIDATE ID
-            ================================================= */
-
             if (!id) {
 
                 alert(
@@ -2187,10 +2872,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-
-            /* =================================================
-               FIND SCHEDULE
-            ================================================= */
 
             const schedule =
                 schedules.find(
@@ -2214,11 +2895,13 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
 
-            /* =================================================
-               CHECK CANCELLED
-            ================================================= */
+            /*
+             * CANCELLED
+             */
 
-            if (isCancelled(schedule)) {
+            if (
+                isCancelled(schedule)
+            ) {
 
                 alert(
                     'This schedule is already cancelled.'
@@ -2228,11 +2911,13 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
 
-            /* =================================================
-               CHECK COMPLETED
-            ================================================= */
+            /*
+             * COMPLETED
+             */
 
-            if (isCompleted(schedule)) {
+            if (
+                isCompleted(schedule)
+            ) {
 
                 alert(
                     'This schedule has already been completed and cannot be cancelled.'
@@ -2242,9 +2927,9 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
 
-            /* =================================================
-               PROGRAM
-            ================================================= */
+            /*
+             * PROGRAM
+             */
 
             const program =
                 schedule.program_code ||
@@ -2252,9 +2937,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 'this schedule';
 
 
-            /* =================================================
-               CONFIRM
-            ================================================= */
+            /*
+             * CONFIRM
+             */
 
             const confirmed =
                 confirm(
@@ -2266,13 +2951,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
             if (!confirmed) {
+
                 return;
             }
 
 
-            /* =================================================
-               LOCK BUTTON
-            ================================================= */
+            /*
+             * LOCK BUTTON
+             */
 
             cancelButton.disabled =
                 true;
@@ -2286,42 +2972,21 @@ document.addEventListener('DOMContentLoaded', function () {
                 '<i class="fas fa-spinner fa-spin mr-1"></i> Cancelling...';
 
 
-            /* =================================================
-               CSRF
-            ================================================= */
+            /*
+             * CSRF
+             */
 
             const csrfToken =
                 getCsrfToken();
 
 
-            /* =================================================
-               CANCEL URL
-            ================================================= */
+            /*
+             * URL
+             */
 
             const cancelUrl =
                 getCancelUrl(id);
 
-
-            console.log(
-                'Cancel URL:',
-                cancelUrl
-            );
-
-
-            console.log(
-                'Cancelling Schedule ID:',
-                id
-            );
-
-
-            /* =================================================
-               SEND REQUEST
-               
-               IMPORTANT:
-               Only send the ID.
-               The API controller decides
-               the new status.
-            ================================================= */
 
             try {
 
@@ -2332,7 +2997,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
                             method: 'POST',
 
-                            credentials: 'same-origin',
+                            credentials:
+                                'same-origin',
 
                             headers: {
 
@@ -2347,7 +3013,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
                                 'X-Requested-With':
                                     'XMLHttpRequest'
-
                             },
 
                             body:
@@ -2358,24 +3023,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     );
 
 
-                /* =================================================
-                   READ SERVER RESPONSE
-                ================================================= */
-
                 const responseText =
                     await response.text();
-
-
-                console.log(
-                    'Cancel HTTP status:',
-                    response.status
-                );
-
-
-                console.log(
-                    'Cancel response:',
-                    responseText
-                );
 
 
                 let data;
@@ -2388,8 +3037,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             responseText
                         );
 
-                }
-                catch (jsonError) {
+                } catch (jsonError) {
 
                     throw new Error(
                         'The server returned an invalid response.'
@@ -2397,11 +3045,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
 
-                /* =================================================
-                   HTTP ERROR
-                ================================================= */
+                /*
+                 * HTTP ERROR
+                 */
 
-                if (!response.ok) {
+                if (
+                    !response.ok
+                ) {
 
                     throw new Error(
                         data.message ||
@@ -2411,9 +3061,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
 
-                /* =================================================
-                   APPLICATION ERROR
-                ================================================= */
+                /*
+                 * APPLICATION ERROR
+                 */
 
                 if (
                     data.success !== true &&
@@ -2428,9 +3078,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
 
-                /* =================================================
-                   UPDATE LOCAL DATA
-                ================================================= */
+                /*
+                 * UPDATE LOCAL DATA
+                 */
 
                 const index =
                     schedules.findIndex(
@@ -2444,7 +3094,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     );
 
 
-                if (index !== -1) {
+                if (
+                    index !== -1
+                ) {
 
                     schedules[index].status =
                         data.schedule_status ||
@@ -2452,18 +3104,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
 
-                /* =================================================
-                   REFRESH CALENDAR
-                ================================================= */
+                /*
+                 * REFRESH
+                 */
 
                 renderCalendar();
 
 
-                /* =================================================
-                   REFRESH LIST
-                ================================================= */
-
-                if (selectedDate) {
+                if (
+                    selectedDate
+                ) {
 
                     renderScheduleList(
                         schedulesOnDate(
@@ -2472,8 +3122,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         selectedDate
                     );
 
-                }
-                else {
+                } else {
 
                     renderScheduleList(
                         schedules
@@ -2481,28 +3130,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
 
-                /* =================================================
-                   SUCCESS MESSAGE
-                ================================================= */
-
                 alert(
                     data.message ||
                     'Schedule has been cancelled successfully.'
                 );
 
-
-            }
-            catch (error) {
+            } catch (error) {
 
                 console.error(
                     'Cancel error:',
                     error
                 );
 
-
-                /* =================================================
-                   RESTORE BUTTON
-                ================================================= */
 
                 cancelButton.disabled =
                     false;
@@ -2532,7 +3171,9 @@ document.addEventListener('DOMContentLoaded', function () {
         );
 
 
-    if (previousMonth) {
+    if (
+        previousMonth
+    ) {
 
         previousMonth.addEventListener(
             'click',
@@ -2568,7 +3209,9 @@ document.addEventListener('DOMContentLoaded', function () {
         );
 
 
-    if (nextMonth) {
+    if (
+        nextMonth
+    ) {
 
         nextMonth.addEventListener(
             'click',
@@ -2604,7 +3247,9 @@ document.addEventListener('DOMContentLoaded', function () {
         );
 
 
-    if (todayButton) {
+    if (
+        todayButton
+    ) {
 
         todayButton.addEventListener(
             'click',
@@ -2646,7 +3291,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 false;
 
 
-            if (saveScheduleButton) {
+            if (
+                saveScheduleButton
+            ) {
 
                 saveScheduleButton.disabled =
                     false;
@@ -2656,6 +3303,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     'disabled'
                 );
             }
+
         }
     );
 
@@ -2673,13 +3321,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /* =========================================================
-       AUTO CHECK COMPLETED
-       
-       Every 60 seconds
-       
-       IMPORTANT:
-       This only updates the UI.
-       It does NOT change the database.
+       AUTO REFRESH UI
+       EVERY 60 SECONDS
     ========================================================= */
 
     setInterval(
@@ -2688,7 +3331,9 @@ document.addEventListener('DOMContentLoaded', function () {
             renderCalendar();
 
 
-            if (selectedDate) {
+            if (
+                selectedDate
+            ) {
 
                 renderScheduleList(
                     schedulesOnDate(
@@ -2697,8 +3342,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     selectedDate
                 );
 
-            }
-            else {
+            } else {
 
                 renderScheduleList(
                     schedules

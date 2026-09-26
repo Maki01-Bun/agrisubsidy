@@ -272,9 +272,7 @@
         <div class="card-body">
 
             <table
-                id="farms-table"
-                class="table table-bordered table-hover"
-            >
+                id="farms-table" class="table table-bordered table-hover">
 
                 <thead>
 

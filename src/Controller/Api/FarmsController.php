@@ -122,7 +122,7 @@ class FarmsController extends AppController
             // Get farmer_no from the contained Farmer entity
             'farmer_no' => $farm->farmer->farmer_no ?? '',
             'farm_size' => $farm->farm_size,
-            'location' => $farm->location
+            'location' => strtoupper($farm->location ?? ''),
         ];
     }
 
@@ -134,6 +134,7 @@ class FarmsController extends AppController
             'data' => $data
         ]));
 }
+
     
 
     /**

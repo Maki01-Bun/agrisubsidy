@@ -34,7 +34,7 @@
             </li>
             <li class="nav-item">
                 <?= $this->Html->link(
-                    '<i class="nav-icon fas fa-calendar-alt"></i><p>Subsidy Distribution Schedules</p>',
+                    '<i class="nav-icon fas fa-calendar-alt"></i><p>Distribution Schedules</p>',
                     '/Schedules',
                     ['class' => 'nav-link '.($title == 'Schedules' ? 'active' : ''),'escape' => false])?>
             </li>

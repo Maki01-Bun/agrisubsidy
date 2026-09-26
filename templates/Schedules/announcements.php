@@ -52,6 +52,7 @@ $today = date('Y-m-d');
             <?php foreach ($schedules as $schedule): ?>
 
                 <?php
+
                 /*
                  * =====================================================
                  * DATE VALUES
@@ -61,30 +62,30 @@ $today = date('Y-m-d');
                 $startDate = null;
                 $endDate = null;
 
+
                 if (!empty($schedule->start_date)) {
 
                     $startDate = date(
                         'Y-m-d',
                         strtotime(
-                            $schedule->start_date
+                            (string)$schedule->start_date
                         )
                     );
-
                 }
+
 
                 if (!empty($schedule->end_date)) {
 
                     $endDate = date(
                         'Y-m-d',
                         strtotime(
-                            $schedule->end_date
+                            (string)$schedule->end_date
                         )
                     );
 
                 } else {
 
                     $endDate = $startDate;
-
                 }
 
 
@@ -106,16 +107,15 @@ $today = date('Y-m-d');
                 /*
                  * =====================================================
                  * DETERMINE STATUS
+                 *
+                 * IMPORTANT:
+                 *
+                 * Re-Scheduled is checked BEFORE date-based
+                 * Upcoming/Ongoing/Completed logic.
+                 *
+                 * This prevents a Re-Scheduled schedule from
+                 * incorrectly appearing as Completed.
                  * =====================================================
-                 *
-                 * Priority:
-                 *
-                 * 1. Cancelled
-                 * 2. Completed
-                 * 3. Upcoming
-                 * 4. Ongoing
-                 * 5. Completed by date
-                 *
                  */
 
                 if (
@@ -129,6 +129,20 @@ $today = date('Y-m-d');
 
                     $statusIcon =
                         'fa-times-circle';
+
+
+                } elseif (
+                    $databaseStatus === 're-scheduled' ||
+                    $databaseStatus === 'rescheduled'
+                ) {
+
+                    $status = 'Re-Scheduled';
+
+                    $statusClass =
+                        'status-rescheduled';
+
+                    $statusIcon =
+                        'fa-calendar-alt';
 
 
                 } elseif (
@@ -183,7 +197,6 @@ $today = date('Y-m-d');
 
                     $statusIcon =
                         'fa-check-circle';
-
                 }
 
 
@@ -221,18 +234,9 @@ $today = date('Y-m-d');
                  * =====================================================
                  * BARANGAY
                  * =====================================================
-                 *
-                 * Your database appears to use "baranggay".
-                 * We also support "barangay" if that field exists.
-                 *
                  */
 
-                if (!empty($schedule->baranggay)) {
-
-                    $barangay =
-                        $schedule->baranggay;
-
-                } elseif (!empty($schedule->barangay)) {
+                if (!empty($schedule->barangay)) {
 
                     $barangay =
                         $schedule->barangay;
@@ -241,7 +245,6 @@ $today = date('Y-m-d');
 
                     $barangay =
                         'No barangay specified.';
-
                 }
 
 
@@ -258,10 +261,9 @@ $today = date('Y-m-d');
                     $startTime = date(
                         'h:i A',
                         strtotime(
-                            $schedule->start_time
+                            (string)$schedule->start_time
                         )
                     );
-
                 }
 
 
@@ -278,46 +280,55 @@ $today = date('Y-m-d');
                     $endTime = date(
                         'h:i A',
                         strtotime(
-                            $schedule->end_time
+                            (string)$schedule->end_time
                         )
                     );
-
                 }
 
 
                 /*
                  * =====================================================
-                 * FORMATTED DATE
+                 * FORMATTED DATES
                  * =====================================================
                  */
 
-                $formattedStartDate = 'Date not specified';
+                $formattedStartDate =
+                    'Date not specified';
+
 
                 if (!empty($startDate)) {
 
                     $formattedStartDate =
                         date(
                             'F d, Y',
-                            strtotime(
-                                $startDate
-                            )
+                            strtotime($startDate)
                         );
-
                 }
 
 
-                $footerDate = 'Date not specified';
+                $formattedEndDate = null;
+
+                if (!empty($endDate)) {
+
+                    $formattedEndDate =
+                        date(
+                            'F d, Y',
+                            strtotime($endDate)
+                        );
+                }
+
+
+                $footerDate =
+                    'Date not specified';
+
 
                 if (!empty($startDate)) {
 
                     $footerDate =
                         date(
                             'M d, Y',
-                            strtotime(
-                                $startDate
-                            )
+                            strtotime($startDate)
                         );
-
                 }
 
                 ?>
@@ -350,9 +361,6 @@ $today = date('Y-m-d');
 
                         <div class="announcement-card-top">
 
-
-                            <!-- PROGRAM CODE -->
-
                             <div class="announcement-program">
 
                                 <i
@@ -369,8 +377,6 @@ $today = date('Y-m-d');
 
                             </div>
 
-
-                            <!-- STATUS -->
 
                             <span
                                 class="
@@ -401,9 +407,7 @@ $today = date('Y-m-d');
                         <div class="announcement-card-body">
 
 
-                            <!-- =====================================
-                                 TITLE
-                            ====================================== -->
+                            <!-- TITLE -->
 
                             <div class="announcement-title-section">
 
@@ -422,9 +426,7 @@ $today = date('Y-m-d');
                                 <div>
 
                                     <h4>
-
                                         <?= h($programName) ?>
-
                                     </h4>
 
                                     <span class="text-muted">
@@ -438,9 +440,7 @@ $today = date('Y-m-d');
                             </div>
 
 
-                            <!-- =====================================
-                                 DESCRIPTION
-                            ====================================== -->
+                            <!-- DESCRIPTION -->
 
                             <div class="announcement-description">
 
@@ -470,9 +470,7 @@ $today = date('Y-m-d');
                             </div>
 
 
-                            <!-- =====================================
-                                 BARANGAY
-                            ====================================== -->
+                            <!-- BARANGAY -->
 
                             <div class="announcement-description">
 
@@ -490,26 +488,25 @@ $today = date('Y-m-d');
 
                                 </div>
 
-
                                 <p>
 
-                                    <?= h($barangay) ?>
+                                    <?= h(
+                                        strtoupper($barangay)
+                                    ) ?>
 
                                 </p>
 
                             </div>
 
 
-                            <!-- =====================================
-                                 SCHEDULE INFORMATION
-                            ====================================== -->
+                            <!-- =================================================
+                                 SCHEDULE
+                            ================================================== -->
 
                             <div class="schedule-grid">
 
 
-                                <!-- =================================
-                                     DISTRIBUTION DATE
-                                ================================== -->
+                                <!-- DATE -->
 
                                 <div class="schedule-item">
 
@@ -539,9 +536,29 @@ $today = date('Y-m-d');
 
                                         <strong>
 
-                                            <?= h(
-                                                $formattedStartDate
-                                            ) ?>
+                                            <?php if (
+                                                !empty($startDate) &&
+                                                !empty($endDate) &&
+                                                $startDate !== $endDate
+                                            ): ?>
+
+                                                <?= h(
+                                                    $formattedStartDate
+                                                ) ?>
+
+                                                -
+
+                                                <?= h(
+                                                    $formattedEndDate
+                                                ) ?>
+
+                                            <?php else: ?>
+
+                                                <?= h(
+                                                    $formattedStartDate
+                                                ) ?>
+
+                                            <?php endif; ?>
 
                                         </strong>
 
@@ -550,9 +567,7 @@ $today = date('Y-m-d');
                                 </div>
 
 
-                                <!-- =================================
-                                     DISTRIBUTION TIME
-                                ================================== -->
+                                <!-- TIME -->
 
                                 <div class="schedule-item">
 
@@ -597,7 +612,6 @@ $today = date('Y-m-d');
                                                     $endTime
                                                 ) ?>
 
-
                                             <?php elseif (
                                                 !empty($startTime)
                                             ): ?>
@@ -605,7 +619,6 @@ $today = date('Y-m-d');
                                                 <?= h(
                                                     $startTime
                                                 ) ?>
-
 
                                             <?php else: ?>
 
@@ -622,9 +635,9 @@ $today = date('Y-m-d');
                             </div>
 
 
-                            <!-- =====================================
-                                 STATUS INFORMATION
-                            ====================================== -->
+                            <!-- =================================================
+                                 STATUS MESSAGE
+                            ================================================== -->
 
 
                             <?php if (
@@ -632,9 +645,7 @@ $today = date('Y-m-d');
                             ): ?>
 
 
-                                <!-- ===============================
-                                     UPCOMING
-                                ================================ -->
+                                <!-- UPCOMING -->
 
                                 <div class="countdown-box">
 
@@ -677,13 +688,100 @@ $today = date('Y-m-d');
 
 
                             <?php elseif (
+                                $status === 'Re-Scheduled'
+                            ): ?>
+
+
+                                <!-- =================================================
+                                     RE-SCHEDULED
+                                ================================================== -->
+
+                                <div class="rescheduled-box">
+
+                                    <div class="rescheduled-box-header">
+
+                                        <i
+                                            class="
+                                                fas
+                                                fa-calendar-alt
+                                                mr-2
+                                            "
+                                        ></i>
+
+                                        <strong>
+
+                                            This distribution schedule
+                                            has been re-scheduled.
+
+                                        </strong>
+
+                                    </div>
+
+
+                                    <span>
+
+                                        The distribution date has been
+                                        changed. Please follow the new
+                                        official schedule shown above.
+
+                                    </span>
+
+
+                                    <?php if (
+                                        !empty($startDate)
+                                    ): ?>
+
+                                        <div
+                                            class="
+                                                rescheduled-new-date
+                                            "
+                                        >
+
+                                            <i
+                                                class="
+                                                    fas
+                                                    fa-calendar-check
+                                                    mr-2
+                                                "
+                                            ></i>
+
+                                            <strong>
+
+                                                New Distribution Date:
+
+                                            </strong>
+
+                                            <?= h(
+                                                $formattedStartDate
+                                            ) ?>
+
+
+                                            <?php if (
+                                                !empty($endDate) &&
+                                                $startDate !== $endDate
+                                            ): ?>
+
+                                                -
+
+                                                <?= h(
+                                                    $formattedEndDate
+                                                ) ?>
+
+                                            <?php endif; ?>
+
+                                        </div>
+
+                                    <?php endif; ?>
+
+                                </div>
+
+
+                            <?php elseif (
                                 $status === 'Ongoing'
                             ): ?>
 
 
-                                <!-- ===============================
-                                     ONGOING
-                                ================================ -->
+                                <!-- ONGOING -->
 
                                 <div class="ongoing-box">
 
@@ -722,9 +820,7 @@ $today = date('Y-m-d');
                             ): ?>
 
 
-                                <!-- ===============================
-                                     CANCELLED
-                                ================================ -->
+                                <!-- CANCELLED -->
 
                                 <div class="cancelled-box">
 
@@ -763,9 +859,7 @@ $today = date('Y-m-d');
                             <?php else: ?>
 
 
-                                <!-- ===============================
-                                     COMPLETED
-                                ================================ -->
+                                <!-- COMPLETED -->
 
                                 <div class="completed-box">
 
@@ -790,21 +884,20 @@ $today = date('Y-m-d');
 
                                 </div>
 
-
                             <?php endif; ?>
 
 
-                            <!-- =====================================
-                                 IMPORTANT REMINDER
-                            ====================================== -->
+                            <!-- =================================================
+                                 REMINDER
+                            ================================================== -->
 
                             <?php if (
                                 $status === 'Upcoming' ||
-                                $status === 'Ongoing'
+                                $status === 'Ongoing' ||
+                                $status === 'Re-Scheduled'
                             ): ?>
 
                                 <div class="reminder-box">
-
 
                                     <div class="reminder-icon">
 
@@ -851,7 +944,6 @@ $today = date('Y-m-d');
                         ========================================== -->
 
                         <div class="announcement-card-footer">
-
 
                             <div class="official-label">
 
@@ -902,7 +994,6 @@ $today = date('Y-m-d');
 
         <div class="no-announcement">
 
-
             <div class="no-announcement-icon">
 
                 <i
@@ -916,9 +1007,7 @@ $today = date('Y-m-d');
 
 
             <h4>
-
                 No Announcements Available
-
             </h4>
 
 

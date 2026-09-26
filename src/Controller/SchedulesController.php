@@ -128,76 +128,207 @@ class SchedulesController extends AppController
      *
      * @param string|null $id Schedule id.
      */
-    public function edit($id = null)
-    {
+    /**
+ * Edit method
+ *
+ * @param string|null $id Schedule id.
+ */
+public function edit($id = null)
+{
+    $schedule =
+        $this->Schedules->get(
+            $id,
+            [
+                'contain' => [],
+            ]
+        );
+
+    if (
+        $this->request->is(
+            [
+                'patch',
+                'post',
+                'put'
+            ]
+        )
+    ) {
+
+        /*
+         * =====================================================
+         * SAVE ORIGINAL DATES BEFORE PATCHING
+         * =====================================================
+         */
+
+        $originalStartDate =
+            $schedule->start_date;
+
+        $originalEndDate =
+            $schedule->end_date;
+
+
+        /*
+         * =====================================================
+         * GET FORM DATA
+         * =====================================================
+         */
+
+        $data =
+            $this->request->getData();
+
+
+        /*
+         * =====================================================
+         * DO NOT ALLOW MANUAL STATUS CHANGE
+         * =====================================================
+         */
+
+        unset(
+            $data['status']
+        );
+
+
+        /*
+         * =====================================================
+         * PATCH SCHEDULE
+         * =====================================================
+         */
+
         $schedule =
-            $this->Schedules->get(
-                $id,
-                [
-                    'contain' => [],
-                ]
+            $this->Schedules->patchEntity(
+                $schedule,
+                $data
             );
 
+
+        /*
+         * =====================================================
+         * NORMALIZE ORIGINAL DATES
+         * =====================================================
+         */
+
+        $originalStart =
+            $originalStartDate
+                ? $originalStartDate->format('Y-m-d')
+                : '';
+
+        $originalEnd =
+            $originalEndDate
+                ? $originalEndDate->format('Y-m-d')
+                : '';
+
+
+        /*
+         * =====================================================
+         * NORMALIZE NEW DATES
+         * =====================================================
+         */
+
+        $newStart =
+            $schedule->start_date
+                ? $schedule->start_date->format('Y-m-d')
+                : '';
+
+        $newEnd =
+            $schedule->end_date
+                ? $schedule->end_date->format('Y-m-d')
+                : '';
+
+
+        /*
+         * =====================================================
+         * CHECK IF DATE CHANGED
+         * =====================================================
+         */
+
+        $dateChanged =
+            (
+                $originalStart !== $newStart ||
+                $originalEnd !== $newEnd
+            );
+
+
+        /*
+         * =====================================================
+         * AUTOMATICALLY MARK AS RE-SCHEDULED
+         * =====================================================
+         *
+         * Only the date change causes this status.
+         *
+         * Users cannot manually select the status
+         * from the edit form.
+         */
+
+        if ($dateChanged) {
+
+            $schedule->status =
+                'Re-Scheduled';
+        }
+
+
+        /*
+         * =====================================================
+         * SAVE
+         * =====================================================
+         */
+
         if (
-            $this->request->is(
-                [
-                    'patch',
-                    'post',
-                    'put'
-                ]
+            $this->Schedules->save(
+                $schedule
             )
         ) {
 
             /*
-             * Do not allow status to be changed
-             * through this normal edit form.
+             * =================================================
+             * SUCCESS MESSAGE
+             * =================================================
              */
 
-            $data =
-                $this->request->getData();
+            if ($dateChanged) {
 
-            unset(
-                $data['status']
-            );
-
-            $schedule =
-                $this->Schedules->patchEntity(
-                    $schedule,
-                    $data
+                $this->Flash->success(
+                    __(
+                        'The schedule has been re-scheduled successfully.'
+                    )
                 );
 
-            if (
-                $this->Schedules->save(
-                    $schedule
-                )
-            ) {
+            } else {
 
                 $this->Flash->success(
                     __(
                         'The schedule has been saved.'
                     )
                 );
-
-                return $this->redirect(
-                    [
-                        'action' => 'index'
-                    ]
-                );
             }
 
-            $this->Flash->error(
-                __(
-                    'The schedule could not be saved. Please, try again.'
-                )
+
+            return $this->redirect(
+                [
+                    'action' => 'index'
+                ]
             );
         }
 
-        $this->set(
-            compact(
-                'schedule'
+
+        /*
+         * =====================================================
+         * SAVE ERROR
+         * =====================================================
+         */
+
+        $this->Flash->error(
+            __(
+                'The schedule could not be saved. Please, try again.'
             )
         );
     }
+
+
+    $this->set(
+        compact(
+            'schedule'
+        )
+    );
+}
 
     /**
      * Delete method
@@ -251,44 +382,147 @@ class SchedulesController extends AppController
      * ANNOUNCEMENTS
      * =========================================================
      */
-    public function announcements()
-    {
-        $title =
-            'Subsidy Announcements';
+   public function announcements()
+{
+    $title = 'Subsidy Announcements';
 
-        /*
-         * =====================================================
-         * IMPORTANT:
-         * Include status.
-         * =====================================================
-         */
+    // =====================================================
+    // GET LOGGED-IN USER
+    // =====================================================
 
-        $schedules =
-            $this->Schedules
-                ->find()
-                ->select([
-                    'Schedules.id',
-                    'Schedules.program_code',
-                    'Schedules.program_name',
-                    'Schedules.description',
-                    'Schedules.barangay',
-                    'Schedules.start_date',
-                    'Schedules.end_date',
-                    'Schedules.start_time',
-                    'Schedules.end_time',
-                    'Schedules.status'
-                ])
-                ->order([
-                    'Schedules.start_date' => 'DESC',
-                    'Schedules.start_time' => 'ASC'
-                ])
-                ->all();
+    $user = $this->request
+        ->getSession()
+        ->read('Auth.User');
 
-        $this->set(
-            compact(
-                'schedules',
-                'title'
-            )
-        );
+
+    // =====================================================
+    // LOAD FARMERS MODEL
+    // =====================================================
+
+    $this->loadModel('Farmers');
+
+
+    // =====================================================
+    // FIND LOGGED-IN FARMER
+    // =====================================================
+
+    $farmer = null;
+
+    if ($user && !empty($user['id'])) {
+
+        $farmer = $this->Farmers
+            ->find()
+            ->select([
+                'Farmers.id',
+                'Farmers.user_id',
+                'Farmers.address'
+            ])
+            ->where([
+                'Farmers.user_id' => $user['id']
+            ])
+            ->first();
     }
+
+
+    // =====================================================
+    // GET FARMER ADDRESS
+    // =====================================================
+
+    $farmerAddress = '';
+
+    if ($farmer && !empty($farmer->address)) {
+        $farmerAddress = trim($farmer->address);
+    }
+
+
+    // =====================================================
+    // GET SCHEDULES
+    // =====================================================
+
+    $schedules = $this->Schedules
+        ->find()
+        ->select([
+            'Schedules.id',
+            'Schedules.program_code',
+            'Schedules.program_name',
+            'Schedules.description',
+            'Schedules.barangay',
+            'Schedules.start_date',
+            'Schedules.end_date',
+            'Schedules.start_time',
+            'Schedules.end_time',
+            'Schedules.status'
+        ])
+        ->order([
+            'Schedules.start_date' => 'DESC',
+            'Schedules.start_time' => 'ASC'
+        ])
+        ->all();
+
+
+    // =====================================================
+    // FILTER SCHEDULES BY FARMER ADDRESS
+    // =====================================================
+
+    $filteredSchedules = [];
+
+
+    if (!empty($farmerAddress)) {
+
+        // Normalize farmer address
+        $normalizedFarmerAddress = strtoupper(
+            trim($farmerAddress)
+        );
+
+
+        foreach ($schedules as $schedule) {
+
+            if (empty($schedule->barangay)) {
+                continue;
+            }
+
+
+            // Normalize schedule barangay
+            $normalizedBarangay = strtoupper(
+                trim($schedule->barangay)
+            );
+
+
+            // =================================================
+            // CHECK IF BARANGAY EXISTS IN FARMER ADDRESS
+            // =================================================
+
+            if (
+                strpos(
+                    $normalizedFarmerAddress,
+                    $normalizedBarangay
+                ) !== false
+            ) {
+
+                // Display Barangay in uppercase
+                $schedule->barangay =
+                    strtoupper(
+                        trim($schedule->barangay)
+                    );
+
+                $filteredSchedules[] = $schedule;
+            }
+        }
+    }
+
+
+    // =====================================================
+    // SEND FILTERED SCHEDULES TO VIEW
+    // =====================================================
+
+    $schedules = $filteredSchedules;
+
+
+    $this->set(
+        compact(
+            'schedules',
+            'title'
+        )
+    );
+}
 }

@@ -17,8 +17,8 @@ $(function(){
         })
             .done(function(data){
                 if(data!=''){
-                    $('#rating').val(data.rating);
                     $('#comment').val(data.comment);
+                    $('#answer').val(data.answer);
                 	$('#id').val(data.id);
                     $('#feedbacks-modal').modal('show');
                 }
@@ -109,8 +109,9 @@ function getFeedbacks()
             "url": BASE_URL + '/api/Feedbacks/getFeedbacks'
         },
         "columns": [
-            {data:"rating"},
-            {data:"comment"}
+            {data:"comment"},
+            {data:"answer"}
+            
         ]
 	});
 }

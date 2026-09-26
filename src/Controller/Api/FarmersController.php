@@ -25,7 +25,7 @@ class FarmersController extends AppController
             ->withStringBody(json_encode($farmers));
     }
 
-    public function getFarmers()
+     public function getFarmers()
     {
         $farmers = $this->Farmers->find()
             ->order(['Farmers.created' => 'DESC'])
@@ -52,9 +52,9 @@ class FarmersController extends AppController
             $data[] = [
                 'id' => $farmer->id,
                 'farmer_no' => $farmer->farmer_no ?? '',
-                'first_name' => $farmer->first_name ?? '',
-                'last_name' => $farmer->last_name ?? '',
-                'middle_name' => $farmer->middle_name ?? '',
+                'first_name'  => strtoupper($farmer->first_name ?? ''),
+                'last_name'   => strtoupper($farmer->last_name ?? ''),
+                'middle_name' => strtoupper($farmer->middle_name ?? ''),
                 'birthdate' => $birthdate,
                 'gender' => strtoupper(
                     strtolower(trim((string)($farmer->gender ?? ''))) === 'male'

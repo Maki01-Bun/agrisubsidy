@@ -107,23 +107,56 @@ class UsersController extends AppController
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
     public function edit($id = null)
-    {
-        $user = $this->Users->get($id, [
-            'contain' => [],
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $user = $this->Users->patchEntity($user, $this->request->getData());
-            if ($this->Users->save($user)) {
-                $result = ['status' => 'success', 'message' => 'The User has been saved.'];
-            }else {
-                $result = ['status'=>'error','message'=>'The User could not be saved. Please, try again.'];
-            }
-            return $this->response->withType('application/json')
-                ->withStringBody(json_encode($result));
+{
+    $user = $this->Users->get($id, [
+        'contain' => [],
+    ]);
+
+    if ($this->request->is(['patch', 'post', 'put'])) {
+
+        $data = $this->request->getData();
+
+        // Only allow these fields to be edited
+        $allowedData = [
+            'username' => $data['username'] ?? $user->username,
+            'email'    => $data['email'] ?? $user->email,
+        ];
+
+        // Only update password if a new password was entered
+        if (!empty($data['password'])) {
+            $allowedData['password'] = $data['password'];
         }
-        return $this->response->withType('application/json')
-            ->withStringBody(json_encode($user));
+
+        // Patch only the allowed fields
+        $user = $this->Users->patchEntity($user, $allowedData);
+
+        // Explicitly preserve the existing role
+        $user->role = $this->Users->get($id)->role;
+
+        if ($this->Users->save($user)) {
+
+            $result = [
+                'status' => 'success',
+                'message' => 'The User has been saved.'
+            ];
+
+        } else {
+
+            $result = [
+                'status' => 'error',
+                'message' => 'The User could not be saved. Please, try again.'
+            ];
+        }
+
+        return $this->response
+            ->withType('application/json')
+            ->withStringBody(json_encode($result));
     }
+
+    return $this->response
+        ->withType('application/json')
+        ->withStringBody(json_encode($user));
+}
 
     /**
      * Delete method

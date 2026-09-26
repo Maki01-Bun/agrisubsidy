@@ -2254,88 +2254,300 @@ public function downloadExcelTemplate()
         }
     }
 
-  /**
- * ================================================================
- * GET SINGLE RECORD JSON
- * ================================================================
- */
-/**
- * ================================================================
- * GET SINGLE RECORD JSON
- * ================================================================
- */
-public function getRecord($recordId)
+public function getRecord($farmerId = null)
 {
+    // =========================================================
+    // ONLY ALLOW GET
+    // =========================================================
+
     $this->request->allowMethod(['get']);
 
-    $record = $this->Records->get($recordId, [
-        'contain' => [
-            'Farmers',
-            'Schedules'
-        ]
-    ]);
+    // =========================================================
+    // CHECK FARMER ID
+    // =========================================================
 
-    $schedule = $record->schedule ?? null;
-    $farmer = $record->farmer ?? null;
-
-    $programName = 'N/A';
-
-    if ($schedule) {
-        $programName = $schedule->program_name ?? 'N/A';
+    if (!$farmerId) {
+        return $this->response
+            ->withType('application/json')
+            ->withStatus(400)
+            ->withStringBody(json_encode([
+                'success' => false,
+                'message' => 'Farmer ID missing'
+            ]));
     }
 
-    $data = [
-        'id' => $record->id,
+    // =========================================================
+    // LOAD RECORDS
+    // =========================================================
 
-        'farmer_id' => $record->farmer_id,
+    $records = $this->Records->find()
+        ->where([
+            'Records.farmer_id' => $farmerId
+        ])
+        ->contain([
+            'Farmers',
+            'Schedules'
+        ])
+        ->order([
+            'Records.id' => 'DESC'
+        ])
+        ->all();
 
-        'farmer_name' => $farmer
-            ? trim(
-                ($farmer->firstname ?? '') . ' ' .
-                ($farmer->middlename ?? '') . ' ' .
-                ($farmer->lastname ?? '')
-            )
-            : 'N/A',
+    // =========================================================
+    // NO RECORDS
+    // =========================================================
 
-        'schedule_id' => $record->schedule_id,
+    if ($records->isEmpty()) {
+        return $this->response
+            ->withType('application/json')
+            ->withStatus(200)
+            ->withStringBody(json_encode([
+                'success' => true,
+                'data' => [
+                    'farmer_id' => (int)$farmerId,
+                    'farmer_name' => 'N/A',
+                    'total_records' => 0,
+                    'all_records' => []
+                ]
+            ]));
+    }
 
-        'program_name' => $programName,
+    // =========================================================
+    // FIRST RECORD
+    // =========================================================
 
-        'subsidy_item' => $record->subsidy_item,
+    $firstRecord = $records->first();
 
-        'quantity' => $record->quantity,
+    $farmer = $firstRecord->farmer ?? null;
 
-        'distribution_date' => $record->distribution_date
-            ? $record->distribution_date->format('Y-m-d')
-            : null,
+    // =========================================================
+    // FARMER NAME
+    // =========================================================
 
-        'received_date' => $record->received_date
-            ? $record->received_date->format('Y-m-d')
-            : null,
+    $farmerName = 'N/A';
 
-        'status' => $record->status,
+    if ($farmer) {
 
-        'confirmed_at' => $record->confirmed_at
-            ? $record->confirmed_at->format('Y-m-d H:i:s')
-            : null,
+        $firstName =
+            $farmer->first_name
+            ?? $farmer->firstname
+            ?? '';
 
-        'created' => $record->created
-            ? $record->created->format('Y-m-d H:i:s')
-            : null,
+        $middleName =
+            $farmer->middle_name
+            ?? $farmer->middlename
+            ?? '';
 
-        'modified' => $record->modified
-            ? $record->modified->format('Y-m-d H:i:s')
-            : null,
-    ];
+        $lastName =
+            $farmer->last_name
+            ?? $farmer->lastname
+            ?? '';
+
+        $parts = array_filter([
+            trim($firstName),
+            trim($middleName),
+            trim($lastName)
+        ]);
+
+        if (!empty($parts)) {
+            $farmerName = implode(' ', $parts);
+        }
+    }
+
+    // =========================================================
+    // BUILD ALL RECORDS
+    // =========================================================
+
+    $allRecords = [];
+
+    foreach ($records as $rec) {
+
+        // =====================================================
+        // SCHEDULE
+        // =====================================================
+
+        $sched = $rec->schedule ?? null;
+
+        // =====================================================
+        // DISTRIBUTION DATE
+        // SOURCE: Schedules.start_date
+        // =====================================================
+
+        $distributionDate = 'N/A';
+
+        if (
+            $sched &&
+            !empty($sched->start_date)
+        ) {
+
+            $startDateObj = $sched->start_date;
+
+            if (
+                is_object($startDateObj) &&
+                method_exists($startDateObj, 'format')
+            ) {
+
+                $distributionDate =
+                    $startDateObj->format('Y-m-d');
+
+            } else {
+
+                $timestamp =
+                    strtotime((string)$startDateObj);
+
+                if ($timestamp !== false) {
+                    $distributionDate =
+                        date('Y-m-d', $timestamp);
+                }
+            }
+        }
+
+        // =====================================================
+        // RECEIVED DATE
+        // SOURCE: Records.received_date
+        // =====================================================
+
+        $receivedDate = 'N/A';
+
+        if (!empty($rec->received_date)) {
+
+            if (
+                is_object($rec->received_date) &&
+                method_exists($rec->received_date, 'format')
+            ) {
+
+                $receivedDate =
+                    $rec->received_date->format('Y-m-d');
+
+            } else {
+
+                $timestamp =
+                    strtotime((string)$rec->received_date);
+
+                if ($timestamp !== false) {
+                    $receivedDate =
+                        date('Y-m-d', $timestamp);
+                }
+            }
+        }
+
+        // =====================================================
+        // PROGRAM NAME
+        // SOURCE: Schedules
+        // =====================================================
+
+        $programName = 'N/A';
+
+        if ($sched) {
+
+            $programName =
+                $sched->program_name
+                ?? $sched->name
+                ?? 'N/A';
+        }
+
+        // =====================================================
+        // SUBSIDY ITEM
+        // =====================================================
+
+        $subsidyItem =
+            !empty($rec->subsidy_item)
+                ? $rec->subsidy_item
+                : 'Seed Subsidy';
+
+        // =====================================================
+        // QUANTITY
+        // =====================================================
+
+        $quantity = '0.00';
+
+        if ($rec->quantity !== null) {
+
+            $quantity = number_format(
+                (float)$rec->quantity,
+                2,
+                '.',
+                ''
+            );
+        }
+
+        // =====================================================
+        // STATUS
+        // =====================================================
+
+        $status =
+            !empty($rec->status)
+                ? $rec->status
+                : 'Not Received';
+
+        // =====================================================
+        // ADD RECORD
+        // =====================================================
+
+        $allRecords[] = [
+
+            'id' =>
+                (int)$rec->id,
+
+            'farmer_id' =>
+                (int)$rec->farmer_id,
+
+            'farmer_name' =>
+                $farmerName,
+
+            'schedule_id' =>
+                $rec->schedule_id !== null
+                    ? (int)$rec->schedule_id
+                    : null,
+
+            'program_name' =>
+                $programName,
+
+            'subsidy_item' =>
+                $subsidyItem,
+
+            'quantity' =>
+                $quantity,
+
+            'distribution_date' =>
+                $distributionDate,
+
+            'received_date' =>
+                $receivedDate,
+
+            'status' =>
+                $status
+        ];
+    }
+
+    // =========================================================
+    // RETURN JSON
+    // =========================================================
 
     return $this->response
         ->withType('application/json')
-        ->withStringBody(json_encode([
-            'success' => true,
-            'data' => $data
-        ]));
-}
+        ->withStatus(200)
+        ->withStringBody(
+            json_encode([
+                'success' => true,
 
+                'data' => [
+
+                    'farmer_id' =>
+                        (int)$farmerId,
+
+                    'farmer_name' =>
+                        $farmerName,
+
+                    'total_records' =>
+                        count($allRecords),
+
+                    'all_records' =>
+                        $allRecords
+                ]
+            ])
+        );
+}
 /**
  * Download received subsidy records as Excel
  *
@@ -3409,5 +3621,225 @@ public function getFarmerRecords($farmerId = null)
                 ])
             );
     }
+}
+
+/**
+ * Confirm subsidy receipt
+ *
+ * @param int|string $scheduleId
+ * @param string|null $response
+ * @return \Cake\Http\Response|null
+ */
+public function confirm($scheduleId)
+{
+    // =====================================================
+    // ONLY ALLOW POST
+    // =====================================================
+
+    $this->request->allowMethod(['post']);
+
+
+    // =====================================================
+    // GET LOGGED-IN USER
+    // =====================================================
+
+    $user = $this->request
+        ->getSession()
+        ->read('Auth.User');
+
+    if (!$user) {
+
+        $this->Flash->error(
+            'You must be logged in to confirm the subsidy.'
+        );
+
+        return $this->redirect([
+            'controller' => 'Users',
+            'action' => 'login'
+        ]);
+    }
+
+
+    // =====================================================
+    // GET RESPONSE FROM POST DATA
+    // =====================================================
+
+    $response = $this->request
+        ->getData('response');
+
+
+    // =====================================================
+    // VALIDATE RESPONSE
+    // =====================================================
+
+    if (!in_array($response, ['received', 'not_received'], true)) {
+
+        $this->Flash->error(
+            'Invalid subsidy confirmation.'
+        );
+
+        return $this->redirect(
+            $this->request->referer()
+        );
+    }
+
+
+    // =====================================================
+    // LOAD MODELS
+    // =====================================================
+
+    $this->loadModel('Farmers');
+    $this->loadModel('Schedules');
+    $this->loadModel('Records');
+
+
+    // =====================================================
+    // FIND FARMER
+    // =====================================================
+
+    $farmer = $this->Farmers
+        ->find()
+        ->where([
+            'Farmers.user_id' => $user['id']
+        ])
+        ->first();
+
+
+    if (!$farmer) {
+
+        $this->Flash->error(
+            'Farmer record not found.'
+        );
+
+        return $this->redirect(
+            $this->request->referer()
+        );
+    }
+
+
+    // =====================================================
+    // FIND SCHEDULE
+    // =====================================================
+
+    $schedule = $this->Schedules
+        ->find()
+        ->where([
+            'Schedules.id' => $scheduleId
+        ])
+        ->first();
+
+
+    if (!$schedule) {
+
+        $this->Flash->error(
+            'Distribution schedule not found.'
+        );
+
+        return $this->redirect(
+            $this->request->referer()
+        );
+    }
+
+
+    // =====================================================
+    // FIND DISTRIBUTION RECORD
+    // =====================================================
+
+    $record = $this->Records
+        ->find()
+        ->where([
+            'Records.farmer_id' => $farmer->id,
+            'Records.schedule_id' => $schedule->id
+        ])
+        ->first();
+
+
+    if (!$record) {
+
+        $this->Flash->error(
+            'No distribution record was found for this schedule.'
+        );
+
+        return $this->redirect(
+            $this->request->referer()
+        );
+    }
+
+
+    // =====================================================
+    // PREVENT DUPLICATE CONFIRMATION
+    // =====================================================
+
+    if (
+        $record->status === 'Received' ||
+        $record->status === 'Not Received'
+    ) {
+
+        $this->Flash->warning(
+            'You have already confirmed your response for this subsidy.'
+        );
+
+        return $this->redirect(
+            $this->request->referer()
+        );
+    }
+
+
+    // =====================================================
+    // SAVE RECEIVED
+    // =====================================================
+
+    if ($response === 'received') {
+
+        $record->status = 'Received';
+
+        $record->received_date = date('Y-m-d');
+
+        $successMessage =
+            'Your subsidy receipt has been confirmed successfully.';
+
+    }
+
+
+    // =====================================================
+    // SAVE NOT RECEIVED
+    // =====================================================
+
+    else {
+
+        $record->status = 'Not Received';
+
+        $record->received_date = null;
+
+        $successMessage =
+            'Your response has been recorded as Not Received.';
+    }
+
+
+    // =====================================================
+    // SAVE
+    // =====================================================
+
+    if ($this->Records->save($record)) {
+
+        $this->Flash->success(
+            $successMessage
+        );
+
+    } else {
+
+        $this->Flash->error(
+            'Unable to save your subsidy confirmation. Please try again.'
+        );
+    }
+
+
+    // =====================================================
+    // REDIRECT
+    // =====================================================
+
+    return $this->redirect(
+        $this->request->referer()
+    );
 }
 }

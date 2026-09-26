@@ -294,157 +294,35 @@ class SchedulesController extends AppController
      * PATCH|POST|PUT /api/Schedules/edit/{id}
      */
     public function edit($id = null)
-    {
-        if (!$this->request->is(['patch', 'post', 'put'])) {
+{
+    if (!$this->request->is(['patch', 'post', 'put'])) {
 
-            return $this->response
-                ->withStatus(405)
-                ->withType('application/json')
-                ->withStringBody(
-                    json_encode([
-                        'status' => 'error',
-                        'message' => 'Invalid request method.'
-                    ])
-                );
+        return $this->response
+            ->withStatus(405)
+            ->withType('application/json')
+            ->withStringBody(
+                json_encode([
+                    'status' => 'error',
+                    'message' => 'Invalid request method.'
+                ])
+            );
+    }
+
+    try {
+
+        /*
+         * =====================================================
+         * GET SCHEDULE ID
+         * =====================================================
+         */
+
+        if (empty($id)) {
+
+            $id =
+                $this->request->getData('id');
         }
 
-        try {
-
-            if (empty($id)) {
-
-                $id =
-                    $this->request->getData('id');
-
-            }
-
-            if (empty($id)) {
-
-                return $this->response
-                    ->withStatus(400)
-                    ->withType('application/json')
-                    ->withStringBody(
-                        json_encode([
-                            'status' => 'error',
-                            'message' =>
-                                'Schedule ID is required.'
-                        ])
-                    );
-            }
-
-            /*
-             * =====================================================
-             * FIND SCHEDULE
-             * =====================================================
-             */
-
-            $schedule =
-                $this->Schedules->get($id);
-
-            /*
-             * =====================================================
-             * PREVENT EDITING CANCELLED
-             * =====================================================
-             */
-
-            $currentStatus =
-                strtolower(
-                    trim(
-                        (string)(
-                            $schedule->status ?? ''
-                        )
-                    )
-                );
-
-            if ($currentStatus === 'cancelled') {
-
-                return $this->response
-                    ->withStatus(400)
-                    ->withType('application/json')
-                    ->withStringBody(
-                        json_encode([
-                            'status' => 'error',
-                            'message' =>
-                                'Cancelled schedules cannot be edited.'
-                        ])
-                    );
-            }
-
-            /*
-             * =====================================================
-             * GET DATA
-             * =====================================================
-             */
-
-            $data =
-                $this->request->getData();
-
-            /*
-             * =====================================================
-             * VALIDATE DATE / TIME
-             * =====================================================
-             */
-
-            $validationResult =
-                $this->validateScheduleDateTime(
-                    $data
-                );
-
-            if ($validationResult !== true) {
-
-                return $this->response
-                    ->withStatus(400)
-                    ->withType('application/json')
-                    ->withStringBody(
-                        json_encode([
-                            'status' => 'error',
-                            'message' => $validationResult
-                        ])
-                    );
-            }
-
-            /*
-             * =====================================================
-             * DO NOT ALLOW FORM TO REMOVE STATUS
-             * =====================================================
-             */
-
-            unset($data['status']);
-
-            /*
-             * =====================================================
-             * PATCH
-             * =====================================================
-             */
-
-            $schedule =
-                $this->Schedules->patchEntity(
-                    $schedule,
-                    $data
-                );
-
-            /*
-             * =====================================================
-             * SAVE
-             * =====================================================
-             */
-
-            if (
-                $this->Schedules->save(
-                    $schedule
-                )
-            ) {
-
-                return $this->response
-                    ->withType('application/json')
-                    ->withStringBody(
-                        json_encode([
-                            'status' => 'success',
-                            'message' =>
-                                'Schedule updated successfully.',
-                            'data' => $schedule
-                        ])
-                    );
-            }
+        if (empty($id)) {
 
             return $this->response
                 ->withStatus(400)
@@ -453,33 +331,435 @@ class SchedulesController extends AppController
                     json_encode([
                         'status' => 'error',
                         'message' =>
-                            'The schedule could not be updated.',
-                        'errors' =>
-                            $schedule->getErrors()
+                            'Schedule ID is required.'
                     ])
                 );
+        }
 
-        } catch (\Throwable $e) {
 
-            Log::error(
-                'Edit Schedule Error: ' .
-                $e->getMessage()
+        /*
+         * =====================================================
+         * FIND SCHEDULE
+         * =====================================================
+         */
+
+        $schedule =
+            $this->Schedules->get($id);
+
+
+        /*
+         * =====================================================
+         * CURRENT STATUS
+         * =====================================================
+         */
+
+        $currentStatus =
+            strtolower(
+                trim(
+                    (string)(
+                        $schedule->status ?? ''
+                    )
+                )
             );
 
+
+        /*
+         * =====================================================
+         * PREVENT EDITING CANCELLED
+         * =====================================================
+         */
+
+        if ($currentStatus === 'cancelled') {
+
             return $this->response
-                ->withStatus(500)
+                ->withStatus(400)
                 ->withType('application/json')
                 ->withStringBody(
                     json_encode([
                         'status' => 'error',
                         'message' =>
-                            'Server error while updating schedule.',
-                        'error' =>
-                            $e->getMessage()
+                            'Cancelled schedules cannot be edited.'
                     ])
                 );
         }
+
+
+        /*
+         * =====================================================
+         * PREVENT RESCHEDULING COMPLETED
+         * =====================================================
+         */
+
+        if ($currentStatus === 'completed') {
+
+            return $this->response
+                ->withStatus(400)
+                ->withType('application/json')
+                ->withStringBody(
+                    json_encode([
+                        'status' => 'error',
+                        'message' =>
+                            'Completed schedules cannot be re-scheduled.'
+                    ])
+                );
+        }
+
+
+        /*
+         * =====================================================
+         * GET REQUEST DATA
+         * =====================================================
+         */
+
+        $data =
+            $this->request->getData();
+
+
+        /*
+         * =====================================================
+         * VALIDATE DATE / TIME
+         * =====================================================
+         */
+
+        $validationResult =
+            $this->validateScheduleDateTime(
+                $data
+            );
+
+        if ($validationResult !== true) {
+
+            return $this->response
+                ->withStatus(400)
+                ->withType('application/json')
+                ->withStringBody(
+                    json_encode([
+                        'status' => 'error',
+                        'message' => $validationResult
+                    ])
+                );
+        }
+
+
+        /*
+         * =====================================================
+         * SAVE ORIGINAL DATES
+         * =====================================================
+         *
+         * IMPORTANT:
+         * We must get these BEFORE patchEntity().
+         */
+
+        $originalStartDate = '';
+        $originalEndDate = '';
+
+
+        /*
+         * ORIGINAL START DATE
+         */
+
+        if (
+            $schedule->start_date
+            instanceof \DateTimeInterface
+        ) {
+
+            $originalStartDate =
+                $schedule->start_date
+                    ->format('Y-m-d');
+
+        } elseif (
+            !empty($schedule->start_date)
+        ) {
+
+            $originalStartDate =
+                substr(
+                    (string)$schedule->start_date,
+                    0,
+                    10
+                );
+        }
+
+
+        /*
+         * ORIGINAL END DATE
+         */
+
+        if (
+            $schedule->end_date
+            instanceof \DateTimeInterface
+        ) {
+
+            $originalEndDate =
+                $schedule->end_date
+                    ->format('Y-m-d');
+
+        } elseif (
+            !empty($schedule->end_date)
+        ) {
+
+            $originalEndDate =
+                substr(
+                    (string)$schedule->end_date,
+                    0,
+                    10
+                );
+        }
+
+
+        /*
+         * =====================================================
+         * DO NOT ALLOW REQUEST TO DIRECTLY CHANGE STATUS
+         * =====================================================
+         *
+         * Status will be controlled by this method.
+         */
+
+        unset($data['status']);
+
+
+        /*
+         * =====================================================
+         * PATCH ENTITY
+         * =====================================================
+         */
+
+        $schedule =
+            $this->Schedules->patchEntity(
+                $schedule,
+                $data
+            );
+
+
+        /*
+         * =====================================================
+         * GET NEW START DATE
+         * =====================================================
+         */
+
+        $newStartDate = '';
+
+        if (
+            $schedule->start_date
+            instanceof \DateTimeInterface
+        ) {
+
+            $newStartDate =
+                $schedule->start_date
+                    ->format('Y-m-d');
+
+        } elseif (
+            !empty($schedule->start_date)
+        ) {
+
+            $newStartDate =
+                substr(
+                    (string)$schedule->start_date,
+                    0,
+                    10
+                );
+        }
+
+
+        /*
+         * =====================================================
+         * GET NEW END DATE
+         * =====================================================
+         */
+
+        $newEndDate = '';
+
+        if (
+            $schedule->end_date
+            instanceof \DateTimeInterface
+        ) {
+
+            $newEndDate =
+                $schedule->end_date
+                    ->format('Y-m-d');
+
+        } elseif (
+            !empty($schedule->end_date)
+        ) {
+
+            $newEndDate =
+                substr(
+                    (string)$schedule->end_date,
+                    0,
+                    10
+                );
+        }
+
+
+        /*
+         * =====================================================
+         * CHECK IF DATE CHANGED
+         * =====================================================
+         */
+
+        $dateChanged =
+            (
+                $originalStartDate !== $newStartDate ||
+                $originalEndDate !== $newEndDate
+            );
+
+
+        /*
+         * =====================================================
+         * HANDLE RE-SCHEDULING
+         * =====================================================
+         */
+
+        if ($dateChanged) {
+
+            /*
+             * Save the schedule as Re-Scheduled.
+             */
+
+            $schedule->status =
+                'Re-Scheduled';
+        }
+
+
+        /*
+         * =====================================================
+         * SAVE
+         * =====================================================
+         */
+
+        if (
+            $this->Schedules->save(
+                $schedule
+            )
+        ) {
+
+            /*
+             * =================================================
+             * AUDIT LOG FOR RE-SCHEDULING
+             * =================================================
+             */
+
+            if (
+                $dateChanged &&
+                isset($this->AuditLogger) &&
+                $this->AuditLogger
+            ) {
+
+                try {
+
+                    $this->AuditLogger->logActivity(
+                        'Re-Scheduled Schedule',
+                        'Schedules',
+                        $schedule->id,
+                        [
+                            'program_code' =>
+                                $schedule->program_code,
+
+                            'program_name' =>
+                                $schedule->program_name,
+
+                            'old_start_date' =>
+                                $originalStartDate,
+
+                            'old_end_date' =>
+                                $originalEndDate,
+
+                            'new_start_date' =>
+                                $newStartDate,
+
+                            'new_end_date' =>
+                                $newEndDate,
+
+                            'old_status' =>
+                                $currentStatus,
+
+                            'new_status' =>
+                                'Re-Scheduled'
+                        ]
+                    );
+
+                } catch (\Throwable $auditError) {
+
+                    /*
+                     * The schedule was already saved.
+                     *
+                     * Audit failure should NOT make the
+                     * rescheduling operation fail.
+                     */
+
+                    Log::error(
+                        'Schedule re-scheduling audit log failed: ' .
+                        $auditError->getMessage()
+                    );
+                }
+            }
+
+
+            /*
+             * =================================================
+             * SUCCESS MESSAGE
+             * =================================================
+             */
+
+            $message =
+                $dateChanged
+                    ? 'Schedule re-scheduled successfully.'
+                    : 'Schedule updated successfully.';
+
+
+            return $this->response
+                ->withType('application/json')
+                ->withStringBody(
+                    json_encode([
+                        'status' => 'success',
+                        'message' => $message,
+                        'rescheduled' => $dateChanged,
+                        'date_changed' => $dateChanged,
+                        'data' => $schedule
+                    ])
+                );
+        }
+
+
+        /*
+         * =====================================================
+         * SAVE FAILED
+         * =====================================================
+         */
+
+        return $this->response
+            ->withStatus(400)
+            ->withType('application/json')
+            ->withStringBody(
+                json_encode([
+                    'status' => 'error',
+                    'message' =>
+                        'The schedule could not be updated.',
+                    'errors' =>
+                        $schedule->getErrors()
+                ])
+            );
+
+
+    } catch (\Throwable $e) {
+
+        Log::error(
+            'Edit/Re-Schedule Schedule Error: ' .
+            $e->getMessage()
+        );
+
+        return $this->response
+            ->withStatus(500)
+            ->withType('application/json')
+            ->withStringBody(
+                json_encode([
+                    'status' => 'error',
+                    'message' =>
+                        'Server error while updating schedule.',
+                    'error' =>
+                        $e->getMessage()
+                ])
+            );
     }
+}
 
     /**
      * Delete Schedule

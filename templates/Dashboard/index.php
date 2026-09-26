@@ -246,9 +246,50 @@
 
                 <div class="dashboard-card-body">
 
+                    <div class="mini-statistics">
+                
+                        <div class="mini-stat">
+                
+                            <div class="mini-stat-icon primary">
+                                <i class="fas fa-users"></i>
+                            </div>
+                
+                            <div>
+                                <span>
+                                    Total Beneficiaries
+                                </span>
+                
+                                <strong>
+                                    <?= $totalBeneficiaries ?? 0 ?>
+                                </strong>
+                            </div>
+                
+                        </div>
+                
+                
+                        <div class="mini-stat">
+                
+                            <div class="mini-stat-icon success">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                
+                            <div>
+                                <span>
+                                    Registered Farmers
+                                </span>
+                
+                                <strong>
+                                    <?= $totalFarmers ?? 0 ?>
+                                </strong>
+                            </div>
+                
+                        </div>
+                
+                    </div>
+
                     <!-- Average Rating -->
 
-                    <div class="rating-box">
+                    <div class="rating-box mt-3">
 
                         <div class="rating-circle">
 
@@ -384,58 +425,6 @@
                             <span class="feedback-count negative-count">
                                 <?= $negative ?? 0 ?>
                             </span>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- Beneficiaries -->
-
-                    <div class="mini-statistics">
-
-                        <div class="mini-stat">
-
-                            <div class="mini-stat-icon primary">
-
-                                <i class="fas fa-users"></i>
-
-                            </div>
-
-                            <div>
-
-                                <span>
-                                    Total Beneficiaries
-                                </span>
-
-                                <strong>
-                                    <?= $totalBeneficiaries ?? 0 ?>
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="mini-stat">
-
-                            <div class="mini-stat-icon success">
-
-                                <i class="fas fa-user-check"></i>
-
-                            </div>
-
-                            <div>
-
-                                <span>
-                                    Registered Farmers
-                                </span>
-
-                                <strong>
-                                    <?= $totalFarmers ?? 0 ?>
-                                </strong>
-
-                            </div>
 
                         </div>
 
@@ -998,7 +987,7 @@
                                 <div class="farmer-number-display">
 
                                     <strong>
-                                        Farmer Number:
+                                        LGU-RSBSA Number:
                                     </strong>
 
                                     <span id="existingFarmerNumber">

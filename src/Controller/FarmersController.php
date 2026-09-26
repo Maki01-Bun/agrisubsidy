@@ -1857,17 +1857,17 @@ class FarmersController extends AppController
             );
     }
      public function viewRecord()
-    {
-        $this->request->allowMethod(['get']);
-        $this->autoRender = false;
+{
+    $this->request->allowMethod(['get']);
 
-        /*
-         * ============================================================
-         * GET FARMER ID
-         * Example:
-         * /Farmers/viewRecord?id=251
-         * ============================================================
-         */
+    $this->autoRender = false;
+
+    try {
+
+        // =========================================================
+        // GET FARMER ID
+        // =========================================================
+
         $farmerId = $this->request->getQuery('id');
 
         if (
@@ -1877,19 +1877,21 @@ class FarmersController extends AppController
             return $this->response
                 ->withStatus(400)
                 ->withType('application/json')
-                ->withStringBody(json_encode([
-                    'success' => false,
-                    'message' => 'Invalid farmer ID.'
-                ]));
+                ->withStringBody(
+                    json_encode([
+                        'success' => false,
+                        'message' => 'Invalid farmer ID.'
+                    ])
+                );
         }
 
         $farmerId = (int)$farmerId;
 
-        /*
-         * ============================================================
-         * FIND FARMER
-         * ============================================================
-         */
+
+        // =========================================================
+        // FIND FARMER
+        // =========================================================
+
         $farmer = $this->Farmers
             ->find()
             ->where([
@@ -1898,37 +1900,25 @@ class FarmersController extends AppController
             ->first();
 
         if (!$farmer) {
+
             return $this->response
                 ->withStatus(404)
                 ->withType('application/json')
-                ->withStringBody(json_encode([
-                    'success' => false,
-                    'message' => 'Farmer not found.'
-                ]));
+                ->withStringBody(
+                    json_encode([
+                        'success' => false,
+                        'message' => 'Farmer not found.'
+                    ])
+                );
         }
 
-        /*
-         * ============================================================
-         * LOAD RECORDS MODEL
-         * ============================================================
-         */
+
+        // =========================================================
+        // LOAD RECORDS
+        // =========================================================
+
         $this->loadModel('Records');
 
-        /*
-         * ============================================================
-         * GET ALL DISTRIBUTION RECORDS FOR THIS FARMER
-         *
-         * Records
-         *    |
-         *    +---- Schedules
-         *
-         * Program comes from:
-         * Schedules.program_code
-         *
-         * Distribution date comes from:
-         * Schedules.start_date
-         * ============================================================
-         */
         $records = $this->Records
             ->find()
             ->contain([
@@ -1942,56 +1932,53 @@ class FarmersController extends AppController
             ])
             ->all();
 
-        /*
-         * ============================================================
-         * PREPARE RESPONSE
-         * ============================================================
-         */
+
+        // =========================================================
+        // BUILD RECORD DATA
+        // =========================================================
+
         $data = [];
 
         foreach ($records as $record) {
 
             $schedule = $record->schedule ?? null;
 
-            /*
-             * --------------------------------------------------------
-             * PROGRAM CODE
-             * --------------------------------------------------------
-             */
+
+            // -----------------------------------------------------
+            // PROGRAM CODE
+            // -----------------------------------------------------
+
             $programCode = 'N/A';
 
             if (
                 $schedule &&
                 !empty($schedule->program_code)
             ) {
-                $programCode = trim(
-                    (string)$schedule->program_code
-                );
+                $programCode =
+                    trim((string)$schedule->program_code);
             }
 
-            /*
-             * --------------------------------------------------------
-             * BARANGAY
-             * --------------------------------------------------------
-             */
+
+            // -----------------------------------------------------
+            // BARANGAY
+            // -----------------------------------------------------
+
             $barangay = 'N/A';
 
             if (
                 $schedule &&
                 !empty($schedule->barangay)
             ) {
-                $barangay = trim(
-                    (string)$schedule->barangay
-                );
+                $barangay =
+                    trim((string)$schedule->barangay);
             }
 
-            /*
-             * --------------------------------------------------------
-             * DISTRIBUTION DATE
-             *
-             * Uses Schedules.start_date
-             * --------------------------------------------------------
-             */
+
+            // -----------------------------------------------------
+            // DISTRIBUTION DATE
+            // From Schedules.start_date
+            // -----------------------------------------------------
+
             $distributionDate = null;
 
             if (
@@ -2003,8 +1990,10 @@ class FarmersController extends AppController
                     $schedule->start_date
                     instanceof \DateTimeInterface
                 ) {
+
                     $distributionDate =
-                        $schedule->start_date->format('Y-m-d');
+                        $schedule->start_date
+                            ->format('Y-m-d');
 
                 } else {
 
@@ -2013,11 +2002,11 @@ class FarmersController extends AppController
                 }
             }
 
-            /*
-             * --------------------------------------------------------
-             * RECEIVED DATE
-             * --------------------------------------------------------
-             */
+
+            // -----------------------------------------------------
+            // RECEIVED DATE
+            // -----------------------------------------------------
+
             $receivedDate = null;
 
             if (!empty($record->received_date)) {
@@ -2026,8 +2015,10 @@ class FarmersController extends AppController
                     $record->received_date
                     instanceof \DateTimeInterface
                 ) {
+
                     $receivedDate =
-                        $record->received_date->format('Y-m-d');
+                        $record->received_date
+                            ->format('Y-m-d');
 
                 } else {
 
@@ -2036,31 +2027,35 @@ class FarmersController extends AppController
                 }
             }
 
-            /*
-             * --------------------------------------------------------
-             * STATUS
-             * --------------------------------------------------------
-             */
-            $status = !empty($record->status)
-                ? trim((string)$record->status)
-                : 'N/A';
 
-            /*
-             * --------------------------------------------------------
-             * SUBSIDY ITEM
-             * --------------------------------------------------------
-             */
-            $subsidyItem = !empty($record->subsidy_item)
-                ? trim((string)$record->subsidy_item)
-                : 'Seed Subsidy';
+            // -----------------------------------------------------
+            // STATUS
+            // -----------------------------------------------------
 
-            /*
-             * --------------------------------------------------------
-             * ADD RECORD
-             * --------------------------------------------------------
-             */
+            $status =
+                !empty($record->status)
+                    ? trim((string)$record->status)
+                    : 'Not Received';
+
+
+            // -----------------------------------------------------
+            // SUBSIDY ITEM
+            // -----------------------------------------------------
+
+            $subsidyItem =
+                !empty($record->subsidy_item)
+                    ? trim((string)$record->subsidy_item)
+                    : 'Seed Subsidy';
+
+
+            // -----------------------------------------------------
+            // ADD RECORD
+            // -----------------------------------------------------
+
             $data[] = [
-                'id' => $record->id,
+
+                'id' =>
+                    $record->id,
 
                 'schedule_id' =>
                     $record->schedule_id,
@@ -2088,24 +2083,36 @@ class FarmersController extends AppController
             ];
         }
 
-        /*
-         * ============================================================
-         * FARMER NAME
-         * ============================================================
-         */
-        $firstName = !empty($farmer->first_name)
-            ? trim((string)$farmer->first_name)
-            : '';
 
-        $lastName = !empty($farmer->last_name)
-            ? trim((string)$farmer->last_name)
-            : '';
+        // =========================================================
+        // FARMER NAME
+        // =========================================================
 
-        /*
-         * ============================================================
-         * FINAL JSON RESPONSE
-         * ============================================================
-         */
+        $firstName =
+            !empty($farmer->first_name)
+                ? trim((string)$farmer->first_name)
+                : '';
+
+        $middleName =
+            !empty($farmer->middle_name)
+                ? trim((string)$farmer->middle_name)
+                : '';
+
+        $lastName =
+            !empty($farmer->last_name)
+                ? trim((string)$farmer->last_name)
+                : '';
+
+        $suffix =
+            !empty($farmer->suffix)
+                ? trim((string)$farmer->suffix)
+                : '';
+
+
+        // =========================================================
+        // RESPONSE
+        // =========================================================
+
         return $this->response
             ->withStatus(200)
             ->withType('application/json')
@@ -2115,6 +2122,7 @@ class FarmersController extends AppController
                         'success' => true,
 
                         'farmer' => [
+
                             'id' =>
                                 $farmer->id,
 
@@ -2124,12 +2132,21 @@ class FarmersController extends AppController
                             'first_name' =>
                                 $firstName,
 
+                            'middle_name' =>
+                                $middleName,
+
                             'last_name' =>
                                 $lastName,
+
+                            'suffix' =>
+                                $suffix,
 
                             'address' =>
                                 $farmer->address ?? ''
                         ],
+
+                        'total_records' =>
+                            count($data),
 
                         'records' =>
                             $data
@@ -2137,5 +2154,26 @@ class FarmersController extends AppController
                     JSON_UNESCAPED_UNICODE
                 )
             );
+
+    } catch (\Throwable $e) {
+
+        \Cake\Log\Log::error(
+            'Farmers::viewRecord error: ' .
+            $e->getMessage()
+        );
+
+        return $this->response
+            ->withStatus(500)
+            ->withType('application/json')
+            ->withStringBody(
+                json_encode([
+                    'success' => false,
+                    'message' =>
+                        'Unable to load farmer records.',
+                    'error' =>
+                        $e->getMessage()
+                ])
+            );
     }
+}
 }

@@ -79,95 +79,562 @@ class FarmsController extends AppController
      *
      * @return \Cake\Http\Response|null|void
      */
-    public function add()
-    {
-        $this->loadModel('Farmers');
-        $farmers = $this->Farmers->find('list', [
-            'keyField' => 'id',
-            'valueField' => 'farmer_no'
-        ])
-        ->order([
-            'farmer_no' => 'ASC'
-        ])
-        ->toArray();
+   public function add()
+{
+    $this->loadModel('Farmers');
 
-        $farm = $this->Farms->newEmptyEntity();
+    /*
+     * =========================================================
+     * GET LOGGED-IN USER
+     * =========================================================
+     */
 
-        if ($this->request->is('post')) {
+    $user = $this->request
+        ->getSession()
+        ->read('Auth.User');
 
-            $data = $this->request->getData();
 
-            /*
-            * Validate farmer_id before saving.
-            * farms.farmer_id must reference farmers.id.
-            */
-            $farmerId = $data['farmer_id'] ?? null;
+    /*
+     * =========================================================
+     * CHECK LOGIN
+     * =========================================================
+     */
 
-            if (empty($farmerId)) {
+    if (
+        empty($user) ||
+        empty($user['id'])
+    ) {
+        $this->Flash->error(
+            'You must be logged in to add a farm.'
+        );
 
-                $this->Flash->error(
-                    'Please select a farmer.'
-                );
-
-            } else {
-
-                $farmer = $this->Farmers->find()
-                    ->where([
-                        'Farmers.id' => $farmerId
-                    ])
-                    ->first();
-
-                if (!$farmer) {
-
-                    $this->Flash->error(
-                        'The selected farmer does not exist.'
-                    );
-
-                } else {
-
-                    // Farmer exists, so it is safe to save the farm.
-                    $farm = $this->Farms->patchEntity(
-                        $farm,
-                        $data
-                    );
-
-                    if ($this->Farms->save($farm)) {
-
-                        $this->Flash->success(
-                            'Farm added successfully.'
-                        );
-
-                        return $this->redirect([
-                            'action' => 'index'
-                        ]);
-                    }
-
-                    // Display validation errors while debugging.
-                    $errors = $farm->getErrors();
-
-                    if (!empty($errors)) {
-                        foreach ($errors as $field => $messages) {
-                            foreach ($messages as $message) {
-                                $this->Flash->error(
-                                    ucfirst($field) . ': ' . $message
-                                );
-                            }
-                        }
-                    } else {
-                        $this->Flash->error(
-                            'The farm could not be saved.'
-                        );
-                    }
-                }
-            }
-        }
-
-        $this->set([
-            'farm' => $farm,
-            'farmers' => $farmers
+        return $this->redirect([
+            'controller' => 'Pages',
+            'action' => 'display',
+            'home'
         ]);
     }
 
+
+    $userId = (int)$user['id'];
+
+
+    /*
+     * =========================================================
+     * GET USER ROLE
+     * =========================================================
+     */
+
+    $role = strtolower(
+        trim((string)($user['role'] ?? ''))
+    );
+
+
+    /*
+     * =========================================================
+     * FIND FARMER
+     * =========================================================
+     *
+     * Used for farmer accounts.
+     *
+     */
+
+    $farmer = $this->Farmers->find()
+        ->where([
+            'Farmers.user_id' => $userId
+        ])
+        ->first();
+
+
+    /*
+     * =========================================================
+     * FARMER SIDE
+     * =========================================================
+     */
+
+    if ($role === 'farmer') {
+
+        /*
+         * -----------------------------------------------------
+         * CHECK FARMER RECORD
+         * -----------------------------------------------------
+         */
+
+        if (!$farmer) {
+
+            $this->Flash->error(
+                'Your farmer record could not be found.'
+            );
+
+            return $this->redirect([
+                'controller' => 'Profile',
+                'action' => 'index'
+            ]);
+        }
+
+
+        /*
+         * -----------------------------------------------------
+         * GET RSBSA NUMBER
+         * -----------------------------------------------------
+         */
+
+        $rsbsaNumber = trim(
+            (string)($farmer->farmer_no ?? '')
+        );
+
+
+        /*
+         * -----------------------------------------------------
+         * ONLY ACCEPT POST
+         * -----------------------------------------------------
+         */
+
+        if (!$this->request->is('post')) {
+
+            return $this->redirect([
+                'controller' => 'Profile',
+                'action' => 'index'
+            ]);
+        }
+
+
+        /*
+         * -----------------------------------------------------
+         * GET FORM DATA
+         * -----------------------------------------------------
+         */
+
+        $data = $this->request->getData();
+
+
+        /*
+         * -----------------------------------------------------
+         * FORCE FARMER ID
+         * -----------------------------------------------------
+         *
+         * Never trust farmer_id from the browser.
+         *
+         * The farmer_id is taken directly from the
+         * authenticated farmer record.
+         *
+         */
+
+        $data['farmer_id'] = (int)$farmer->id;
+
+
+        /*
+         * -----------------------------------------------------
+         * VALIDATE LOCATION
+         * -----------------------------------------------------
+         */
+
+        $location = trim(
+            (string)($data['location'] ?? '')
+        );
+
+
+        if ($location === '') {
+
+            $this->Flash->error(
+                'Please enter the farm location.'
+            );
+
+            return $this->redirect([
+                'controller' => 'Profile',
+                'action' => 'index'
+            ]);
+        }
+
+
+        /*
+         * -----------------------------------------------------
+         * VALIDATE FARM SIZE
+         * -----------------------------------------------------
+         */
+
+        $farmSize = $data['farm_size'] ?? null;
+
+
+        if (
+            $farmSize === null ||
+            $farmSize === '' ||
+            !is_numeric($farmSize) ||
+            (float)$farmSize <= 0
+        ) {
+
+            $this->Flash->error(
+                'Please enter a farm size greater than 0 hectares.'
+            );
+
+            return $this->redirect([
+                'controller' => 'Profile',
+                'action' => 'index'
+            ]);
+        }
+
+
+        /*
+         * -----------------------------------------------------
+         * NORMALIZE VALUES
+         * -----------------------------------------------------
+         */
+
+        $data['location'] = $location;
+        $data['farm_size'] = (float)$farmSize;
+
+
+        /*
+         * -----------------------------------------------------
+         * CREATE FARM
+         * -----------------------------------------------------
+         */
+
+        $farm = $this->Farms->newEmptyEntity();
+
+
+        $farm = $this->Farms->patchEntity(
+            $farm,
+            $data
+        );
+
+
+        /*
+         * -----------------------------------------------------
+         * SAVE FARM
+         * -----------------------------------------------------
+         */
+
+        if ($this->Farms->save($farm)) {
+
+            $this->Flash->success(
+                'Farm added successfully for LGU RSBSA No. '
+                . $rsbsaNumber
+                . '.'
+            );
+
+
+            /*
+             * -------------------------------------------------
+             * FARMER → PROFILE INDEX
+             * -------------------------------------------------
+             */
+
+            return $this->redirect([
+                'controller' => 'Profile',
+                'action' => 'index'
+            ]);
+        }
+
+
+        /*
+         * -----------------------------------------------------
+         * GET VALIDATION ERRORS
+         * -----------------------------------------------------
+         */
+
+        $errors = $farm->getErrors();
+
+
+        if (!empty($errors)) {
+
+            foreach ($errors as $field => $messages) {
+
+                foreach ($messages as $message) {
+
+                    $this->Flash->error(
+                        ucfirst((string)$field)
+                        . ': '
+                        . $message
+                    );
+                }
+            }
+
+        } else {
+
+            $this->Flash->error(
+                'The farm could not be saved. Please try again.'
+            );
+        }
+
+
+        /*
+         * -----------------------------------------------------
+         * FARMER → PROFILE INDEX
+         * -----------------------------------------------------
+         */
+
+        return $this->redirect([
+            'controller' => 'Profile',
+            'action' => 'index'
+        ]);
+    }
+
+
+    /*
+     * =========================================================
+     * STAFF SIDE
+     * =========================================================
+     *
+     * Staff selects the farmer from the Farms page.
+     *
+     * Expected POST fields:
+     *
+     * farmer_id
+     * location
+     * farm_size
+     *
+     */
+
+    if ($role === 'staff') {
+
+        /*
+         * -----------------------------------------------------
+         * ONLY ACCEPT POST
+         * -----------------------------------------------------
+         */
+
+        if (!$this->request->is('post')) {
+
+            return $this->redirect([
+                'controller' => 'Farms',
+                'action' => 'index'
+            ]);
+        }
+
+
+        /*
+         * -----------------------------------------------------
+         * GET FORM DATA
+         * -----------------------------------------------------
+         */
+
+        $data = $this->request->getData();
+
+
+        /*
+         * -----------------------------------------------------
+         * GET SELECTED FARMER
+         * -----------------------------------------------------
+         */
+
+        $farmerId = $data['farmer_id'] ?? null;
+
+
+        if (
+            empty($farmerId) ||
+            !is_numeric($farmerId)
+        ) {
+
+            $this->Flash->error(
+                'Please select a farmer.'
+            );
+
+            return $this->redirect([
+                'controller' => 'Farms',
+                'action' => 'index'
+            ]);
+        }
+
+
+        $farmerId = (int)$farmerId;
+
+
+        /*
+         * -----------------------------------------------------
+         * VERIFY FARMER EXISTS
+         * -----------------------------------------------------
+         */
+
+        $selectedFarmer = $this->Farmers->find()
+            ->where([
+                'Farmers.id' => $farmerId
+            ])
+            ->first();
+
+
+        if (!$selectedFarmer) {
+
+            $this->Flash->error(
+                'The selected farmer does not exist.'
+            );
+
+            return $this->redirect([
+                'controller' => 'Farms',
+                'action' => 'index'
+            ]);
+        }
+
+
+        /*
+         * -----------------------------------------------------
+         * VALIDATE LOCATION
+         * -----------------------------------------------------
+         */
+
+        $location = trim(
+            (string)($data['location'] ?? '')
+        );
+
+
+        if ($location === '') {
+
+            $this->Flash->error(
+                'Please enter the farm location.'
+            );
+
+            return $this->redirect([
+                'controller' => 'Farms',
+                'action' => 'index'
+            ]);
+        }
+
+
+        /*
+         * -----------------------------------------------------
+         * VALIDATE FARM SIZE
+         * -----------------------------------------------------
+         */
+
+        $farmSize = $data['farm_size'] ?? null;
+
+
+        if (
+            $farmSize === null ||
+            $farmSize === '' ||
+            !is_numeric($farmSize) ||
+            (float)$farmSize <= 0
+        ) {
+
+            $this->Flash->error(
+                'Please enter a farm size greater than 0 hectares.'
+            );
+
+            return $this->redirect([
+                'controller' => 'Farms',
+                'action' => 'index'
+            ]);
+        }
+
+
+        /*
+         * -----------------------------------------------------
+         * NORMALIZE STAFF DATA
+         * -----------------------------------------------------
+         */
+
+        $data['farmer_id'] = $farmerId;
+        $data['location'] = $location;
+        $data['farm_size'] = (float)$farmSize;
+
+
+        /*
+         * -----------------------------------------------------
+         * CREATE FARM
+         * -----------------------------------------------------
+         */
+
+        $farm = $this->Farms->newEmptyEntity();
+
+
+        $farm = $this->Farms->patchEntity(
+            $farm,
+            $data
+        );
+
+
+        /*
+         * -----------------------------------------------------
+         * SAVE FARM
+         * -----------------------------------------------------
+         */
+
+        if ($this->Farms->save($farm)) {
+
+            $this->Flash->success(
+                'Farm added successfully for LGU RSBSA No. '
+                . trim(
+                    (string)(
+                        $selectedFarmer->farmer_no ?? ''
+                    )
+                )
+                . '.'
+            );
+
+
+            /*
+             * -------------------------------------------------
+             * STAFF → FARMS INDEX
+             * -------------------------------------------------
+             */
+
+            return $this->redirect([
+                'controller' => 'Farms',
+                'action' => 'index'
+            ]);
+        }
+
+
+        /*
+         * -----------------------------------------------------
+         * GET VALIDATION ERRORS
+         * -----------------------------------------------------
+         */
+
+        $errors = $farm->getErrors();
+
+
+        if (!empty($errors)) {
+
+            foreach ($errors as $field => $messages) {
+
+                foreach ($messages as $message) {
+
+                    $this->Flash->error(
+                        ucfirst((string)$field)
+                        . ': '
+                        . $message
+                    );
+                }
+            }
+
+        } else {
+
+            $this->Flash->error(
+                'The farm could not be saved. Please try again.'
+            );
+        }
+
+
+        /*
+         * -----------------------------------------------------
+         * STAFF → FARMS INDEX
+         * -----------------------------------------------------
+         */
+
+        return $this->redirect([
+            'controller' => 'Farms',
+            'action' => 'index'
+        ]);
+    }
+
+
+    /*
+     * =========================================================
+     * OTHER ROLES
+     * =========================================================
+     */
+
+    $this->Flash->error(
+        'You are not authorized to add a farm.'
+    );
+
+
+    return $this->redirect([
+        'controller' => 'Farms',
+        'action' => 'index'
+    ]);
+}
 
     /**
      * Edit method
@@ -1319,7 +1786,7 @@ class FarmsController extends AppController
         |--------------------------------------------------------------------------
         */
         $sheet
-            ->getStyle("A1:E{$lastTemplateRow}")
+            ->getStyle("A1:C{$lastTemplateRow}")
             ->getBorders()
             ->getAllBorders()
             ->setBorderStyle(
@@ -1405,7 +1872,7 @@ class FarmsController extends AppController
         |--------------------------------------------------------------------------
         */
         $sheet
-            ->getStyle("A2:E{$lastTemplateRow}")
+            ->getStyle("A2:C{$lastTemplateRow}")
             ->getAlignment()
             ->setVertical(
                 \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
@@ -1424,7 +1891,7 @@ class FarmsController extends AppController
         |--------------------------------------------------------------------------
         */
         $sheet->setAutoFilter(
-            "A1:E{$lastTemplateRow}"
+            "A1:C{$lastTemplateRow}"
         );
     
         /*
@@ -1478,318 +1945,480 @@ class FarmsController extends AppController
             );
     }
     public function downloadFarmsExcel()
-    {
-        /*
-        |--------------------------------------------------------------------------
-        | GET ALL FARMS
-        |--------------------------------------------------------------------------
-        */
-        $farms = $this->Farms
-            ->find()
-            ->contain([
-                'Farmers'
-            ])
-            ->order([
-                'Farms.id' => 'ASC'
-            ])
-            ->all();
-    
-        /*
-        |--------------------------------------------------------------------------
-        | CREATE SPREADSHEET
-        |--------------------------------------------------------------------------
-        */
-        $spreadsheet =
-            new \PhpOffice\PhpSpreadsheet\Spreadsheet();
-    
-        $sheet =
-            $spreadsheet->getActiveSheet();
-    
-        $sheet->setTitle('Farms');
-    
-        /*
-        |--------------------------------------------------------------------------
-        | HEADERS
-        |--------------------------------------------------------------------------
-        */
-        $headers = [
-            'LGU RSBSA Number',
-            'FARM SIZE (ha)',
-            'LOCATION'
-        ];
-    
-        foreach ($headers as $index => $header) {
-    
-            $column =
-                \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(
-                    $index + 1
-                );
-    
-            $sheet->setCellValue(
-                $column . '1',
-                $header
+{
+    /*
+    |--------------------------------------------------------------------------
+    | GET ALL FARMS
+    |--------------------------------------------------------------------------
+    */
+
+    $farms = $this->Farms
+        ->find()
+        ->contain([
+            'Farmers'
+        ])
+        ->order([
+            'Farms.id' => 'ASC'
+        ])
+        ->all();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CREATE SPREADSHEET
+    |--------------------------------------------------------------------------
+    */
+
+    $spreadsheet =
+        new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+
+    $sheet =
+        $spreadsheet->getActiveSheet();
+
+    $sheet->setTitle('Farms');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HEADERS
+    |--------------------------------------------------------------------------
+    */
+
+    $headers = [
+        'LGU RSBSA Number',
+        'FARM SIZE (ha)',
+        'LOCATION'
+    ];
+
+
+    foreach ($headers as $index => $header) {
+
+        $column =
+            \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(
+                $index + 1
             );
-        }
-    
-        /*
-        |--------------------------------------------------------------------------
-        | INSERT FARM DATA
-        |--------------------------------------------------------------------------
-        */
-        $rowNumber = 2;
-    
-        foreach ($farms as $farm) {
-    
-            /*
-            |--------------------------------------------------------------------------
-            | RSBSA NUMBER
-            |--------------------------------------------------------------------------
-            */
-            $farmerNo = '';
-    
-            if (!empty($farm->farmer)) {
-    
-                $farmerNo = trim(
-                    (string)($farm->farmer->farmer_no ?? '')
-                );
-            }
-    
-            $sheet->setCellValueExplicit(
-                'A' . $rowNumber,
-                $farmerNo,
-                \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING
-            );
-    
-            /*
-            |--------------------------------------------------------------------------
-            | FARM SIZE
-            |--------------------------------------------------------------------------
-            */
-            $sheet->setCellValue(
-                'B' . $rowNumber,
-                $farm->farm_size ?? ''
-            );
-    
-            /*
-            |--------------------------------------------------------------------------
-            | LOCATION
-            |--------------------------------------------------------------------------
-            */
-            $sheet->setCellValue(
-                'C' . $rowNumber,
-                $farm->location ?? ''
-            );
-    
-            $rowNumber++;
-        }
-    
-        /*
-        |--------------------------------------------------------------------------
-        | LAST ROW
-        |--------------------------------------------------------------------------
-        */
-        $lastRow = max(
-            1,
-            $rowNumber - 1
+
+        $sheet->setCellValue(
+            $column . '1',
+            $header
         );
-    
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | INSERT FARM DATA
+    |--------------------------------------------------------------------------
+    */
+
+    $rowNumber = 2;
+
+
+    foreach ($farms as $farm) {
+
         /*
         |--------------------------------------------------------------------------
-        | COLUMN WIDTHS
+        | RSBSA NUMBER
         |--------------------------------------------------------------------------
         */
-        $widths = [
-            'A' => 28,
-            'B' => 20,
-            'C' => 35
-        ];
-    
-        foreach ($widths as $column => $width) {
-    
-            $sheet
-                ->getColumnDimension($column)
-                ->setWidth($width);
+
+        $farmerNo = '';
+
+        if (!empty($farm->farmer)) {
+
+            $farmerNo = trim(
+                (string)($farm->farmer->farmer_no ?? '')
+            );
         }
-    
+
+
+        $sheet->setCellValueExplicit(
+            'A' . $rowNumber,
+            $farmerNo,
+            \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING
+        );
+
+
         /*
         |--------------------------------------------------------------------------
-        | HEADER STYLE
+        | FARM SIZE
         |--------------------------------------------------------------------------
         */
-        $headerStyle =
-            $sheet->getStyle('A1:D1');
-    
-        $headerStyle
-            ->getFill()
-            ->setFillType(
-                \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID
-            )
-            ->getStartColor()
-            ->setARGB('FFFF00');
-    
-        $headerStyle
-            ->getFont()
-            ->setBold(true)
-            ->setSize(11);
-    
-        $headerStyle
-            ->getAlignment()
-            ->setHorizontal(
-                \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER
-            )
-            ->setVertical(
-                \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
-            )
-            ->setWrapText(true);
-    
+
+        $sheet->setCellValue(
+            'B' . $rowNumber,
+            $farm->farm_size ?? ''
+        );
+
+
         /*
         |--------------------------------------------------------------------------
-        | HEADER BORDER
+        | LOCATION
         |--------------------------------------------------------------------------
         */
-        $headerStyle
+
+        $sheet->setCellValue(
+            'C' . $rowNumber,
+            $farm->location ?? ''
+        );
+
+
+        $rowNumber++;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LAST ROW
+    |--------------------------------------------------------------------------
+    */
+
+    $lastRow = max(
+        1,
+        $rowNumber - 1
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | COLUMN WIDTHS
+    |--------------------------------------------------------------------------
+    */
+
+    $widths = [
+        'A' => 28,
+        'B' => 20,
+        'C' => 35
+    ];
+
+
+    foreach ($widths as $column => $width) {
+
+        $sheet
+            ->getColumnDimension($column)
+            ->setWidth($width);
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | UNUSED COLUMN D
+    |--------------------------------------------------------------------------
+    |
+    | The export only uses columns A-C.
+    | Explicitly remove any fill/border from column D.
+    |
+    */
+
+    $sheet
+        ->getStyle("D1:D{$lastRow}")
+        ->getFill()
+        ->setFillType(
+            \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_NONE
+        );
+
+
+    $sheet
+        ->getStyle("D1:D{$lastRow}")
+        ->getBorders()
+        ->getAllBorders()
+        ->setBorderStyle(
+            \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_NONE
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HEADER STYLE
+    |--------------------------------------------------------------------------
+    */
+
+    $headerStyle =
+        $sheet->getStyle('A1:C1');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HEADER BACKGROUND
+    |--------------------------------------------------------------------------
+    */
+
+    $headerStyle
+        ->getFill()
+        ->setFillType(
+            \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID
+        )
+        ->getStartColor()
+        ->setARGB('FFFFFF00');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HEADER FONT
+    |--------------------------------------------------------------------------
+    */
+
+    $headerStyle
+        ->getFont()
+        ->setBold(true)
+        ->setSize(11);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HEADER ALIGNMENT
+    |--------------------------------------------------------------------------
+    */
+
+    $headerStyle
+        ->getAlignment()
+        ->setHorizontal(
+            \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER
+        )
+        ->setVertical(
+            \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
+        )
+        ->setWrapText(true);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HEADER BORDER
+    |--------------------------------------------------------------------------
+    */
+
+    $headerStyle
+        ->getBorders()
+        ->getAllBorders()
+        ->setBorderStyle(
+            \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN
+        )
+        ->getColor()
+        ->setARGB('808080');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DATA BORDERS
+    |--------------------------------------------------------------------------
+    */
+
+    if ($lastRow >= 2) {
+
+        $sheet
+            ->getStyle("A2:C{$lastRow}")
             ->getBorders()
             ->getAllBorders()
             ->setBorderStyle(
                 \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN
             )
             ->getColor()
-            ->setARGB('808080');
-    
-        /*
-        |--------------------------------------------------------------------------
-        | DATA BORDERS
-        |--------------------------------------------------------------------------
-        */
-        if ($lastRow >= 2) {
-    
-            $sheet
-                ->getStyle("A2:C{$lastRow}")
-                ->getBorders()
-                ->getAllBorders()
-                ->setBorderStyle(
-                    \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN
-                )
-                ->getColor()
-                ->setARGB('D9D9D9');
-        }
-    
-        /*
-        |--------------------------------------------------------------------------
-        | HEADER ROW HEIGHT
-        |--------------------------------------------------------------------------
-        */
+            ->setARGB('D9D9D9');
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DATA ALIGNMENT
+    |--------------------------------------------------------------------------
+    */
+
+    if ($lastRow >= 2) {
+
         $sheet
-            ->getRowDimension(1)
-            ->setRowHeight(32);
-    
-        /*
-        |--------------------------------------------------------------------------
-        | DATA ROW HEIGHT
-        |--------------------------------------------------------------------------
-        */
-        if ($lastRow >= 2) {
-    
-            for ($row = 2; $row <= $lastRow; $row++) {
-    
-                $sheet
-                    ->getRowDimension($row)
-                    ->setRowHeight(22);
-            }
-        }
-    
-        /*
-        |--------------------------------------------------------------------------
-        | RSBSA AS TEXT
-        |--------------------------------------------------------------------------
-        */
-        $sheet
-            ->getStyle("A2:A{$lastRow}")
-            ->getNumberFormat()
-            ->setFormatCode('@');
-    
-        /*
-        |--------------------------------------------------------------------------
-        | VERTICAL ALIGNMENT
-        |--------------------------------------------------------------------------
-        */
-        if ($lastRow >= 2) {
-    
-            $sheet
-                ->getStyle("A2:C{$lastRow}")
-                ->getAlignment()
-                ->setVertical(
-                    \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
-                );
-        }
-    
-        /*
-        |--------------------------------------------------------------------------
-        | FREEZE HEADER
-        |--------------------------------------------------------------------------
-        */
-        $sheet->freezePane('A2');
-    
-        /*
-        |--------------------------------------------------------------------------
-        | AUTO FILTER
-        |--------------------------------------------------------------------------
-        */
-        $sheet->setAutoFilter(
-            "A1:C{$lastRow}"
-        );
-    
-        /*
-        |--------------------------------------------------------------------------
-        | PAGE SETUP
-        |--------------------------------------------------------------------------
-        */
-        $sheet
-            ->getPageSetup()
-            ->setOrientation(
-                \PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE
-            );
-    
-        $sheet
-            ->getPageSetup()
-            ->setPaperSize(
-                \PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4
-            );
-    
-        /*
-        |--------------------------------------------------------------------------
-        | DOWNLOAD
-        |--------------------------------------------------------------------------
-        */
-        $filename =
-            'farms_' .
-            date('Y-m-d_H-i-s') .
-            '.xlsx';
-    
-        $writer =
-            new \PhpOffice\PhpSpreadsheet\Writer\Xlsx(
-                $spreadsheet
-            );
-    
-        $tempFile =
-            tempnam(
-                sys_get_temp_dir(),
-                'farms_'
-            );
-    
-        $writer->save($tempFile);
-    
-        return $this->response
-            ->withType(
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-            )
-            ->withDownload($filename)
-            ->withFile(
-                $tempFile,
-                [
-                    'download' => true,
-                    'name' => $filename
-                ]
+            ->getStyle("A2:C{$lastRow}")
+            ->getAlignment()
+            ->setVertical(
+                \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
             );
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RSBSA NUMBER AS TEXT
+    |--------------------------------------------------------------------------
+    |
+    | Prevent Excel from changing:
+    |
+    | 02-31-35-003-000414
+    |
+    | into a date or another format.
+    |
+    */
+
+    $sheet
+        ->getStyle("A2:A{$lastRow}")
+        ->getNumberFormat()
+        ->setFormatCode('@');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HEADER ROW HEIGHT
+    |--------------------------------------------------------------------------
+    */
+
+    $sheet
+        ->getRowDimension(1)
+        ->setRowHeight(32);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DATA ROW HEIGHT
+    |--------------------------------------------------------------------------
+    */
+
+    if ($lastRow >= 2) {
+
+        for (
+            $row = 2;
+            $row <= $lastRow;
+            $row++
+        ) {
+
+            $sheet
+                ->getRowDimension($row)
+                ->setRowHeight(22);
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FREEZE HEADER
+    |--------------------------------------------------------------------------
+    */
+
+    $sheet->freezePane('A2');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | AUTO FILTER
+    |--------------------------------------------------------------------------
+    |
+    | IMPORTANT:
+    | Only A-C are part of the filter.
+    |
+    */
+
+    $sheet->setAutoFilter(
+        "A1:C{$lastRow}"
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PAGE SETUP
+    |--------------------------------------------------------------------------
+    */
+
+    $sheet
+        ->getPageSetup()
+        ->setOrientation(
+            \PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE
+        );
+
+
+    $sheet
+        ->getPageSetup()
+        ->setPaperSize(
+            \PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PRINT AREA
+    |--------------------------------------------------------------------------
+    |
+    | Only A-C will be considered part of the printable export.
+    |
+    */
+
+    $sheet->getPageSetup()->setPrintArea(
+        "A1:C{$lastRow}"
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | ACTIVE CELL
+    |--------------------------------------------------------------------------
+    */
+
+    $sheet->setSelectedCell('A1');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DOWNLOAD
+    |--------------------------------------------------------------------------
+    */
+
+    $filename =
+        'farms_' .
+        date('Y-m-d_H-i-s') .
+        '.xlsx';
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CREATE XLSX WRITER
+    |--------------------------------------------------------------------------
+    */
+
+    $writer =
+        new \PhpOffice\PhpSpreadsheet\Writer\Xlsx(
+            $spreadsheet
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TEMPORARY FILE
+    |--------------------------------------------------------------------------
+    */
+
+    $tempFile =
+        tempnam(
+            sys_get_temp_dir(),
+            'farms_'
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SAVE FILE
+    |--------------------------------------------------------------------------
+    */
+
+    $writer->save(
+        $tempFile
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RETURN DOWNLOAD
+    |--------------------------------------------------------------------------
+    */
+
+    return $this->response
+        ->withType(
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        ->withDownload(
+            $filename
+        )
+        ->withFile(
+            $tempFile,
+            [
+                'download' => true,
+                'name' => $filename
+            ]
+        );
+}
 }

@@ -239,7 +239,7 @@
             <?= $this->Form->create($farmer,['id'=>'farmers-form']) ?>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="farmer_no">Farmer Number</label>
+                    <label for="farmer_no">LGU RSBSA Number</label>
                     <?= $this->Form->control('farmer_no',['class'=>'form-control','label'=>false]) ?>
                     <label for="first_name">First Name</label>
                     <?= $this->Form->control('first_name',['class'=>'form-control','label'=>false]) ?>
@@ -336,77 +336,179 @@
         </div>
     </div>
 </div>
+<?php
+/*
+ * =============================================================
+ * RECORD API URL
+ * =============================================================
+ *
+ * CakePHP generates the correct application URL.
+ *
+ * Example:
+ * /Records/getRecord
+ *
+ * JavaScript will append:
+ * /250
+ *
+ * Result:
+ * /Records/getRecord/250
+ *
+ */
+?>
+
+<script>
+    window.RECORD_GET_URL =
+        <?= json_encode(
+            $this->Url->build([
+                'controller' => 'Records',
+                'action' => 'getRecord'
+            ])
+        ) ?>;
+</script>
+
+
+<!-- =========================================================
+     FARMER DISTRIBUTION RECORD MODAL
+========================================================== -->
+
 <div class="modal fade"
      id="viewRecordModal"
      tabindex="-1"
      role="dialog"
      aria-labelledby="viewRecordModalLabel"
      aria-hidden="true">
+
     <div class="modal-dialog modal-xl"
          role="document">
+
         <div class="modal-content">
+
+
+            <!-- =================================================
+                 HEADER
+            ================================================== -->
+
             <div class="modal-header bg-success text-white">
+
                 <h5 class="modal-title"
                     id="viewRecordModalLabel">
+
                     <i class="fas fa-user mr-2"></i>
+
                     Farmer Distribution Records
+
                 </h5>
+
                 <button type="button"
                         class="close text-white"
                         data-dismiss="modal"
                         aria-label="Close">
+
                     <span aria-hidden="true">
                         &times;
                     </span>
+
                 </button>
+
             </div>
+
+
+            <!-- =================================================
+                 BODY
+            ================================================== -->
+
             <div class="modal-body">
+
+
+                <!-- =============================================
+                     FARMER INFORMATION
+                ============================================== -->
+
                 <div id="farmerInformation"
                      class="mb-3">
+
                     <div class="text-center py-3">
+
                         <i class="fas fa-spinner fa-spin mr-2"></i>
 
                         Loading farmer information...
+
                     </div>
+
                 </div>
+
+
+                <!-- =============================================
+                     DISTRIBUTION RECORDS
+                ============================================== -->
+
                 <div class="table-responsive">
+
                     <table class="table table-bordered table-hover">
+
                         <thead class="thead-light">
+
                             <tr>
+
                                 <th>
                                     Program
                                 </th>
+
                                 <th>
                                     Subsidy Item
                                 </th>
+
                                 <th>
                                     Quantity (tons)
                                 </th>
+
                                 <th>
                                     Distribution Date
                                 </th>
+
                                 <th>
                                     Received Date
                                 </th>
+
                                 <th>
                                     Status
                                 </th>
+
                             </tr>
+
                         </thead>
+
+
                         <tbody id="distributionRecordsBody">
+
                             <tr>
+
                                 <td colspan="6"
                                     class="text-center py-4">
-                                    <i class="fas fa-spinner fa-spin mr-2"></i>
+
+                                    <i class="fas
+                                              fa-spinner
+                                              fa-spin
+                                              mr-2"></i>
+
                                     Loading records...
+
                                 </td>
+
                             </tr>
+
                         </tbody>
+
                     </table>
+
                 </div>
+
             </div>
+
         </div>
+
     </div>
+
 </div>
 <?php
 $importResult = $this->request->getSession()->consume('ExcelImportResult');

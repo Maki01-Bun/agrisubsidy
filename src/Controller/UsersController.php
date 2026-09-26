@@ -25,90 +25,345 @@ class UsersController extends AppController
         $this->set(compact('user'));
     }
    public function register($step = 1)
-    {
-        $this->viewBuilder()->setLayout('register');
+{
+    $this->viewBuilder()->setLayout('register');
 
-        $session = $this->request->getSession();
+    $session = $this->request->getSession();
 
-        $notificationsTable = $this->getTableLocator()->get('Notifications');
-        $usersTable = $this->Users;
+    $notificationsTable =
+        $this->getTableLocator()->get('Notifications');
 
-        //STEP 1 - FARMER INFORMATION
-        if ($step == 1 && $this->request->is('post')) {
-            $session->write(
-                'Registration.Farmer',
-                $this->request->getData()
+    $usersTable = $this->Users;
+
+
+    // ============================================================
+    // DEFAULT VALUES
+    // ============================================================
+
+    $registrationSuccess = false;
+
+
+    // ============================================================
+    // STEP 1 - FARMER INFORMATION
+    // ============================================================
+
+    if (
+        $step == 1 &&
+        $this->request->is('post')
+    ) {
+
+        $farmerData =
+            $this->request->getData();
+
+
+        // --------------------------------------------------------
+        // STORE FARMER INFORMATION IN SESSION
+        // --------------------------------------------------------
+
+        $session->write(
+            'Registration.Farmer',
+            $farmerData
+        );
+
+
+        // --------------------------------------------------------
+        // GO TO STEP 2
+        // --------------------------------------------------------
+
+        return $this->redirect([
+            'action' => 'register',
+            2
+        ]);
+    }
+
+
+    // ============================================================
+    // STEP 2 - ACCOUNT INFORMATION
+    // ============================================================
+
+    if (
+        $step == 2 &&
+        $this->request->is('post')
+    ) {
+
+
+        // ========================================================
+        // GET STEP 1 DATA
+        // ========================================================
+
+        $farmerData =
+            $session->read(
+                'Registration.Farmer'
             );
-            return $this->redirect(['action' => 'register',2 ]);
+
+
+        // ========================================================
+        // CHECK REGISTRATION SESSION
+        // ========================================================
+
+        if (!$farmerData) {
+
+            $this->Flash->error(
+                __('Registration session expired.')
+            );
+
+            return $this->redirect([
+                'action' => 'register',
+                1
+            ]);
         }
 
-        //STEP 2 - ACCOUNT INFORMATION
-        if ($step == 2 && $this->request->is('post')) {
-            $farmerData = $session->read('Registration.Farmer');
-            if (!$farmerData) {
-                $this->Flash->error(
-                    __('Registration session expired.')
-                );
-                return $this->redirect([
-                    'action' => 'register',
-                    1
-                ]);
-            }
-            $userData = $this->request->getData();
 
-            // Validate password
-            $password = $userData['password'] ?? '';
-            $confirmPassword = $userData['confirm_password'] ?? '';
+        // ========================================================
+        // GET STEP 2 DATA
+        // ========================================================
 
-            if (!preg_match('/^(?=.*[A-Z])(?=.*[\W_]).{8,}$/', $password)) {
-                $this->Flash->error(  __('Password must be at least 8 characters and contain at least one capital letter and one special character.')
-                );
-                return $this->redirect(['action' => 'register', 2]);
-            }
-            if ($password !== $confirmPassword) {
-                $this->Flash->error(__('Password and Confirm Password do not match.')
-                );
-                return $this->redirect(['action' => 'register', 2]);
-            }
-            //CHECK DUPLICATES
-            $existingUser = $usersTable
-                ->find()->where(['username' => $userData['username']])->first();
+        $userData =
+            $this->request->getData();
 
-            if ($existingUser) {
-                $this->Flash->error(__('Username already exists.')
-                );
-                return $this->redirect(['action' => 'register',2
-                ]);
-            }
 
-            //STORE REQUEST IN NOTIFICATION
-            $registrationData = ['farmer' => $farmerData,'user'   => $userData];
-            $notification = $notificationsTable->newEmptyEntity();
-            $notification = $notificationsTable->patchEntity(
+        // ========================================================
+        // PASSWORD
+        // ========================================================
+
+        $password =
+            $userData['password'] ?? '';
+
+        $confirmPassword =
+            $userData['confirm_password'] ?? '';
+
+
+        // ========================================================
+        // PASSWORD FORMAT VALIDATION
+        // ========================================================
+
+        if (
+            !preg_match(
+                '/^(?=.*[A-Z])(?=.*[\W_]).{8,}$/',
+                $password
+            )
+        ) {
+
+            $this->Flash->error(
+                __(
+                    'Password must be at least 8 characters and contain at least one capital letter and one special character.'
+                )
+            );
+
+            return $this->redirect([
+                'action' => 'register',
+                2
+            ]);
+        }
+
+
+        // ========================================================
+        // CONFIRM PASSWORD
+        // ========================================================
+
+        if (
+            $password !==
+            $confirmPassword
+        ) {
+
+            $this->Flash->error(
+                __(
+                    'Password and Confirm Password do not match.'
+                )
+            );
+
+            return $this->redirect([
+                'action' => 'register',
+                2
+            ]);
+        }
+
+
+        // ========================================================
+        // CHECK USERNAME
+        // ========================================================
+
+        $existingUser =
+            $usersTable
+                ->find()
+                ->where([
+                    'username' =>
+                        $userData['username']
+                ])
+                ->first();
+
+
+        if ($existingUser) {
+
+            $this->Flash->error(
+                __('Username already exists.')
+            );
+
+            return $this->redirect([
+                'action' => 'register',
+                2
+            ]);
+        }
+
+
+        // ========================================================
+        // CHECK EMAIL
+        // ========================================================
+
+        $existingEmail =
+            $usersTable
+                ->find()
+                ->where([
+                    'email' =>
+                        $userData['email']
+                ])
+                ->first();
+
+
+        if ($existingEmail) {
+
+            $this->Flash->error(
+                __('Email already exists.')
+            );
+
+            return $this->redirect([
+                'action' => 'register',
+                2
+            ]);
+        }
+
+
+        // ========================================================
+        // FORCE ROLE TO FARMER
+        // ========================================================
+
+        $userData['role'] = 'farmer';
+
+
+        // ========================================================
+        // REMOVE CONFIRM PASSWORD
+        // ========================================================
+
+        unset(
+            $userData['confirm_password']
+        );
+
+
+        // ========================================================
+        // PREPARE REGISTRATION DATA
+        // ========================================================
+
+        $registrationData = [
+
+            'farmer' => $farmerData,
+
+            'user' => $userData
+
+        ];
+
+
+        // ========================================================
+        // CREATE NOTIFICATION
+        // ========================================================
+
+        $notification =
+            $notificationsTable
+                ->newEmptyEntity();
+
+
+        // ========================================================
+        // PATCH NOTIFICATION
+        // ========================================================
+
+        $notification =
+            $notificationsTable->patchEntity(
                 $notification,
                 [
+
                     'user_id' => null,
-                    'title'   => 'New Farmer Registration',
-                    'message' => 'A new farmer registration requires approval.',
-                    'type'    => 'registration',
-                    'status'  => 'pending',
-                    'data'    => json_encode($registrationData)
+
+                    'title' =>
+                        'New Farmer Registration',
+
+                    'message' =>
+                        'A new farmer registration requires approval.',
+
+                    'type' =>
+                        'registration',
+
+                    'status' =>
+                        'pending',
+
+                    'data' =>
+                        json_encode(
+                            $registrationData
+                        )
+
                 ]
             );
-            if ($notificationsTable->save($notification)) {
-                $session->delete('Registration.Farmer');
-                $this->Flash->success(__('Registration submitted successfully. Please wait for admin approval.')
-                );
-                return $this->redirect(['action' => 'login']);
-            }
+
+
+        // ========================================================
+        // SAVE REGISTRATION REQUEST
+        // ========================================================
+
+        if (
+            $notificationsTable->save(
+                $notification
+            )
+        ) {
+
+
+            // ====================================================
+            // DELETE TEMPORARY SESSION DATA
+            // ====================================================
+
+            $session->delete(
+                'Registration.Farmer'
+            );
+
+
+            // ====================================================
+            // REGISTRATION SUCCESS
+            // ====================================================
+
+            $registrationSuccess = true;
+
+
+        } else {
+
+
+            // ====================================================
+            // REGISTRATION FAILED
+            // ====================================================
+
             $this->Flash->error(
-                __('Unable to submit registration.')
+                __('Unable to submit registration. Please try again.')
             );
         }
-        $user = $usersTable->newEmptyEntity();
-
-        $this->set(compact('user','step'));
     }
+
+
+    // ============================================================
+    // CREATE EMPTY USER ENTITY
+    // ============================================================
+
+    $user =
+        $usersTable->newEmptyEntity();
+
+
+    // ============================================================
+    // SEND DATA TO VIEW
+    // ============================================================
+
+    $this->set(
+        compact(
+            'user',
+            'step',
+            'registrationSuccess'
+        )
+    );
+}
     public function login()
     {
         $this->viewBuilder()->setLayout('login');
@@ -814,4 +1069,81 @@ class UsersController extends AppController
         */
         return $this->redirect($returnUrl);
     }
+    
+    /**
+ * Check whether username already exists.
+ */
+public function checkUsername()
+{
+    $this->request->allowMethod(['get']);
+
+    $username = trim(
+        (string)$this->request->getQuery('username')
+    );
+
+    if ($username === '') {
+
+        return $this->response
+            ->withType('application/json')
+            ->withStringBody(json_encode([
+                'status' => 'success',
+                'exists' => false
+            ]));
+    }
+
+
+    $exists = $this->Users
+        ->find()
+        ->where([
+            'username' => $username
+        ])
+        ->count() > 0;
+
+
+    return $this->response
+        ->withType('application/json')
+        ->withStringBody(json_encode([
+            'status' => $exists ? 'error' : 'success',
+            'exists' => $exists
+        ]));
+}
+
+
+/**
+ * Check whether email already exists.
+ */
+public function checkEmail()
+{
+    $this->request->allowMethod(['get']);
+
+    $email = trim(
+        (string)$this->request->getQuery('email')
+    );
+
+    if ($email === '') {
+
+        return $this->response
+            ->withType('application/json')
+            ->withStringBody(json_encode([
+                'status' => 'success',
+                'exists' => false
+            ]));
+    }
+
+
+    $exists = $this->Users
+        ->find()
+        ->where([
+            'email' => $email
+        ])
+        ->count() > 0;
+
+
+    return $this->response
+        ->withType('application/json')
+        ->withStringBody(json_encode([
+            'status' => $exists ? 'error' : 'success',
+            'exists' => $exists
+        ]));
+}
 }

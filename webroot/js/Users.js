@@ -116,9 +116,7 @@ function getUsers()
             { data: null,render: function(data){
                     var option = '<div style="text-align:center;"><a href="" class="edit" data-toggle="tooltip" + ' +
                         'data-placement="bottom" title="Edit Personnel" data-id="'+ data.id +'"><i' +
-                        ' class="fa fas fa-pen"></i></a> | <a href="" class="delete text-danger" data-toggle="tooltip" + ' +
-                        'data-placement="bottom" title="Delete Personnel" data-id="'+ data.id +'"><i' +
-                        ' class="fa fa fa-trash"></i></a></div>';
+                        ' class="fa fas fa-pen"></i></a></div>';
                     return option;
                 }
             }
