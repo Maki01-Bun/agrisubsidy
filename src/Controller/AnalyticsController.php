@@ -15,7 +15,7 @@ class AnalyticsController extends AppController
      *
      * @return \Cake\Http\Response|null|void
      */
-        public function initialize(): void
+    public function initialize(): void
     {
         parent::initialize();
 
@@ -30,7 +30,7 @@ class AnalyticsController extends AppController
     }
 
 
-    /**
+    /*
      * =========================================================
      * INDEX
      * =========================================================
@@ -39,11 +39,12 @@ class AnalyticsController extends AppController
     {
         /*
          * =====================================================
-         * LOAD ALL EVALUATIONS
+         * LOAD EVALUATIONS
          * =====================================================
          */
 
-        $evaluations = $this->Evaluations->find()
+        $evaluations = $this->Evaluations
+            ->find()
             ->order([
                 'Evaluations.id' => 'ASC'
             ])
@@ -51,18 +52,53 @@ class AnalyticsController extends AppController
             ->toArray();
 
 
-        $totalEvaluations =
-            count($evaluations);
+        /*
+         * =====================================================
+         * LOAD FEEDBACKS
+         * =====================================================
+         */
+
+        $feedbacks = $this->Feedbacks
+            ->find()
+            ->order([
+                'Feedbacks.id' => 'ASC'
+            ])
+            ->all()
+            ->toArray();
 
 
         /*
          * =====================================================
-         * EFFECTIVENESS COUNTS
-         *
-         * 0 = Not Effective
-         * 1 = Moderately Effective
-         * 2 = Effective
-         * NULL = Not Yet Predicted
+         * TOTAL COUNTS
+         * =====================================================
+         */
+
+        $totalEvaluations =
+            count($evaluations);
+
+        $totalFeedbacks =
+            count($feedbacks);
+
+
+        /*
+         * =====================================================
+         * FEEDBACK MAP
+         * =====================================================
+         */
+
+        $feedbackMap = [];
+
+        foreach ($feedbacks as $feedback) {
+
+            $feedbackMap[
+                (int)$feedback->id
+            ] = $feedback;
+        }
+
+
+        /*
+         * =====================================================
+         * EFFECTIVENESS COUNTERS
          * =====================================================
          */
 
@@ -75,206 +111,262 @@ class AnalyticsController extends AppController
         $notYetPredicted = 0;
 
 
+        /*
+         * =====================================================
+         * EFFECTIVENESS RECORDS
+         *
+         * IMPORTANT:
+         * The classification happens ONLY HERE.
+         *
+         * Both the PIE and TREND use these same records.
+         * =====================================================
+         */
+
+        $effectivenessRecords = [];
+
+
         foreach (
             $evaluations as $evaluation
         ) {
 
-            $value =
-                $evaluation->effectiveness_label;
+            /*
+             * -------------------------------------------------
+             * ORIGINAL DATABASE VALUE
+             * -------------------------------------------------
+             */
+
+            $rawValue =
+                $evaluation->effectiveness_label
+                ?? null;
+
+
+            /*
+             * -------------------------------------------------
+             * NORMALIZE VALUE
+             *
+             * Accepted:
+             *
+             * 2
+             * "2"
+             * "Effective"
+             *
+             * 1
+             * "1"
+             * "Moderately Effective"
+             *
+             * 0
+             * "0"
+             * "Not Effective"
+             *
+             * NULL / empty
+             * -------------------------------------------------
+             */
+
+            $value = null;
 
 
             if (
-                $value === null ||
-                $value === ''
+                $rawValue !== null &&
+                trim((string)$rawValue) !== ''
             ) {
 
-                $notYetPredicted++;
-
-                continue;
-
-            }
-
-
-            switch (
-                (int)$value
-            ) {
-
-                case 2:
-
-                    $effective++;
-
-                    break;
-
-
-                case 1:
-
-                    $moderatelyEffective++;
-
-                    break;
-
-
-                case 0:
-
-                    $notEffective++;
-
-                    break;
-
-
-                default:
-
-                    $notYetPredicted++;
-
-                    break;
-
-            }
-
-        }
-
-
-        $predictedEvaluations =
-            $effective
-            + $moderatelyEffective
-            + $notEffective;
-
-
-        /*
-         * =====================================================
-         * FEEDBACK DATA
-         * =====================================================
-         *
-         * feedbacks.answer contains Q1-Q10 JSON.
-         *
-         * We use feedback_date as the time reference for:
-         *
-         * - yield trend
-         * - effectiveness trend
-         * - survey trend
-         *
-         * because evaluations are connected to feedbacks through
-         * evaluations.feedback_id.
-         *
-         * =====================================================
-         */
-
-        $feedbacks =
-            $this->Feedbacks->find()
-                ->order([
-                    'Feedbacks.feedback_date' => 'ASC',
-                    'Feedbacks.id' => 'ASC'
-                ])
-                ->all()
-                ->toArray();
-
-
-        /*
-         * =====================================================
-         * MAP FEEDBACK ID -> FEEDBACK
-         * =====================================================
-         */
-
-        $feedbackMap = [];
-
-
-        foreach (
-            $feedbacks as $feedback
-        ) {
-
-            $feedbackMap[
-                (int)$feedback->id
-            ] = $feedback;
-
-        }
-
-
-        /*
-         * =====================================================
-         * QUESTION SUMMARY
-         * =====================================================
-         */
-
-        $questionSummary =
-            $this->buildQuestionSummary(
-                $feedbacks
-            );
-
-
-        /*
-         * =====================================================
-         * SURVEY AVERAGE
-         * =====================================================
-         */
-
-        $feedbackTotalScore = 0;
-
-        $feedbackTotalResponses = 0;
-
-
-        foreach (
-            $feedbacks as $feedback
-        ) {
-
-            $answers =
-                $this->decodeAnswers(
-                    $feedback->answer ?? null
-                );
-
-
-            foreach (
-                $answers as $answer
-            ) {
-
-                $normalized =
-                    $this->normalizeAnswer(
-                        $answer
+                $normalizedValue =
+                    strtolower(
+                        trim(
+                            (string)$rawValue
+                        )
                     );
 
 
+                /*
+                 * EFFECTIVE
+                 */
+
                 if (
-                    $normalized === null
+                    $normalizedValue === '2' ||
+                    $normalizedValue === 'effective'
                 ) {
-                    continue;
+
+                    $value = 2;
                 }
 
 
-                $feedbackTotalScore +=
-                    $normalized;
+                /*
+                 * MODERATELY EFFECTIVE
+                 */
 
-                $feedbackTotalResponses++;
+                elseif (
+                    $normalizedValue === '1' ||
+                    $normalizedValue === 'moderately effective' ||
+                    $normalizedValue === 'moderate effective' ||
+                    $normalizedValue === 'moderately-effective' ||
+                    $normalizedValue === 'moderate'
+                ) {
+
+                    $value = 1;
+                }
+
+
+                /*
+                 * NOT EFFECTIVE
+                 */
+
+                elseif (
+                    $normalizedValue === '0' ||
+                    $normalizedValue === 'not effective' ||
+                    $normalizedValue === 'not-effective'
+                ) {
+
+                    $value = 0;
+                }
+            }
+
+
+            /*
+             * =================================================
+             * CLASSIFY ONCE
+             * =================================================
+             */
+
+            if ($value === 2) {
+
+                $category =
+                    'effective';
+
+                $label =
+                    'Effective';
+
+                $effective++;
 
             }
 
+            elseif ($value === 1) {
+
+                $category =
+                    'moderately_effective';
+
+                $label =
+                    'Moderately Effective';
+
+                $moderatelyEffective++;
+
+            }
+
+            elseif ($value === 0) {
+
+                $category =
+                    'not_effective';
+
+                $label =
+                    'Not Effective';
+
+                $notEffective++;
+
+            }
+
+            else {
+
+                $category =
+                    'not_yet_predicted';
+
+                $label =
+                    'Not Yet Predicted';
+
+                $notYetPredicted++;
+            }
+
+
+            /*
+             * =================================================
+             * STORE CLASSIFICATION
+             * =================================================
+             */
+
+            $effectivenessRecords[] = [
+
+                'evaluation_id' =>
+                    (int)$evaluation->id,
+
+                'effectiveness_label' =>
+                    $value,
+
+                'category' =>
+                    $category,
+
+                'label' =>
+                    $label,
+
+                'feedback_id' =>
+                    (int)(
+                        $evaluation->feedback_id
+                        ?? 0
+                    ),
+
+                'evaluation_date' =>
+                    $evaluation->evaluation_date
+                    ?? null,
+
+                'created' =>
+                    $evaluation->created
+                    ?? null
+            ];
         }
-
-
-        $feedbackAverage =
-            $feedbackTotalResponses > 0
-                ? round(
-                    $feedbackTotalScore /
-                    $feedbackTotalResponses,
-                    2
-                )
-                : 0;
 
 
         /*
          * =====================================================
-         * TREND DATA
+         * PIE CHART DATA
+         *
+         * SAME COUNTERS USED BY THE TREND
          * =====================================================
          */
 
-        $yieldTrend =
-            $this->buildYieldTrend(
-                $evaluations,
-                $feedbackMap
-            );
+        $labels = [
 
+            'Effective',
+
+            'Moderately Effective',
+
+            'Not Effective',
+
+            'Not Yet Predicted'
+
+        ];
+
+
+        $totals = [
+
+            $effective,
+
+            $moderatelyEffective,
+
+            $notEffective,
+
+            $notYetPredicted
+
+        ];
+
+
+        /*
+         * =====================================================
+         * EFFECTIVENESS TREND
+         *
+         * USES THE ALREADY CLASSIFIED RECORDS
+         * =====================================================
+         */
 
         $effectivenessTrend =
             $this->buildEffectivenessTrend(
-                $evaluations,
+                $effectivenessRecords,
                 $feedbackMap
             );
 
+
+        /*
+         * =====================================================
+         * SURVEY TREND
+         * =====================================================
+         */
 
         $surveyTrend =
             $this->buildSurveyTrend(
@@ -284,18 +376,25 @@ class AnalyticsController extends AppController
 
         /*
          * =====================================================
-         * DISTRIBUTION DATA
+         * ALL DISTRIBUTION RECORDS
          * =====================================================
          */
 
         $allRecords =
-            $this->Records->find()
+            $this->Records
+                ->find()
                 ->order([
                     'Records.id' => 'ASC'
                 ])
                 ->all()
                 ->toArray();
 
+
+        /*
+         * =====================================================
+         * DISTRIBUTION TREND
+         * =====================================================
+         */
 
         $distributionTrend =
             $this->buildDistributionTrend(
@@ -305,102 +404,26 @@ class AnalyticsController extends AppController
 
         /*
          * =====================================================
-         * RICE TYPE SUMMARY
+         * DISTRIBUTION STATUS SUMMARY
          * =====================================================
          */
 
-        $riceTypeSummary =
+        $distributionStatusSummary =
+            $this->buildDistributionStatusSummary(
+                $allRecords
+            );
+
+
+        /*
+         * =====================================================
+         * RICE / SEED TYPE SUMMARY
+         * =====================================================
+         */
+
+        $riceSummary =
             $this->buildRiceTypeSummary(
                 $evaluations
             );
-
-
-        /*
-         * =====================================================
-         * YIELD SUMMARY
-         * =====================================================
-         */
-
-        $averageYieldBefore =
-            $this->calculateAverage(
-                $evaluations,
-                'average_yield'
-            );
-
-
-        $averageYieldAfter =
-            $this->calculateAverage(
-                $evaluations,
-                'crop_yield_after'
-            );
-
-
-        $yieldImprovement =
-            0;
-
-
-        if (
-            $averageYieldBefore > 0
-        ) {
-
-            $yieldImprovement =
-                (
-                    (
-                        $averageYieldAfter
-                        -
-                        $averageYieldBefore
-                    )
-                    /
-                    $averageYieldBefore
-                )
-                * 100;
-
-        }
-
-
-        /*
-         * =====================================================
-         * SELLING PRICE
-         * =====================================================
-         */
-
-        $sellingPrices = [];
-
-
-        foreach (
-            $evaluations as $evaluation
-        ) {
-
-            if (
-                $evaluation->selling_price !== null &&
-                $evaluation->selling_price !== ''
-            ) {
-
-                $sellingPrices[] =
-                    (float)$evaluation->selling_price;
-
-            }
-
-        }
-
-
-        $averageSellingPrice =
-            !empty($sellingPrices)
-                ? array_sum($sellingPrices)
-                    / count($sellingPrices)
-                : 0;
-
-
-        $minimumSellingPrice =
-            !empty($sellingPrices)
-                ? min($sellingPrices)
-                : 0;
-
-
-        $maximumSellingPrice =
-            !empty($sellingPrices)
-                ? max($sellingPrices)
-                : 0;
 
 
         /*
@@ -421,7 +444,6 @@ class AnalyticsController extends AppController
 
         $receivedLocations = [];
 
-
         foreach (
             $receivedRecords as $record
         ) {
@@ -436,159 +458,110 @@ class AnalyticsController extends AppController
 
 
             if (
-                $location !== ''
+                $location !== '' &&
+                !in_array(
+                    $location,
+                    $receivedLocations,
+                    true
+                )
             ) {
 
                 $receivedLocations[] =
                     $location;
-
             }
-
         }
 
 
-        $receivedLocations =
-            array_values(
-                array_unique(
-                    $receivedLocations
-                )
-            );
-
-
-        natcasesort(
-            $receivedLocations
-        );
-
-
-        $receivedLocations =
-            array_values(
-                $receivedLocations
-            );
+        sort($receivedLocations);
 
 
         /*
          * =====================================================
-         * DISTRIBUTION STATUS SUMMARY
+         * QUESTION SUMMARY
          * =====================================================
          */
 
-        $distributionStatusSummary =
-            $this->buildDistributionStatusSummary(
-                $allRecords
+        $questionSummary =
+            $this->buildQuestionSummary(
+                $feedbacks
             );
 
 
         /*
          * =====================================================
-         * TOTAL SUBSIDY QUANTITY
+         * YIELD TREND
+         *
+         * Keep variable available for the view.
          * =====================================================
          */
 
-        $totalSubsidyQuantity = 0;
-
-        $receivedQuantityCount = 0;
-
-
-        foreach (
-            $allRecords as $record
-        ) {
-
-            $status =
-                strtolower(
-                    trim(
-                        (string)(
-                            $record->status
-                            ?? ''
-                        )
-                    )
-                );
-
-
-            if (
-                $status === 'received'
-            ) {
-
-                $quantity =
-                    $record->quantity ?? null;
-
-
-                if (
-                    is_numeric($quantity)
-                ) {
-
-                    $totalSubsidyQuantity +=
-                        (float)$quantity;
-
-                    $receivedQuantityCount++;
-
-                }
-
-            }
-
-        }
-
-
-        $averageSubsidyQuantity =
-            $receivedQuantityCount > 0
-                ? $totalSubsidyQuantity /
-                    $receivedQuantityCount
-                : 0;
+        $yieldTrend = [];
 
 
         /*
          * =====================================================
-         * SET VIEW VARIABLES
+         * SEND EVERYTHING TO VIEW
          * =====================================================
          */
 
         $this->set([
 
             /*
-             * Main counts
+             * COUNTS
              */
 
             'totalEvaluations' =>
                 $totalEvaluations,
 
-            'predictedEvaluations' =>
-                $predictedEvaluations,
-
-            'notYetPredicted' =>
-                $notYetPredicted,
-
-            'effective' =>
-                $effective,
-
-            'moderatelyEffective' =>
-                $moderatelyEffective,
-
-            'notEffective' =>
-                $notEffective,
+            'totalFeedbacks' =>
+                $totalFeedbacks,
 
 
             /*
-             * Feedback
+             * EFFECTIVENESS PIE
              */
 
-            'feedbackAverage' =>
-                $feedbackAverage,
+            'labels' =>
+                $labels,
 
-            'feedbackTotalResponses' =>
-                $feedbackTotalResponses,
-
-            'questionSummary' =>
-                $questionSummary,
+            'totals' =>
+                $totals,
 
 
             /*
-             * Trends
+             * EFFECTIVENESS COUNTS
+             */
+
+            'effectiveCount' =>
+                $effective,
+
+            'moderatelyEffectiveCount' =>
+                $moderatelyEffective,
+
+            'notEffectiveCount' =>
+                $notEffective,
+
+            'notYetPredictedCount' =>
+                $notYetPredicted,
+
+
+            /*
+             * EFFECTIVENESS TREND
+             */
+
+            'effectivenessRecords' =>
+                $effectivenessRecords,
+
+            'effectivenessTrend' =>
+                $effectivenessTrend,
+
+
+            /*
+             * OTHER TRENDS
              */
 
             'yieldTrend' =>
                 $yieldTrend,
-
-            'effectivenessTrend' =>
-                $effectivenessTrend,
 
             'surveyTrend' =>
                 $surveyTrend,
@@ -598,43 +571,21 @@ class AnalyticsController extends AppController
 
 
             /*
-             * Yield
+             * OTHER ANALYTICS
              */
 
-            'averageYieldBefore' =>
-                $averageYieldBefore,
+            'distributionStatusSummary' =>
+                $distributionStatusSummary,
 
-            'averageYieldAfter' =>
-                $averageYieldAfter,
+            'riceSummary' =>
+                $riceSummary,
 
-            'yieldImprovement' =>
-                $yieldImprovement,
+            'questionSummary' =>
+                $questionSummary,
 
 
             /*
-             * Selling price
-             */
-
-            'averageSellingPrice' =>
-                $averageSellingPrice,
-
-            'minimumSellingPrice' =>
-                $minimumSellingPrice,
-
-            'maximumSellingPrice' =>
-                $maximumSellingPrice,
-
-
-            /*
-             * Rice type
-             */
-
-            'riceTypeSummary' =>
-                $riceTypeSummary,
-
-
-            /*
-             * Distribution
+             * RECEIVED SUBSIDY
              */
 
             'receivedRecords' =>
@@ -643,631 +594,243 @@ class AnalyticsController extends AppController
             'receivedLocations' =>
                 $receivedLocations,
 
-            'distributionStatusSummary' =>
-                $distributionStatusSummary,
 
-            'totalSubsidyQuantity' =>
-                $totalSubsidyQuantity,
+            /*
+             * RAW DATA
+             */
 
-            'averageSubsidyQuantity' =>
-                $averageSubsidyQuantity
+            'evaluations' =>
+                $evaluations,
 
+            'feedbacks' =>
+                $feedbacks,
+
+            'allRecords' =>
+                $allRecords
         ]);
     }
 
 
-    /**
+    /*
      * =========================================================
-     * BUILD YIELD TREND
+     * EFFECTIVENESS TREND
      * =========================================================
-     */
-    private function buildYieldTrend(
-        array $evaluations,
-        array $feedbackMap
-    ): array {
-
-        $monthly = [];
-
-        $quarterly = [];
-
-
-        foreach (
-            $evaluations as $evaluation
-        ) {
-
-            $feedbackId =
-                (int)(
-                    $evaluation->feedback_id
-                    ?? 0
-                );
-
-
-            if (
-                $feedbackId <= 0 ||
-                !isset(
-                    $feedbackMap[$feedbackId]
-                )
-            ) {
-
-                continue;
-
-            }
-
-
-            $feedback =
-                $feedbackMap[$feedbackId];
-
-
-            $date =
-                $this->toDateTime(
-                    $feedback->feedback_date
-                    ?? null
-                );
-
-
-            if (!$date) {
-                continue;
-            }
-
-
-            $before =
-                $evaluation->average_yield;
-
-
-            $after =
-                $evaluation->crop_yield_after;
-
-
-            if (
-                !is_numeric($before) &&
-                !is_numeric($after)
-            ) {
-
-                continue;
-
-            }
-
-
-            $before =
-                is_numeric($before)
-                    ? (float)$before
-                    : 0;
-
-
-            $after =
-                is_numeric($after)
-                    ? (float)$after
-                    : 0;
-
-
-            /*
-             * MONTH
-             */
-
-            $monthKey =
-                $date->format('Y-m');
-
-
-            if (
-                !isset(
-                    $monthly[$monthKey]
-                )
-            ) {
-
-                $monthly[$monthKey] = [
-                    'period_type' =>
-                        'monthly',
-
-                    'period' =>
-                        $date->format('M Y'),
-
-                    'sort' =>
-                        $monthKey,
-
-                    'before_total' =>
-                        0,
-
-                    'after_total' =>
-                        0,
-
-                    'count' =>
-                        0
-                ];
-
-            }
-
-
-            $monthly[$monthKey]
-                ['before_total']
-                += $before;
-
-
-            $monthly[$monthKey]
-                ['after_total']
-                += $after;
-
-
-            $monthly[$monthKey]
-                ['count']++;
-
-
-            /*
-             * QUARTER
-             */
-
-            $quarter =
-                (int)(
-                    ceil(
-                        (int)$date->format('n')
-                        / 3
-                    )
-                );
-
-
-            $year =
-                $date->format('Y');
-
-
-            $quarterKey =
-                $year
-                . '-Q'
-                . $quarter;
-
-
-            if (
-                !isset(
-                    $quarterly[$quarterKey]
-                )
-            ) {
-
-                $quarterly[$quarterKey] = [
-                    'period_type' =>
-                        'quarterly',
-
-                    'period' =>
-                        'Q'
-                        . $quarter
-                        . ' '
-                        . $year,
-
-                    'sort' =>
-                        $year
-                        . '-'
-                        . str_pad(
-                            (string)$quarter,
-                            2,
-                            '0',
-                            STR_PAD_LEFT
-                        ),
-
-                    'before_total' =>
-                        0,
-
-                    'after_total' =>
-                        0,
-
-                    'count' =>
-                        0
-                ];
-
-            }
-
-
-            $quarterly[$quarterKey]
-                ['before_total']
-                += $before;
-
-
-            $quarterly[$quarterKey]
-                ['after_total']
-                += $after;
-
-
-            $quarterly[$quarterKey]
-                ['count']++;
-
-        }
-
-
-        return $this->finalizeYieldTrend(
-            array_merge(
-                array_values($monthly),
-                array_values($quarterly)
-            )
-        );
-    }
-
-
-    /**
-     * =========================================================
-     * FINALIZE YIELD TREND
-     * =========================================================
-     */
-    private function finalizeYieldTrend(
-        array $data
-    ): array {
-
-        foreach (
-            $data as &$row
-        ) {
-
-            $count =
-                (int)(
-                    $row['count']
-                    ?? 0
-                );
-
-
-            $row['yield_before'] =
-                $count > 0
-                    ? round(
-                        $row['before_total']
-                        / $count,
-                        2
-                    )
-                    : 0;
-
-
-            $row['yield_after'] =
-                $count > 0
-                    ? round(
-                        $row['after_total']
-                        / $count,
-                        2
-                    )
-                    : 0;
-
-
-            unset(
-                $row['before_total'],
-                $row['after_total'],
-                $row['count']
-            );
-
-        }
-
-        unset($row);
-
-
-        usort(
-            $data,
-            function (
-                $a,
-                $b
-            ) {
-
-                if (
-                    $a['period_type']
-                    ===
-                    $b['period_type']
-                ) {
-
-                    return strcmp(
-                        $a['sort'],
-                        $b['sort']
-                    );
-
-                }
-
-
-                return strcmp(
-                    $a['period_type'],
-                    $b['period_type']
-                );
-
-            }
-        );
-
-
-        foreach (
-            $data as &$row
-        ) {
-
-            unset(
-                $row['sort']
-            );
-
-        }
-
-        unset($row);
-
-
-        return $data;
-    }
-
-
-    /**
-     * =========================================================
-     * BUILD EFFECTIVENESS TREND
+     *
+     * IMPORTANT:
+     *
+     * This method DOES NOT classify effectiveness again.
+     *
+     * It uses:
+     *
+     * $record['category']
+     *
+     * which was already classified in index().
      * =========================================================
      */
     private function buildEffectivenessTrend(
-        array $evaluations,
-        array $feedbackMap
-    ): array {
+    array $effectivenessRecords
+): array {
 
-        $monthly = [];
-
-        $quarterly = [];
+    $scheduleTrend = [];
 
 
-        foreach (
-            $evaluations as $evaluation
-        ) {
+    /*
+     * =========================================================
+     * LOOP THROUGH THE EXACT SAME RECORDS USED BY THE PIE
+     * =========================================================
+     */
 
-            $feedbackId =
-                (int)(
-                    $evaluation->feedback_id
-                    ?? 0
-                );
+    foreach ($effectivenessRecords as $record) {
 
-
-            if (
-                $feedbackId <= 0 ||
-                !isset(
-                    $feedbackMap[$feedbackId]
-                )
-            ) {
-
-                continue;
-
-            }
-
-
-            $feedback =
-                $feedbackMap[$feedbackId];
-
-
-            $date =
-                $this->toDateTime(
-                    $feedback->feedback_date
-                    ?? null
-                );
-
-
-            if (!$date) {
-                continue;
-            }
-
-
-            $value =
-                $evaluation->effectiveness_label;
-
-
-            /*
-             * MONTH
-             */
-
-            $monthKey =
-                $date->format('Y-m');
-
-
-            if (
-                !isset(
-                    $monthly[$monthKey]
-                )
-            ) {
-
-                $monthly[$monthKey] = [
-                    'period_type' =>
-                        'monthly',
-
-                    'period' =>
-                        $date->format('M Y'),
-
-                    'sort' =>
-                        $monthKey,
-
-                    'effective' =>
-                        0,
-
-                    'moderately_effective' =>
-                        0,
-
-                    'not_effective' =>
-                        0,
-
-                    'not_yet_predicted' =>
-                        0
-                ];
-
-            }
-
-
-            $this->incrementEffectiveness(
-                $monthly[$monthKey],
-                $value
+        $scheduleId =
+            (int)(
+                $record['schedule_id']
+                ?? 0
             );
 
 
-            /*
-             * QUARTER
-             */
+        /*
+         * No schedule = cannot place on schedule trend.
+         */
 
-            $quarter =
-                (int)(
-                    ceil(
-                        (int)$date->format('n')
-                        / 3
+        if ($scheduleId <= 0) {
+            continue;
+        }
+
+
+        /*
+         * =====================================================
+         * USE THE EXACT CATEGORY FROM THE PIE CLASSIFICATION
+         * =====================================================
+         */
+
+        $category =
+            $record['category']
+            ?? 'not_yet_predicted';
+
+
+        $validCategories = [
+
+            'effective',
+
+            'moderately_effective',
+
+            'not_effective',
+
+            'not_yet_predicted'
+        ];
+
+
+        /*
+         * Safety only.
+         *
+         * We DO NOT recalculate the effectiveness label.
+         */
+
+        if (
+            !in_array(
+                $category,
+                $validCategories,
+                true
+            )
+        ) {
+
+            $category =
+                'not_yet_predicted';
+        }
+
+
+        /*
+         * =====================================================
+         * GET SCHEDULE NAME
+         * =====================================================
+         *
+         * Change this if your schedule code is stored under
+         * another field.
+         */
+
+        $schedule =
+            $this->Schedules
+                ->find()
+                ->select([
+                    'id',
+                    'program_code',
+                    'start_date'
+                ])
+                ->where([
+                    'Schedules.id' =>
+                        $scheduleId
+                ])
+                ->first();
+
+
+        /*
+         * =====================================================
+         * SCHEDULE LABEL
+         * =====================================================
+         */
+
+        if ($schedule) {
+
+            $scheduleCode =
+                trim(
+                    (string)(
+                        $schedule->program_code
+                        ?? ''
                     )
                 );
 
 
-            $year =
-                $date->format('Y');
+            if ($scheduleCode === '') {
 
-
-            $quarterKey =
-                $year
-                . '-Q'
-                . $quarter;
-
-
-            if (
-                !isset(
-                    $quarterly[$quarterKey]
-                )
-            ) {
-
-                $quarterly[$quarterKey] = [
-                    'period_type' =>
-                        'quarterly',
-
-                    'period' =>
-                        'Q'
-                        . $quarter
-                        . ' '
-                        . $year,
-
-                    'sort' =>
-                        $year
-                        . '-'
-                        . str_pad(
-                            (string)$quarter,
-                            2,
-                            '0',
-                            STR_PAD_LEFT
-                        ),
-
-                    'effective' =>
-                        0,
-
-                    'moderately_effective' =>
-                        0,
-
-                    'not_effective' =>
-                        0,
-
-                    'not_yet_predicted' =>
-                        0
-                ];
-
+                $scheduleCode =
+                    'Schedule ' .
+                    $scheduleId;
             }
 
+        } else {
 
-            $this->incrementEffectiveness(
-                $quarterly[$quarterKey],
-                $value
-            );
-
+            $scheduleCode =
+                'Schedule ' .
+                $scheduleId;
         }
 
 
-        $data =
-            array_merge(
-                array_values($monthly),
-                array_values($quarterly)
-            );
-
-
-        usort(
-            $data,
-            function (
-                $a,
-                $b
-            ) {
-
-                if (
-                    $a['period_type']
-                    ===
-                    $b['period_type']
-                ) {
-
-                    return strcmp(
-                        $a['sort'],
-                        $b['sort']
-                    );
-
-                }
-
-
-                return strcmp(
-                    $a['period_type'],
-                    $b['period_type']
-                );
-
-            }
-        );
-
-
-        foreach (
-            $data as &$row
-        ) {
-
-            unset(
-                $row['sort']
-            );
-
-        }
-
-        unset($row);
-
-
-        return $data;
-    }
-
-
-    /**
-     * =========================================================
-     * INCREMENT EFFECTIVENESS
-     * =========================================================
-     */
-    private function incrementEffectiveness(
-        array &$row,
-        mixed $value
-    ): void {
+        /*
+         * =====================================================
+         * CREATE SCHEDULE ROW
+         * =====================================================
+         */
 
         if (
-            $value === null ||
-            $value === ''
+            !isset(
+                $scheduleTrend[$scheduleId]
+            )
         ) {
 
-            $row['not_yet_predicted']++;
+            $scheduleTrend[$scheduleId] = [
 
-            return;
+                'schedule_id' =>
+                    $scheduleId,
 
+                'period' =>
+                    $scheduleCode,
+
+                'period_type' =>
+                    'schedule',
+
+                'effective' =>
+                    0,
+
+                'moderately_effective' =>
+                    0,
+
+                'not_effective' =>
+                    0,
+
+                'not_yet_predicted' =>
+                    0
+            ];
         }
 
 
-        switch (
-            (int)$value
-        ) {
+        /*
+         * =====================================================
+         * ADD THE SAME CATEGORY USED BY THE PIE
+         * =====================================================
+         */
 
-            case 2:
-
-                $row['effective']++;
-
-                break;
-
-
-            case 1:
-
-                $row['moderately_effective']++;
-
-                break;
-
-
-            case 0:
-
-                $row['not_effective']++;
-
-                break;
-
-
-            default:
-
-                $row['not_yet_predicted']++;
-
-                break;
-
-        }
-
+        $scheduleTrend[
+            $scheduleId
+        ][$category]++;
     }
 
 
-    /**
+    /*
      * =========================================================
-     * BUILD SURVEY TREND
+     * SORT BY SCHEDULE ID
+     * =========================================================
+     */
+
+    ksort(
+        $scheduleTrend,
+        SORT_NUMERIC
+    );
+
+
+    /*
+     * =========================================================
+     * RETURN
+     * =========================================================
+     */
+
+    return array_values(
+        $scheduleTrend
+    );
+}
+    /*
+     * =========================================================
+     * SURVEY TREND
      * =========================================================
      */
     private function buildSurveyTrend(
@@ -1286,59 +849,75 @@ class AnalyticsController extends AppController
             $date =
                 $this->toDateTime(
                     $feedback->feedback_date
-                    ?? null
+                    ??
+                    $feedback->created
+                    ??
+                    null
                 );
 
 
-            if (!$date) {
+            if ($date === null) {
+
                 continue;
             }
 
 
             $answers =
                 $this->decodeAnswers(
-                    $feedback->answer ?? null
+                    $feedback->answer
+                    ?? null
                 );
 
 
-            $scores = [];
+            $ratings = [];
 
 
-            foreach (
-                $answers as $answer
+            for (
+                $i = 1;
+                $i <= 10;
+                $i++
             ) {
 
-                $normalized =
-                    $this->normalizeAnswer(
-                        $answer
-                    );
+                $key =
+                    'q' . $i;
 
 
                 if (
-                    $normalized !== null
+                    isset(
+                        $answers[$key]
+                    )
                 ) {
 
-                    $scores[] =
-                        $normalized;
+                    $rating =
+                        $this->normalizeAnswer(
+                            $answers[$key]
+                        );
 
+
+                    if (
+                        $rating >= 1 &&
+                        $rating <= 5
+                    ) {
+
+                        $ratings[] =
+                            $rating;
+                    }
                 }
-
             }
 
 
             if (
-                empty($scores)
+                empty($ratings)
             ) {
 
                 continue;
-
             }
 
 
             $average =
-                array_sum($scores)
+                array_sum($ratings)
                 /
-                count($scores);
+                count($ratings);
 
 
             /*
@@ -1346,7 +925,7 @@ class AnalyticsController extends AppController
              */
 
             $monthKey =
-                $date->format('Y-m');
+                $date->format('F Y');
 
 
             if (
@@ -1356,30 +935,30 @@ class AnalyticsController extends AppController
             ) {
 
                 $monthly[$monthKey] = [
+
+                    'period' =>
+                        $monthKey,
+
                     'period_type' =>
                         'monthly',
 
-                    'period' =>
-                        $date->format('M Y'),
-
-                    'sort' =>
-                        $monthKey,
-
-                    'total' =>
+                    'sum' =>
                         0,
 
-                    'responses' =>
+                    'count' =>
                         0
                 ];
-
             }
 
 
-            $monthly[$monthKey]['total']
-                += $average;
+            $monthly[
+                $monthKey
+            ]['sum'] += $average;
 
 
-            $monthly[$monthKey]['responses']++;
+            $monthly[
+                $monthKey
+            ]['count']++;
 
 
             /*
@@ -1387,22 +966,16 @@ class AnalyticsController extends AppController
              */
 
             $quarter =
-                (int)(
-                    ceil(
-                        (int)$date->format('n')
-                        / 3
-                    )
+                (int)ceil(
+                    (int)$date->format('n') / 3
                 );
 
 
-            $year =
-                $date->format('Y');
-
-
             $quarterKey =
-                $year
-                . '-Q'
-                . $quarter;
+                'Q' .
+                $quarter .
+                ' ' .
+                $date->format('Y');
 
 
             if (
@@ -1412,133 +985,109 @@ class AnalyticsController extends AppController
             ) {
 
                 $quarterly[$quarterKey] = [
+
+                    'period' =>
+                        $quarterKey,
+
                     'period_type' =>
                         'quarterly',
 
-                    'period' =>
-                        'Q'
-                        . $quarter
-                        . ' '
-                        . $year,
-
-                    'sort' =>
-                        $year
-                        . '-'
-                        . str_pad(
-                            (string)$quarter,
-                            2,
-                            '0',
-                            STR_PAD_LEFT
-                        ),
-
-                    'total' =>
+                    'sum' =>
                         0,
 
-                    'responses' =>
+                    'count' =>
                         0
                 ];
-
             }
 
 
-            $quarterly[$quarterKey]['total']
-                += $average;
+            $quarterly[
+                $quarterKey
+            ]['sum'] += $average;
 
 
-            $quarterly[$quarterKey]['responses']++;
-
+            $quarterly[
+                $quarterKey
+            ]['count']++;
         }
 
 
-        $data =
-            array_merge(
-                array_values($monthly),
-                array_values($quarterly)
-            );
+        /*
+         * CONVERT MONTHLY
+         */
+
+        $monthlyOutput = [];
 
 
         foreach (
-            $data as &$row
+            $monthly as $row
         ) {
 
-            $responses =
-                (int)(
-                    $row['responses']
-                    ?? 0
-                );
+            $monthlyOutput[] = [
 
+                'period' =>
+                    $row['period'],
 
-            $row['average_rating'] =
-                $responses > 0
-                    ? round(
-                        $row['total']
+                'period_type' =>
+                    'monthly',
+
+                'average_rating' =>
+                    round(
+                        $row['sum']
                         /
-                        $responses,
+                        max(
+                            1,
+                            $row['count']
+                        ),
                         2
                     )
-                    : 0;
-
-
-            unset(
-                $row['total'],
-                $row['responses']
-            );
-
+            ];
         }
 
-        unset($row);
 
+        /*
+         * CONVERT QUARTERLY
+         */
 
-        usort(
-            $data,
-            function (
-                $a,
-                $b
-            ) {
-
-                if (
-                    $a['period_type']
-                    ===
-                    $b['period_type']
-                ) {
-
-                    return strcmp(
-                        $a['sort'],
-                        $b['sort']
-                    );
-
-                }
-
-
-                return strcmp(
-                    $a['period_type'],
-                    $b['period_type']
-                );
-
-            }
-        );
+        $quarterlyOutput = [];
 
 
         foreach (
-            $data as &$row
+            $quarterly as $row
         ) {
 
-            unset(
-                $row['sort']
-            );
+            $quarterlyOutput[] = [
 
+                'period' =>
+                    $row['period'],
+
+                'period_type' =>
+                    'quarterly',
+
+                'average_rating' =>
+                    round(
+                        $row['sum']
+                        /
+                        max(
+                            1,
+                            $row['count']
+                        ),
+                        2
+                    )
+            ];
         }
 
-        unset($row);
 
-
-        return $data;
+        return array_merge(
+            $monthlyOutput,
+            $quarterlyOutput
+        );
     }
 
 
-    /**
+    /*
      * =========================================================
-     * BUILD DISTRIBUTION TREND
+     * DISTRIBUTION TREND
      * =========================================================
      */
     private function buildDistributionTrend(
@@ -1554,36 +1103,18 @@ class AnalyticsController extends AppController
             $records as $record
         ) {
 
-            /*
-             * Use received_date when available.
-             *
-             * For records that do not have a received date,
-             * use the record created date.
-             */
-
-            $dateValue =
-                $record->received_date
-                ?? null;
-
-
-            if (
-                empty($dateValue)
-            ) {
-
-                $dateValue =
-                    $record->created
-                    ?? null;
-
-            }
-
-
             $date =
                 $this->toDateTime(
-                    $dateValue
+                    $record->distribution_date
+                    ??
+                    $record->created
+                    ??
+                    null
                 );
 
 
-            if (!$date) {
+            if ($date === null) {
+
                 continue;
             }
 
@@ -1599,88 +1130,8 @@ class AnalyticsController extends AppController
                 );
 
 
-            /*
-             * Normalize status
-             */
-
-            if (
-                in_array(
-                    $status,
-                    [
-                        'received',
-                        'receive'
-                    ],
-                    true
-                )
-            ) {
-
-                $statusKey =
-                    'received';
-
-            } elseif (
-                in_array(
-                    $status,
-                    [
-                        'not received',
-                        'not_received',
-                        'notreceived'
-                    ],
-                    true
-                )
-            ) {
-
-                $statusKey =
-                    'not_received';
-
-            } elseif (
-                in_array(
-                    $status,
-                    [
-                        're-scheduled',
-                        'rescheduled',
-                        're scheduled',
-                        're_schedule',
-                        're-schedule'
-                    ],
-                    true
-                )
-            ) {
-
-                $statusKey =
-                    'rescheduled';
-
-            } elseif (
-                in_array(
-                    $status,
-                    [
-                        'cancelled',
-                        'canceled'
-                    ],
-                    true
-                )
-            ) {
-
-                $statusKey =
-                    'cancelled';
-
-            } else {
-
-                /*
-                 * Ignore unknown statuses rather than
-                 * incorrectly assigning them.
-                 */
-
-                continue;
-
-            }
-
-
-            /*
-             * MONTH
-             */
-
             $monthKey =
-                $date->format('Y-m');
+                $date->format('F Y');
 
 
             if (
@@ -1690,14 +1141,12 @@ class AnalyticsController extends AppController
             ) {
 
                 $monthly[$monthKey] = [
-                    'period_type' =>
-                        'monthly',
 
                     'period' =>
-                        $date->format('M Y'),
-
-                    'sort' =>
                         $monthKey,
+
+                    'period_type' =>
+                        'monthly',
 
                     'received' =>
                         0,
@@ -1711,12 +1160,48 @@ class AnalyticsController extends AppController
                     'cancelled' =>
                         0
                 ];
-
             }
 
 
-            $monthly[$monthKey]
-                [$statusKey]++;
+            if (
+                $status === 'received'
+            ) {
+
+                $monthly[
+                    $monthKey
+                ]['received']++;
+
+            }
+
+            elseif (
+                $status === 'not received'
+            ) {
+
+                $monthly[
+                    $monthKey
+                ]['not_received']++;
+
+            }
+
+            elseif (
+                $status === 're-scheduled' ||
+                $status === 'rescheduled'
+            ) {
+
+                $monthly[
+                    $monthKey
+                ]['rescheduled']++;
+
+            }
+
+            elseif (
+                $status === 'cancelled'
+            ) {
+
+                $monthly[
+                    $monthKey
+                ]['cancelled']++;
+            }
 
 
             /*
@@ -1724,22 +1209,16 @@ class AnalyticsController extends AppController
              */
 
             $quarter =
-                (int)(
-                    ceil(
-                        (int)$date->format('n')
-                        / 3
-                    )
+                (int)ceil(
+                    (int)$date->format('n') / 3
                 );
 
 
-            $year =
-                $date->format('Y');
-
-
             $quarterKey =
-                $year
-                . '-Q'
-                . $quarter;
+                'Q' .
+                $quarter .
+                ' ' .
+                $date->format('Y');
 
 
             if (
@@ -1749,24 +1228,12 @@ class AnalyticsController extends AppController
             ) {
 
                 $quarterly[$quarterKey] = [
-                    'period_type' =>
-                        'quarterly',
 
                     'period' =>
-                        'Q'
-                        . $quarter
-                        . ' '
-                        . $year,
+                        $quarterKey,
 
-                    'sort' =>
-                        $year
-                        . '-'
-                        . str_pad(
-                            (string)$quarter,
-                            2,
-                            '0',
-                            STR_PAD_LEFT
-                        ),
+                    'period_type' =>
+                        'quarterly',
 
                     'received' =>
                         0,
@@ -1780,73 +1247,61 @@ class AnalyticsController extends AppController
                     'cancelled' =>
                         0
                 ];
-
             }
 
 
-            $quarterly[$quarterKey]
-                [$statusKey]++;
-
-        }
-
-
-        $data =
-            array_merge(
-                array_values($monthly),
-                array_values($quarterly)
-            );
-
-
-        usort(
-            $data,
-            function (
-                $a,
-                $b
+            if (
+                $status === 'received'
             ) {
 
-                if (
-                    $a['period_type']
-                    ===
-                    $b['period_type']
-                ) {
-
-                    return strcmp(
-                        $a['sort'],
-                        $b['sort']
-                    );
-
-                }
-
-
-                return strcmp(
-                    $a['period_type'],
-                    $b['period_type']
-                );
+                $quarterly[
+                    $quarterKey
+                ]['received']++;
 
             }
-        );
 
+            elseif (
+                $status === 'not received'
+            ) {
 
-        foreach (
-            $data as &$row
-        ) {
+                $quarterly[
+                    $quarterKey
+                ]['not_received']++;
 
-            unset(
-                $row['sort']
-            );
+            }
 
+            elseif (
+                $status === 're-scheduled' ||
+                $status === 'rescheduled'
+            ) {
+
+                $quarterly[
+                    $quarterKey
+                ]['rescheduled']++;
+
+            }
+
+            elseif (
+                $status === 'cancelled'
+            ) {
+
+                $quarterly[
+                    $quarterKey
+                ]['cancelled']++;
+            }
         }
 
-        unset($row);
 
-
-        return $data;
+        return array_merge(
+            array_values($monthly),
+            array_values($quarterly)
+        );
     }
 
 
-    /**
+    /*
      * =========================================================
-     * BUILD DISTRIBUTION STATUS SUMMARY
+     * DISTRIBUTION STATUS SUMMARY
      * =========================================================
      */
     private function buildDistributionStatusSummary(
@@ -1854,6 +1309,7 @@ class AnalyticsController extends AppController
     ): array {
 
         $summary = [
+
             'Received' =>
                 0,
 
@@ -1873,73 +1329,34 @@ class AnalyticsController extends AppController
         ) {
 
             $status =
-                strtolower(
-                    trim(
-                        (string)(
-                            $record->status
-                            ?? ''
-                        )
+                trim(
+                    (string)(
+                        $record->status
+                        ?? ''
                     )
                 );
 
 
             if (
-                in_array(
-                    $status,
-                    [
-                        'received',
-                        'receive'
-                    ],
-                    true
+                isset(
+                    $summary[$status]
                 )
             ) {
 
-                $summary['Received']++;
-
-            } elseif (
-                in_array(
-                    $status,
-                    [
-                        'not received',
-                        'not_received',
-                        'notreceived'
-                    ],
-                    true
-                )
-            ) {
-
-                $summary['Not Received']++;
-
-            } elseif (
-                in_array(
-                    $status,
-                    [
-                        're-scheduled',
-                        'rescheduled',
-                        're scheduled',
-                        're-schedule'
-                    ],
-                    true
-                )
-            ) {
-
-                $summary['Re-Scheduled']++;
-
-            } elseif (
-                in_array(
-                    $status,
-                    [
-                        'cancelled',
-                        'canceled'
-                    ],
-                    true
-                )
-            ) {
-
-                $summary['Cancelled']++;
+                $summary[$status]++;
 
             }
 
+            elseif (
+                strtolower($status)
+                ===
+                'rescheduled'
+            ) {
+
+                $summary[
+                    'Re-Scheduled'
+                ]++;
+            }
         }
 
 
@@ -1947,9 +1364,9 @@ class AnalyticsController extends AppController
     }
 
 
-    /**
+    /*
      * =========================================================
-     * BUILD RICE TYPE SUMMARY
+     * RICE / SEED TYPE SUMMARY
      * =========================================================
      */
     private function buildRiceTypeSummary(
@@ -1958,40 +1375,14 @@ class AnalyticsController extends AppController
 
         $summary = [
 
-            0 => [
-                'label' =>
-                    'Inbred',
+            'Inbred' =>
+                0,
 
-                'count' =>
-                    0,
+            'Hybrid' =>
+                0,
 
-                'yield_before_total' =>
-                    0,
-
-                'yield_after_total' =>
-                    0,
-
-                'yield_count' =>
-                    0
-            ],
-
-            1 => [
-                'label' =>
-                    'Hybrid',
-
-                'count' =>
-                    0,
-
-                'yield_before_total' =>
-                    0,
-
-                'yield_after_total' =>
-                    0,
-
-                'yield_count' =>
-                    0
-            ]
-
+            'Unknown' =>
+                0
         ];
 
 
@@ -1999,148 +1390,69 @@ class AnalyticsController extends AppController
             $evaluations as $evaluation
         ) {
 
-            if (
-                $evaluation->rice_type === null
-            ) {
-
-                continue;
-
-            }
-
-
-            $type =
-                (int)$evaluation->rice_type;
-
-
-            if (
-                !isset(
-                    $summary[$type]
-                )
-            ) {
-
-                continue;
-
-            }
-
-
-            $summary[$type]['count']++;
-
-
-            if (
-                is_numeric(
-                    $evaluation->average_yield
-                ) &&
-                is_numeric(
-                    $evaluation->crop_yield_after
-                )
-            ) {
-
-                $summary[$type]
-                    ['yield_before_total']
-                    +=
-                    (float)$evaluation->average_yield;
-
-
-                $summary[$type]
-                    ['yield_after_total']
-                    +=
-                    (float)$evaluation->crop_yield_after;
-
-
-                $summary[$type]
-                    ['yield_count']++;
-
-            }
-
-        }
-
-
-        foreach (
-            $summary as &$row
-        ) {
-
-            $count =
-                $row['yield_count'];
-
-
-            $row['average_yield_before'] =
-                $count > 0
-                    ? round(
-                        $row['yield_before_total']
-                        / $count,
-                        2
-                    )
-                    : 0;
-
-
-            $row['average_yield_after'] =
-                $count > 0
-                    ? round(
-                        $row['yield_after_total']
-                        / $count,
-                        2
-                    )
-                    : 0;
-
-
-            $row['yield_improvement'] =
-                $row['average_yield_before'] > 0
-                    ? round(
-                        (
-                            (
-                                $row['average_yield_after']
-                                -
-                                $row['average_yield_before']
-                            )
-                            /
-                            $row['average_yield_before']
+            $value =
+                strtolower(
+                    trim(
+                        (string)(
+                            $evaluation->rice_type
+                            ?? ''
                         )
-                        * 100,
-                        2
                     )
-                    : 0;
+                );
 
 
-            unset(
-                $row['yield_before_total'],
-                $row['yield_after_total'],
-                $row['yield_count']
-            );
+            if (
+                $value === '0' ||
+                $value === 'inbred'
+            ) {
 
+                $summary['Inbred']++;
+
+            }
+
+            elseif (
+                $value === '1' ||
+                $value === 'hybrid'
+            ) {
+
+                $summary['Hybrid']++;
+
+            }
+
+            else {
+
+                $summary['Unknown']++;
+            }
         }
-
-        unset($row);
 
 
         return $summary;
     }
 
 
-    /**
+    /*
      * =========================================================
-     * GET RECEIVED RECORDS
+     * RECEIVED RECORDS
      * =========================================================
      */
     private function getReceivedRecords(): array
     {
         $records =
-            $this->Records->find()
+            $this->Records
+                ->find()
                 ->where([
                     'Records.status' =>
                         'Received'
                 ])
                 ->order([
-                    'Records.received_date' =>
-                        'DESC',
-
                     'Records.id' =>
-                        'DESC'
+                        'ASC'
                 ])
                 ->all()
                 ->toArray();
 
 
-        $result = [];
+        $output = [];
 
 
         foreach (
@@ -2158,13 +1470,13 @@ class AnalyticsController extends AppController
             ) {
 
                 $farmer =
-                    $this->Farmers->find()
+                    $this->Farmers
+                        ->find()
                         ->where([
                             'Farmers.id' =>
-                                (int)$record->farmer_id
+                                $record->farmer_id
                         ])
                         ->first();
-
             }
 
 
@@ -2179,13 +1491,13 @@ class AnalyticsController extends AppController
             ) {
 
                 $schedule =
-                    $this->Schedules->find()
+                    $this->Schedules
+                        ->find()
                         ->where([
                             'Schedules.id' =>
-                                (int)$record->schedule_id
+                                $record->schedule_id
                         ])
                         ->first();
-
             }
 
 
@@ -2200,203 +1512,109 @@ class AnalyticsController extends AppController
                         implode(
                             ' ',
                             array_filter([
-                                trim(
-                                    (string)(
-                                        $farmer->first_name
-                                        ?? ''
-                                    )
-                                ),
 
-                                trim(
-                                    (string)(
-                                        $farmer->middle_name
-                                        ?? ''
-                                    )
-                                ),
+                                $farmer->first_name
+                                    ?? '',
 
-                                trim(
-                                    (string)(
-                                        $farmer->last_name
-                                        ?? ''
-                                    )
-                                )
+                                $farmer->middle_name
+                                    ?? '',
+
+                                $farmer->last_name
+                                    ?? ''
+
                             ])
                         )
                     );
 
-            }
 
+                if (
+                    $farmerName === ''
+                ) {
 
-            $distributionDate =
-                '-';
-
-
-            if (
-                $schedule &&
-                !empty(
-                    $schedule->start_date
-                )
-            ) {
-
-                $date =
-                    $this->toDateTime(
-                        $schedule->start_date
-                    );
-
-
-                if ($date) {
-
-                    $distributionDate =
-                        $date->format(
-                            'M d, Y'
-                        );
-
+                    $farmerName =
+                        $farmer->name
+                        ??
+                        '-';
                 }
-
             }
 
 
-            $distributionTime =
-                '-';
-
-
-            if (
-                $schedule &&
-                !empty(
-                    $schedule->start_time
-                )
-            ) {
-
-                $time =
-                    $this->toDateTime(
-                        $schedule->start_time
-                    );
-
-
-                if ($time) {
-
-                    $distributionTime =
-                        $time->format(
-                            'h:i A'
-                        );
-
-                } else {
-
-                    $distributionTime =
-                        (string)(
-                            $schedule->start_time
-                        );
-
-                }
-
-            }
-
-
-            $receivedDate =
-                '-';
-
-
-            if (
-                !empty(
-                    $record->received_date
-                )
-            ) {
-
-                $date =
-                    $this->toDateTime(
-                        $record->received_date
-                    );
-
-
-                if ($date) {
-
-                    $receivedDate =
-                        $date->format(
-                            'M d, Y'
-                        );
-
-                }
-
-            }
-
-
-            $barangay =
-                'N/A';
-
-
-            if (
-                $schedule &&
-                !empty(
-                    $schedule->barangay
-                )
-            ) {
-
-                $barangay =
-                    trim(
-                        (string)
-                        $schedule->barangay
-                    );
-
-            }
-
-
-            $result[] = [
-
-                'id' =>
-                    $record->id
-                    ?? null,
+            $output[] = [
 
                 'farmer_no' =>
                     $farmer->farmer_no
-                    ?? '-',
+                    ??
+                    $farmer->rsbsa_no
+                    ??
+                    '-',
 
                 'farmer_name' =>
                     $farmerName,
 
                 'program_code' =>
                     $schedule->program_code
-                    ?? '-',
-
-                'program_name' =>
-                    $schedule->program_name
-                    ?? 'Seed Subsidy',
+                    ??
+                    $record->program_code
+                    ??
+                    '-',
 
                 'subsidy_item' =>
                     $record->subsidy_item
-                    ?? 'Seed Subsidy',
+                    ??
+                    'Seed Subsidy',
 
                 'quantity' =>
-                    $record->quantity
-                    ?? '0.00',
+                    number_format(
+                        (float)(
+                            $record->quantity
+                            ?? 0
+                        ),
+                        2,
+                        '.',
+                        ''
+                    ),
 
                 'barangay' =>
-                    $barangay,
+                    $schedule->barangay
+                    ??
+                    $record->barangay
+                    ??
+                    '-',
 
                 'distribution_date' =>
-                    $distributionDate,
+                    $schedule->start_date
+                    ??
+                    $record->distribution_date
+                    ??
+                    '-',
 
                 'distribution_time' =>
-                    $distributionTime,
+                    $schedule->start_date
+                    ??
+                    '-',
 
                 'received_date' =>
-                    $receivedDate,
+                    $record->received_date
+                    ??
+                    $record->updated
+                    ??
+                    '-',
 
                 'status' =>
                     $record->status
-                    ?? 'Received'
-
+                    ??
+                    'Received'
             ];
-
         }
 
 
-        return $result;
+        return $output;
     }
 
 
-    /**
+    /*
      * =========================================================
-     * BUILD QUESTION SUMMARY
+     * QUESTION SUMMARY
      * =========================================================
      */
     private function buildQuestionSummary(
@@ -2411,36 +1629,22 @@ class AnalyticsController extends AppController
 
 
         foreach (
-            $questions as $key => $question
+            $questions as $question
         ) {
 
-            $summary[$key] = [
-
-                'question' =>
-                    $question,
-
-                'count' => [
-                    1 => 0,
-                    2 => 0,
-                    3 => 0,
-                    4 => 0,
-                    5 => 0
-                ],
+            $summary[
+                $question
+            ] = [
 
                 'total' =>
                     0,
 
-                'responses' =>
+                'count' =>
                     0,
 
                 'average' =>
-                    0,
-
-                'interpretation' =>
-                    'No Responses'
-
+                    0
             ];
-
         }
 
 
@@ -2456,86 +1660,74 @@ class AnalyticsController extends AppController
 
 
             foreach (
-                $answers as $key => $answer
+                $questions as $question
             ) {
 
-                $normalized =
-                    $this->normalizeAnswer(
-                        $answer
-                    );
-
-
                 if (
-                    $normalized === null
-                ) {
-
-                    continue;
-
-                }
-
-
-                if (
-                    !isset(
-                        $summary[$key]
+                    !array_key_exists(
+                        $question,
+                        $answers
                     )
                 ) {
 
                     continue;
-
                 }
 
 
-                $summary[$key]
-                    ['count'][$normalized]++;
+                $rating =
+                    $this->normalizeAnswer(
+                        $answers[$question]
+                    );
 
 
-                $summary[$key]
-                    ['total']
-                    += $normalized;
+                if (
+                    $rating < 1 ||
+                    $rating > 5
+                ) {
+
+                    continue;
+                }
 
 
-                $summary[$key]
-                    ['responses']++;
+                $summary[
+                    $question
+                ]['total'] +=
+                    $rating;
 
+
+                $summary[
+                    $question
+                ]['count']++;
             }
-
         }
 
 
         foreach (
-            $summary as &$item
+            $summary as $question => &$data
         ) {
 
-            if (
-                $item['responses'] > 0
-            ) {
+            $data['average'] =
+                $data['count'] > 0
 
-                $item['average'] =
-                    round(
-                        $item['total']
+                    ? round(
+                        $data['total']
                         /
-                        $item['responses'],
+                        $data['count'],
                         2
-                    );
+                    )
 
-
-                $item['interpretation'] =
-                    $this->getRatingInterpretation(
-                        $item['average']
-                    );
-
-            }
-
+                    : 0;
         }
 
-        unset($item);
+
+        unset($data);
 
 
         return $summary;
     }
 
 
-    /**
+    /*
      * =========================================================
      * QUESTIONS
      * =========================================================
@@ -2544,41 +1736,30 @@ class AnalyticsController extends AppController
     {
         return [
 
-            'q1' =>
-                'I am satisfied with the service/intervention that I received from the DA.',
+            'q1',
 
-            'q2' =>
-                'I spent a reasonable amount of time waiting to receive the seed subsidy.',
+            'q2',
 
-            'q3' =>
-                'I received the seed subsidy that I needed and that was promised by the Department of Agriculture, following the prescribed distribution procedures.',
+            'q3',
 
-            'q4' =>
-                'The City Agriculture Office was easily accessible and could be approached or contacted regarding the seed subsidy distribution.',
+            'q4',
 
-            'q5' =>
-                'I was properly informed about the proper use, benefits, and expected results of the seed subsidy I received, and my feedback was listened to.',
+            'q5',
 
-            'q6' =>
-                'I did not have to pay an unreasonable amount of fees to receive the seed subsidy. (Do not rate if the seed subsidy was provided free of charge.)',
+            'q6',
 
-            'q7' =>
-                'I believe the distribution of the seed subsidy was fair to all qualified farmer beneficiaries, or "walang palakasan."',
+            'q7',
 
-            'q8' =>
-                'I was treated courteously by the staff during the seed subsidy distribution, and they were helpful when I needed assistance.',
+            'q8',
 
-            'q9' =>
-                'I received the seed subsidy that I needed, or, if my request was not granted, the reason for the denial was sufficiently explained to me.',
+            'q9',
 
-            'q10' =>
-                'I received the seed subsidy within the expected time for its intended purpose.'
-
+            'q10'
         ];
     }
 
 
-    /**
+    /*
      * =========================================================
      * DECODE ANSWERS
      * =========================================================
@@ -2591,185 +1772,91 @@ class AnalyticsController extends AppController
             is_array($answer)
         ) {
 
-            $decoded =
-                $answer;
-
-        } else {
-
-            $decoded =
-                json_decode(
-                    (string)$answer,
-                    true
-                );
-
+            return $answer;
         }
 
 
         if (
-            !is_array($decoded)
+            $answer === null ||
+            trim((string)$answer) === ''
         ) {
 
             return [];
-
         }
 
 
-        $result = [];
+        $decoded =
+            json_decode(
+                (string)$answer,
+                true
+            );
 
 
-        for (
-            $i = 1;
-            $i <= 10;
-            $i++
-        ) {
-
-            $key =
-                'q' . $i;
-
-
-            if (
-                array_key_exists(
-                    $key,
-                    $decoded
-                )
-            ) {
-
-                $result[$key] =
-                    $decoded[$key];
-
-                continue;
-
-            }
-
-
-            $upperKey =
-                'Q' . $i;
-
-
-            if (
-                array_key_exists(
-                    $upperKey,
-                    $decoded
-                )
-            ) {
-
-                $result[$key] =
-                    $decoded[$upperKey];
-
-                continue;
-
-            }
-
-
-            $numberKey =
-                (string)$i;
-
-
-            if (
-                array_key_exists(
-                    $numberKey,
-                    $decoded
-                )
-            ) {
-
-                $result[$key] =
-                    $decoded[$numberKey];
-
-            }
-
-        }
-
-
-        return $result;
+        return
+            is_array($decoded)
+                ? $decoded
+                : [];
     }
 
 
-    /**
+    /*
      * =========================================================
      * NORMALIZE ANSWER
      * =========================================================
      */
     private function normalizeAnswer(
         mixed $value
-    ): ?int {
+    ): float {
 
         if (
-            $value === null
+            is_numeric($value)
         ) {
 
-            return null;
-
+            return (float)$value;
         }
 
 
-        $value =
-            trim(
-                (string)$value
+        $normalized =
+            strtolower(
+                trim(
+                    (string)$value
+                )
             );
 
 
-        if (
-            $value === ''
-        ) {
+        $map = [
 
-            return null;
+            '1' =>
+                1,
 
-        }
+            '2' =>
+                2,
+
+            '3' =>
+                3,
+
+            '4' =>
+                4,
+
+            '5' =>
+                5
+        ];
 
 
-        $lower =
-            strtolower($value);
-
-
-        if (
-            in_array(
-                $lower,
-                [
-                    'blank',
-                    'n/a',
-                    'na',
-                    'skip',
-                    'skipped',
-                    'not applicable',
-                    'not_applicable'
-                ],
-                true
+        return
+            isset(
+                $map[$normalized]
             )
-        ) {
 
-            return null;
+                ? (float)$map[
+                    $normalized
+                ]
 
-        }
-
-
-        if (
-            !is_numeric($value)
-        ) {
-
-            return null;
-
-        }
-
-
-        $number =
-            (int)$value;
-
-
-        if (
-            $number < 1 ||
-            $number > 5
-        ) {
-
-            return null;
-
-        }
-
-
-        return $number;
+                : 0;
     }
 
 
-    /**
+    /*
      * =========================================================
      * RATING INTERPRETATION
      * =========================================================
@@ -2778,49 +1865,33 @@ class AnalyticsController extends AppController
         float $average
     ): string {
 
-        if (
-            $average >= 4.21
-        ) {
+        if ($average >= 4.21) {
 
-            return 'Strongly Agree';
-
+            return 'Highly Effective';
         }
 
+        if ($average >= 3.41) {
 
-        if (
-            $average >= 3.41
-        ) {
-
-            return 'Agree';
-
+            return 'Effective';
         }
 
+        if ($average >= 2.61) {
 
-        if (
-            $average >= 2.61
-        ) {
-
-            return 'Neutral';
-
+            return 'Moderately Effective';
         }
 
+        if ($average >= 1.81) {
 
-        if (
-            $average >= 1.81
-        ) {
-
-            return 'Disagree';
-
+            return 'Less Effective';
         }
 
-
-        return 'Strongly Disagree';
+        return 'Not Effective';
     }
 
 
-    /**
+    /*
      * =========================================================
-     * AVERAGE FIELD
+     * CALCULATE AVERAGE
      * =========================================================
      */
     private function calculateAverage(
@@ -2836,8 +1907,23 @@ class AnalyticsController extends AppController
         ) {
 
             $value =
-                $record->{$field}
-                ?? null;
+                $record instanceof \ArrayAccess
+
+                    ? $record[$field]
+                        ?? null
+
+                    : (
+                        is_object($record)
+                            ? (
+                                $record->$field
+                                ?? null
+                            )
+
+                            : (
+                                $record[$field]
+                                ?? null
+                            )
+                    );
 
 
             if (
@@ -2846,9 +1932,7 @@ class AnalyticsController extends AppController
 
                 $values[] =
                     (float)$value;
-
             }
-
         }
 
 
@@ -2857,63 +1941,43 @@ class AnalyticsController extends AppController
         ) {
 
             return 0;
-
         }
 
 
-        return round(
+        return
             array_sum($values)
             /
-            count($values),
-            2
+            count($values);
+    }
+
+
+  /**
+ * Convert a value to DateTime safely.
+ */
+private function toDateTime(mixed $value): ?\DateTime
+{
+    if ($value instanceof \DateTime) {
+        return $value;
+    }
+
+    if ($value instanceof \DateTimeImmutable) {
+        return new \DateTime(
+            $value->format('Y-m-d H:i:s')
         );
     }
 
-
-    /**
-     * =========================================================
-     * DATE CONVERSION
-     * =========================================================
-     */
-    private function toDateTime(
-        mixed $value
-    ): ?\DateTime {
-
-        if (
-            $value instanceof \DateTimeInterface
-        ) {
-
-            return new \DateTime(
-                $value->format(
-                    'Y-m-d H:i:s'
-                )
-            );
-
-        }
-
-
-        if (
-            $value === null ||
-            trim((string)$value) === ''
-        ) {
-
-            return null;
-
-        }
-
-
-        try {
-
-            return new \DateTime(
-                (string)$value
-            );
-
-        } catch (
-            \Throwable $e
-        ) {
-
-            return null;
-
-        }
+    if ($value === null || $value === '') {
+        return null;
     }
+    try {
+
+        return new \DateTime(
+            (string)$value
+        );
+
+    } catch (\Exception $e) {
+
+        return null;
+    }
+}
 }
