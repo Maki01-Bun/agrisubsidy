@@ -825,7 +825,4 @@ public function bulkApprove()
         $this->referer()
     );
 }
-
-
-
 }

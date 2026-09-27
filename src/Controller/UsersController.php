@@ -35,7 +35,6 @@ class UsersController extends AppController
 
     $usersTable = $this->Users;
 
-
     // ============================================================
     // DEFAULT VALUES
     // ============================================================
@@ -263,6 +262,18 @@ class UsersController extends AppController
 
 
         // ========================================================
+        // GET LGU-RSBSA / FARMER NUMBER
+        // ========================================================
+
+        $farmerNo = trim(
+            (string)(
+                $farmerData['farmer_no']
+                ?? ''
+            )
+        );
+
+
+        // ========================================================
         // CREATE NOTIFICATION
         // ========================================================
 
@@ -270,10 +281,6 @@ class UsersController extends AppController
             $notificationsTable
                 ->newEmptyEntity();
 
-
-        // ========================================================
-        // PATCH NOTIFICATION
-        // ========================================================
 
         $notification =
             $notificationsTable->patchEntity(
@@ -286,7 +293,9 @@ class UsersController extends AppController
                         'New Farmer Registration',
 
                     'message' =>
-                        'A new farmer registration requires approval.',
+                        'A new farmer registration has a LGU-RSBSA number of ' .
+                        $farmerNo .
+                        ' and requires approval.',
 
                     'type' =>
                         'registration',
@@ -338,7 +347,9 @@ class UsersController extends AppController
             // ====================================================
 
             $this->Flash->error(
-                __('Unable to submit registration. Please try again.')
+                __(
+                    'Unable to submit registration. Please try again.'
+                )
             );
         }
     }

@@ -300,8 +300,14 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label for="farmer_id">Farmer</label>
-                    <?= $this->Form->control('farmer_id', ['type' => 'select','options' => $farmers,
-                    'empty' => '-- Select Farmer --','class' => 'form-control','label' => false]) ?>
+                    <?= $this->Form->control('farmer_id', [
+                        'type' => 'select',
+                        'options' => $farmers,
+                        'empty' => '-- Select Farmer --',
+                        'label' => false,
+                        'id' => 'farmer_id',
+                        'class' => 'form-control'
+                    ]) ?>
                     <label for="subsidy_item">Subsidy Item</label>
                     <?= $this->Form->control('subsidy_item', ['type' => 'text', 'value' => 'Seed Subsidy',
                     'class' => 'form-control', 'label' => false, 'readonly' => true])?>
@@ -464,6 +470,7 @@
         </div>
     </div>
 </div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -487,5 +494,52 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
                                     
+});
+$(document).ready(function () {
+    function initializeFarmerSelect() {
+
+        const $farmer = $('#farmer_id');
+
+        if (!$farmer.length) {
+            return;
+        }
+        if ($farmer.hasClass('select2-hidden-accessible')) {
+            $farmer.select2('destroy');
+        }
+        $farmer.select2({
+
+            theme: 'bootstrap4',
+            width: '100%',
+            placeholder: '-- Select Farmer --',
+            allowClear: true,
+            minimumResultsForSearch: 0,
+            dropdownParent: $('#records-modal')
+
+        });
+
+    }
+    $('#records-modal').on('shown.bs.modal', function () {
+
+        initializeFarmerSelect();
+
+    });
+
+    initializeFarmerSelect();
+
+    $('#records-modal').on('hidden.bs.modal', function () {
+
+        const $farmer = $('#farmer_id');
+
+        if (
+            $farmer.length &&
+            $farmer.hasClass('select2-hidden-accessible')
+        ) {
+
+            $farmer.select2('destroy');
+
+        }
+
+    });
+
 });
 </script>

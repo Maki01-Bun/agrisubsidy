@@ -15,7 +15,7 @@ class DashboardController extends AppController
      *
      * @return \Cake\Http\Response|null|void Renders view
      */
-    public function index()
+   public function index()
 {
     // =========================================================
     // LOAD MODELS
@@ -37,7 +37,10 @@ class DashboardController extends AppController
     $effectivenessData = $this->Evaluations->find()
         ->select([
             'effectiveness_label',
-            'total' => $this->Evaluations->find()->func()->count('*')
+            'total' => $this->Evaluations
+                ->find()
+                ->func()
+                ->count('*')
         ])
         ->group([
             'effectiveness_label'
@@ -79,7 +82,10 @@ class DashboardController extends AppController
     $totalFeedbacksWithAnswers = 0;
 
 
-    // Get feedback records that contain answers
+    // =========================================================
+    // GET FEEDBACK RECORDS THAT CONTAIN ANSWERS
+    // =========================================================
+
     $feedbacks = $this->Feedbacks->find()
         ->select([
             'id',
@@ -93,7 +99,10 @@ class DashboardController extends AppController
 
     foreach ($feedbacks as $feedback) {
 
-        // Decode Q1-Q10 JSON
+        // =====================================================
+        // DECODE Q1-Q10 JSON
+        // =====================================================
+
         $answers = json_decode(
             (string)$feedback->answer,
             true
@@ -154,7 +163,7 @@ class DashboardController extends AppController
             / count($feedbackScores);
 
 
-        // Add this feedback's average to the overall average
+        // Add this feedback's average to overall average
         $totalFeedbackScore += $feedbackAverage;
 
         $totalFeedbacksWithAnswers++;
@@ -219,7 +228,10 @@ class DashboardController extends AppController
     // HISTORY RECORDS / DASHBOARD CARDS
     // =========================================================
 
-    // Seed Subsidy Distributed
+    // =========================================================
+    // SEED SUBSIDY DISTRIBUTED
+    // =========================================================
+
     $subsidyDistributed = $this->Records
         ->find()
         ->where([
@@ -228,7 +240,10 @@ class DashboardController extends AppController
         ->count();
 
 
-    // Re-Scheduled
+    // =========================================================
+    // RE-SCHEDULED
+    // =========================================================
+
     $rescheduled = $this->Schedules
         ->find()
         ->where([
@@ -237,7 +252,10 @@ class DashboardController extends AppController
         ->count();
 
 
-    // Cancelled
+    // =========================================================
+    // CANCELLED
+    // =========================================================
+
     $cancelled = $this->Schedules
         ->find()
         ->where([
@@ -249,13 +267,156 @@ class DashboardController extends AppController
     // =========================================================
     // NOTIFICATIONS
     // =========================================================
+    //
+    // Only pending notifications are displayed.
+    //
+    // Registration notification messages are rebuilt from
+    // the registration JSON data so the Dashboard always
+    // displays the correct farmer name and LGU-RSBSA number.
+    //
+    // =========================================================
 
     $notifications = $this->Notifications
         ->find()
         ->where([
             'status' => 'Pending'
         ])
+        ->order([
+            'id' => 'DESC'
+        ])
         ->all();
+
+
+    // =========================================================
+    // FIX REGISTRATION REQUEST MESSAGES
+    // =========================================================
+
+    foreach ($notifications as $notification) {
+
+        // -----------------------------------------------------
+        // ONLY REGISTRATION NOTIFICATIONS
+        // -----------------------------------------------------
+
+        if (
+            strtolower(
+                trim(
+                    (string)$notification->type
+                )
+            ) !== 'registration'
+        ) {
+            continue;
+        }
+
+
+        // -----------------------------------------------------
+        // DECODE REGISTRATION DATA
+        // -----------------------------------------------------
+
+        $data = json_decode(
+            (string)$notification->data,
+            true
+        );
+
+
+        // -----------------------------------------------------
+        // INVALID DATA
+        // -----------------------------------------------------
+
+        if (!is_array($data)) {
+            continue;
+        }
+
+
+        // -----------------------------------------------------
+        // GET FARMER DATA
+        // -----------------------------------------------------
+
+        $farmerData = $data['farmer'] ?? [];
+
+
+        // -----------------------------------------------------
+        // GET FIRST NAME
+        // -----------------------------------------------------
+
+        $firstName = trim(
+            (string)(
+                $farmerData['first_name'] ?? ''
+            )
+        );
+
+
+        // -----------------------------------------------------
+        // GET MIDDLE NAME
+        // -----------------------------------------------------
+
+        $middleName = trim(
+            (string)(
+                $farmerData['middle_name'] ?? ''
+            )
+        );
+
+
+        // -----------------------------------------------------
+        // GET LAST NAME
+        // -----------------------------------------------------
+
+        $lastName = trim(
+            (string)(
+                $farmerData['last_name'] ?? ''
+            )
+        );
+
+
+        // -----------------------------------------------------
+        // BUILD FULL NAME
+        // -----------------------------------------------------
+
+        $fullName = trim(
+            $firstName . ' ' .
+            $middleName . ' ' .
+            $lastName
+        );
+
+
+        // -----------------------------------------------------
+        // FALLBACK NAME
+        // -----------------------------------------------------
+
+        if ($fullName === '') {
+            $fullName = 'a farmer';
+        }
+
+
+        // -----------------------------------------------------
+        // GET LGU-RSBSA NUMBER
+        // -----------------------------------------------------
+
+        $farmerNo = trim(
+            (string)(
+                $farmerData['farmer_no'] ?? ''
+            )
+        );
+
+
+        // -----------------------------------------------------
+        // CREATE DISPLAY MESSAGE
+        // -----------------------------------------------------
+
+        if ($farmerNo !== '') {
+
+            $notification->message =
+                'New farmer registration request with LGU-RSBSA number ' .
+                $farmerNo .
+                ' and requires approval.';
+
+        } else {
+
+            $notification->message =
+                'A new farmer registration request from ' .
+                $fullName .
+                ' requires approval.';
+        }
+    }
 
 
     // =========================================================
@@ -263,21 +424,45 @@ class DashboardController extends AppController
     // =========================================================
 
     $this->set([
+
+        // -----------------------------------------------------
+        // EFFECTIVENESS
+        // -----------------------------------------------------
+
         'labels' => $labels,
         'totals' => $totals,
+
+
+        // -----------------------------------------------------
+        // FEEDBACK
+        // -----------------------------------------------------
 
         'avgRating' => $avgRating,
         'positive' => $positive,
         'neutral' => $neutral,
         'negative' => $negative,
 
+
+        // -----------------------------------------------------
+        // FARMERS
+        // -----------------------------------------------------
+
         'totalFarmers' => $totalFarmers,
         'totalBeneficiaries' => $totalBeneficiaries,
 
-        // History Records
+
+        // -----------------------------------------------------
+        // HISTORY
+        // -----------------------------------------------------
+
         'subsidyDistributed' => $subsidyDistributed,
         'rescheduled' => $rescheduled,
         'cancelled' => $cancelled,
+
+
+        // -----------------------------------------------------
+        // NOTIFICATIONS
+        // -----------------------------------------------------
 
         'notifications' => $notifications
     ]);

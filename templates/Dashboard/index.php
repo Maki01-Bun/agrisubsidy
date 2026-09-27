@@ -856,393 +856,343 @@
 
 
     <!-- ============================================================
-         REGISTRATION DETAILS MODAL
-    ============================================================= -->
+     REGISTRATION DETAILS MODAL
+============================================================ -->
+
+<div
+    class="modal fade"
+    id="registrationDetailsModal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="registrationDetailsModalLabel"
+    aria-hidden="true"
+>
 
     <div
-        class="modal fade"
-        id="registrationDetailsModal"
-        tabindex="-1"
-        role="dialog"
-        aria-labelledby="registrationDetailsModalLabel"
-        aria-hidden="true"
+        class="modal-dialog modal-lg modal-dialog-centered"
+        role="document"
     >
 
-        <div
-            class="modal-dialog modal-xl modal-dialog-centered"
-            role="document"
-        >
+        <div class="modal-content registration-modal">
 
-            <div class="modal-content registration-modal">
+            <!-- HEADER -->
+
+            <div class="modal-header registration-modal-header">
+
+                <div class="registration-modal-title-wrapper">
+
+                    <div class="registration-modal-icon">
+                        <i class="fas fa-user-clock"></i>
+                    </div>
+
+                    <div>
+                        <h5
+                            class="modal-title"
+                            id="registrationDetailsModalLabel"
+                        >
+                            Registration Details
+                        </h5>
+
+                        <small>
+                            Review farmer registration information
+                        </small>
+                    </div>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="close registration-close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                >
+                    <span aria-hidden="true">
+                        &times;
+                    </span>
+                </button>
+
+            </div>
 
 
-                <!-- HEADER -->
+            <!-- BODY -->
 
-                <div class="modal-header registration-modal-header">
+            <div class="modal-body registration-modal-body">
 
-                    <div class="registration-modal-title-wrapper">
+                <!-- LOADING -->
 
-                        <div class="registration-modal-icon">
+                <div
+                    id="registrationLoading"
+                    class="registration-loading"
+                >
 
-                            <i class="fas fa-user-clock"></i>
+                    <div
+                        class="spinner-border text-success"
+                        role="status"
+                    >
+                        <span class="sr-only">
+                            Loading...
+                        </span>
+                    </div>
 
+                    <p>
+                        Loading registration details...
+                    </p>
+
+                </div>
+
+
+                <!-- CONTENT -->
+
+                <div
+                    id="registrationModalContent"
+                    style="display:none;"
+                >
+
+                    <!-- DUPLICATE FARMER -->
+
+                    <div
+                        id="duplicateFarmerAlert"
+                        class="registration-alert registration-alert-warning"
+                        style="display:none;"
+                    >
+
+                        <div class="registration-alert-icon">
+                            <i class="fas fa-user-check"></i>
                         </div>
 
                         <div>
 
-                            <h5
-                                class="modal-title"
-                                id="registrationDetailsModalLabel"
-                            >
-                                Registration Details
-                            </h5>
+                            <h6>
+                                Farmer Information Already Exists
+                            </h6>
 
-                            <small>
-                                Review farmer registration information
-                            </small>
+                            <p>
+                                This farmer is already listed in the system.
+                            </p>
+
+                            <div class="farmer-number-display">
+
+                                <strong>
+                                    LGU-RSBSA Number:
+                                </strong>
+
+                                <span id="existingFarmerNumber">
+                                    —
+                                </span>
+
+                            </div>
 
                         </div>
 
                     </div>
 
 
-                    <button
-                        type="button"
-                        class="close registration-close"
-                        data-dismiss="modal"
-                        aria-label="Close"
-                    >
-
-                        <span aria-hidden="true">
-                            &times;
-                        </span>
-
-                    </button>
-
-                </div>
-
-
-                <!-- BODY -->
-
-                <div class="modal-body registration-modal-body">
-
-
-                    <!-- LOADING -->
+                    <!-- NO DUPLICATE -->
 
                     <div
-                        id="registrationLoading"
-                        class="registration-loading"
-                    >
-
-                        <div
-                            class="spinner-border text-success"
-                            role="status"
-                        >
-
-                            <span class="sr-only">
-                                Loading...
-                            </span>
-
-                        </div>
-
-                        <p>
-                            Loading registration details...
-                        </p>
-
-                    </div>
-
-
-                    <!-- CONTENT -->
-
-                    <div
-                        id="registrationModalContent"
+                        id="noDuplicateFarmerAlert"
+                        class="registration-alert registration-alert-success"
                         style="display:none;"
                     >
 
-
-                        <!-- DUPLICATE FARMER -->
-
-                        <div
-                            id="duplicateFarmerAlert"
-                            class="registration-alert registration-alert-warning"
-                            style="display:none;"
-                        >
-
-                            <div class="registration-alert-icon">
-
-                                <i class="fas fa-user-check"></i>
-
-                            </div>
-
-                            <div>
-
-                                <h6>
-                                    Farmer Information Already Exists
-                                </h6>
-
-                                <p>
-                                    This farmer is already listed in the system.
-                                </p>
-
-                                <div class="farmer-number-display">
-
-                                    <strong>
-                                        LGU-RSBSA Number:
-                                    </strong>
-
-                                    <span id="existingFarmerNumber">
-                                        —
-                                    </span>
-
-                                </div>
-
-                            </div>
-
+                        <div class="registration-alert-icon">
+                            <i class="fas fa-check-circle"></i>
                         </div>
 
+                        <div>
 
-                        <!-- NO DUPLICATE -->
+                            <h6>
+                                No Duplicate Farmer Found
+                            </h6>
 
-                        <div
-                            id="noDuplicateFarmerAlert"
-                            class="registration-alert registration-alert-success"
-                            style="display:none;"
-                        >
-
-                            <div class="registration-alert-icon">
-
-                                <i class="fas fa-check-circle"></i>
-
-                            </div>
-
-                            <div>
-
-                                <h6>
-                                    No Duplicate Farmer Found
-                                </h6>
-
-                                <p>
-                                    A new farmer record will be created
-                                    after approval.
-                                </p>
-
-                            </div>
-
-                        </div>
-
-
-                        <!-- USER INFORMATION -->
-
-                        <div class="registration-section">
-
-                            <div class="registration-section-title">
-
-                                <div class="registration-section-icon">
-
-                                    <i class="fas fa-user"></i>
-
-                                </div>
-
-                                <div>
-
-                                    <h6>
-                                        User Information
-                                    </h6>
-
-                                    <small>
-                                        Account information
-                                    </small>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="registration-info-grid">
-
-                                <div class="registration-info-item">
-
-                                    <span class="registration-label">
-                                        Username
-                                    </span>
-
-                                    <span
-                                        class="registration-value"
-                                        id="registrationUsername"
-                                    >
-                                        —
-                                    </span>
-
-                                </div>
-
-
-                                <div class="registration-info-item">
-
-                                    <span class="registration-label">
-                                        Role
-                                    </span>
-
-                                    <span
-                                        class="registration-value"
-                                        id="registrationRole"
-                                    >
-                                        —
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
-                        <!-- FARMER INFORMATION -->
-
-                        <div class="registration-section">
-
-                            <div class="registration-section-title">
-
-                                <div class="registration-section-icon">
-
-                                    <i class="fas fa-id-card"></i>
-
-                                </div>
-
-                                <div>
-
-                                    <h6>
-                                        Farmer Information
-                                    </h6>
-
-                                    <small>
-                                        Submitted farmer details
-                                    </small>
-
-                                </div>
-
-                            </div>
-
-
-                            <div
-                                id="farmerInformationGrid"
-                                class="registration-info-grid"
-                            >
-                            </div>
+                            <p>
+                                A new farmer record will be created
+                                after approval.
+                            </p>
 
                         </div>
 
                     </div>
 
 
-                    <!-- ERROR -->
+                    <!-- USER INFORMATION -->
 
-                    <div
-                        id="registrationModalError"
-                        class="registration-error"
-                        style="display:none;"
-                    >
+                    <div class="registration-section">
 
-                        <div class="registration-error-icon">
+                        <div class="registration-section-title">
 
-                            <i class="fas fa-exclamation-triangle"></i>
+                            <div class="registration-section-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+
+                            <div>
+                                <h6>
+                                    User Information
+                                </h6>
+
+                                <small>
+                                    Account information
+                                </small>
+                            </div>
 
                         </div>
 
-                        <h5>
-                            Unable to Load Registration
-                        </h5>
 
-                        <p id="registrationErrorMessage">
+                        <div class="registration-info-grid">
 
-                            Something went wrong while loading
-                            the registration details.
+                            <div class="registration-info-item">
 
-                        </p>
+                                <span class="registration-label">
+                                    Username
+                                </span>
 
-                        <button
-                            type="button"
-                            class="btn btn-outline-secondary btn-sm"
-                            data-dismiss="modal"
+                                <span
+                                    class="registration-value"
+                                    id="registrationUsername"
+                                >
+                                    —
+                                </span>
+
+                            </div>
+
+
+                            <div class="registration-info-item">
+
+                                <span class="registration-label">
+                                    Role
+                                </span>
+
+                                <span
+                                    class="registration-value"
+                                    id="registrationRole"
+                                >
+                                    —
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <!-- FARMER INFORMATION -->
+
+                    <div class="registration-section">
+
+                        <div class="registration-section-title">
+
+                            <div class="registration-section-icon">
+                                <i class="fas fa-id-card"></i>
+                            </div>
+
+                            <div>
+                                <h6>
+                                    Farmer Information
+                                </h6>
+
+                                <small>
+                                    Submitted farmer details
+                                </small>
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            id="farmerInformationGrid"
+                            class="registration-info-grid"
                         >
-
-                            Close
-
-                        </button>
+                        </div>
 
                     </div>
 
                 </div>
 
 
-                <!-- FOOTER -->
+                <!-- ERROR -->
 
                 <div
-                    class="modal-footer registration-modal-footer"
-                    id="registrationModalFooter"
-                    style="display:none;"
-                >
+                    id="registrationModalError"
+                    class="registration-error"
+                    style="display:none;">
 
-                    <!-- CLOSE -->
+                    <div class="registration-error-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+
+                    <h5>
+                        Unable to Load Registration
+                    </h5>
+
+                    <p id="registrationErrorMessage">
+                        Something went wrong while loading
+                        the registration details.
+                    </p>
 
                     <button
                         type="button"
-                        class="btn btn-light"
+                        class="btn btn-outline-secondary btn-sm"
                         data-dismiss="modal"
                     >
-
-                        <i class="fas fa-times mr-1"></i>
-
                         Close
-
                     </button>
 
-
-                    <!-- DECLINE FORM -->
-
-                    <?= $this->Form->create(null, [
-                        'id' => 'declineRegistrationForm',
-                        'url' => '#',
-                        'style' => 'display:inline; margin:0;'
-                    ]) ?>
-
-                        <button
-                            type="button"
-                            id="modalDeclineBtn"
-                            class="btn btn-danger"
-                        >
-
-                            <i class="fas fa-times mr-1"></i>
-
-                            Decline Registration
-
-                        </button>
-
-                    <?= $this->Form->end() ?>
-
-
-                    <!-- APPROVE FORM -->
-
-                    <?= $this->Form->create(null, [
-                        'id' => 'approveRegistrationForm',
-                        'url' => '#',
-                        'style' => 'display:inline; margin:0;'
-                    ]) ?>
-
-                        <button
-                            type="button"
-                            id="modalApproveBtn"
-                            class="btn btn-success"
-                        >
-
-                            <i class="fas fa-check mr-1"></i>
-
-                            Approve Registration
-
-                        </button>
-
-                    <?= $this->Form->end() ?>
-
                 </div>
+
+            </div>
+
+
+            <!-- FOOTER -->
+
+            <div
+                class="modal-footer registration-modal-footer"
+                id="registrationModalFooter"
+                style="display:none;"
+            >
+
+                <button
+                    type="button"
+                    class="btn btn-light"
+                    data-dismiss="modal"
+                >
+                    <i class="fas fa-times mr-1"></i>
+                    Close
+                </button>
+
+
+                <?= $this->Form->create(null, [
+                    'id' => 'declineRegistrationForm',
+                    'url' => '#',
+                    'style' => 'display:inline; margin:0;'
+                ]) ?>
+
+                    <button
+                        type="button"
+                        id="modalDeclineBtn"
+                        class="btn btn-danger"
+                    >
+                        <i class="fas fa-times mr-1"></i>
+                        Decline Registration
+                    </button>
+
+                <?= $this->Form->end() ?>
+
+
+                <?= $this->Form->create(null, [
+                    'id' => 'approveRegistrationForm',
+                    'url' => '#',
+                    'style' => 'display:inline; margin:0;'
+                ]) ?>
+
+                    <button
+                        type="button"
+                        id="modalApproveBtn"
+                        class="btn btn-success"
+                    >
+                        <i class="fas fa-check mr-1"></i>
+                        Approve Registration
+                    </button>
+
+                <?= $this->Form->end() ?>
 
             </div>
 
@@ -1250,6 +1200,7 @@
 
     </div>
 
+</div>
 
     <!-- ============================================================
          APPROVE / DECLINE CONFIRMATION MODAL
@@ -2948,6 +2899,12 @@ $(document).ready(function () {
 
 
                         farmerGrid.empty();
+                        
+                        addFarmerField(
+                            farmerGrid,
+                            'LGU-RSBSA Number',
+                            farmer.farmer_no
+                        );
 
 
                         addFarmerField(

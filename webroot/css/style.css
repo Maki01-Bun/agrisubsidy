@@ -20171,3 +20171,237 @@ body {
 .mini-statistics {
     margin-top: 0 !important;
 }
+/* ============================================================
+   COMPACT REGISTRATION DETAILS MODAL
+============================================================ */
+
+#registrationDetailsModal .modal-dialog {
+    max-width: 800px;
+}
+
+#registrationDetailsModal .modal-header {
+    padding: 12px 18px;
+}
+
+#registrationDetailsModal .modal-body {
+    padding: 16px 18px;
+}
+
+#registrationDetailsModal .modal-footer {
+    padding: 10px 18px;
+}
+
+#registrationDetailsModal .registration-section {
+    margin-bottom: 14px;
+}
+
+#registrationDetailsModal .registration-section-title {
+    margin-bottom: 8px;
+}
+
+#registrationDetailsModal .registration-info-grid {
+    gap: 8px;
+}
+
+#registrationDetailsModal .registration-info-item {
+    padding: 8px 10px;
+}
+
+#registrationDetailsModal .registration-label {
+    font-size: 11px;
+}
+
+#registrationDetailsModal .registration-value {
+    font-size: 13px;
+}
+
+#registrationDetailsModal .registration-alert {
+    padding: 10px 12px;
+    margin-bottom: 12px;
+}
+
+#registrationDetailsModal .registration-alert h6 {
+    margin-bottom: 3px;
+}
+
+#registrationDetailsModal .registration-alert p {
+    margin-bottom: 3px;
+}
+
+#registrationDetailsModal .registration-modal-icon {
+    width: 36px;
+    height: 36px;
+}
+
+#registrationDetailsModal .registration-modal-icon i {
+    font-size: 16px;
+}
+
+
+#farmer_id + .select2-container {
+    width: 100% !important;
+}
+
+
+#farmer_id + .select2-container
+.select2-selection--single {
+    height: 38px !important;
+    min-height: 38px !important;
+
+    padding: 0 12px !important;
+
+    border: 1px solid #ced4da !important;
+    border-radius: 4px !important;
+
+    background-color: #fff !important;
+}
+
+/* Farmer name / placeholder */
+
+#farmer_id + .select2-container
+.select2-selection--single
+.select2-selection__rendered {
+    line-height: 36px !important;
+
+    padding-left: 0 !important;
+    padding-right: 25px !important;
+
+    color: #495057 !important;
+}
+
+/* Placeholder */
+
+#farmer_id + .select2-container
+.select2-selection--single
+.select2-selection__rendered {
+    color: #6c757d !important;
+}
+
+
+#farmer_id + .select2-container
+.select2-selection--single
+.select2-selection__arrow {
+    height: 36px !important;
+
+    right: 8px !important;
+    top: 1px !important;
+}
+
+
+#farmer_id + .select2-container
+.select2-dropdown {
+
+    margin-top: 0 !important;
+
+    border: 1px solid #ced4da !important;
+
+    border-top: 0 !important;
+
+    border-radius: 0 0 4px 4px !important;
+
+    background: #fff !important;
+
+    overflow: hidden !important;
+}
+
+
+#farmer_id + .select2-container
+.select2-search--dropdown {
+
+    padding: 0 !important;
+
+    margin: 0 !important;
+
+    background: #fff !important;
+}
+
+
+#farmer_id + .select2-container
+.select2-search--dropdown
+.select2-search__field {
+
+    display: block !important;
+
+    width: 100% !important;
+
+    height: 38px !important;
+
+    margin: 0 !important;
+
+    padding: 6px 12px !important;
+
+    border: 0 !important;
+
+    border-bottom: 1px solid #ced4da !important;
+
+    border-radius: 0 !important;
+
+    outline: none !important;
+
+    box-shadow: none !important;
+
+    background: #fff !important;
+}
+
+
+/* Search focus */
+
+#farmer_id + .select2-container
+.select2-search--dropdown
+.select2-search__field:focus {
+
+    border: 0 !important;
+
+    border-bottom: 1px solid #ced4da !important;
+
+    outline: none !important;
+
+    box-shadow: none !important;
+}
+
+
+#farmer_id + .select2-container
+.select2-results__options {
+
+    max-height: 220px !important;
+
+    overflow-y: auto !important;
+
+    padding: 0 !important;
+
+    margin: 0 !important;
+}
+
+
+/* Individual farmer */
+
+#farmer_id + .select2-container
+.select2-results__option {
+
+    padding: 8px 12px !important;
+
+    margin: 0 !important;
+}
+
+
+/* Highlighted farmer */
+
+#farmer_id + .select2-container
+.select2-results__option--highlighted {
+
+    background-color: #007bff !important;
+
+    color: #fff !important;
+}
+
+
+#farmer_id + .select2-container--open
+.select2-selection--single {
+
+    border-color: #80bdff !important;
+
+    border-radius: 4px 4px 0 0 !important;
+
+    box-shadow: 0 0 0 0.2rem
+        rgba(0, 123, 255, 0.10) !important;
+}

@@ -42,7 +42,6 @@ class OptionHelper extends Helper
         $array =[
             'Pending'=>'Pending',
             'Received'=>'Received',
-            'Cancelled'=>'Cancelled',
             'Expired'=>'Expired',
             'Not Received'=>'Not Received'
         ];
