@@ -78,4 +78,48 @@ class OptionHelper extends Helper
         ];
         return $array;
     }
+    public function location()
+    {
+        $array =[
+            'Abra' => 'Abra',
+                'Ambalatungan' => 'Ambalatungan',
+                'Balintocatoc' => 'Balintocatoc',
+                'Baluarte' => 'Baluarte',
+                'Bannawag Norte' => 'Bannawag Norte',
+                'Batal' => 'Batal',
+                'Buenavista' => 'Buenavista',
+                'Cabulay' => 'Cabulay',
+                'Calao East' => 'Calao East',
+                'Calao West' => 'Calao West',
+                'Calaocan' => 'Calaocan',
+                'Villa Gonzaga' => 'Villa Gonzaga',
+                'Centro East' => 'Centro East',
+                'Centro West' => 'Centro West',
+                'Divisoria' => 'Divisoria',
+                'Dubinan East' => 'Dubinan East',
+                'Dubinan West' => 'Dubinan West',
+                'Luna' => 'Luna',
+                'Mabini' => 'Mabini',
+                'Malvar' => 'Malvar',
+                'Nabbuan' => 'Nabbuan',
+                'Naggasican' => 'Naggasican',
+                'Patul' => 'Patul',
+                'Plaridel' => 'Plaridel',
+                'Rizal' => 'Rizal',
+                'Rosario' => 'Rosario',
+                'Sagana' => 'Sagana',
+                'Salvador' => 'Salvador',
+                'San Andres' => 'San Andres',
+                'San Isidro' => 'San Isidro',
+                'San Jose' => 'San Jose',
+                'Sinili' => 'Sinili',
+                'Sinsayon' => 'Sinsayon',
+                'Santa Rosa' => 'Santa Rosa',
+                'Victory Norte' => 'Victory Norte',
+                'Victory Sur' => 'Victory Sur',
+                'Villasis' => 'Villasis'
+        ];
+
+        return $array;
+    }
 }

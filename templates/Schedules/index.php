@@ -420,15 +420,15 @@
                                 Barangay
                             </label>
 
-                            <?= $this->Form->control(
-                                'barangay',
-                                [
-                                    'id' => 'barangay',
-                                    'class' => 'form-control',
-                                    'label' => false,
-                                    'placeholder' => 'Barangay'
-                                ]
-                            ) ?>
+                            <?= $this->Form->control('barangay', [
+                                'type' => 'select',
+                                'options' => $this->Option->location(),
+                                'empty' => '-- Select Barangay --',
+                                'class' => 'form-control',
+                                'label' => false,
+                                'id' => 'barangay',
+                                'required' => true
+                            ]) ?>
 
                         </div>
 
@@ -3354,5 +3354,39 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
 });
+$(document).ready(function () {
 
+    const $barangay = $('#barangay');
+
+    if (!$barangay.length) {
+        return;
+    }
+
+    // Destroy existing Select2 instance
+    if ($barangay.hasClass('select2-hidden-accessible')) {
+        $barangay.select2('destroy');
+    }
+
+    // Get the Bootstrap modal containing the field
+    const $modal = $barangay.closest('.modal');
+
+    $barangay.select2({
+        placeholder: '-- Select Barangay --',
+        allowClear: true,
+        width: '100%',
+        minimumResultsForSearch: 0,
+
+        // IMPORTANT
+        dropdownParent: $modal.length
+            ? $modal
+            : $(document.body),
+
+        language: {
+            noResults: function () {
+                return 'No barangay found';
+            }
+        }
+    });
+
+});
 </script>

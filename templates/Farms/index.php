@@ -355,28 +355,26 @@
 
                 <!-- FARMER -->
 
-                <div class="form-group">
+            <div class="form-group">
 
-                    <label for="farmer-id">
-                        LGU RSBSA Number
-                    </label>
+                <label for="farmer-id">
+                    LGU RSBSA Number
+                </label>
 
+                <?= $this->Form->control(
+                    'farmer_id',
+                    [
+                        'type' => 'select',
+                        'options' => $farmers,
+                        'empty' => '-- Select Farmer Number --',
+                        'class' => 'form-control',
+                        'label' => false,
+                        'id' => 'farmer-id',
+                        'required' => true
+                    ]
+                ) ?>
 
-                    <?= $this->Form->control(
-                        'farmer_id',
-                        [
-                            'type' => 'select',
-                            'options' => $farmers,
-                            'empty' => '-- Select Farmer Number --',
-                            'class' => 'form-control',
-                            'label' => false,
-                            'id' => 'farmer-id'
-                        ]
-                    ) ?>
-
-                </div>
-
-
+            </div>
                 <!-- FARM SIZE -->
 
                 <div class="form-group">
@@ -399,20 +397,18 @@
 
                 <!-- LOCATION -->
 
-                <div class="form-group">
+               <div class="form-group">
 
-                    <label for="location">
-                        Location
-                    </label>
-
-
-                    <?= $this->Form->control(
-                        'location',
-                        [
-                            'class' => 'form-control',
-                            'label' => false
-                        ]
-                    ) ?>
+                    <label for="location">Location</label>
+                    <?= $this->Form->control('location', [
+                        'type' => 'select',
+                        'options' => $this->Option->location(),
+                        'empty' => '-- Select Location --',
+                        'class' => 'form-control',
+                        'label' => false,
+                        'id' => 'location',
+                        'required' => true
+                    ]) ?>
 
                 </div>
 
@@ -1013,6 +1009,8 @@ $excelImportResult =
          SHOW RESULT MODAL
     ============================================================= -->
 
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <script>
 
     $(document).ready(function () {
@@ -1164,5 +1162,117 @@ $(document).ready(function () {
     );
 
 });
+$(document).ready(function () {
 
+    // =========================================================
+    // FARMER RSBSA SEARCH
+    // =========================================================
+
+    const $farmer = $('#farmer-id');
+
+    if ($farmer.length) {
+
+        // Destroy existing Select2 first
+        if ($farmer.hasClass('select2-hidden-accessible')) {
+            $farmer.select2('destroy');
+        }
+
+        // Find the modal containing the farmer field
+        const $modal = $farmer.closest('.modal');
+
+        $farmer.select2({
+
+            placeholder: '-- Select Farmer Number --',
+
+            allowClear: true,
+
+            width: '100%',
+
+            minimumResultsForSearch: 0,
+
+            // IMPORTANT FOR BOOTSTRAP MODAL
+            dropdownParent: $modal.length
+                ? $modal
+                : $(document.body),
+
+            language: {
+
+                noResults: function () {
+                    return 'No farmer found';
+                },
+
+                searching: function () {
+                    return 'Searching...';
+                }
+
+            }
+
+        });
+
+
+        // =====================================================
+        // FORCE SEARCH BOX TO RECEIVE KEYBOARD FOCUS
+        // =====================================================
+
+        $farmer.on('select2:open', function () {
+
+            setTimeout(function () {
+
+                const $search = $('.select2-container--open')
+                    .find('.select2-search__field');
+
+                if ($search.length) {
+
+                    $search
+                        .prop('disabled', false)
+                        .prop('readonly', false)
+                        .removeAttr('disabled')
+                        .removeAttr('readonly');
+
+                    $search.focus();
+
+                }
+
+            }, 100);
+
+        });
+
+    }
+
+});
+$(document).ready(function () {
+
+    const $location = $('#location');
+
+    if (!$location.length) {
+        return;
+    }
+
+    // Destroy existing Select2 instance
+    if ($location.hasClass('select2-hidden-accessible')) {
+        $location.select2('destroy');
+    }
+
+    // Get the Bootstrap modal containing the field
+    const $modal = $location.closest('.modal');
+
+    $location.select2({
+        placeholder: '-- Select Location --',
+        allowClear: true,
+        width: '100%',
+        minimumResultsForSearch: 0,
+
+        // IMPORTANT
+        dropdownParent: $modal.length
+            ? $modal
+            : $(document.body),
+
+        language: {
+            noResults: function () {
+                return 'No location found';
+            }
+        }
+    });
+
+});
 </script>

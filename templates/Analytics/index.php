@@ -59,6 +59,7 @@
             <div class="model-card">
 
                 <div class="model-icon">
+
                     <i class="fas fa-database"></i>
 
                 </div>
@@ -333,39 +334,40 @@
 
                 <div class="subsidy-received-tools">
 
+                    <!-- =================================================
+                         LOCATION FILTER
+                    ================================================= -->
+
                     <div class="subsidy-location-filter">
 
-                        <select
-                            id="receivedLocationFilter"
-                            class="form-control"
-                        >
+                        <?= $this->Form->control(
+                            'receivedLocationFilter',
+                            [
+                                'type' => 'select',
 
-                            <option value="ALL">
-                                All Locations
-                            </option>
+                                'options' =>
+                                    $this->Option->location(),
 
-                            <?php
-                            $receivedLocations =
-                                $receivedLocations ?? [];
-                            ?>
+                                'empty' =>
+                                    'All Locations',
 
-                            <?php foreach (
-                                $receivedLocations
-                                as $location
-                            ): ?>
+                                'label' =>
+                                    false,
 
-                                <option
-                                    value="<?= h($location) ?>"
-                                >
-                                    <?= h($location) ?>
-                                </option>
+                                'class' =>
+                                    'form-control',
 
-                            <?php endforeach; ?>
-
-                        </select>
+                                'id' =>
+                                    'receivedLocationFilter'
+                            ]
+                        ) ?>
 
                     </div>
 
+
+                    <!-- =================================================
+                         DOWNLOAD
+                    ================================================= -->
 
                     <button
                         type="button"
@@ -385,8 +387,10 @@
         <div class="subsidy-received-body">
 
             <?php
+
             $receivedRecords =
                 $receivedRecords ?? [];
+
             ?>
 
 
@@ -421,7 +425,9 @@
 
                             <tr>
 
-                                <th>#</th>
+                                <th>
+                                    #
+                                </th>
 
                                 <th>
                                     LGU RSBSA Number
@@ -485,9 +491,12 @@
                                         )
                                     );
 
-                                if ($location === '') {
+                                if (
+                                    $location === ''
+                                ) {
 
-                                    $location = 'N/A';
+                                    $location =
+                                        'N/A';
 
                                 }
 
@@ -495,15 +504,23 @@
 
 
                                 <tr
-                                    data-location="<?= h($location) ?>"
+                                    data-location="<?= h(
+                                        $location
+                                    ) ?>"
                                 >
 
-                                    <td class="row-number">
+                                    <!-- # -->
+
+                                    <td
+                                        class="row-number"
+                                    >
 
                                         <?= $index + 1 ?>
 
                                     </td>
 
+
+                                    <!-- RSBSA -->
 
                                     <td>
 
@@ -521,6 +538,8 @@
                                     </td>
 
 
+                                    <!-- FARMER -->
+
                                     <td>
 
                                         <strong
@@ -536,6 +555,8 @@
 
                                     </td>
 
+
+                                    <!-- DISTRIBUTION CODE -->
 
                                     <td>
 
@@ -553,6 +574,8 @@
                                     </td>
 
 
+                                    <!-- SUBSIDY -->
+
                                     <td>
 
                                         <?= h(
@@ -562,6 +585,8 @@
 
                                     </td>
 
+
+                                    <!-- QUANTITY -->
 
                                     <td>
 
@@ -579,18 +604,24 @@
                                     </td>
 
 
+                                    <!-- LOCATION -->
+
                                     <td>
 
                                         <span
                                             class="location-value"
                                         >
 
-                                            <?= h($location) ?>
+                                            <?= h(
+                                                $location
+                                            ) ?>
 
                                         </span>
 
                                     </td>
 
+
+                                    <!-- DISTRIBUTION DATE -->
 
                                     <td>
 
@@ -603,6 +634,8 @@
                                     </td>
 
 
+                                    <!-- DISTRIBUTION TIME -->
+
                                     <td>
 
                                         <?= h(
@@ -614,6 +647,8 @@
                                     </td>
 
 
+                                    <!-- RECEIVED DATE -->
+
                                     <td>
 
                                         <?= h(
@@ -624,6 +659,8 @@
 
                                     </td>
 
+
+                                    <!-- STATUS -->
 
                                     <td>
 
@@ -651,6 +688,10 @@
                 </div>
 
 
+                <!-- =================================================
+                     NO FILTER RESULT
+                ================================================== -->
+
                 <div
                     id="receivedNoFilterResult"
                     class="received-filter-empty"
@@ -671,7 +712,9 @@
 
             <?php else: ?>
 
-                <div class="subsidy-received-empty">
+                <div
+                    class="subsidy-received-empty"
+                >
 
                     <h5>
                         No Subsidy Records Yet
@@ -692,13 +735,32 @@
 
 </div>
 
+
+<!-- ================================================================
+     SELECT2
+================================================================ -->
+
+<link
+    href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+    rel="stylesheet"
+/>
+
+<script
+    src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js">
+</script>
+
+
 <!-- ================================================================
      CHART.JS
 ================================================================ -->
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script
+    src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js">
+</script>
 
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+<script
+    src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0">
+</script>
 
 
 <!-- ================================================================
@@ -726,27 +788,6 @@ const effectivenessTotals =
         JSON_HEX_QUOT
     ) ?>;
 
-
-/*
- * ================================================================
- * EFFECTIVENESS TREND
- * ================================================================
- *
- * This MUST come from $effectivenessTrend.
- *
- * Example:
- *
- * [
- *     {
- *         period_type: "monthly",
- *         period: "January 2026",
- *         effective: 10,
- *         moderately_effective: 5,
- *         not_effective: 2,
- *         not_yet_predicted: 1
- *     }
- * ]
- */
 
 const effectivenessTrendData =
     <?= json_encode(
@@ -791,7 +832,7 @@ const distributionTrendData =
 
 
 <!-- ================================================================
-     ALL CHARTS
+     ANALYTICS JAVASCRIPT
 ================================================================ -->
 
 <script>
@@ -814,9 +855,8 @@ $(document).ready(function () {
     let distributionChart = null;
 
 
-
     /* ============================================================
-       PERIOD SELECT
+       TREND PERIOD
     ============================================================ */
 
     const trendPeriod =
@@ -825,9 +865,8 @@ $(document).ready(function () {
         );
 
 
-
     /* ============================================================
-       FILTER PERIOD
+       GET PERIOD DATA
     ============================================================ */
 
     function getPeriodData(
@@ -858,7 +897,6 @@ $(document).ready(function () {
     }
 
 
-
     /* ============================================================
        DESTROY CHART
     ============================================================ */
@@ -876,505 +914,376 @@ $(document).ready(function () {
     }
 
 
-
     /* ============================================================
-       EFFECTIVENESS COLORS
+       EFFECTIVENESS TREND
     ============================================================ */
 
-    function getEffectivenessColor(
-        label
-    ) {
+    function renderEffectivenessChart() {
 
-        const normalized =
-            String(
-                label ?? ''
+        const canvas =
+            document.getElementById(
+                'effectivenessTrendChart'
+            );
+
+
+        if (!canvas) {
+
+            return;
+
+        }
+
+
+        if (
+            effectivenessTrendChart
+        ) {
+
+            effectivenessTrendChart.destroy();
+
+            effectivenessTrendChart = null;
+
+        }
+
+
+        const data =
+            Array.isArray(
+                effectivenessTrendData
             )
-            .trim()
-            .toLowerCase();
+                ? effectivenessTrendData.filter(
+                    function (row) {
+
+                        return String(
+                            row.period_type ?? ''
+                        )
+                        .toLowerCase()
+                        ===
+                        'schedule';
+
+                    }
+                )
+                : [];
 
 
-        if (
-            normalized === 'effective' ||
-            normalized === '2'
-        ) {
-
-            return '#28a745';
-        }
-
-
-        if (
-            normalized ===
-                'moderately effective' ||
-
-            normalized ===
-                'moderate effective' ||
-
-            normalized ===
-                'moderately-effective' ||
-
-            normalized ===
-                'moderate' ||
-
-            normalized === '1'
-        ) {
-
-            return '#ffc107';
-        }
-
-
-        if (
-            normalized ===
-                'not effective' ||
-
-            normalized ===
-                'not-effective' ||
-
-            normalized === '0'
-        ) {
-
-            return '#dc3545';
-        }
-
-
-        return '#6c757d';
-    }
-
-
-
-function renderEffectivenessChart() {
-
-    const canvas =
-        document.getElementById(
-            'effectivenessTrendChart'
-        );
-
-    if (!canvas) {
-        return;
-    }
-
-
-    /*
-     * =========================================================
-     * DESTROY OLD CHART
-     * =========================================================
-     */
-
-    if (effectivenessTrendChart) {
-
-        effectivenessTrendChart.destroy();
-
-        effectivenessTrendChart = null;
-    }
-
-
-    /*
-     * =========================================================
-     * USE SCHEDULE DATA ONLY
-     * =========================================================
-     */
-
-    const data =
-        Array.isArray(effectivenessTrendData)
-            ? effectivenessTrendData.filter(
+        const labels =
+            data.map(
                 function (row) {
 
                     return String(
-                        row.period_type ?? ''
-                    ).toLowerCase() ===
-                    'schedule';
+                        row.schedule_label ??
+                        row.period ??
+                        ''
+                    );
 
                 }
-            )
-            : [];
+            );
 
 
-    /*
-     * =========================================================
-     * DEBUG
-     * =========================================================
-     */
+        const effective =
+            data.map(
+                function (row) {
 
-    console.log(
-        'EFFECTIVENESS SCHEDULE DATA:',
-        data
-    );
+                    return Number(
+                        row.effective ?? 0
+                    );
 
+                }
+            );
 
-    /*
-     * =========================================================
-     * LABELS
-     * =========================================================
-     */
 
-    const labels =
-        data.map(
-            function (row) {
+        const moderatelyEffective =
+            data.map(
+                function (row) {
 
-                return String(
-                    row.schedule_label ??
-                    row.period ??
-                    ''
-                );
+                    return Number(
+                        row.moderately_effective ??
+                        0
+                    );
 
-            }
-        );
+                }
+            );
 
 
-    /*
-     * =========================================================
-     * EFFECTIVE
-     * =========================================================
-     */
+        const notEffective =
+            data.map(
+                function (row) {
 
-    const effective =
-        data.map(
-            function (row) {
+                    return Number(
+                        row.not_effective ??
+                        0
+                    );
 
-                return Number(
-                    row.effective ?? 0
-                );
+                }
+            );
 
-            }
-        );
 
+        const notYetPredicted =
+            data.map(
+                function (row) {
 
-    /*
-     * =========================================================
-     * MODERATELY EFFECTIVE
-     * =========================================================
-     */
+                    return Number(
+                        row.not_yet_predicted ??
+                        0
+                    );
 
-    const moderatelyEffective =
-        data.map(
-            function (row) {
+                }
+            );
 
-                return Number(
-                    row.moderately_effective ??
-                    0
-                );
 
-            }
-        );
+        effectivenessTrendChart =
+            new Chart(
+                canvas,
+                {
 
+                    type: 'line',
 
-    /*
-     * =========================================================
-     * NOT EFFECTIVE
-     * =========================================================
-     */
+                    data: {
 
-    const notEffective =
-        data.map(
-            function (row) {
+                        labels: labels,
 
-                return Number(
-                    row.not_effective ??
-                    0
-                );
+                        datasets: [
 
-            }
-        );
+                            {
 
+                                label:
+                                    'Effective',
 
-    /*
-     * =========================================================
-     * NOT YET PREDICTED
-     * =========================================================
-     */
+                                data:
+                                    effective,
 
-    const notYetPredicted =
-        data.map(
-            function (row) {
+                                borderColor:
+                                    '#28a745',
 
-                return Number(
-                    row.not_yet_predicted ??
-                    0
-                );
+                                backgroundColor:
+                                    '#28a745',
 
-            }
-        );
+                                borderWidth:
+                                    3,
 
+                                tension:
+                                    0.25,
 
-    /*
-     * =========================================================
-     * CREATE CHART
-     * =========================================================
-     */
+                                fill:
+                                    false,
 
-    effectivenessTrendChart =
-        new Chart(
-            canvas,
-            {
+                                pointRadius:
+                                    6,
 
-                type: 'line',
+                                pointHoverRadius:
+                                    8
 
+                            },
 
-                data: {
 
-                    labels: labels,
+                            {
 
+                                label:
+                                    'Moderately Effective',
 
-                    datasets: [
+                                data:
+                                    moderatelyEffective,
 
-                        {
-                            label:
-                                'Effective',
+                                borderColor:
+                                    '#ffc107',
 
-                            data:
-                                effective,
+                                backgroundColor:
+                                    '#ffc107',
 
-                            borderColor:
-                                '#28a745',
+                                borderWidth:
+                                    3,
 
-                            backgroundColor:
-                                '#28a745',
+                                tension:
+                                    0.25,
 
-                            borderWidth:
-                                3,
+                                fill:
+                                    false,
 
-                            tension:
-                                0.25,
+                                pointRadius:
+                                    6,
 
-                            fill:
-                                false,
+                                pointHoverRadius:
+                                    8
 
-                            pointRadius:
-                                6,
+                            },
 
-                            pointHoverRadius:
-                                8
-                        },
 
+                            {
 
-                        {
-                            label:
-                                'Moderately Effective',
+                                label:
+                                    'Not Effective',
 
-                            data:
-                                moderatelyEffective,
+                                data:
+                                    notEffective,
 
-                            borderColor:
-                                '#ffc107',
+                                borderColor:
+                                    '#dc3545',
 
-                            backgroundColor:
-                                '#ffc107',
+                                backgroundColor:
+                                    '#dc3545',
 
-                            borderWidth:
-                                3,
+                                borderWidth:
+                                    3,
 
-                            tension:
-                                0.25,
+                                tension:
+                                    0.25,
 
-                            fill:
-                                false,
+                                fill:
+                                    false,
 
-                            pointRadius:
-                                6,
+                                pointRadius:
+                                    6,
 
-                            pointHoverRadius:
-                                8
-                        },
+                                pointHoverRadius:
+                                    8
 
+                            },
 
-                        {
-                            label:
-                                'Not Effective',
 
-                            data:
-                                notEffective,
+                            {
 
-                            borderColor:
-                                '#dc3545',
+                                label:
+                                    'Not Yet Predicted',
 
-                            backgroundColor:
-                                '#dc3545',
+                                data:
+                                    notYetPredicted,
 
-                            borderWidth:
-                                3,
+                                borderColor:
+                                    '#6c757d',
 
-                            tension:
-                                0.25,
+                                backgroundColor:
+                                    '#6c757d',
 
-                            fill:
-                                false,
+                                borderWidth:
+                                    3,
 
-                            pointRadius:
-                                6,
+                                tension:
+                                    0.25,
 
-                            pointHoverRadius:
-                                8
-                        },
+                                fill:
+                                    false,
 
+                                pointRadius:
+                                    6,
 
-                        {
-                            label:
-                                'Not Yet Predicted',
+                                pointHoverRadius:
+                                    8
 
-                            data:
-                                notYetPredicted,
+                            }
 
-                            borderColor:
-                                '#6c757d',
+                        ]
 
-                            backgroundColor:
-                                '#6c757d',
-
-                            borderWidth:
-                                3,
-
-                            tension:
-                                0.25,
-
-                            fill:
-                                false,
-
-                            pointRadius:
-                                6,
-
-                            pointHoverRadius:
-                                8
-                        }
-
-                    ]
-                },
-
-
-                options: {
-
-                    responsive:
-                        true,
-
-                    maintainAspectRatio:
-                        false,
-
-
-                    interaction: {
-
-                        mode:
-                            'index',
-
-                        intersect:
-                            false
                     },
 
 
-                    plugins: {
+                    options: {
 
-                        legend: {
+                        responsive:
+                            true,
 
-                            display:
-                                true,
+                        maintainAspectRatio:
+                            false,
 
-                            position:
-                                'bottom',
+                        interaction: {
 
-                            labels: {
+                            mode:
+                                'index',
 
-                                usePointStyle:
-                                    false,
+                            intersect:
+                                false
 
-                                padding:
-                                    20,
-
-                                font: {
-
-                                    size:
-                                        14
-                                }
-                            }
                         },
 
 
-                        tooltip: {
+                        plugins: {
 
-                            enabled:
-                                true,
+                            legend: {
 
-                            callbacks: {
+                                display:
+                                    true,
 
-                                title:
-                                    function (
-                                        context
-                                    ) {
+                                position:
+                                    'bottom',
 
-                                        return (
-                                            context[0]?.label ??
-                                            ''
-                                        );
+                                labels: {
 
-                                    },
+                                    padding:
+                                        20,
 
+                                    font: {
 
-                                label:
-                                    function (
-                                        context
-                                    ) {
-
-                                        return (
-                                            context.dataset.label +
-                                            ': ' +
-                                            Number(
-                                                context.raw ?? 0
-                                            )
-                                        );
+                                        size:
+                                            14
 
                                     }
 
-                            }
-                        }
+                                }
 
-                    },
-
-
-                    scales: {
-
-                        y: {
-
-                            beginAtZero:
-                                true,
-
-                            ticks: {
-
-                                precision:
-                                    0,
-
-                                stepSize:
-                                    1
                             },
 
-                            title: {
 
-                                display:
-                                    true,
+                            tooltip: {
 
-                                text:
-                                    'Evaluation Records'
+                                enabled:
+                                    true
+
                             }
 
                         },
 
 
-                        x: {
+                        scales: {
 
-                            title: {
+                            y: {
 
-                                display:
+                                beginAtZero:
                                     true,
 
-                                text:
-                                    'Schedule'
+                                ticks: {
+
+                                    precision:
+                                        0,
+
+                                    stepSize:
+                                        1
+
+                                },
+
+                                title: {
+
+                                    display:
+                                        true,
+
+                                    text:
+                                        'Evaluation Records'
+
+                                }
+
                             },
 
-                            ticks: {
 
-                                autoSkip:
-                                    false,
+                            x: {
 
-                                maxRotation:
-                                    45,
+                                title: {
 
-                                minRotation:
-                                    0
+                                    display:
+                                        true,
+
+                                    text:
+                                        'Schedule'
+
+                                },
+
+                                ticks: {
+
+                                    autoSkip:
+                                        false,
+
+                                    maxRotation:
+                                        45,
+
+                                    minRotation:
+                                        0
+
+                                }
+
                             }
 
                         }
@@ -1382,13 +1291,13 @@ function renderEffectivenessChart() {
                     }
 
                 }
+            );
 
-            }
-        );
-}
+    }
+
 
     /* ============================================================
-       3. YIELD TREND
+       YIELD TREND
     ============================================================ */
 
     function renderYieldChart(
@@ -1404,6 +1313,7 @@ function renderEffectivenessChart() {
         if (!canvas) {
 
             return;
+
         }
 
 
@@ -1427,6 +1337,7 @@ function renderEffectivenessChart() {
                         row.period ??
                         ''
                     );
+
                 }
             );
 
@@ -1439,6 +1350,7 @@ function renderEffectivenessChart() {
                         row.yield_before ??
                         0
                     );
+
                 }
             );
 
@@ -1451,6 +1363,7 @@ function renderEffectivenessChart() {
                         row.yield_after ??
                         0
                     );
+
                 }
             );
 
@@ -1462,7 +1375,6 @@ function renderEffectivenessChart() {
 
                     type:
                         'line',
-
 
                     data: {
 
@@ -1490,6 +1402,7 @@ function renderEffectivenessChart() {
 
                                 pointRadius:
                                     4
+
                             },
 
 
@@ -1512,8 +1425,11 @@ function renderEffectivenessChart() {
 
                                 pointRadius:
                                     4
+
                             }
+
                         ]
+
                     },
 
 
@@ -1525,7 +1441,6 @@ function renderEffectivenessChart() {
                         maintainAspectRatio:
                             false,
 
-
                         interaction: {
 
                             mode:
@@ -1533,6 +1448,7 @@ function renderEffectivenessChart() {
 
                             intersect:
                                 false
+
                         },
 
 
@@ -1550,7 +1466,9 @@ function renderEffectivenessChart() {
 
                                     text:
                                         'Yield (tons/ha)'
+
                                 }
+
                             },
 
 
@@ -1564,22 +1482,25 @@ function renderEffectivenessChart() {
                                     text:
                                         period ===
                                         'monthly'
-
                                             ? 'Month'
-
                                             : 'Quarter'
+
                                 }
+
                             }
+
                         }
+
                     }
+
                 }
             );
+
     }
 
 
-
     /* ============================================================
-       4. SURVEY TREND
+       SURVEY TREND
     ============================================================ */
 
     function renderSurveyChart(
@@ -1595,6 +1516,7 @@ function renderEffectivenessChart() {
         if (!canvas) {
 
             return;
+
         }
 
 
@@ -1618,6 +1540,7 @@ function renderEffectivenessChart() {
                         row.period ??
                         ''
                     );
+
                 }
             );
 
@@ -1630,6 +1553,7 @@ function renderEffectivenessChart() {
                         row.average_rating ??
                         0
                     );
+
                 }
             );
 
@@ -1641,7 +1565,6 @@ function renderEffectivenessChart() {
 
                     type:
                         'line',
-
 
                     data: {
 
@@ -1669,8 +1592,11 @@ function renderEffectivenessChart() {
 
                                 pointRadius:
                                     4
+
                             }
+
                         ]
+
                     },
 
 
@@ -1681,7 +1607,6 @@ function renderEffectivenessChart() {
 
                         maintainAspectRatio:
                             false,
-
 
                         scales: {
 
@@ -1697,6 +1622,7 @@ function renderEffectivenessChart() {
 
                                     stepSize:
                                         1
+
                                 },
 
                                 title: {
@@ -1706,7 +1632,9 @@ function renderEffectivenessChart() {
 
                                     text:
                                         'Average Rating'
+
                                 }
+
                             },
 
 
@@ -1720,22 +1648,25 @@ function renderEffectivenessChart() {
                                     text:
                                         period ===
                                         'monthly'
-
                                             ? 'Month'
-
                                             : 'Quarter'
+
                                 }
+
                             }
+
                         }
+
                     }
+
                 }
             );
+
     }
 
 
-
     /* ============================================================
-       5. DISTRIBUTION TREND
+       DISTRIBUTION TREND
     ============================================================ */
 
     function renderDistributionChart(
@@ -1751,6 +1682,7 @@ function renderEffectivenessChart() {
         if (!canvas) {
 
             return;
+
         }
 
 
@@ -1774,6 +1706,7 @@ function renderEffectivenessChart() {
                         row.period ??
                         ''
                     );
+
                 }
             );
 
@@ -1786,12 +1719,10 @@ function renderEffectivenessChart() {
                     type:
                         'line',
 
-
                     data: {
 
                         labels:
                             labels,
-
 
                         datasets: [
 
@@ -1810,6 +1741,7 @@ function renderEffectivenessChart() {
                                                 row.received ??
                                                 0
                                             );
+
                                         }
                                     ),
 
@@ -1821,6 +1753,7 @@ function renderEffectivenessChart() {
 
                                 borderWidth:
                                     2
+
                             },
 
 
@@ -1839,6 +1772,7 @@ function renderEffectivenessChart() {
                                                 row.not_received ??
                                                 0
                                             );
+
                                         }
                                     ),
 
@@ -1850,6 +1784,7 @@ function renderEffectivenessChart() {
 
                                 borderWidth:
                                     2
+
                             },
 
 
@@ -1868,6 +1803,7 @@ function renderEffectivenessChart() {
                                                 row.rescheduled ??
                                                 0
                                             );
+
                                         }
                                     ),
 
@@ -1879,6 +1815,7 @@ function renderEffectivenessChart() {
 
                                 borderWidth:
                                     2
+
                             },
 
 
@@ -1897,6 +1834,7 @@ function renderEffectivenessChart() {
                                                 row.cancelled ??
                                                 0
                                             );
+
                                         }
                                     ),
 
@@ -1908,8 +1846,11 @@ function renderEffectivenessChart() {
 
                                 borderWidth:
                                     2
+
                             }
+
                         ]
+
                     },
 
 
@@ -1921,7 +1862,6 @@ function renderEffectivenessChart() {
                         maintainAspectRatio:
                             false,
 
-
                         interaction: {
 
                             mode:
@@ -1929,6 +1869,7 @@ function renderEffectivenessChart() {
 
                             intersect:
                                 false
+
                         },
 
 
@@ -1943,6 +1884,7 @@ function renderEffectivenessChart() {
 
                                     precision:
                                         0
+
                                 },
 
                                 title: {
@@ -1952,7 +1894,9 @@ function renderEffectivenessChart() {
 
                                     text:
                                         'Distribution Records'
+
                                 }
+
                             },
 
 
@@ -1966,53 +1910,57 @@ function renderEffectivenessChart() {
                                     text:
                                         period ===
                                         'monthly'
-
                                             ? 'Month'
-
                                             : 'Quarter'
+
                                 }
+
                             }
+
                         }
+
                     }
+
                 }
             );
+
     }
 
 
-function renderAllCharts() {
+    /* ============================================================
+       RENDER ALL CHARTS
+    ============================================================ */
 
-    const period =
-        trendPeriod
-            ? trendPeriod.value
-            : 'monthly';
+    function renderAllCharts() {
 
-
-    renderYieldChart(
-        period
-    );
-
-
-    /*
-     * EFFECTIVENESS:
-     * ALWAYS EVERY SCHEDULE
-     */
-    renderEffectivenessChart();
+        const period =
+            trendPeriod
+                ? trendPeriod.value
+                : 'monthly';
 
 
-    renderSurveyChart(
-        period
-    );
+        renderYieldChart(
+            period
+        );
 
 
-    renderDistributionChart(
-        period
-    );
-}
+        renderEffectivenessChart();
 
+
+        renderSurveyChart(
+            period
+        );
+
+
+        renderDistributionChart(
+            period
+        );
+
+    }
 
 
     /* ============================================================
-       MONTHLY / QUARTERLY
+       PERIOD CHANGE
     ============================================================ */
 
     if (trendPeriod) {
@@ -2025,16 +1973,559 @@ function renderAllCharts() {
 
             }
         );
+
     }
 
 
-
     /* ============================================================
-       INITIAL RENDER
+       INITIAL CHART RENDER
     ============================================================ */
 
     renderAllCharts();
 
-});
 
+    /* ============================================================
+       SUBSIDY RECEIVED LOCATION FILTER
+    ============================================================ */
+
+    const $locationFilter =
+        $('#receivedLocationFilter');
+
+    const $receivedTable =
+        $('#receivedSubsidyTable');
+
+
+    /* ============================================================
+       INITIALIZE SELECT2
+    ============================================================ */
+
+    if ($locationFilter.length) {
+
+        if (
+            $locationFilter.hasClass(
+                'select2-hidden-accessible'
+            )
+        ) {
+
+            $locationFilter.select2(
+                'destroy'
+            );
+
+        }
+
+
+        $locationFilter.select2({
+
+            placeholder:
+                'All Locations',
+
+            allowClear:
+                false,
+
+            width:
+                '100%',
+
+            minimumResultsForSearch:
+                0,
+
+            language: {
+
+                noResults:
+                    function () {
+
+                        return 'No location found';
+
+                    },
+
+                searching:
+                    function () {
+
+                        return 'Searching...';
+
+                    }
+
+            }
+
+        });
+
+    }
+
+
+    /* ============================================================
+       LOCATION CHANGE
+    ============================================================ */
+
+    $locationFilter.on(
+        'change',
+        function () {
+
+            const selectedLocation =
+                String(
+                    $(this).val() || ''
+                ).trim();
+
+
+            console.log(
+                'Selected Location:',
+                selectedLocation
+            );
+
+
+            /* ====================================================
+               CHECK TABLE
+            ==================================================== */
+
+            if (!$receivedTable.length) {
+
+                console.error(
+                    '#receivedSubsidyTable was not found.'
+                );
+
+                return;
+
+            }
+
+
+            /* ====================================================
+               CHECK DATATABLE
+            ==================================================== */
+
+            const isDataTable =
+                $.fn.DataTable.isDataTable(
+                    '#receivedSubsidyTable'
+                );
+
+
+            /* ====================================================
+               DATATABLE FILTER
+            ==================================================== */
+
+            if (isDataTable) {
+
+                const table =
+                    $('#receivedSubsidyTable')
+                        .DataTable();
+
+
+                /*
+                 * Actual table column order:
+                 *
+                 * 0  #
+                 * 1  LGU RSBSA Number
+                 * 2  Farmer Name
+                 * 3  Distribution Code
+                 * 4  Subsidy Item
+                 * 5  Quantity
+                 * 6  Location
+                 * 7  Distribution Date
+                 * 8  Distribution Time
+                 * 9  Received Date
+                 * 10 Status
+                 */
+
+                const locationColumn =
+                    6;
+
+
+                /* ----------------------------------------------
+                   ALL LOCATIONS
+                ---------------------------------------------- */
+
+                if (
+                    selectedLocation === '' ||
+                    selectedLocation.toUpperCase()
+                        === 'ALL'
+                ) {
+
+                    table
+                        .column(locationColumn)
+                        .search('')
+                        .draw();
+
+                }
+
+
+                /* ----------------------------------------------
+                   SELECTED LOCATION
+                ---------------------------------------------- */
+
+                else {
+
+                    const escapedLocation =
+                        $.fn.dataTable.util
+                            .escapeRegex(
+                                selectedLocation
+                            );
+
+
+                    table
+                        .column(locationColumn)
+                        .search(
+                            '^' +
+                            escapedLocation +
+                            '$',
+                            true,
+                            false,
+                            true
+                        )
+                        .draw();
+
+                }
+
+
+                /* ----------------------------------------------
+                   COUNT
+                ---------------------------------------------- */
+
+                const visibleCount =
+                    table.rows({
+                        search: 'applied'
+                    }).count();
+
+
+                $('#receivedRecordCount').html(
+                    'Showing <strong>' +
+                    visibleCount +
+                    '</strong> received subsidy record(s)'
+                );
+
+
+                /* ----------------------------------------------
+                   EMPTY MESSAGE
+                ---------------------------------------------- */
+
+                if (
+                    visibleCount === 0
+                ) {
+
+                    $('#receivedNoFilterResult')
+                        .show();
+
+                }
+
+                else {
+
+                    $('#receivedNoFilterResult')
+                        .hide();
+
+                }
+
+
+                return;
+
+            }
+
+
+            /* ====================================================
+               NORMAL HTML TABLE FILTER
+            ==================================================== */
+
+            let visibleCount = 0;
+
+            let totalRows = 0;
+
+
+            $receivedTable
+                .find('tbody tr')
+                .each(
+                    function () {
+
+                        const $row =
+                            $(this);
+
+
+                        totalRows++;
+
+
+                        /*
+                         * Location is already stored here:
+                         *
+                         * <tr data-location="Rizal">
+                         */
+
+                        const rowLocation =
+                            String(
+                                $row.attr(
+                                    'data-location'
+                                ) || ''
+                            ).trim();
+
+
+                        /*
+                         * Normalize
+                         */
+
+                        const normalizedRowLocation =
+                            rowLocation.toLowerCase();
+
+
+                        const normalizedSelectedLocation =
+                            selectedLocation.toLowerCase();
+
+
+                        /* ----------------------------------------
+                           ALL LOCATIONS
+                        ---------------------------------------- */
+
+                        if (
+                            selectedLocation === '' ||
+                            selectedLocation.toUpperCase()
+                                === 'ALL'
+                        ) {
+
+                            $row.show();
+
+                            visibleCount++;
+
+                            return;
+
+                        }
+
+
+                        /* ----------------------------------------
+                           MATCH
+                        ---------------------------------------- */
+
+                        if (
+                            normalizedRowLocation ===
+                            normalizedSelectedLocation
+                        ) {
+
+                            $row.show();
+
+                            visibleCount++;
+
+                        }
+
+                        else {
+
+                            $row.hide();
+
+                        }
+
+                    }
+                );
+
+
+            /* ====================================================
+               UPDATE COUNT
+            ==================================================== */
+
+            $('#receivedRecordCount').html(
+
+                'Showing <strong>' +
+                visibleCount +
+                '</strong> received subsidy record(s)'
+
+            );
+
+
+            /* ====================================================
+               SHOW/HIDE EMPTY RESULT
+            ==================================================== */
+
+            if (
+                totalRows > 0 &&
+                visibleCount === 0
+            ) {
+
+                $('#receivedNoFilterResult')
+                    .show();
+
+            }
+
+            else {
+
+                $('#receivedNoFilterResult')
+                    .hide();
+
+            }
+
+        }
+    );
+
+
+    /* ============================================================
+       DOWNLOAD RECEIVED SUBSIDY
+    ============================================================ */
+
+    $('#downloadReceivedSubsidy').on(
+        'click',
+        function () {
+
+            /*
+             * Only download currently visible rows.
+             */
+
+            const rows = [];
+
+
+            $('#receivedSubsidyTable tbody tr:visible')
+                .each(
+                    function () {
+
+                        const row = [];
+
+
+                        $(this)
+                            .find('td')
+                            .each(
+                                function () {
+
+                                    row.push(
+                                        $(this)
+                                            .text()
+                                            .trim()
+                                    );
+
+                                }
+                            );
+
+
+                        rows.push(row);
+
+                    }
+                );
+
+
+            if (rows.length === 0) {
+
+                alert(
+                    'There are no records to download.'
+                );
+
+                return;
+
+            }
+
+
+            /*
+             * Header
+             */
+
+            const headers = [];
+
+
+            $('#receivedSubsidyTable thead th')
+                .each(
+                    function () {
+
+                        headers.push(
+                            $(this)
+                                .text()
+                                .trim()
+                        );
+
+                    }
+                );
+
+
+            /*
+             * CSV
+             */
+
+            let csv = '';
+
+
+            csv += headers
+                .map(
+                    function (value) {
+
+                        return '"' +
+                            value
+                                .replace(
+                                    /"/g,
+                                    '""'
+                                ) +
+                            '"';
+
+                    }
+                )
+                .join(',');
+
+
+            csv += '\n';
+
+
+            rows.forEach(
+                function (row) {
+
+                    csv += row
+                        .map(
+                            function (value) {
+
+                                return '"' +
+                                    String(value)
+                                        .replace(
+                                            /"/g,
+                                            '""'
+                                        ) +
+                                    '"';
+
+                            }
+                        )
+                        .join(',');
+
+
+                    csv += '\n';
+
+                }
+            );
+
+
+            /*
+             * Create download
+             */
+
+            const blob =
+                new Blob(
+                    [csv],
+                    {
+                        type:
+                            'text/csv;charset=utf-8;'
+                    }
+                );
+
+
+            const url =
+                URL.createObjectURL(
+                    blob
+                );
+
+
+            const link =
+                document.createElement(
+                    'a'
+                );
+
+
+            link.href =
+                url;
+
+
+            link.download =
+                'received_subsidy_records.csv';
+
+
+            document.body.appendChild(
+                link
+            );
+
+
+            link.click();
+
+
+            document.body.removeChild(
+                link
+            );
+
+
+            URL.revokeObjectURL(
+                url
+            );
+
+        }
+    );
+
+});
 </script>

@@ -91,25 +91,29 @@
                         User
                     </label>
 
+                    <?php
+                    $users = [];
+
+                    foreach ($auditLogs as $log) {
+
+                        if (
+                            $log->user &&
+                            !empty($log->user->username)
+                        ) {
+                            $users[$log->user->username] =
+                                $log->user->username;
+                        }
+                    }
+
+                    ksort($users);
+                    ?>
+
                     <select
                         id="userFilter"
                         class="form-control form-control-sm"
                     >
 
                         <option value="">All Users</option>
-
-                        <?php
-                        $users = [];
-
-                        foreach ($auditLogs as $log) {
-                            if ($log->user && !empty($log->user->username)) {
-                                $users[$log->user->username] =
-                                    $log->user->username;
-                            }
-                        }
-
-                        ksort($users);
-                        ?>
 
                         <?php foreach ($users as $username): ?>
 
@@ -664,6 +668,43 @@ $(document).ready(function () {
             .draw();
 
     });
+
+});
+$(document).ready(function () {
+
+    const $userFilter = $('#userFilter');
+
+    if ($userFilter.length) {
+
+        if ($userFilter.hasClass('select2-hidden-accessible')) {
+            $userFilter.select2('destroy');
+        }
+
+        $userFilter.select2({
+
+            placeholder: 'All Users',
+
+            allowClear: true,
+
+            width: '100%',
+
+            minimumResultsForSearch: 0,
+
+            language: {
+
+                noResults: function () {
+                    return 'No user found';
+                },
+
+                searching: function () {
+                    return 'Searching...';
+                }
+
+            }
+
+        });
+
+    }
 
 });
 </script>
