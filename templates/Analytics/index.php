@@ -59,7 +59,6 @@
             <div class="model-card">
 
                 <div class="model-icon">
-
                     <i class="fas fa-database"></i>
 
                 </div>
@@ -334,11 +333,7 @@
 
                 <div class="subsidy-received-tools">
 
-                    <!-- =================================================
-                         LOCATION FILTER
-                    ================================================= -->
-
-                    <div class="subsidy-location-filter">
+                     <div class="subsidy-location-filter">
 
                         <?= $this->Form->control(
                             'receivedLocationFilter',
@@ -365,10 +360,6 @@
                     </div>
 
 
-                    <!-- =================================================
-                         DOWNLOAD
-                    ================================================= -->
-
                     <button
                         type="button"
                         id="downloadReceivedSubsidy"
@@ -387,10 +378,8 @@
         <div class="subsidy-received-body">
 
             <?php
-
             $receivedRecords =
                 $receivedRecords ?? [];
-
             ?>
 
 
@@ -425,9 +414,7 @@
 
                             <tr>
 
-                                <th>
-                                    #
-                                </th>
+                                <th>#</th>
 
                                 <th>
                                     LGU RSBSA Number
@@ -491,12 +478,9 @@
                                         )
                                     );
 
-                                if (
-                                    $location === ''
-                                ) {
+                                if ($location === '') {
 
-                                    $location =
-                                        'N/A';
+                                    $location = 'N/A';
 
                                 }
 
@@ -504,23 +488,15 @@
 
 
                                 <tr
-                                    data-location="<?= h(
-                                        $location
-                                    ) ?>"
+                                    data-location="<?= h($location) ?>"
                                 >
 
-                                    <!-- # -->
-
-                                    <td
-                                        class="row-number"
-                                    >
+                                    <td class="row-number">
 
                                         <?= $index + 1 ?>
 
                                     </td>
 
-
-                                    <!-- RSBSA -->
 
                                     <td>
 
@@ -538,8 +514,6 @@
                                     </td>
 
 
-                                    <!-- FARMER -->
-
                                     <td>
 
                                         <strong
@@ -555,8 +529,6 @@
 
                                     </td>
 
-
-                                    <!-- DISTRIBUTION CODE -->
 
                                     <td>
 
@@ -574,8 +546,6 @@
                                     </td>
 
 
-                                    <!-- SUBSIDY -->
-
                                     <td>
 
                                         <?= h(
@@ -585,8 +555,6 @@
 
                                     </td>
 
-
-                                    <!-- QUANTITY -->
 
                                     <td>
 
@@ -604,24 +572,18 @@
                                     </td>
 
 
-                                    <!-- LOCATION -->
-
                                     <td>
 
                                         <span
                                             class="location-value"
                                         >
 
-                                            <?= h(
-                                                $location
-                                            ) ?>
+                                            <?= h($location) ?>
 
                                         </span>
 
                                     </td>
 
-
-                                    <!-- DISTRIBUTION DATE -->
 
                                     <td>
 
@@ -634,8 +596,6 @@
                                     </td>
 
 
-                                    <!-- DISTRIBUTION TIME -->
-
                                     <td>
 
                                         <?= h(
@@ -647,8 +607,6 @@
                                     </td>
 
 
-                                    <!-- RECEIVED DATE -->
-
                                     <td>
 
                                         <?= h(
@@ -659,8 +617,6 @@
 
                                     </td>
 
-
-                                    <!-- STATUS -->
 
                                     <td>
 
@@ -688,10 +644,6 @@
                 </div>
 
 
-                <!-- =================================================
-                     NO FILTER RESULT
-                ================================================== -->
-
                 <div
                     id="receivedNoFilterResult"
                     class="received-filter-empty"
@@ -712,9 +664,7 @@
 
             <?php else: ?>
 
-                <div
-                    class="subsidy-received-empty"
-                >
+                <div class="subsidy-received-empty">
 
                     <h5>
                         No Subsidy Records Yet
@@ -735,32 +685,13 @@
 
 </div>
 
-
-<!-- ================================================================
-     SELECT2
-================================================================ -->
-
-<link
-    href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
-    rel="stylesheet"
-/>
-
-<script
-    src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js">
-</script>
-
-
 <!-- ================================================================
      CHART.JS
 ================================================================ -->
 
-<script
-    src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js">
-</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 
-<script
-    src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0">
-</script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 
 
 <!-- ================================================================
@@ -788,6 +719,27 @@ const effectivenessTotals =
         JSON_HEX_QUOT
     ) ?>;
 
+
+/*
+ * ================================================================
+ * EFFECTIVENESS TREND
+ * ================================================================
+ *
+ * This MUST come from $effectivenessTrend.
+ *
+ * Example:
+ *
+ * [
+ *     {
+ *         period_type: "monthly",
+ *         period: "January 2026",
+ *         effective: 10,
+ *         moderately_effective: 5,
+ *         not_effective: 2,
+ *         not_yet_predicted: 1
+ *     }
+ * ]
+ */
 
 const effectivenessTrendData =
     <?= json_encode(
@@ -832,7 +784,7 @@ const distributionTrendData =
 
 
 <!-- ================================================================
-     ANALYTICS JAVASCRIPT
+     ALL CHARTS
 ================================================================ -->
 
 <script>
@@ -855,8 +807,9 @@ $(document).ready(function () {
     let distributionChart = null;
 
 
+
     /* ============================================================
-       TREND PERIOD
+       PERIOD SELECT
     ============================================================ */
 
     const trendPeriod =
@@ -865,8 +818,9 @@ $(document).ready(function () {
         );
 
 
+
     /* ============================================================
-       GET PERIOD DATA
+       FILTER PERIOD
     ============================================================ */
 
     function getPeriodData(
@@ -897,6 +851,7 @@ $(document).ready(function () {
     }
 
 
+
     /* ============================================================
        DESTROY CHART
     ============================================================ */
@@ -914,376 +869,875 @@ $(document).ready(function () {
     }
 
 
+
     /* ============================================================
-       EFFECTIVENESS TREND
+       EFFECTIVENESS COLORS
     ============================================================ */
 
-    function renderEffectivenessChart() {
+    function getEffectivenessColor(
+        label
+    ) {
 
-        const canvas =
-            document.getElementById(
-                'effectivenessTrendChart'
-            );
+        const normalized =
+            String(
+                label ?? ''
+            )
+            .trim()
+            .toLowerCase();
 
 
-        if (!canvas) {
+        if (
+            normalized === 'effective' ||
+            normalized === '2'
+        ) {
 
-            return;
-
+            return '#28a745';
         }
 
 
         if (
-            effectivenessTrendChart
+            normalized ===
+                'moderately effective' ||
+
+            normalized ===
+                'moderate effective' ||
+
+            normalized ===
+                'moderately-effective' ||
+
+            normalized ===
+                'moderate' ||
+
+            normalized === '1'
         ) {
 
-            effectivenessTrendChart.destroy();
-
-            effectivenessTrendChart = null;
-
+            return '#ffc107';
         }
 
 
-        const data =
-            Array.isArray(
-                effectivenessTrendData
-            )
-                ? effectivenessTrendData.filter(
-                    function (row) {
+        if (
+            normalized ===
+                'not effective' ||
 
-                        return String(
-                            row.period_type ?? ''
-                        )
-                        .toLowerCase()
-                        ===
-                        'schedule';
+            normalized ===
+                'not-effective' ||
 
+            normalized === '0'
+        ) {
+
+            return '#dc3545';
+        }
+
+
+        return '#6c757d';
+    }
+
+
+
+    /* ============================================================
+       1. EFFECTIVENESS EVALUATION PIE
+    ============================================================ */
+
+    const effectivenessCanvas =
+        document.getElementById(
+            'effectivenessChart'
+        );
+
+
+    if (
+        effectivenessCanvas &&
+        typeof Chart !== 'undefined'
+    ) {
+
+        const chartValues =
+            effectivenessTotals.map(
+                function (value) {
+
+                    const number =
+                        Number(value);
+
+                    return Number.isFinite(
+                        number
+                    )
+                        ? number
+                        : 0;
+                }
+            );
+
+
+        const chartTotal =
+            chartValues.reduce(
+                function (
+                    total,
+                    value
+                ) {
+
+                    return total + value;
+
+                },
+                0
+            );
+
+
+        const chartColors =
+            effectivenessLabels.map(
+                function (label) {
+
+                    return getEffectivenessColor(
+                        label
+                    );
+
+                }
+            );
+
+
+        const oldChart =
+            Chart.getChart(
+                effectivenessCanvas
+            );
+
+
+        if (oldChart) {
+
+            oldChart.destroy();
+        }
+
+
+        new Chart(
+            effectivenessCanvas,
+            {
+
+                type: 'pie',
+
+                data: {
+
+                    labels:
+                        effectivenessLabels,
+
+                    datasets: [
+
+                        {
+
+                            data:
+                                chartValues,
+
+                            backgroundColor:
+                                chartColors,
+
+                            borderColor:
+                                '#ffffff',
+
+                            borderWidth:
+                                3,
+
+                            hoverOffset:
+                                8
+                        }
+
+                    ]
+                },
+
+
+                options: {
+
+                    responsive:
+                        true,
+
+                    maintainAspectRatio:
+                        false,
+
+
+                    plugins: {
+
+                        legend: {
+
+                            display:
+                                true,
+
+                            position:
+                                'bottom',
+
+                            labels: {
+
+                                padding:
+                                    18,
+
+                                usePointStyle:
+                                    true,
+
+                                pointStyle:
+                                    'circle',
+
+                                font: {
+
+                                    size:
+                                        13,
+
+                                    weight:
+                                        '600'
+                                },
+
+
+                                generateLabels:
+                                    function (
+                                        chart
+                                    ) {
+
+                                        const dataset =
+                                            chart.data
+                                                .datasets[0];
+
+
+                                        return chart
+                                            .data
+                                            .labels
+                                            .map(
+                                                function (
+                                                    label,
+                                                    index
+                                                ) {
+
+                                                    return {
+
+                                                        text:
+                                                            label,
+
+                                                        fillStyle:
+                                                            dataset
+                                                                .backgroundColor[
+                                                                    index
+                                                                ],
+
+                                                        strokeStyle:
+                                                            '#ffffff',
+
+                                                        lineWidth:
+                                                            2,
+
+                                                        hidden:
+                                                            false,
+
+                                                        index:
+                                                            index
+                                                    };
+
+                                                }
+                                            );
+                                    }
+                            }
+                        },
+
+
+                        tooltip: {
+
+                            enabled:
+                                true,
+
+                            callbacks: {
+
+                                label:
+                                    function (
+                                        context
+                                    ) {
+
+                                        const value =
+                                            Number(
+                                                context.raw ??
+                                                0
+                                            );
+
+
+                                        const percentage =
+                                            chartTotal >
+                                            0
+
+                                                ? (
+                                                    value /
+                                                    chartTotal *
+                                                    100
+                                                ).toFixed(1)
+
+                                                : '0.0';
+
+
+                                        return (
+                                            context.label +
+                                            ': ' +
+                                            value +
+                                            ' (' +
+                                            percentage +
+                                            '%)'
+                                        );
+                                    }
+                            }
+                        },
+
+
+                        datalabels:
+
+                            typeof
+                            ChartDataLabels !==
+                            'undefined'
+
+                                ? {
+
+                                    display:
+                                        function (
+                                            context
+                                        ) {
+
+                                            return Number(
+                                                context
+                                                    .dataset
+                                                    .data[
+                                                        context
+                                                            .dataIndex
+                                                    ] ??
+                                                0
+                                            ) > 0;
+                                        },
+
+
+                                    color:
+                                        function (
+                                            context
+                                        ) {
+
+                                            const label =
+                                                context
+                                                    .chart
+                                                    .data
+                                                    .labels[
+                                                        context
+                                                            .dataIndex
+                                                    ];
+
+
+                                            const normalized =
+                                                String(
+                                                    label ??
+                                                    ''
+                                                )
+                                                .trim()
+                                                .toLowerCase();
+
+
+                                            if (
+                                                normalized ===
+                                                    'moderately effective' ||
+
+                                                normalized ===
+                                                    'moderate effective' ||
+
+                                                normalized ===
+                                                    'moderately-effective' ||
+
+                                                normalized ===
+                                                    'moderate' ||
+
+                                                normalized ===
+                                                    '1'
+                                            ) {
+
+                                                return '#212529';
+                                            }
+
+
+                                            return '#ffffff';
+                                        },
+
+
+                                    font: {
+
+                                        weight:
+                                            'bold',
+
+                                        size:
+                                            14
+                                    },
+
+
+                                    formatter:
+                                        function (
+                                            value
+                                        ) {
+
+                                            if (
+                                                !chartTotal ||
+                                                !value
+                                            ) {
+
+                                                return '';
+                                            }
+
+
+                                            return (
+                                                (
+                                                    Number(value) /
+                                                    chartTotal *
+                                                    100
+                                                ).toFixed(1) +
+                                                '%'
+                                            );
+                                        }
+
+                                }
+
+                                : {}
                     }
-                )
-                : [];
+                },
 
 
-        const labels =
-            data.map(
+                plugins:
+
+                    typeof
+                    ChartDataLabels !==
+                    'undefined'
+
+                        ? [
+                            ChartDataLabels
+                        ]
+
+                        : []
+            }
+        );
+    }
+
+
+function renderEffectivenessChart() {
+
+    const canvas =
+        document.getElementById(
+            'effectivenessTrendChart'
+        );
+
+    if (!canvas) {
+        return;
+    }
+
+
+    /*
+     * =========================================================
+     * DESTROY OLD CHART
+     * =========================================================
+     */
+
+    if (effectivenessTrendChart) {
+
+        effectivenessTrendChart.destroy();
+
+        effectivenessTrendChart = null;
+    }
+
+
+    /*
+     * =========================================================
+     * USE SCHEDULE DATA ONLY
+     * =========================================================
+     */
+
+    const data =
+        Array.isArray(effectivenessTrendData)
+            ? effectivenessTrendData.filter(
                 function (row) {
 
                     return String(
-                        row.schedule_label ??
-                        row.period ??
-                        ''
-                    );
+                        row.period_type ?? ''
+                    ).toLowerCase() ===
+                    'schedule';
 
                 }
-            );
+            )
+            : [];
 
 
-        const effective =
-            data.map(
-                function (row) {
+    /*
+     * =========================================================
+     * DEBUG
+     * =========================================================
+     */
 
-                    return Number(
-                        row.effective ?? 0
-                    );
-
-                }
-            );
-
-
-        const moderatelyEffective =
-            data.map(
-                function (row) {
-
-                    return Number(
-                        row.moderately_effective ??
-                        0
-                    );
-
-                }
-            );
+    console.log(
+        'EFFECTIVENESS SCHEDULE DATA:',
+        data
+    );
 
 
-        const notEffective =
-            data.map(
-                function (row) {
+    /*
+     * =========================================================
+     * LABELS
+     * =========================================================
+     */
 
-                    return Number(
-                        row.not_effective ??
-                        0
-                    );
+    const labels =
+        data.map(
+            function (row) {
 
-                }
-            );
+                return String(
+                    row.schedule_label ??
+                    row.period ??
+                    ''
+                );
 
-
-        const notYetPredicted =
-            data.map(
-                function (row) {
-
-                    return Number(
-                        row.not_yet_predicted ??
-                        0
-                    );
-
-                }
-            );
+            }
+        );
 
 
-        effectivenessTrendChart =
-            new Chart(
-                canvas,
-                {
+    /*
+     * =========================================================
+     * EFFECTIVE
+     * =========================================================
+     */
 
-                    type: 'line',
+    const effective =
+        data.map(
+            function (row) {
 
-                    data: {
+                return Number(
+                    row.effective ?? 0
+                );
 
-                        labels: labels,
+            }
+        );
 
-                        datasets: [
 
-                            {
+    /*
+     * =========================================================
+     * MODERATELY EFFECTIVE
+     * =========================================================
+     */
 
-                                label:
-                                    'Effective',
+    const moderatelyEffective =
+        data.map(
+            function (row) {
 
-                                data:
-                                    effective,
+                return Number(
+                    row.moderately_effective ??
+                    0
+                );
 
-                                borderColor:
-                                    '#28a745',
+            }
+        );
 
-                                backgroundColor:
-                                    '#28a745',
 
-                                borderWidth:
-                                    3,
+    /*
+     * =========================================================
+     * NOT EFFECTIVE
+     * =========================================================
+     */
 
-                                tension:
-                                    0.25,
+    const notEffective =
+        data.map(
+            function (row) {
 
-                                fill:
+                return Number(
+                    row.not_effective ??
+                    0
+                );
+
+            }
+        );
+
+
+    /*
+     * =========================================================
+     * NOT YET PREDICTED
+     * =========================================================
+     */
+
+    const notYetPredicted =
+        data.map(
+            function (row) {
+
+                return Number(
+                    row.not_yet_predicted ??
+                    0
+                );
+
+            }
+        );
+
+
+    /*
+     * =========================================================
+     * CREATE CHART
+     * =========================================================
+     */
+
+    effectivenessTrendChart =
+        new Chart(
+            canvas,
+            {
+
+                type: 'line',
+
+
+                data: {
+
+                    labels: labels,
+
+
+                    datasets: [
+
+                        {
+                            label:
+                                'Effective',
+
+                            data:
+                                effective,
+
+                            borderColor:
+                                '#28a745',
+
+                            backgroundColor:
+                                '#28a745',
+
+                            borderWidth:
+                                3,
+
+                            tension:
+                                0.25,
+
+                            fill:
+                                false,
+
+                            pointRadius:
+                                6,
+
+                            pointHoverRadius:
+                                8
+                        },
+
+
+                        {
+                            label:
+                                'Moderately Effective',
+
+                            data:
+                                moderatelyEffective,
+
+                            borderColor:
+                                '#ffc107',
+
+                            backgroundColor:
+                                '#ffc107',
+
+                            borderWidth:
+                                3,
+
+                            tension:
+                                0.25,
+
+                            fill:
+                                false,
+
+                            pointRadius:
+                                6,
+
+                            pointHoverRadius:
+                                8
+                        },
+
+
+                        {
+                            label:
+                                'Not Effective',
+
+                            data:
+                                notEffective,
+
+                            borderColor:
+                                '#dc3545',
+
+                            backgroundColor:
+                                '#dc3545',
+
+                            borderWidth:
+                                3,
+
+                            tension:
+                                0.25,
+
+                            fill:
+                                false,
+
+                            pointRadius:
+                                6,
+
+                            pointHoverRadius:
+                                8
+                        },
+
+
+                        {
+                            label:
+                                'Not Yet Predicted',
+
+                            data:
+                                notYetPredicted,
+
+                            borderColor:
+                                '#6c757d',
+
+                            backgroundColor:
+                                '#6c757d',
+
+                            borderWidth:
+                                3,
+
+                            tension:
+                                0.25,
+
+                            fill:
+                                false,
+
+                            pointRadius:
+                                6,
+
+                            pointHoverRadius:
+                                8
+                        }
+
+                    ]
+                },
+
+
+                options: {
+
+                    responsive:
+                        true,
+
+                    maintainAspectRatio:
+                        false,
+
+
+                    interaction: {
+
+                        mode:
+                            'index',
+
+                        intersect:
+                            false
+                    },
+
+
+                    plugins: {
+
+                        legend: {
+
+                            display:
+                                true,
+
+                            position:
+                                'bottom',
+
+                            labels: {
+
+                                usePointStyle:
                                     false,
 
-                                pointRadius:
-                                    6,
+                                padding:
+                                    20,
 
-                                pointHoverRadius:
-                                    8
+                                font: {
 
-                            },
+                                    size:
+                                        14
+                                }
+                            }
+                        },
 
 
-                            {
+                        tooltip: {
+
+                            enabled:
+                                true,
+
+                            callbacks: {
+
+                                title:
+                                    function (
+                                        context
+                                    ) {
+
+                                        return (
+                                            context[0]?.label ??
+                                            ''
+                                        );
+
+                                    },
+
 
                                 label:
-                                    'Moderately Effective',
+                                    function (
+                                        context
+                                    ) {
 
-                                data:
-                                    moderatelyEffective,
+                                        return (
+                                            context.dataset.label +
+                                            ': ' +
+                                            Number(
+                                                context.raw ?? 0
+                                            )
+                                        );
 
-                                borderColor:
-                                    '#ffc107',
-
-                                backgroundColor:
-                                    '#ffc107',
-
-                                borderWidth:
-                                    3,
-
-                                tension:
-                                    0.25,
-
-                                fill:
-                                    false,
-
-                                pointRadius:
-                                    6,
-
-                                pointHoverRadius:
-                                    8
-
-                            },
-
-
-                            {
-
-                                label:
-                                    'Not Effective',
-
-                                data:
-                                    notEffective,
-
-                                borderColor:
-                                    '#dc3545',
-
-                                backgroundColor:
-                                    '#dc3545',
-
-                                borderWidth:
-                                    3,
-
-                                tension:
-                                    0.25,
-
-                                fill:
-                                    false,
-
-                                pointRadius:
-                                    6,
-
-                                pointHoverRadius:
-                                    8
-
-                            },
-
-
-                            {
-
-                                label:
-                                    'Not Yet Predicted',
-
-                                data:
-                                    notYetPredicted,
-
-                                borderColor:
-                                    '#6c757d',
-
-                                backgroundColor:
-                                    '#6c757d',
-
-                                borderWidth:
-                                    3,
-
-                                tension:
-                                    0.25,
-
-                                fill:
-                                    false,
-
-                                pointRadius:
-                                    6,
-
-                                pointHoverRadius:
-                                    8
+                                    }
 
                             }
-
-                        ]
+                        }
 
                     },
 
 
-                    options: {
+                    scales: {
 
-                        responsive:
-                            true,
+                        y: {
 
-                        maintainAspectRatio:
-                            false,
+                            beginAtZero:
+                                true,
 
-                        interaction: {
+                            ticks: {
 
-                            mode:
-                                'index',
+                                precision:
+                                    0,
 
-                            intersect:
-                                false
+                                stepSize:
+                                    1
+                            },
 
-                        },
-
-
-                        plugins: {
-
-                            legend: {
+                            title: {
 
                                 display:
                                     true,
 
-                                position:
-                                    'bottom',
-
-                                labels: {
-
-                                    padding:
-                                        20,
-
-                                    font: {
-
-                                        size:
-                                            14
-
-                                    }
-
-                                }
-
-                            },
-
-
-                            tooltip: {
-
-                                enabled:
-                                    true
-
+                                text:
+                                    'Evaluation Records'
                             }
 
                         },
 
 
-                        scales: {
+                        x: {
 
-                            y: {
+                            title: {
 
-                                beginAtZero:
+                                display:
                                     true,
 
-                                ticks: {
-
-                                    precision:
-                                        0,
-
-                                    stepSize:
-                                        1
-
-                                },
-
-                                title: {
-
-                                    display:
-                                        true,
-
-                                    text:
-                                        'Evaluation Records'
-
-                                }
-
+                                text:
+                                    'Schedule'
                             },
 
+                            ticks: {
 
-                            x: {
+                                autoSkip:
+                                    false,
 
-                                title: {
+                                maxRotation:
+                                    45,
 
-                                    display:
-                                        true,
-
-                                    text:
-                                        'Schedule'
-
-                                },
-
-                                ticks: {
-
-                                    autoSkip:
-                                        false,
-
-                                    maxRotation:
-                                        45,
-
-                                    minRotation:
-                                        0
-
-                                }
-
+                                minRotation:
+                                    0
                             }
 
                         }
@@ -1291,13 +1745,13 @@ $(document).ready(function () {
                     }
 
                 }
-            );
 
-    }
-
+            }
+        );
+}
 
     /* ============================================================
-       YIELD TREND
+       3. YIELD TREND
     ============================================================ */
 
     function renderYieldChart(
@@ -1313,7 +1767,6 @@ $(document).ready(function () {
         if (!canvas) {
 
             return;
-
         }
 
 
@@ -1337,7 +1790,6 @@ $(document).ready(function () {
                         row.period ??
                         ''
                     );
-
                 }
             );
 
@@ -1350,7 +1802,6 @@ $(document).ready(function () {
                         row.yield_before ??
                         0
                     );
-
                 }
             );
 
@@ -1363,7 +1814,6 @@ $(document).ready(function () {
                         row.yield_after ??
                         0
                     );
-
                 }
             );
 
@@ -1374,7 +1824,10 @@ $(document).ready(function () {
                 {
 
                     type:
-                        'line',
+                        labels.length > 1
+                            ? 'line'
+                            : 'bar',
+
 
                     data: {
 
@@ -1402,7 +1855,6 @@ $(document).ready(function () {
 
                                 pointRadius:
                                     4
-
                             },
 
 
@@ -1425,11 +1877,8 @@ $(document).ready(function () {
 
                                 pointRadius:
                                     4
-
                             }
-
                         ]
-
                     },
 
 
@@ -1441,6 +1890,7 @@ $(document).ready(function () {
                         maintainAspectRatio:
                             false,
 
+
                         interaction: {
 
                             mode:
@@ -1448,7 +1898,6 @@ $(document).ready(function () {
 
                             intersect:
                                 false
-
                         },
 
 
@@ -1466,9 +1915,7 @@ $(document).ready(function () {
 
                                     text:
                                         'Yield (tons/ha)'
-
                                 }
-
                             },
 
 
@@ -1482,25 +1929,22 @@ $(document).ready(function () {
                                     text:
                                         period ===
                                         'monthly'
+
                                             ? 'Month'
+
                                             : 'Quarter'
-
                                 }
-
                             }
-
                         }
-
                     }
-
                 }
             );
-
     }
 
 
+
     /* ============================================================
-       SURVEY TREND
+       4. SURVEY TREND
     ============================================================ */
 
     function renderSurveyChart(
@@ -1516,7 +1960,6 @@ $(document).ready(function () {
         if (!canvas) {
 
             return;
-
         }
 
 
@@ -1540,7 +1983,6 @@ $(document).ready(function () {
                         row.period ??
                         ''
                     );
-
                 }
             );
 
@@ -1553,7 +1995,6 @@ $(document).ready(function () {
                         row.average_rating ??
                         0
                     );
-
                 }
             );
 
@@ -1564,7 +2005,10 @@ $(document).ready(function () {
                 {
 
                     type:
-                        'line',
+                        labels.length > 1
+                            ? 'line'
+                            : 'bar',
+
 
                     data: {
 
@@ -1592,11 +2036,8 @@ $(document).ready(function () {
 
                                 pointRadius:
                                     4
-
                             }
-
                         ]
-
                     },
 
 
@@ -1607,6 +2048,7 @@ $(document).ready(function () {
 
                         maintainAspectRatio:
                             false,
+
 
                         scales: {
 
@@ -1622,7 +2064,6 @@ $(document).ready(function () {
 
                                     stepSize:
                                         1
-
                                 },
 
                                 title: {
@@ -1632,9 +2073,7 @@ $(document).ready(function () {
 
                                     text:
                                         'Average Rating'
-
                                 }
-
                             },
 
 
@@ -1648,25 +2087,22 @@ $(document).ready(function () {
                                     text:
                                         period ===
                                         'monthly'
+
                                             ? 'Month'
+
                                             : 'Quarter'
-
                                 }
-
                             }
-
                         }
-
                     }
-
                 }
             );
-
     }
 
 
+
     /* ============================================================
-       DISTRIBUTION TREND
+       5. DISTRIBUTION TREND
     ============================================================ */
 
     function renderDistributionChart(
@@ -1682,7 +2118,6 @@ $(document).ready(function () {
         if (!canvas) {
 
             return;
-
         }
 
 
@@ -1706,7 +2141,6 @@ $(document).ready(function () {
                         row.period ??
                         ''
                     );
-
                 }
             );
 
@@ -1717,12 +2151,16 @@ $(document).ready(function () {
                 {
 
                     type:
-                        'line',
+                        labels.length > 1
+                            ? 'line'
+                            : 'bar',
+
 
                     data: {
 
                         labels:
                             labels,
+
 
                         datasets: [
 
@@ -1741,7 +2179,6 @@ $(document).ready(function () {
                                                 row.received ??
                                                 0
                                             );
-
                                         }
                                     ),
 
@@ -1753,7 +2190,6 @@ $(document).ready(function () {
 
                                 borderWidth:
                                     2
-
                             },
 
 
@@ -1772,7 +2208,6 @@ $(document).ready(function () {
                                                 row.not_received ??
                                                 0
                                             );
-
                                         }
                                     ),
 
@@ -1784,7 +2219,6 @@ $(document).ready(function () {
 
                                 borderWidth:
                                     2
-
                             },
 
 
@@ -1803,7 +2237,6 @@ $(document).ready(function () {
                                                 row.rescheduled ??
                                                 0
                                             );
-
                                         }
                                     ),
 
@@ -1815,7 +2248,35 @@ $(document).ready(function () {
 
                                 borderWidth:
                                     2
+                            },
 
+
+                            {
+
+                                label:
+                                    'Pending',
+
+                                data:
+                                    data.map(
+                                        function (
+                                            row
+                                        ) {
+
+                                            return Number(
+                                                row.pending ??
+                                                0
+                                            );
+                                        }
+                                    ),
+
+                                tension:
+                                    0.3,
+
+                                fill:
+                                    false,
+
+                                borderWidth:
+                                    2
                             },
 
 
@@ -1834,7 +2295,6 @@ $(document).ready(function () {
                                                 row.cancelled ??
                                                 0
                                             );
-
                                         }
                                     ),
 
@@ -1846,11 +2306,8 @@ $(document).ready(function () {
 
                                 borderWidth:
                                     2
-
                             }
-
                         ]
-
                     },
 
 
@@ -1862,6 +2319,7 @@ $(document).ready(function () {
                         maintainAspectRatio:
                             false,
 
+
                         interaction: {
 
                             mode:
@@ -1869,7 +2327,6 @@ $(document).ready(function () {
 
                             intersect:
                                 false
-
                         },
 
 
@@ -1884,7 +2341,6 @@ $(document).ready(function () {
 
                                     precision:
                                         0
-
                                 },
 
                                 title: {
@@ -1894,9 +2350,7 @@ $(document).ready(function () {
 
                                     text:
                                         'Distribution Records'
-
                                 }
-
                             },
 
 
@@ -1910,57 +2364,53 @@ $(document).ready(function () {
                                     text:
                                         period ===
                                         'monthly'
+
                                             ? 'Month'
+
                                             : 'Quarter'
-
                                 }
-
                             }
-
                         }
-
                     }
-
                 }
             );
-
     }
 
 
+function renderAllCharts() {
+
+    const period =
+        trendPeriod
+            ? trendPeriod.value
+            : 'monthly';
+
+
+    renderYieldChart(
+        period
+    );
+
+
+    /*
+     * EFFECTIVENESS:
+     * ALWAYS EVERY SCHEDULE
+     */
+    renderEffectivenessChart();
+
+
+    renderSurveyChart(
+        period
+    );
+
+
+    renderDistributionChart(
+        period
+    );
+}
+
+
+
     /* ============================================================
-       RENDER ALL CHARTS
-    ============================================================ */
-
-    function renderAllCharts() {
-
-        const period =
-            trendPeriod
-                ? trendPeriod.value
-                : 'monthly';
-
-
-        renderYieldChart(
-            period
-        );
-
-
-        renderEffectivenessChart();
-
-
-        renderSurveyChart(
-            period
-        );
-
-
-        renderDistributionChart(
-            period
-        );
-
-    }
-
-
-    /* ============================================================
-       PERIOD CHANGE
+       MONTHLY / QUARTERLY
     ============================================================ */
 
     if (trendPeriod) {
@@ -1973,17 +2423,18 @@ $(document).ready(function () {
 
             }
         );
-
     }
 
 
+
     /* ============================================================
-       INITIAL CHART RENDER
+       INITIAL RENDER
     ============================================================ */
 
     renderAllCharts();
 
 
+    
     /* ============================================================
        SUBSIDY RECEIVED LOCATION FILTER
     ============================================================ */
@@ -2528,4 +2979,5 @@ $(document).ready(function () {
     );
 
 });
+
 </script>

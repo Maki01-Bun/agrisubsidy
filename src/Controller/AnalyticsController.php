@@ -84,8 +84,7 @@ class AnalyticsController extends AppController
          * =====================================================
          * FEEDBACK MAP
          * =====================================================
-         */
-
+                        $effectivenessRecords
         $feedbackMap = [];
 
         foreach ($feedbacks as $feedback) {
@@ -98,6 +97,8 @@ class AnalyticsController extends AppController
 
         /*
          * =====================================================
+                        $evaluations
+                    );
          * EFFECTIVENESS COUNTERS
          * =====================================================
          */
@@ -134,7 +135,6 @@ class AnalyticsController extends AppController
              * ORIGINAL DATABASE VALUE
              * -------------------------------------------------
              */
-
             $rawValue =
                 $evaluation->effectiveness_label
                 ?? null;
@@ -287,6 +287,12 @@ class AnalyticsController extends AppController
                 'evaluation_id' =>
                     (int)$evaluation->id,
 
+                'schedule_id' =>
+                    (int)(
+                        $evaluation->schedule_id
+                        ?? 0
+                    ),
+
                 'effectiveness_label' =>
                     $value,
 
@@ -357,8 +363,7 @@ class AnalyticsController extends AppController
 
         $effectivenessTrend =
             $this->buildEffectivenessTrend(
-                $effectivenessRecords,
-                $feedbackMap
+                $effectivenessRecords
             );
 
 
@@ -383,6 +388,7 @@ class AnalyticsController extends AppController
         $allRecords =
             $this->Records
                 ->find()
+                ->contain(['Schedules'])
                 ->order([
                     'Records.id' => 'ASC'
                 ])
@@ -495,7 +501,10 @@ class AnalyticsController extends AppController
          * =====================================================
          */
 
-        $yieldTrend = [];
+        $yieldTrend =
+            $this->buildYieldTrend(
+                $evaluations
+            );
 
 
         /*
@@ -828,6 +837,112 @@ class AnalyticsController extends AppController
         $scheduleTrend
     );
 }
+    private function buildYieldTrend(
+        array $evaluations
+    ): array {
+
+        $monthly = [];
+
+        $quarterly = [];
+
+
+        foreach ($evaluations as $evaluation) {
+
+            $date =
+                $this->toDateTime(
+                    $evaluation->created
+                    ?? null
+                );
+
+            $before =
+                $evaluation->average_yield
+                ?? null;
+
+            $after =
+                $evaluation->crop_yield_after
+                ?? null;
+
+            if (
+                $date === null ||
+                !is_numeric($before) ||
+                !is_numeric($after)
+            ) {
+                continue;
+            }
+
+            $quarter =
+                (int)ceil(
+                    (int)$date->format('n') / 3
+                );
+
+            $periods = [
+                [
+                    'rows' => &$monthly,
+                    'key' => $date->format('Y-m'),
+                    'period' => $date->format('F Y'),
+                    'period_type' => 'monthly'
+                ],
+                [
+                    'rows' => &$quarterly,
+                    'key' => $date->format('Y') . '-Q' . $quarter,
+                    'period' => 'Q' . $quarter . ' ' . $date->format('Y'),
+                    'period_type' => 'quarterly'
+                ]
+            ];
+
+            foreach ($periods as $period) {
+
+                $key = $period['key'];
+
+                if (!isset($period['rows'][$key])) {
+                    $period['rows'][$key] = [
+                        'period' => $period['period'],
+                        'period_type' => $period['period_type'],
+                        'yield_before_sum' => 0,
+                        'yield_after_sum' => 0,
+                        'count' => 0
+                    ];
+                }
+
+                $period['rows'][$key]['yield_before_sum'] +=
+                    (float)$before;
+
+                $period['rows'][$key]['yield_after_sum'] +=
+                    (float)$after;
+
+                $period['rows'][$key]['count']++;
+            }
+        }
+
+        $trend = [];
+
+        foreach (
+            ['monthly' => $monthly, 'quarterly' => $quarterly]
+            as $periodType => $rows
+        ) {
+
+            ksort($rows);
+
+            foreach ($rows as $row) {
+                $trend[] = [
+                    'period' => $row['period'],
+                    'period_type' => $periodType,
+                    'yield_before' => round(
+                        $row['yield_before_sum'] / $row['count'],
+                        2
+                    ),
+                    'yield_after' => round(
+                        $row['yield_after_sum'] / $row['count'],
+                        2
+                    )
+                ];
+            }
+        }
+
+        return $trend;
+    }
+
+
     /*
      * =========================================================
      * SURVEY TREND
@@ -1107,7 +1222,13 @@ class AnalyticsController extends AppController
                 $this->toDateTime(
                     $record->distribution_date
                     ??
+                    $record->schedule->start_date
+                    ??
+                    $record->created_at
+                    ??
                     $record->created
+                    ??
+                    $record->received_date
                     ??
                     null
                 );
@@ -1158,6 +1279,9 @@ class AnalyticsController extends AppController
                         0,
 
                     'cancelled' =>
+                        0,
+
+                    'pending' =>
                         0
                 ];
             }
@@ -1201,6 +1325,15 @@ class AnalyticsController extends AppController
                 $monthly[
                     $monthKey
                 ]['cancelled']++;
+            }
+
+            elseif (
+                $status === 'pending'
+            ) {
+
+                $monthly[
+                    $monthKey
+                ]['pending']++;
             }
 
 
@@ -1245,6 +1378,9 @@ class AnalyticsController extends AppController
                         0,
 
                     'cancelled' =>
+                        0,
+
+                    'pending' =>
                         0
                 ];
             }
@@ -1288,6 +1424,15 @@ class AnalyticsController extends AppController
                 $quarterly[
                     $quarterKey
                 ]['cancelled']++;
+            }
+
+            elseif (
+                $status === 'pending'
+            ) {
+
+                $quarterly[
+                    $quarterKey
+                ]['pending']++;
             }
         }
 

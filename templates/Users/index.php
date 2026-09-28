@@ -38,35 +38,33 @@
                     <?= $this->Form->control('username',['class'=>'form-control','label'=>false]) ?>
                     <label for="email">Email</label>
                     <?= $this->Form->control('email',['class'=>'form-control','label'=>false]) ?>
-     <label for="password">Password</label>
+                        <label for="password">Password</label>
+                    <div style="position:relative;">
+                        <?= $this->Form->control('password', [
+                            'class' => 'form-control',
+                            'label' => false,
+                            'id' => 'password',
+                            'type' => 'password',
+                            'required' => true,
+                            'pattern' => '(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}',
+                            'title' => 'Password must be at least 8 characters and contain at least one uppercase letter, one lowercase letter, one number, and one special character.'
+                        ]) ?>
 
-<div style="position:relative;">
-    <?= $this->Form->control('password', [
-        'class' => 'form-control',
-        'label' => false,
-        'id' => 'password',
-        'type' => 'password',
-        'required' => true,
-        'pattern' => '(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}',
-        'title' => 'Password must be at least 8 characters and contain at least one uppercase letter, one lowercase letter, one number, and one special character.'
-    ]) ?>
-
-    <i class="fas fa-eye"
-       onclick="let p=document.getElementById('password'); p.type=p.type==='password'?'text':'password'; this.classList.toggle('fa-eye-slash');"
-       style="position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer;">
-    </i>
-</div>
-
-<div id="password-rule" style="font-size:13px; margin-top:5px;">
-    Password must contain:
-    <ul style="margin:4px 0 0 18px; padding:0;">
-        <li>At least 8 characters</li>
-        <li>One uppercase letter</li>
-        <li>One lowercase letter</li>
-        <li>One number</li>
-        <li>One special character</li>
-    </ul>
-</div>
+                        <i class="fas fa-eye"
+                        onclick="let p=document.getElementById('password'); p.type=p.type==='password'?'text':'password'; this.classList.toggle('fa-eye-slash');"
+                        style="position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer;">
+                        </i>
+                    </div>
+                    <div id="password-rule" style="font-size:13px; margin-top:5px;">
+                        Password must contain:
+                        <ul style="margin:4px 0 0 18px; padding:0;">
+                            <li>At least 8 characters</li>
+                            <li>One uppercase letter</li>
+                            <li>One lowercase letter</li>
+                            <li>One number</li>
+                            <li>One special character</li>
+                        </ul>
+                    </div>
                     <div id="role-field" style="display: none;">
 
                         <label for="role">Role</label>

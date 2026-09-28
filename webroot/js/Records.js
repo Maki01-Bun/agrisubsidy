@@ -124,9 +124,7 @@ function getRecords()
                     var option = '<div style="text-align:center;">' + '<a href="" class="edit" ' + 'data-toggle="tooltip" ' + 'data-placement="bottom" ' +
                     'title="Edit Record" ' + 'data-id="' + data.id + '">' + '<i class="fa fas fa-pen"></i>' + '</a>' + ' | ' +
                     '<a href="" class="delete text-danger" ' + 'data-toggle="tooltip" ' + 'data-placement="bottom" ' + 'title="Delete Record" ' +
-                    'data-id="' + data.id + '">' + '<i class="fa fa-trash"></i>' + '</a>' + ' | ' + '<a href="javascript:void(0)" ' + 'class="text-info" ' + 
-                    'onclick="viewRecord(' + data.id + ')" ' + 'data-toggle="tooltip" ' + 'data-placement="bottom" ' + 'title="View Record" ' + 'data-id="' + data.id + '">' + 
-                    '<i class="fa fa-eye"></i>' + '</a>' + '</div>';
+                    'data-id="' + data.id + '">' + '<i class="fa fa-trash"></i>' + '</a>' + '</div>';
                     return option;
                 }
             }

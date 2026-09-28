@@ -318,9 +318,9 @@
                         'type' => 'select',
                         'options' => $schedules,
                         'empty' => '-- Select Schedule --',
-                        'class' => 'form-control',
                         'label' => false,
-                        'id' => 'schedule_id'
+                        'id' => 'schedule_id',
+                        'class' => 'form-control'
                     ]) ?>
                     <label for="distribution-date">Distribution Date</label>
                     <?= $this->Form->control('distribution_date', [

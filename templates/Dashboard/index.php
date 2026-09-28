@@ -2176,22 +2176,6 @@ $(document).ready(function () {
         ]) ?>';
 
 
-
-    /* ============================================================
-       REAL-TIME REGISTRATION REQUEST TIME
-
-       The notification timestamp is handled as an absolute Unix
-       timestamp. This means the browser never guesses the timezone.
-
-       PHP provides the current server epoch time when the page loads.
-       JavaScript then keeps that server clock moving using elapsed
-       browser time. The relative age therefore does not depend on the
-       Windows/browser timezone or clock being correct.
-
-       The exact timestamp under the relative time is rendered by PHP
-       in Asia/Manila time.
-       ============================================================ */
-
     const serverNowAtLoad =
         <?= time() * 1000 ?>;
 
