@@ -16,7 +16,7 @@ class FeedbacksController extends AppController
      * @return \Cake\Http\Response|null|void Renders view
      */
 
-  public function index()
+ public function index()
 {
     // =========================================================
     // LOAD MODELS
@@ -36,6 +36,7 @@ class FeedbacksController extends AppController
     $farms = [];
     $farmSizes = [];
     $schedules = [];
+    $scheduleFarmOptions = [];
     $farmerName = '';
 
 
@@ -87,6 +88,7 @@ class FeedbacksController extends AppController
             'farmSizes' => [],
             'farmerName' => '',
             'schedules' => [],
+            'scheduleFarmOptions' => [],
             'rice_type' => [
                 0 => 'Hybrid',
                 1 => 'Inbred'
@@ -323,6 +325,11 @@ class FeedbacksController extends AppController
 
             $scheduleId = (int)$schedule->id;
 
+            // Exclude schedules whose own status is still Scheduled or cancelled.
+            $scheduleStatus = strtolower(trim((string)($schedule->status ?? '')));
+            if (in_array($scheduleStatus, ['scheduled', 'cancelled', 'canceled'], true)) {
+                continue;
+            }
 
             // =================================================
             // CHECK CANCELLED
@@ -689,11 +696,16 @@ class FeedbacksController extends AppController
 
 
         // =====================================================
-        // STORE FARM SCHEDULES
+        // STORE GLOBAL SCHEDULES AND VALID FARM/SCHEDULE PAIRS
         // =====================================================
 
-        $schedules[$farmId] =
-            $farmSchedules;
+        foreach ($farmSchedules as $eligibleScheduleId => $eligibleLabel) {
+            if (!isset($schedules[$eligibleScheduleId])) {
+                $schedules[$eligibleScheduleId] = $eligibleLabel;
+            }
+
+            $scheduleFarmOptions[$eligibleScheduleId][$farmId] = true;
+        }
 
 
         $farmNumber++;
@@ -731,6 +743,9 @@ class FeedbacksController extends AppController
 
         'schedules' =>
             $schedules,
+
+        'scheduleFarmOptions' =>
+            $scheduleFarmOptions,
 
         'rice_type' =>
             $rice_type
@@ -893,12 +908,11 @@ public function survey()
         );
 
     if (
-        $scheduleStatus === 'cancelled' ||
-        $scheduleStatus === 'canceled'
+        in_array($scheduleStatus, ['scheduled', 'cancelled', 'canceled'], true)
     ) {
 
         $this->Flash->error(
-            'This schedule has been cancelled and cannot be evaluated.'
+            'This schedule is not completed or has been cancelled and cannot be evaluated.'
         );
 
         return $this->redirect(

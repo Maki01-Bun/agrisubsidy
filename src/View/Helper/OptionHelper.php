@@ -21,7 +21,7 @@ class OptionHelper extends Helper
     public function roles()
     {
         $array =[
-            'farmer'=>'Farmer',
+            'admin'=>'Admin',
             'staff'=>'Staff'
         ];
 

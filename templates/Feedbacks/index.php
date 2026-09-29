@@ -1210,6 +1210,13 @@ $(document).ready(function () {
         JSON_UNESCAPED_UNICODE
     ) ?>;
 
+    // Valid farm IDs for each schedule, based on the controller's
+    // completed-schedule, barangay, cancellation, and duplicate checks.
+    const scheduleFarmOptions = <?= json_encode(
+        $scheduleFarmOptions ?? [],
+        JSON_UNESCAPED_UNICODE
+    ) ?>;
+
 
     // =========================================================
     // ELEMENTS
@@ -1724,6 +1731,39 @@ $(document).ready(function () {
 
 
     // =========================================================
+    // FILTER FARMS BY THE SELECTED SCHEDULE
+    // =========================================================
+
+    const allFarmOptions = [];
+    farmSelect.find('option').each(function () {
+        allFarmOptions.push({ value: this.value, text: $(this).text() });
+    });
+
+    function filterFarmsForSchedule() {
+        const selectedSchedule = String(scheduleSelect.val() || '');
+        const selectedFarm = String(farmSelect.val() || '');
+        const allowedFarms = scheduleFarmOptions[selectedSchedule] || {};
+
+        farmSelect.empty();
+        farmSelect.append($('<option>', { value: '', text: '-- Select Farm --' }));
+
+        allFarmOptions.forEach(function (option) {
+            if (option.value !== '' && allowedFarms[String(option.value)]) {
+                farmSelect.append($('<option>', { value: option.value, text: option.text }));
+            }
+        });
+
+        if (selectedFarm && allowedFarms[selectedFarm]) {
+            farmSelect.val(selectedFarm);
+        } else {
+            farmSelect.val('');
+        }
+
+        calculateAverageYield();
+    }
+
+
+    // =========================================================
     // FARM CHANGE
     //
     // IMPORTANT:
@@ -1764,15 +1804,7 @@ $(document).ready(function () {
     scheduleSelect.on(
         'change',
         function () {
-
-            // Nothing else should change.
-            //
-            // Selecting a schedule does NOT:
-            // - change Farm
-            // - remove Farm
-            // - change Rice Type
-            // - recalculate Farm size
-
+            filterFarmsForSchedule();
         }
     );
 
@@ -1781,7 +1813,7 @@ $(document).ready(function () {
     // FORM SUBMIT
     // =========================================================
 
-    $('#surveyForm').on(
+    $('#evaluations-form').on(
         'submit',
         function (event) {
 
@@ -1931,6 +1963,8 @@ $(document).ready(function () {
     // =========================================================
 
     loadSchedules();
+
+    filterFarmsForSchedule();
 
 
     // =========================================================

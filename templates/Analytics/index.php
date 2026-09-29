@@ -1,340 +1,239 @@
 <div class="analytics-page">
-
-    <!-- =========================================================
-         PAGE TITLE
-    ========================================================= -->
-
     <div class="analytics-title">
-
         <i class="fas fa-chart-line"></i>
-
         AgriSubsidy Data Analytics
-
     </div>
-
-
-    <!-- =========================================================
-         MODEL SUMMARY
-    ========================================================= -->
-
     <div class="row g-3">
-
         <!-- MODEL STATUS -->
-
         <div class="col-lg-6 col-md-6">
-
             <div class="model-card">
-
                 <div class="model-icon">
-
                     <i class="fas fa-brain"></i>
-
                 </div>
-
                 <div>
-
                     <div class="model-label">
                         Model Status
                     </div>
-
                     <div class="model-value text-success">
                         Active
                     </div>
-
                     <small>
                         Random Forest Classifier
                     </small>
-
                 </div>
-
             </div>
-
         </div>
-
-
         <!-- DATA USED -->
-
         <div class="col-lg-6 col-md-6">
-
             <div class="model-card">
-
                 <div class="model-icon">
                     <i class="fas fa-database"></i>
-
                 </div>
-
                 <div>
-
                     <div class="model-label">
                         Data Used
                     </div>
-
                     <div class="model-value">
-
                         <?= number_format(
                             $totalEvaluations
                         ) ?>
-
                     </div>
-
                     <small>
                         Evaluation Records
                     </small>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
-
     <!-- =========================================================
          TREND ANALYSIS
     ========================================================= -->
-
     <div class="card analytics-trend-card mt-3">
-
         <div class="analytics-trend-header">
-
             <div class="analytics-trend-header-inner">
-
                 <div class="analytics-trend-title">
-
                     <h3>
-
                         <i class="fas fa-chart-line"></i>
-
                         Trend Analysis
-
                     </h3>
-
                     <p>
                         Monitor yield, effectiveness,
                         survey ratings, and subsidy
                         distribution over time.
                     </p>
-
                 </div>
-
-
                 <!-- PERIOD -->
-
                 <div class="analytics-trend-filter">
-
                     <label for="trendPeriod">
                         View By
                     </label>
-
                     <select
                         id="trendPeriod"
-                        class="form-control"
-                    >
-
+                        class="form-control">
                         <option value="monthly">
                             Monthly
                         </option>
-
                         <option value="quarterly">
                             Quarterly
                         </option>
-
                     </select>
-
                 </div>
-
             </div>
-
         </div>
-
-
         <div class="analytics-trend-body">
-
-
-            <!-- =================================================
-                 YIELD TREND
-            ================================================== -->
-
-            <div class="trend-panel">
-
-                <div class="trend-panel-header">
-
-                    <div>
-
-                        <h4>
-
-                            <i class="fas fa-seedling"></i>
-
-                            Yield Trend
-
-                        </h4>
-
-                        <small>
-                            Average yield before and after
-                            the subsidy.
-                        </small>
-
-                    </div>
-
-                </div>
-
-
-                <div class="trend-chart-container">
-
-                    <canvas
-                        id="yieldTrendChart"
-                    ></canvas>
-
-                </div>
-
-            </div>
-
-
             <!-- =================================================
                  EFFECTIVENESS TREND
             ================================================== -->
-
             <div class="trend-panel">
-
                 <div class="trend-panel-header">
-
                     <div>
-
                         <h4>
-
                             <i class="fas fa-chart-bar"></i>
-
                             Effectiveness Trend
-
                         </h4>
-
                         <small>
                             Evaluation results over time.
                         </small>
-
                     </div>
-
                 </div>
-
-
                 <div class="trend-chart-container">
-
                     <canvas
                         id="effectivenessTrendChart"
                     ></canvas>
-
                 </div>
-
             </div>
-
-
             <!-- =================================================
                  SURVEY TREND
             ================================================== -->
-
             <div class="trend-panel">
-
                 <div class="trend-panel-header">
-
                     <div>
-
                         <h4>
-
                             <i class="fas fa-star"></i>
-
                             Survey Rating Trend
-
                         </h4>
-
                         <small>
                             Average Q1–Q10 survey rating
                             over time.
                         </small>
-
                     </div>
-
                 </div>
-
-
                 <div class="trend-chart-container">
-
                     <canvas
                         id="surveyTrendChart"
                     ></canvas>
-
                 </div>
-
             </div>
-
-
             <!-- =================================================
                  DISTRIBUTION TREND
             ================================================== -->
-
             <div class="trend-panel">
-
                 <div class="trend-panel-header">
-
                     <div>
-
                         <h4>
-
                             <i class="fas fa-truck-loading"></i>
-
                             Subsidy Distribution Trend
-
                         </h4>
-
                         <small>
                             Distribution records by status
                             over time.
                         </small>
-
                     </div>
-
                 </div>
-
-
                 <div class="trend-chart-container">
-
                     <canvas
                         id="distributionTrendChart"
                     ></canvas>
-
                 </div>
-
             </div>
-
-
+        </div>
+    </div>
+    <!-- ML Model Evaluation Results Section -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 text-dark"><i class="fas fa-brain me-2"></i> ML Subsidy Effectiveness Model Summary</h5>
+        <span class="badge bg-light text-primary fs-6">
+            Overall Status: <?= h($modelEvaluationSummary['evaluation_summary']['overall_effectiveness']) ?>
+        </span>
+    </div>
+    <div class="card-body">
+        
+        <!-- Key Metrics Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="border rounded p-3 text-center bg-light">
+                    <div class="text-muted small">Total Respondents</div>
+                    <div class="fs-4 fw-bold"><?= h($modelEvaluationSummary['evaluation_summary']['total_respondents']) ?></div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="border rounded p-3 text-center bg-light">
+                    <div class="text-muted small">Overall Confidence</div>
+                    <div class="fs-4 fw-bold text-success"><?= h($modelEvaluationSummary['evaluation_summary']['overall_confidence']) ?>%</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="border rounded p-3 text-center bg-light">
+                    <div class="text-muted small">Avg Yield / Hectare</div>
+                    <div class="fs-4 fw-bold"><?= h($modelEvaluationSummary['evaluation_summary']['average_yield_per_hectare']) ?> tons/ha</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="border rounded p-3 text-center bg-light">
+                    <div class="text-muted small">Avg Questionnaire Score</div>
+                    <div class="fs-4 fw-bold"><?= h($modelEvaluationSummary['evaluation_summary']['average_questionnaire_score']) ?> / 5</div>
+                </div>
+            </div>
         </div>
 
+        <!-- Summary Paragraph -->
+        <div class="alert alert-info border-info mb-4">
+            <i class="fas fa-info-circle me-1"></i> <?= h($modelEvaluationSummary['summary']) ?>
+        </div>
+
+        <!-- Prediction Distribution Breakdown -->
+        <h6 class="fw-bold mb-3">Prediction Distribution Breakdown</h6>
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Effectiveness Level</th>
+                        <th>Record Count</th>
+                        <th>Prediction Share (%)</th>
+                        <th>Model Score (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($modelEvaluationSummary['prediction_distribution'] as $level => $data): ?>
+                    <tr>
+                        <td>
+                            <span class="badge <?= $level === 'High' ? 'bg-success' : ($level === 'Moderate' ? 'bg-warning text-dark' : 'bg-danger') ?>">
+                                <?= h($level) ?>
+                            </span>
+                        </td>
+                        <td><?= h($data['count']) ?></td>
+                        <td><?= h($data['percentage']) ?>%</td>
+                        <td><?= h($modelEvaluationSummary['model_distribution'][$level] ?? 0) ?>%</td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
-
-
+</div>  
     <!-- =========================================================
          SUBSIDY RECEIVED RECORDS
     ========================================================= -->
-
     <div class="card subsidy-received-card mt-3">
-
         <div class="subsidy-received-header">
-
             <div class="subsidy-received-header-inner">
-
                 <div class="subsidy-received-title">
-
                     <h3>
                         Beneficiaries Received the Subsidy
                     </h3>
-
                 </div>
-
-
                 <div class="subsidy-received-tools">
-
                      <div class="subsidy-location-filter">
-
                         <?= $this->Form->control(
                             'receivedLocationFilter',
                             [
@@ -356,10 +255,7 @@
                                     'receivedLocationFilter'
                             ]
                         ) ?>
-
                     </div>
-
-
                     <button
                         type="button"
                         id="downloadReceivedSubsidy"
@@ -367,14 +263,9 @@
                     >
                         Download
                     </button>
-
                 </div>
-
             </div>
-
         </div>
-
-
         <div class="subsidy-received-body">
 
             <?php
